@@ -16,6 +16,22 @@ vehiclesByClass[12] = {459, 543, 422, 583, 482, 478, 605, 554, 530, 418, 572, 58
 vehiclesByClass[13] = {588, 423, 573, 416, 427, 528, 601, 428, 508, 444, 556, 557} -- medium trucks
 vehiclesByClass[14] = {499, 609, 403, 498, 514, 524, 532, 414, 578, 443, 486, 515, 406, 531, 456, 455, 431, 437, 408, 433, 432, 407, 544} -- heavy trucks
 
+local vehiclesTypeByClass = {}
+vehiclesTypeByClass[1] = "Toy"
+vehiclesTypeByClass[2] = "Fast bike"
+vehiclesTypeByClass[3] = "Bike/kart"
+vehiclesTypeByClass[4] = "Fastest car"
+vehiclesTypeByClass[5] = "Fast car"
+vehiclesTypeByClass[6] = "2-door car"
+vehiclesTypeByClass[7] = "Fast 4-door car"
+vehiclesTypeByClass[8] = "Heavy 2-door car"
+vehiclesTypeByClass[9] = "4-door"
+vehiclesTypeByClass[10] = "Heavy 4-door car"
+vehiclesTypeByClass[11] = "SUV"
+vehiclesTypeByClass[12] = "Light truck/van"
+vehiclesTypeByClass[13] = "Medium truck"
+vehiclesTypeByClass[14] = "Heavy truck"
+
 local dropThresholds = {}
 dropThresholds[1] = 8
 dropThresholds[2] = 10
@@ -32,6 +48,8 @@ dropThresholds[12] = 65
 dropThresholds[13] = 110
 dropThresholds[14] = 300
 
+local THRESHOLD_MULTIPLIER = 1
+
 function getDropThresholdFromVehicle(vehicle)
 	local vehicleType = getVehicleType(vehicle)
 	if (vehicleType == "Plane" or vehicleType == "Helicopter" or vehicleType == "Boat" or vehicleType == "Train" or vehicleType == "Trailer") then
@@ -40,27 +58,37 @@ function getDropThresholdFromVehicle(vehicle)
 	else -- if automobile/bike
 		-- check if we have a value for our vehicle ID
 		local vehID = getElementModel(vehicle)
-		local index = false
-		for i,v in ipairs(vehiclesByClass) do
-			local found = false
-			for j,id in ipairs(v) do
-				if (id == vehID) then
-					found = true
-					break
-				end
-			end
-			if (found) then
-				index = i
-				break
-			end
-		end
+		local index = getVehicleClassIndexFromId(vehID)
 		if (index and dropThresholds[index]) then
-			return dropThresholds[index]
+			return dropThresholds[index] * THRESHOLD_MULTIPLIER
 		else
 --outputChatBox("damage required to drop: 1000 (unsupported vehicle 2)")
 			return 40
 		end
 	end
+end
+
+function getVehicleClassNameFromId(vehID)
+	local index = getVehicleClassIndexFromId(vehID)
+	return vehiclesTypeByClass[index]
+end
+
+function getVehicleClassIndexFromId(vehID)
+	local index = false
+	for i,v in ipairs(vehiclesByClass) do
+		local found = false
+		for j,id in ipairs(v) do
+			if (id == vehID) then
+				found = true
+				break
+			end
+		end
+		if (found) then
+			index = i
+			break
+		end
+	end
+	return index;
 end
 
 addCommandHandler("printvehiclethresholds",
@@ -76,3 +104,9 @@ function (player, command)
 	end
 end
 )
+
+function changeThresholdMultiplier ( sourcePlayer , command, arg1)
+	THRESHOLD_MULTIPLIER = tonumber(arg1);
+	outputConsole(" Threshold multiplier: " .. THRESHOLD_MULTIPLIER, sourcePlayer)
+end
+addCommandHandler ( "hp", changeThresholdMultiplier )

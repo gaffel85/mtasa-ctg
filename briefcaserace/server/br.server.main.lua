@@ -539,7 +539,9 @@ function intiateCarVote()
 		local car = allCars[carIndex]
   	table.insert(VOTABLE_CARS, car)
 
-		outputChatBox ( "[" .. i .."] " .. getVehicleNameFromModel(car), getRootElement(), 255, 255, 255 )
+		local carName = getVehicleNameFromModel(car)
+		local carClass = getVehicleClassNameFromId(car)
+		outputChatBox ( "[" .. i .."] " .. carName .. "(" .. carClass .. ")", getRootElement(), 255, 255, 255 )
 	end
 end
 
