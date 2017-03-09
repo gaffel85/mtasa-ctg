@@ -24,7 +24,7 @@ addEventHandler("onResourceStart", getResourceRootElement(getThisResource()),
 function (resource)
 
 	local resourceRoot = getResourceRootElement(resource)
-	
+
 	addEventHandler( "onGamemodeMapStart", root,		onGamemodeMapStart_brmain)
 
 	addEventHandler( "onResourceStart", root,			onResourceStart_brmain)
@@ -90,7 +90,9 @@ function onGamemodeMapStart_brmain(resource)
 		runningMap = resource
 		addEventHandler("onResourceStop", getResourceRootElement(resource), onGamemodeMapStop_brmain)
 		-- start the game (creates ready players, enables spawning/team selection, creates briefcase and objective(s))
+
 		startGame()
+		changeVehicleModels()
 	end
 end
 
@@ -252,6 +254,8 @@ function onPlayerJoin_varTeams()
 		updateTeamMenu()
 		outputDebugString("varteams - Created one team on player join.")
 	end
+
+	bindKey ( source, "x", "down", intiateCarVote )
 end
 addEventHandler("onPlayerJoin", root, onPlayerJoin_varTeams)
 
@@ -509,3 +513,111 @@ function readMapSettings(resource)
 		settings.dbg = dbg
 	end
 end
+
+
+local CAR_MODEL_ID = 490
+local VOTABLE_CARS = {402,403,404,405}
+local CAR_VOTES = {}
+
+function changeVehicleModels()
+	local cars = getElementsByType("vehicle")
+
+	for i,car in ipairs(cars) do
+		setElementModel (car, CAR_MODEL_ID)
+	end
+end
+
+function intiateCarVote()
+	VOTABLE_CARS = {}
+	CAR_VOTES = {}
+	local allCars = getValidVehicleModels ()
+
+	outputChatBox ( "Press T and type the number of next car.", getRootElement(), 255, 255, 255 )
+	outputChatBox ( "[0] No change", getRootElement(), 255, 255, 255 )
+	for i=1,4,1 do
+		local carIndex = math.random(1, #allCars)
+		local car = allCars[carIndex]
+  	table.insert(VOTABLE_CARS, car)
+
+		outputChatBox ( "[" .. i .."] " .. getVehicleNameFromModel(car), getRootElement(), 255, 255, 255 )
+	end
+end
+
+function getValidVehicleModels ( )
+	local validVehicles = { }
+	local invalidModels = {
+		['435']=true, ['449']=true, ['450']=true, ['537']=true,
+		['538']=true, ['569']=true, ['570']=true, ['584']=true,
+		['590']=true, ['591']=true, ['606']=true, ['607']=true,
+		['608']=true
+	}
+	local allAircrafts = {
+		[592]=true, [577]=true, [511]=true, [548]=true, [512]=true,
+		[593]=true, [425]=true, [520]=true, [417]=true, [487]=true,
+		[553]=true, [488]=true, [497]=true, [563]=true, [476]=true,
+		[447]=true, [519]=true, [460]=true, [469]=true, [513]=true
+	}
+
+	local allBoats = {
+		[472]=true, [473]=true, [493]=true, [595]=true, [484]=true,
+		[430]=true, [453]=true, [452]=true, [446]=true, [454]=true,
+		[539]=true
+	}
+
+	for i=400, 609 do
+		local iStr = toString(i)
+		if ( not (invalidModels[iStr] or allAircrafts[iStr] or allBoats[iStr])) then
+			table.insert ( validVehicles, i )
+		end
+	end
+	return validVehicles
+end
+
+function changeCarBasedOnVotes()
+	local totalVotes = 0
+	local VOTE_HISTO = {}
+	for k,v ipairs(CAR_VOTES) do
+		local total = VOTE_HISTO[v]
+		if (not total) then
+			total = 0
+		end
+
+		total = total + 1
+		VOTE_HISTO[v] = total
+	end
+
+	local maxVotes = 0
+	local maxCarIndex = nil
+	for k,v ipairs(VOTE_HISTO) do
+		if v > maxVotes then
+			maxVotes = v
+			maxCarIndex = k
+		end
+	end
+
+	if maxCarIndex == 0 then
+		outputChatBox ( "No change won with " .. maxVotes .. " votes.", getRootElement(), 255, 255, 255 )
+	else
+		CAR_MODEL_ID = VOTABLE_CARS[maxCarIndex]
+		outputChatBox ( getVehicleNameFromModel(CAR_MODEL_ID) .. " won with " .. maxVotes .. " votes.", getRootElement(), 255, 255, 255 )
+		changeVehicleModels()
+	end
+end
+
+function onChatMessageHandler(theMessage, thePlayer)
+	var voteIndex = tonumber(theMessage)
+	if (voteIndex) then
+		CAR_VOTES[thePlayer] = voteIndex
+	end
+
+	local totalVotes = 0
+	for k,v ipairs(CAR_VOTES) do
+		totalVotes++;
+	end
+
+	local players = getElementsByType("player")
+	if totalVotes >= #players then
+		changeCarBasedOnVotes()
+	end
+end
+addEventHandler("onChatMessage", root, onChatMessageHandler)
