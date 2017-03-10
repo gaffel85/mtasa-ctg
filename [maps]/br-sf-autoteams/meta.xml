@@ -1,6 +1,6 @@
 <meta>
 
-    <info author="erorr404" type="map" gamemodes="briefcaserace" />
+    <info author="erorr404" type="map" gamemodes="ctgrace" />
 
     <map src="briefcaserace-sf.map" />
     <script src="mapstuff.lua" type="server"/>
@@ -54,5 +54,5 @@
         <setting name="#debug" value="[ true ]" />
 
     </settings>
- 
+
 </meta>

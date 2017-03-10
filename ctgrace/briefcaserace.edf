@@ -1,4 +1,4 @@
-<def name="Briefcase Race">
+<def name="Capture the Gold Race">
 	<element name="briefcase" friendlyname="Briefcase spawnpoint" instructions="Place your briefcase in a position where it can be picked up.">
 		<data name="position" type="coord3d" default="0,0,0" />
 		<marker size="0.5" type="corona" color="#ffff00ff" />

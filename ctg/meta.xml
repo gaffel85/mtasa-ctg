@@ -1,5 +1,5 @@
 <meta>
-	<info author="erorr404" type="script" name="Briefcase" description="Attaches briefcase to player's hand" showInResourceBrowser="true" version="1.0.0" />
+	<info author="erorr404" type="script" name="Capture the Gold" description="Attaches briefcase to player's hand" showInResourceBrowser="true" version="1.0.0" />
 
 	<script src="briefcase.lua" type="client" />
 	<!-- script src="briefcase_server.lua" type="server" / -->
