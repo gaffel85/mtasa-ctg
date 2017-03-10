@@ -278,14 +278,14 @@ function spawnPlayerAtSpawnpoint ( player, sp )
 	setCameraTarget ( player, player ) -- added 7/8/09, as when the player joins and you spawn him it doesn't set the camera on him
 	fadeCamera ( player, true )
 	local done = call(getResourceFromName"spawnmanager","spawnPlayerAtSpawnpoint",player,sp )
-	setTimer(function() {
+	setTimer(function()
 		local car = findEmptyCar()
 	  warpPedIntoVehicle(player, car)
-	}, 50, 1)
+	end, 50, 1)
 	return done;
 end
 
-function findEmptyCar() then
+function findEmptyCar()
 	local cars = getElementsByType("vehicle")
 	local freeCars = {}
 	for i,car in ipairs(cars) do

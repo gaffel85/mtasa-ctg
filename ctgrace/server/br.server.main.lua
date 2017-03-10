@@ -242,6 +242,8 @@ end
 -- creates a team when player joins (if necessary)
 -- note: when you join, the player count includes you
 function onPlayerJoin_varTeams()
+	bindKey ( source, "x", "down", intiateCarVote )
+
 	if (not settings.varteams) then
 		return
 	end
@@ -255,7 +257,7 @@ function onPlayerJoin_varTeams()
 		outputDebugString("varteams - Created one team on player join.")
 	end
 
-	bindKey ( source, "x", "down", intiateCarVote )
+	
 end
 addEventHandler("onPlayerJoin", root, onPlayerJoin_varTeams)
 
@@ -516,13 +518,21 @@ end
 
 
 local CAR_MODEL_ID = 490
-local VOTABLE_CARS = {402,403,404,405}
-local CAR_VOTES = {}
+local VOTABLE_CARS = nil
+local CAR_VOTES = nil
 
 function changeVehicleModels()
 	local cars = getElementsByType("vehicle")
 
 	for i,car in ipairs(cars) do
+		if not car then
+			outputDebugString("Null car")
+			return
+		end
+		if not CAR_MODEL_ID then
+			outputDebugString("Model null")
+			return
+		end
 		setElementModel (car, CAR_MODEL_ID)
 	end
 end
@@ -541,6 +551,9 @@ function intiateCarVote()
 
 		local carName = getVehicleNameFromModel(car)
 		local carClass = getVehicleClassNameFromId(car)
+		if not carClass then
+			carClass = "Unkown"
+		end
 		outputChatBox ( "[" .. i .."] " .. carName .. "(" .. carClass .. ")", getRootElement(), 255, 255, 255 )
 	end
 end
@@ -567,8 +580,7 @@ function getValidVehicleModels ( )
 	}
 
 	for i=400, 609 do
-		local iStr = toString(i)
-		if ( not (invalidModels[iStr] or allAircrafts[iStr] or allBoats[iStr])) then
+		if ( not (invalidModels[i] or allAircrafts[i] or allBoats[i])) then
 			table.insert ( validVehicles, i )
 		end
 	end
@@ -578,7 +590,7 @@ end
 function changeCarBasedOnVotes()
 	local totalVotes = 0
 	local VOTE_HISTO = {}
-	for k,v ipairs(CAR_VOTES) do
+	for k,v in pairs(CAR_VOTES) do
 		local total = VOTE_HISTO[v]
 		if (not total) then
 			total = 0
@@ -590,7 +602,7 @@ function changeCarBasedOnVotes()
 
 	local maxVotes = 0
 	local maxCarIndex = nil
-	for k,v ipairs(VOTE_HISTO) do
+	for k,v in pairs(VOTE_HISTO) do
 		if v > maxVotes then
 			maxVotes = v
 			maxCarIndex = k
@@ -601,21 +613,29 @@ function changeCarBasedOnVotes()
 		outputChatBox ( "No change won with " .. maxVotes .. " votes.", getRootElement(), 255, 255, 255 )
 	else
 		CAR_MODEL_ID = VOTABLE_CARS[maxCarIndex]
-		outputChatBox ( getVehicleNameFromModel(CAR_MODEL_ID) .. " won with " .. maxVotes .. " votes.", getRootElement(), 255, 255, 255 )
+		VOTABLE_CARS = nil
+		CAR_VOTES = nil
+		outputDebugString("Model: "..CAR_MODEL_ID)
+		local carName = getVehicleNameFromModel(CAR_MODEL_ID)
+		outputChatBox (carName  .. " won with " .. maxVotes .. " votes.", getRootElement(), 255, 255, 255 )
 		changeVehicleModels()
 	end
 end
 
 function onChatMessageHandler(theMessage, thePlayer)
-	var voteIndex = tonumber(theMessage)
+	if not VOTABLE_CARS then
+		return
+	end
+
+	local voteIndex = tonumber(theMessage)
 	if (voteIndex) then
 		CAR_VOTES[thePlayer] = voteIndex
+	else
+		return
 	end
 
 	local totalVotes = 0
-	for k,v ipairs(CAR_VOTES) do
-		totalVotes++;
-	end
+	for _ in pairs(CAR_VOTES) do totalVotes = totalVotes + 1 end
 
 	local players = getElementsByType("player")
 	if totalVotes >= #players then
