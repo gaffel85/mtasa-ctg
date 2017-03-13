@@ -248,23 +248,27 @@ end
 )
 
 addEventHandler ( "onClientVehicleDamage", root, function ( )
-	-- If you want it to take damage, but not explode --
-	if getElementHealth ( source ) < 300 then         -- dunno if 300 is good, test it
+	outputDebugString("helath: "..getElementHealth ( source ))
+	if getElementHealth ( source ) < 400 then        
 
 		toggleAllControls ( false, true, false )
+		displayMessageForPlayer(92992, "Car broken. Wait 5 sec.", 5000, 0.5, 0.5, 255, 0, 0 )
 
 		local rx,ry,rz = getElementRotation ( source )
 		if rx > 90 and rx < 270 or ry > 90 and ry < 270 then
 			local posX, posY, posZ = getElementPosition ( source )
-			setElementPosition (source, posX, posY, poZ + 2)
-			setElementRotation (0, 0, rz)
+			setElementPosition (source, posX, posY, posZ + 2)
+			setElementRotation (source, 0, 0, rz)
 		end
 
 		fixVehicle (source)
-		toggleAllControls ()
 
 		setTimer(function() 
 			toggleAllControls ( true, true, true )
 		end, 5000, 1)
 	end
 end )
+
+function displayMessageForPlayer ( ID, message, displayTime, posX, posY, r, g, b, alpha, scale )
+	triggerServerEvent("onDisplayClientText", resourceRoot, getLocalPlayer(), ID, message, displayTime, posX, posY, r, g, b, scale)
+end

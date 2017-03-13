@@ -1080,3 +1080,6 @@ function cancelExitVehicle ( thePlayer, seat, jacked )
   cancelEvent()
 end
 addEventHandler ( "onVehicleStartExit", getRootElement(), cancelExitVehicle)
+
+addEvent("onDisplayClientText", true)
+addEventHandler ( "onDisplayClientText", getRootElement(), displayMessageForPlayer)

@@ -93,6 +93,10 @@ function onGamemodeMapStart_brmain(resource)
 
 		startGame()
 		changeVehicleModels()
+		
+		for k,v in ipairs(getElementsByType("player")) do
+			bindKey ( v, "x", "down", intiateCarVote )
+		end
 	end
 end
 
@@ -242,6 +246,7 @@ end
 -- creates a team when player joins (if necessary)
 -- note: when you join, the player count includes you
 function onPlayerJoin_varTeams()
+	outputDebugString("onPlayerJoin_varTeams")
 	bindKey ( source, "x", "down", intiateCarVote )
 
 	if (not settings.varteams) then
@@ -538,6 +543,7 @@ function changeVehicleModels()
 end
 
 function intiateCarVote()
+	outputDebugString("Car vote!")
 	VOTABLE_CARS = {}
 	CAR_VOTES = {}
 	local allCars = getValidVehicleModels ()
