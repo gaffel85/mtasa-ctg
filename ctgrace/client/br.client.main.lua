@@ -248,7 +248,6 @@ end
 )
 
 addEventHandler ( "onClientVehicleDamage", root, function ( )
-	outputDebugString("helath: "..getElementHealth ( source ))
 	if getElementHealth ( source ) < 400 then        
 
 		toggleAllControls ( false, true, false )
