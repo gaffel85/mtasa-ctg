@@ -263,8 +263,8 @@ addEventHandler ( "onClientVehicleDamage", root, function ( )
 		fixVehicle (source)
 		toggleAllControls ()
 
-		setTimer(function() {
-    	toggleAllControls ( true, true, true )
-    }, 5000, 1)
+		setTimer(function() 
+			toggleAllControls ( true, true, true )
+		end, 5000, 1)
 	end
 end )
