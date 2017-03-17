@@ -107,6 +107,6 @@ end
 
 function changeThresholdMultiplier ( sourcePlayer , command, arg1)
 	THRESHOLD_MULTIPLIER = tonumber(arg1);
-	outputConsole(" Threshold multiplier: " .. THRESHOLD_MULTIPLIER, sourcePlayer)
+	outputConsole(" Threshold multiplier: " .. tostring(THRESHOLD_MULTIPLIER), sourcePlayer)
 end
 addCommandHandler ( "hp", changeThresholdMultiplier )
