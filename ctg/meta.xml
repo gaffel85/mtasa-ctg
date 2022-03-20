@@ -1,12 +1,29 @@
 <meta>
-	<info author="erorr404" type="script" name="Capture the Gold" description="Attaches briefcase to player's hand" showInResourceBrowser="true" version="1.0.0" />
+    <info author="gaffel85" type="gamemode" name="Capture the Gold" description="CTF with cars"  edf:definition="ctg.edf" />
+	<include resource="scoreboard"/>
+	<include resource="votemanager"/>
+	<include resource="easytext" />
 
-	<script src="briefcase.lua" type="client" />
-	<!-- script src="briefcase_server.lua" type="server" / -->
+	<script src="ctg.server.properties.lua" />
+	<script src="ctg.server.properties.lua" type="client" />
+	<script src="ctg.server.texts.lua" />
 
-	<export function="addBriefcaseHolder" type="client" />
-	<export function="removeBriefcaseHolder" type="client" />
-	<export function="createIdleBriefcase" type="client" />
-	<export function="destroyIdleBriefcase" type="client" />
+	<script src="ctg.server.marker.lua" />
+	<script src="ctg.client.marker.lua" type="client" />
+
+	<script src="ctg.client.timer.lua" type="client" />
+	<script src="ctg.server.timer.lua" />
+
+	<script src="ctg.server.gold.lua" />
+	<script src="ctg.server.main.lua" />
+
+	<script src="ctg.client.bombholder.lua" type="client" />
+    <script src="ctg.client.collision.lua" type="client" />
+
+	<script src="ctg.server.nitro.lua" />
+	<script src="ctg.client.nitro.lua" type="client" />
+
+	<script src="ctg.client.spectate.lua" type="client" />
 
 </meta>
+
