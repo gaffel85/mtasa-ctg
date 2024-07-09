@@ -1,5 +1,4 @@
-local PRESENTING_BOMB_HOLDER_TEXT_ID = 987771
-local PRESENTING_BOMB_HOLDER_PERSONAL_TEXT_ID = 987772
+local PRESENTING_GOLD_CARRIER_TEXT_ID = 987771
 local LATE_JOIN_TEXT_ID = 987774
 local BOMB_TIMER_TEXT_ID = 987773
 local WINNER_TEXT_ID = 987775
@@ -19,7 +18,7 @@ function showBooserAdded(player)
 end
 
 function showPresentGoldCarrier(bombHolder)
-	displayMessageForAll(PRESENTING_BOMB_HOLDER_TEXT_ID, getPlayerName(bombHolder).." now has the gold. Catch it!", bombHolder, "You have the gold. Deliver it!", 5000, 0.5, 0.3, 255, 0, 0 )
+	displayMessageForAll(PRESENTING_GOLD_CARRIER_TEXT_ID, getPlayerName(bombHolder).." now has the gold. Catch it!", bombHolder, "You have the gold. Deliver it!", 5000, 0.5, 0.3, 255, 0, 0 )
 end
 
 function showLateJoinMessage(player)
