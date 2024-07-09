@@ -41,6 +41,7 @@ function setGoldCarrier(player)
     end
 
     goldCarrier = player
+	givePointsToPlayer(goldCarrier, 50)
     makeVisible(goldCarrier)
     triggerClientEvent("onGoldCarrierChanged", player, oldGoldCarrier)
 
@@ -49,7 +50,7 @@ function setGoldCarrier(player)
 
     triggerEvent("goldCarrierChanged", goldCarrier, oldGoldCarrier)
 
-	showBaseMarker(goldCarrier)
+	showBaseMarker()
 end
 
 function clearGoldCarrier()
@@ -170,8 +171,9 @@ function showBaseMarker()
 end
 
 function goldDelivered(player)
+	givePointsToPlayer(goldCarrier, 500)
 	destroyElementsByType ("blip")
-	showTextGoldDelivered(player)
+	showTextGoldDelivered(goldCarrier)
 end
 
 function markerHit( markerHit, matchingDimension )
