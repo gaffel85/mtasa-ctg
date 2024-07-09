@@ -1,5 +1,4 @@
 local PRESENTING_GOLD_CARRIER_TEXT_ID = 987771
-local LATE_JOIN_TEXT_ID = 987774
 local BOMB_TIMER_TEXT_ID = 987773
 local WINNER_TEXT_ID = 987775
 local PLAYER_READY_TEXT_ID = 987776
@@ -19,11 +18,6 @@ end
 
 function showPresentGoldCarrier(bombHolder)
 	displayMessageForAll(PRESENTING_GOLD_CARRIER_TEXT_ID, getPlayerName(bombHolder).." now has the gold. Catch it!", bombHolder, "You have the gold. Deliver it!", 5000, 0.5, 0.3, 255, 0, 0 )
-end
-
-function showLateJoinMessage(player)
-	local message = getPlayerName(source).." joined a started game. He gets the bomb!"
-	displayMessageForAll(LATE_JOIN_TEXT_ID, message, nil, nil, 2000, 0.5, 0.5, 0, 255, 0 )
 end
 
 function showPrepareRoundTimer(timeLeft)
