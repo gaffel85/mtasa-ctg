@@ -10,7 +10,7 @@ local REPAIRING_CAR_TEXT_ID = 987780
 local PARALYZIED_PLAYER_TEXT_ID = 987781
 
 function showCloakAdded(player)
-	displayMessageForAll(POWER_UP_ADDED_TEXT_ID, "Cloak ready", nil, nil, 2000, 0.5, 0.3, 0, 255, 0 )
+	displayMessageForAll(POWER_UP_ADDED_TEXT_ID, "Cloak ready!", nil, nil, 2000, 0.5, 0.3, 0, 255, 0 )
 end
 
 function showBooserAdded(player)
