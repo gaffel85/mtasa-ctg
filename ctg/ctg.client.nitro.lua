@@ -27,5 +27,5 @@ function tickBoosterCooldown(timeLeft, totalTime)
 	end
 	guiProgressBarSetProgress(boosterBar, progress)
 end
-addEvent("boosterCooldownTick", true)
-addEventHandler("boosterCooldownTick", getRootElement(), tickBoosterCooldown)
+-- addEvent("boosterCooldownTick", true)
+-- addEventHandler("boosterCooldownTick", getRootElement(), tickBoosterCooldown)

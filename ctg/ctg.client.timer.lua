@@ -26,5 +26,5 @@ function tickBombTimer(timeLeft, totalTime)
 	local progress = 100 * cropppedTime/totalTime
 	guiProgressBarSetProgress(timerBar, progress)
 end
-addEvent("bombTimerTick", true)
-addEventHandler("bombTimerTick", getRootElement(), tickBombTimer)
+-- addEvent("bombTimerTick", true)
+-- addEventHandler("bombTimerTick", getRootElement(), tickBombTimer)
