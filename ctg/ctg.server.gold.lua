@@ -1,5 +1,5 @@
 local goldSpawns
-local bombMarker = nil
+local goldMarker = nil
 
 function setGoldSpawns(spawns)
     goldSpawns = spawns
@@ -12,8 +12,8 @@ function spawnNewGold()
     local posX, posY, posZ = coordsFromEdl(spawnPoint)
     local rotX, rotY, rotZ = rotFromEdl(spawnPoint)
 
-    if (bombMarker == nil) then
-        bombMarker = createMarker(posX, posY, posZ, "arrow", 2.0, 255, 0, 0)
+    if (goldMarker == nil) then
+        goldMarker = createMarker(posX, posY, posZ, "arrow", 2.0, 255, 0, 0)
     end
 	createBlip(posX, posY, posZ, 52)
 end
@@ -29,17 +29,17 @@ function removeOldGold()
 end
 
 function destroyMarker()
-    if (bombMarker ~= nil) then
-        destroyElement(bombMarker)
+    if (goldMarker ~= nil) then
+        destroyElement(goldMarker)
     end
-    bombMarker = nil
+    goldMarker = nil
 end
 
 function markerHit(markerHit, matchingDimension)
-    if markerHit == bombMarker then
+    if markerHit == goldMarker then
         destroyMarker()
-        bombMarker = createMarker(0, 0, 1, "arrow", 2.0, 255, 0, 0)
-        attachElements(bombMarker, source, 0, 0, 4)
+        goldMarker = createMarker(0, 0, 1, "arrow", 2.0, 255, 0, 0)
+        attachElements(goldMarker, source, 0, 0, 4)
 
 		showBlip(source)
 		setGoldCarrier(source)

@@ -1,6 +1,4 @@
-local PRESENTING_BOMB_HOLDER_TEXT_ID = 987771
-local PRESENTING_BOMB_HOLDER_PERSONAL_TEXT_ID = 987772
-local LATE_JOIN_TEXT_ID = 987774
+local PRESENTING_GOLD_CARRIER_TEXT_ID = 987771
 local BOMB_TIMER_TEXT_ID = 987773
 local WINNER_TEXT_ID = 987775
 local PLAYER_READY_TEXT_ID = 987776
@@ -11,7 +9,7 @@ local REPAIRING_CAR_TEXT_ID = 987780
 local PARALYZIED_PLAYER_TEXT_ID = 987781
 
 function showCloakAdded(player)
-	displayMessageForAll(POWER_UP_ADDED_TEXT_ID, "Cloak ready", nil, nil, 2000, 0.5, 0.3, 0, 255, 0 )
+	displayMessageForAll(POWER_UP_ADDED_TEXT_ID, "Cloak ready!", nil, nil, 2000, 0.5, 0.3, 0, 255, 0 )
 end
 
 function showBooserAdded(player)
@@ -19,12 +17,7 @@ function showBooserAdded(player)
 end
 
 function showPresentGoldCarrier(bombHolder)
-	displayMessageForAll(PRESENTING_BOMB_HOLDER_TEXT_ID, getPlayerName(bombHolder).." now has the gold. Catch it!", bombHolder, "You have the gold. Deliver it!", 5000, 0.5, 0.3, 255, 0, 0 )
-end
-
-function showLateJoinMessage(player)
-	local message = getPlayerName(source).." joined a started game. He gets the bomb!"
-	displayMessageForAll(LATE_JOIN_TEXT_ID, message, nil, nil, 2000, 0.5, 0.5, 0, 255, 0 )
+	displayMessageForAll(PRESENTING_GOLD_CARRIER_TEXT_ID, getPlayerName(bombHolder).." now has the gold. Catch it!", bombHolder, "You have the gold. Deliver it!", 5000, 0.5, 0.3, 255, 0, 0 )
 end
 
 function showPrepareRoundTimer(timeLeft)
@@ -44,7 +37,7 @@ function hideBombTimer()
 end
 
 function showTextGoldDelivered(player)
-	local message = getPlayerName ( player ).." delivered the gold"
+	local message = getPlayerName ( player ).." delivered the gold!"
 	displayMessageForAll(WINNER_TEXT_ID, message, nil, nil, PRESENT_WINNER_TIME * 1000, 0.5, 0.5, 0, 0, 255 )
 end
 
