@@ -37,7 +37,7 @@ function hideBombTimer()
 end
 
 function showTextGoldDelivered(player)
-	local message = getPlayerName ( player ).." delivered the gold!"
+	local message = getPlayerName ( player ).." delivered the gold"
 	displayMessageForAll(WINNER_TEXT_ID, message, nil, nil, PRESENT_WINNER_TIME * 1000, 0.5, 0.5, 0, 0, 255 )
 end
 
