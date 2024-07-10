@@ -31,7 +31,7 @@ git merge --squash "$dev_branch"
 
 # If merge was successful, commit with provided message
 if [ $? -eq 0 ]; then
-    git commit -m "$commit_message"
+    git commit -m "$commit_message [$dev_branch]"
     echo "Merge and commit successful."
 else
     echo "Merge failed."
