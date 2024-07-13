@@ -1,8 +1,15 @@
-<def name="bombrace">
+<def name="ctg">
 	<element name="playerSpawnPoint" friendlyname="Player Spawnpoint">
 		<data name="position" type="coord3d" default="0,0,0" />
 		<data name="rotation" type="number" default="0,0,0" />
 		<vehicle model="415" position="!position!" rotation="!rotation!" />
+	</element>
+	<element name="goldSpawnPoint" friendlyname="Gold Spawnpoint">
+		<data name="position" type="coord3d" required="true" default="0,0,0" />
+		<data name="type" type="selection:checkpoint,ring" required="true" default="checkpoint" />
+		<data name="size" type="number" required="true" default="20.0"/>
+		<data name="color" type="color" required="false" default="#0000ffff" />
+		<marker type="!type!" size="!size!" color="!color!" />
 	</element>
 	<element name="lobbyStart" friendlyname="Lobby ready zone">
 		<data name="position" type="coord3d" required="true" default="0,0,0" />

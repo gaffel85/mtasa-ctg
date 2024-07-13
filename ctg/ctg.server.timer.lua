@@ -49,7 +49,7 @@ function tickBombTimer()
 		end
 	end
 end
-setTimer(tickBombTimer, 1000, 0)
+-- setTimer(tickBombTimer, 1000, 0)
 
 addCommandHandler ( "changetime",
     function ( thePlayer, command, time )

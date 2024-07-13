@@ -1,0 +1,15 @@
+<map>
+
+  <playerSpawnPoint id="spawnpoint_1" posX="-1982.86" posY="112.54" posZ="27.68" rot="0" skin="60"/>
+  <playerSpawnPoint id="spawnpoint_1" posX="-2035.7490234375" posY="139.54206848145" posZ="28.8359375" rot="270" skin="170"/>
+  <playerSpawnPoint id="spawnpoint_1" posX="-1975.6838378906" posY="137.91412353516" posZ="27.6875" rot="90" skin="193"/>
+  <playerSpawnPoint id="spawnpoint_1" posX="-1996.7944335938" posY="155.26625061035" posZ="27.6875" rot="180" skin="73"/>
+  <playerSpawnPoint id="spawnpoint_1" posX="-2022.9180908203" posY="100.42859649658" posZ="27.950733184814" rot="270" skin="234"/>
+  
+  <goldSpawnPoint id="spawnpoint_3" posX="-2396.72" posY="975.11" posZ="46.40" rot="180" skin="72"/>
+  <goldSpawnPoint id="spawnpoint_3" posX="-2341.2966308594" posY="994.35699462891" posZ="50.8984375" rot="108" skin="43"/>
+  <goldSpawnPoint id="spawnpoint_3" posX="-2376.1357421875" posY="1007.7263183594" posZ="52.289356231689" rot="180" skin="50"/>
+  <goldSpawnPoint id="spawnpoint_3" posX="-2376.9436035156" posY="949.35491943359" posZ="45.4453125" rot="321" skin="7"/>
+  <goldSpawnPoint id="spawnpoint_3" posX="-2410.0607910156" posY="943.81854248047" posZ="45.318504333496" rot="270" skin="101"/>
+  
+</map>

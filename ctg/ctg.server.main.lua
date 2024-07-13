@@ -12,7 +12,7 @@ local blowingPlayer = nil
 local SCORE_KEY = "Score"
 
 local currentVehicle = 1
-local vehicles = {551, 415, 531, 475, 437, 557}
+local vehicles = {415, 551, 531, 475, 437, 557}
 
 addEvent("bombHolderChanged")
 
@@ -73,7 +73,10 @@ function spawn(thePlayer)
 end
 
 function spawnAt(player, posX, posY, posZ, rotX, rotY, rotZ)
-    local vehicle = createVehicle(getCurrentVehicle(), posX, posY, posZ, rotX, rotY, rotZ, "BOMBER")
+    -- posX="" posY="" posZ=""
+    -- local vehicle = createVehicle(551, -1982.86, 112.54, 27.68, 0, 0, 0, "BOMBER")
+    -- local vehicle = createVehicle(getCurrentVehicle(), posX, posY, posZ, rotX, rotY, rotZ, "BOMBER")
+    local vehicle = createVehicle(getCurrentVehicle(), posX, posY, posZ, 0, 0, 0, "BOMBER")
     spawnPlayer(player, 0, 0, 0, 0, 285)
     setTimer(function()
         warpPedIntoVehicle(player, vehicle)
@@ -93,7 +96,7 @@ function repairAllCars()
     local players = getAlivePlayers()
     for k, v in ipairs(players) do
         local veh = getPedOccupiedVehicle(v)
-        if (veh ~= nil) then
+        if (veh ~= nil and veh ~= false ) then
             fixVehicle(veh)
         end
     end
@@ -127,7 +130,6 @@ end
 
 function startGameMap(startedMap)
     local mapRoot = getResourceRootElement(startedMap)
-	baseMarkerData = getElementsByType ( "baseMarker" , mapRoot )[1]
     spawnPoints = getElementsByType("playerSpawnPoint", mapRoot)
     goldSpawnPoints = getElementsByType("goldSpawnPoint", mapRoot)
     setGoldSpawns(goldSpawnPoints)
