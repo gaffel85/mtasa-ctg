@@ -75,8 +75,8 @@ end
 function spawnAt(player, posX, posY, posZ, rotX, rotY, rotZ)
     -- posX="" posY="" posZ=""
     -- local vehicle = createVehicle(551, -1982.86, 112.54, 27.68, 0, 0, 0, "BOMBER")
-    -- local vehicle = createVehicle(getCurrentVehicle(), posX, posY, posZ, rotX, rotY, rotZ, "BOMBER")
-    local vehicle = createVehicle(getCurrentVehicle(), posX, posY, posZ, 0, 0, 0, "BOMBER")
+    local vehicle = createVehicle(getCurrentVehicle(), posX, posY, posZ, rotX, rotY, rotZ, "BOMBER")
+    -- local vehicle = createVehicle(getCurrentVehicle(), posX, posY, posZ, 0, 0, 0, "BOMBER")
     spawnPlayer(player, 0, 0, 0, 0, 285)
     setTimer(function()
         warpPedIntoVehicle(player, vehicle)
@@ -253,14 +253,14 @@ function coordsFromEdl(element)
     local posX = getElementData(element, "posX")
     local posY = getElementData(element, "posY")
     local posZ = getElementData(element, "posZ")
-    return posX, posY, posZ
+    return posX or 0, posY or 0, posZ or 0
 end
 
 function rotFromEdl(element)
     local posX = getElementData(element, "rotX")
     local posY = getElementData(element, "rotY")
     local posZ = getElementData(element, "rotZ")
-    return posX, posY, posZ
+    return posX or 0, posY or 0, posZ or 0
 end
 
 function quitPlayer(quitType)
