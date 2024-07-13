@@ -73,7 +73,16 @@ function spawn(thePlayer)
 end
 
 function spawnAt(player, posX, posY, posZ, rotX, rotY, rotZ)
-    local vehicle = createVehicle(getCurrentVehicle(), posX, posY, posZ, rotX, rotY, rotZ, "BOMBER")
+    outputConsole(getCurrentVehicle())
+    outputConsole(posX)
+    outputConsole(posY)
+    outputConsole(posZ)
+    outputConsole(rotX)
+    outputConsole(rotY)
+    outputConsole(rotZ)
+    -- posX="" posY="" posZ=""
+    local vehicle = createVehicle(551, -1982.86, 112.54, 27.68, 0, 0, 0, "BOMBER")
+    -- local vehicle = createVehicle(getCurrentVehicle(), posX, posY, posZ, rotX, rotY, rotZ, "BOMBER")
     spawnPlayer(player, 0, 0, 0, 0, 285)
     setTimer(function()
         warpPedIntoVehicle(player, vehicle)

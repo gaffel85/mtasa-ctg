@@ -81,7 +81,7 @@ function tickNitro()
 	tickCooldown()
 	tickDuration()
 end
-setTimer(tickNitro, 1000, 0)
+-- setTimer(tickNitro, 1000, 0)
 
 function onBombHolderChanged(oldBombHolder)
 	local bombHolder = source
@@ -93,4 +93,4 @@ function onBombHolderChanged(oldBombHolder)
 
 	setBoostCooldown(5)
 end
-addEventHandler("bombHolderChanged", root, onBombHolderChanged)
+-- addEventHandler("bombHolderChanged", root, onBombHolderChanged)

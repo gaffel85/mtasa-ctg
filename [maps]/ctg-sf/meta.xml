@@ -1,8 +1,8 @@
 <meta>
 
-    <info author="erorr404" type="map" gamemodes="ctgrace" />
+    <info author="gaffel" type="map" gamemodes="ctg" />
 
-    <map src="briefcaserace-sf.map" />
+    <map src="ctg-sf.map" />
     <script src="mapstuff.lua" type="server"/>
 
     <settings>
