@@ -133,7 +133,7 @@ function startGameMap(startedMap)
     spawnPoints = getElementsByType("playerSpawnPoint", mapRoot)
     goldSpawnPoints = getElementsByType("goldSpawnPoint", mapRoot)
     setGoldSpawns(goldSpawnPoints)
-    setHideOuts(goldSpawnPoints)
+    setHideouts(goldSpawnPoints)
 
     resetGame()
 end

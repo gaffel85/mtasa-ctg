@@ -15,6 +15,7 @@
 	<script src="ctg.server.timer.lua" />
 
 	<script src="ctg.server.gold.lua" />
+	<script src="ctg.server.hideout.lua" />
 	<script src="ctg.server.main.lua" />
 
 	<script src="ctg.client.bombholder.lua" type="client" />
