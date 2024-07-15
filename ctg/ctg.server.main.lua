@@ -59,6 +59,12 @@ function clearGoldCarrier()
     triggerEvent("onGoldCarrierCleared", root)
 end
 
+function goldDelivered()
+    givePointsToPlayer(goldCarrier, 500)
+    clearGoldCarrier()
+    spawnNewGold()
+end
+
 -- Stop player from exiting vehicle
 function exitVehicle(thePlayer, seat, jacked)
     cancelEvent()

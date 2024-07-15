@@ -20,7 +20,7 @@ end
 
 function showBlip(carrier)
 	destroyElementsByType ("blip")
-	createBlipAttachedTo ( carrier, 0 )
+	createBlipAttachedTo ( carrier, 53 )
 end
 
 function removeOldHideout()
