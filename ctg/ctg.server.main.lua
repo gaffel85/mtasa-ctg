@@ -50,6 +50,7 @@ function setGoldCarrier(player)
 
     triggerEvent("goldCarrierChanged", goldCarrier, oldGoldCarrier)
 
+    spawnNewHideout()
 	showBaseMarker()
 end
 
@@ -132,8 +133,9 @@ function startGameMap(startedMap)
     local mapRoot = getResourceRootElement(startedMap)
     spawnPoints = getElementsByType("playerSpawnPoint", mapRoot)
     goldSpawnPoints = getElementsByType("goldSpawnPoint", mapRoot)
+    hideouts = getElementsByType("hideout", mapRoot)
     setGoldSpawns(goldSpawnPoints)
-    setHideOuts(goldSpawnPoints)
+    setHideOuts(hideouts)
 
     resetGame()
 end
