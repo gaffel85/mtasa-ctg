@@ -1,4 +1,4 @@
-<map edf:definitions="ctg,editor_main">
+<map>
     <goldSpawnPoint id="goldSpawnPoint (1)" color="#0000FFFF" type="ring" size="5" interior="0" posX="2340.8999" posY="-1386.1" posZ="22.9" rotX="0" rotY="0" rotZ="0"></goldSpawnPoint>
     <goldSpawnPoint id="goldSpawnPoint (2)" color="#0000FFFF" type="checkpoint" size="5" interior="0" posX="2274.1001" posY="-1483.3" posZ="21.6" rotX="0" rotY="0" rotZ="0"></goldSpawnPoint>
     <goldSpawnPoint id="goldSpawnPoint (3)" color="#0000FFFF" type="checkpoint" size="5" interior="0" posX="2211.7" posY="-1383.3" posZ="22.9" rotX="0" rotY="0" rotZ="0"></goldSpawnPoint>
@@ -10,3 +10,4 @@
     <hideout id="hideout (2)" color="#0000FFFF" type="checkpoint" size="5" interior="0" posX="2219.1001" posY="-1448" posZ="22.9" rotX="0" rotY="0" rotZ="0"></lobbyStart>
     <hideout id="hideout (3)" color="#0000FFFF" type="checkpoint" size="5" alpha="255" interior="0" posX="2243.8999" posY="-1436" posZ="24.6" rotX="0" rotY="0" rotZ="0"></lobbyStart>
 </map>
+
