@@ -13,7 +13,7 @@ function spawnNewHideout()
     local rotX, rotY, rotZ = rotFromEdl(spawnPoint)
 
     if (hideoutMarker == nil) then
-        hideoutMarker = createMarker(posX, posY, posZ, "arrow", 2.0, 255, 0, 0)
+        hideoutMarker = createMarker(posX, posY, posZ, "checkpoint", 2.0, 255, 0, 0)
     end
 	createBlip(posX, posY, posZ, 52)
 end
