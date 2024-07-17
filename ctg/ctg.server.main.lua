@@ -13,6 +13,7 @@ local currentVehicle = 1
 local vehicles = {415, 551, 531, 475, 437, 557}
 
 addEvent("bombHolderChanged")
+addEvent("goldDelivered")
 
 scoreboardRes = getResourceFromName("scoreboard")
 
@@ -59,6 +60,7 @@ end
 
 function goldDelivered()
     givePointsToPlayer(goldCarrier, 500)
+    triggerEvent("goldDelivered", root, goldCarrier, 500)
     activeRoundFinished()
 end
 
@@ -122,6 +124,33 @@ function arrayExists(tab, val)
         end
     end
 
+    return false
+end
+
+function getIndex(tab, val)
+    local index = nil
+    for i, v in ipairs (tab) do 
+        if (v.id == val) then
+          index = i 
+        end
+    end
+    return index
+end
+
+function removeFromTable(tab, val)
+    local idx = getIndex(tab, val)
+    if idx ~= nil then 
+        table.remove(tab, idx)
+        return true
+    end
+    return false
+end
+
+function contains(tab, val)
+    local idx = getIndex(tab, val)
+    if idx ~= nil then 
+        return true
+    end
     return false
 end
 
