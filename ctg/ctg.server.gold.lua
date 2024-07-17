@@ -19,17 +19,14 @@ function spawnNewGold()
     if (goldSpawnMarker == nil) then
         goldSpawnMarker = createMarker(posX, posY, posZ, "arrow", 2.0, 255, 0, 0)
     end
-    showSpawnBlip()
-end
-
-function showSpawnBlip()
-	destroySpawnBlip()
-	goldSpawnBlip = createBlip(posX, posY, posZ, 52)
+    destroySpawnBlip()
+    goldSpawnBlip = createBlip(posX, posY, posZ, 52)
 end
 
 function showCarrierBlip(carrier)
 	destroyCarrierBlip()
-	createBlipAttachedTo ( carrier, 0 )
+	goldCarrierBlip = createBlipAttachedTo ( carrier, 0 )
+	setElementVisibleTo(goldCarrierBlip, carrier, false)
 end
 
 function removeOldGold()

@@ -1,5 +1,6 @@
 local hideouts
 local hidoutMarker = nil
+local hidoutBlip = nil
 
 function setHideouts(spawns)
     hideouts = spawns
@@ -17,16 +18,11 @@ function spawnNewHideout()
         hideoutMarker = createMarker(posX, posY, posZ, "checkpoint", 2.0, 255, 0, 0)
     end
     outputChatBox("4")
-	createBlip(posX, posY, posZ, 52)
-end
-
-function showBlip(carrier)
-	destroyElementsByType ("blip")
-	createBlipAttachedTo ( carrier, 53 )
+	hideoutBlip = createBlip(posX, posY, posZ, 52)
 end
 
 function removeOldHideout()
-	destroyElementsByType ("blip")
+	destroyBlip()
     destroyMarker()
 end
 
@@ -35,6 +31,13 @@ function destroyMarker()
         destroyElement(hideoutMarker)
     end
     hideoutMarker = nil
+end
+
+function destroyBlip()
+    if (hideoutBlip ~= nil) then
+        destroyElement(hideoutBlip)
+    end
+    hideoutBlip = nil
 end
 
 function markerHit(markerHit, matchingDimension)

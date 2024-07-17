@@ -288,9 +288,6 @@ addEvent("onCollisionWithPlayer", true)
 addEventHandler("onCollisionWithPlayer", getRootElement(), collisisionWithPlayer)
 
 function onRepairCar(player)
-    local blip = createBlipAttachedTo(player, 27)
-    setElementVisibleTo(blip, root, true)
-    setElementVisibleTo(blip, player, false)
     showPlayerParalyzied(getBombHolder(), player)
 end
 addEvent("repairCar", true)
