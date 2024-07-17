@@ -1,5 +1,9 @@
 local goldSpawns
-local goldMarker = nil
+local goldSpawnMarker = nil
+local goldCarrierMarker = nil
+
+local goldSpawnBlip = nil
+local goldCarrierBlip = nil
 
 function setGoldSpawns(spawns)
     goldSpawns = spawns
@@ -12,36 +16,65 @@ function spawnNewGold()
     local posX, posY, posZ = coordsFromEdl(spawnPoint)
     local rotX, rotY, rotZ = rotFromEdl(spawnPoint)
 
-    if (goldMarker == nil) then
-        goldMarker = createMarker(posX, posY, posZ, "arrow", 2.0, 255, 0, 0)
+    if (goldSpawnMarker == nil) then
+        goldSpawnMarker = createMarker(posX, posY, posZ, "arrow", 2.0, 255, 0, 0)
     end
-	createBlip(posX, posY, posZ, 52)
+    showSpawnBlip()
 end
 
-function showBlip(carrier)
-	destroyElementsByType ("blip")
+function showSpawnBlip()
+	destroySpawnBlip()
+	goldSpawnBlip = createBlip(posX, posY, posZ, 52)
+end
+
+function showCarrierBlip(carrier)
+	destroyCarrierBlip()
 	createBlipAttachedTo ( carrier, 0 )
 end
 
 function removeOldGold()
-	destroyElementsByType ("blip")
-    destroyMarker()
+	destroySpawnBlip()
+    destroyCarrierBlip()
+    destroySpawnMarker()
+    destroyCarrierMarker()
 end
 
-function destroyMarker()
-    if (goldMarker ~= nil) then
-        destroyElement(goldMarker)
+function destroySpawnMarker()
+    if (goldSpawnMarker ~= nil) then
+        destroyElement(goldSpawnMarker)
     end
-    goldMarker = nil
+    goldSpawnMarker = nil
+end
+
+function destroySpawnBlip()
+    if (goldSpawnBlip ~= nil) then
+        destroyElement(goldSpawnBlip)
+    end
+    goldSpawnBlip = nil
+end
+
+function destroyCarrierBlip()
+    if (goldCarrierBlip ~= nil) then
+        destroyElement(goldCarrierBlip)
+    end
+    goldCarrierBlip = nil
+end
+
+function destroyCarrierMarker()
+    if (goldCarrierMarker ~= nil) then
+        destroyElement(goldCarrierMarker)
+    end
+    goldCarrierMarker = nil
 end
 
 function markerHit(markerHit, matchingDimension)
-    if markerHit == goldMarker then
-        destroyMarker()
-        goldMarker = createMarker(0, 0, 1, "arrow", 2.0, 255, 0, 0)
-        attachElements(goldMarker, source, 0, 0, 4)
+    if markerHit == goldSpawnMarker then
+        destroySpawnMarker()
+        destroySpawnBlip()
+        goldCarrierMarker = createMarker(0, 0, 1, "arrow", 2.0, 255, 0, 0)
+        attachElements(goldCarrierMarker, source, 0, 0, 4)
 
-		showBlip(source)
+		showCarrierBlip(source)
 		setGoldCarrier(source)
         return
     end
