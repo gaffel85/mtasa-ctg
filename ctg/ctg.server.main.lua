@@ -1,7 +1,5 @@
 local spawnPoints
 local currentSpawn = 1
-local baseMarker
-local baseMarkerData
 
 local goldCarrier
 local previousGoldCarrier
@@ -31,6 +29,7 @@ function getGoldCarrier()
 end
 
 function setGoldCarrier(player)
+    outputChatBox("1")
     if (player == goldCarrier) then
         return
     end
@@ -42,7 +41,6 @@ function setGoldCarrier(player)
 
     goldCarrier = player
 	givePointsToPlayer(goldCarrier, 50)
-    makeVisible(goldCarrier)
     triggerClientEvent("onGoldCarrierChanged", player, oldGoldCarrier)
 
     showPresentGoldCarrier(goldCarrier)
@@ -50,8 +48,8 @@ function setGoldCarrier(player)
 
     triggerEvent("goldCarrierChanged", goldCarrier, oldGoldCarrier)
 
+    outputChatBox("2")
     spawnNewHideout()
-	showBaseMarker()
 end
 
 function clearGoldCarrier()
@@ -141,7 +139,7 @@ function startGameMap(startedMap)
     goldSpawnPoints = getElementsByType("goldSpawnPoint", mapRoot)
     hideouts = getElementsByType("hideout", mapRoot)
     setGoldSpawns(goldSpawnPoints)
-    setHideouts(goldSpawnPoints)
+    setHideouts(hideouts)
 
     resetGame()
 end
@@ -161,40 +159,11 @@ function startGameIfEnoughPlayers()
     end
 end
 
-function removeBaseMarker()
-	if (baseMarker ~= nil) then
-		destroyElement(baseMarker)
-	end
-	baseMarker = nil
-end
-
-function showBaseMarker()
-	removeBaseMarker()
-
-	if (baseMarker == nil) then
-		local posX, posY, posZ = getElementPosition ( baseMarkerData )
-		local checkType = getElementData ( baseMarkerData, "type" )
-		local color = getElementData ( baseMarkerData, "color" )
-		local size = getElementData ( baseMarkerData, "size" )
-		baseMarker = createMarker(posX, posY, posZ, checkType, size, r, g, b)
-		createBlip(posX, posY, posZ, 31, 0,0,0,0,0,0, 65535, goldCarrier)
-	end
-end
-
 function goldDelivered(player)
 	givePointsToPlayer(goldCarrier, 500)
 	destroyElementsByType ("blip")
 	showTextGoldDelivered(goldCarrier)
 end
-
-function markerHit( markerHit, matchingDimension )
-	if source == goldCarrier and markerHit == baseMarker then
-		goldDelivered(source)
-		activeRoundFinished()
-		return
-	end
-end
-addEventHandler( "onPlayerMarkerHit", getRootElement(), markerHit )
 
 function placeGold()
 	spawnNewGold()
@@ -221,6 +190,8 @@ function activeRoundFinished()
 end
 
 function resetGame()
+    removeOldHideout()
+    removeOldGold()
     resetScore()
     repairAllCars()
     respawnAllPlayers()
@@ -236,7 +207,6 @@ function resetScore()
 end
 
 function resetRoundVars()
-	removeBaseMarker()
     clearGoldCarrier()
 end
 
@@ -318,15 +288,10 @@ addEvent("onCollisionWithPlayer", true)
 addEventHandler("onCollisionWithPlayer", getRootElement(), collisisionWithPlayer)
 
 function onRepairCar(player)
-    makeVisible(player)
     local blip = createBlipAttachedTo(player, 27)
     setElementVisibleTo(blip, root, true)
     setElementVisibleTo(blip, player, false)
     showPlayerParalyzied(getBombHolder(), player)
-
-    setTimer(function()
-        makeVisible(player)
-    end, REPAIR_TIME * 1000, 1)
 end
 addEvent("repairCar", true)
 addEventHandler("repairCar", getRootElement(), onRepairCar)

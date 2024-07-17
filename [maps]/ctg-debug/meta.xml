@@ -1,8 +1,11 @@
 <meta>
+
+    <info author="gaffel" type="map" gamemodes="ctg" />
+
     <map src="ctg-debug.map" />
     <script src="mapstuff.lua" type="server"/>
 
-<settings>
+    <settings>
 
 	<!-- the weather ID -->
         <setting name="#weather" value="[ 3 ]" />
@@ -52,6 +55,4 @@
 
     </settings>
 
-    
 </meta>
-
