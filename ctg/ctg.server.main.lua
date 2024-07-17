@@ -59,8 +59,7 @@ end
 
 function goldDelivered()
     givePointsToPlayer(goldCarrier, 500)
-    clearGoldCarrier()
-    spawnNewGold()
+    activeRoundFinished()
 end
 
 -- Stop player from exiting vehicle
