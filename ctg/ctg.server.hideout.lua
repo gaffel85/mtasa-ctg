@@ -6,6 +6,7 @@ function setHideouts(spawns)
 end
 
 function spawnNewHideout()
+    outputChatBox("3")
     removeOldHideout()
 
     local spawnPoint = hideouts[math.random(#hideouts)]
@@ -15,6 +16,7 @@ function spawnNewHideout()
     if (hideoutMarker == nil) then
         hideoutMarker = createMarker(posX, posY, posZ, "checkpoint", 2.0, 255, 0, 0)
     end
+    outputChatBox("4")
 	createBlip(posX, posY, posZ, 52)
 end
 
@@ -36,9 +38,11 @@ function destroyMarker()
 end
 
 function markerHit(markerHit, matchingDimension)
-    if markerHit == hideoutMarker then
+    outputChatBox("5")
+    if source == getGoldCarrier() and markerHit == hideoutMarker then
+        outputChatBox("6")
         removeOldHideout()
-        return
+        goldDelivered(source)
     end
 end
 addEventHandler("onPlayerMarkerHit", getRootElement(), markerHit)
