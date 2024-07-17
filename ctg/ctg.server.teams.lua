@@ -9,6 +9,8 @@ local team2 = {
     score = 0
 }
 
+local teamsScoreDisplay
+
 function removeFromPreviousTeam(player)
     removeFromTable(team1.members, getPlayerName(player))
     removeFromTable(team2.members, getPlayerName(player))
