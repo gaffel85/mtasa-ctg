@@ -6,14 +6,11 @@
 	</element>
 	<element name="goldSpawnPoint" friendlyname="Gold Spawnpoint">
 		<data name="position" type="coord3d" required="true" default="0,0,0" />
-		<data name="type" type="selection:checkpoint,ring" required="true" default="checkpoint" />
-		<data name="size" type="number" required="true" default="20.0"/>
-		<data name="color" type="color" required="false" default="#0000ffff" />
-		<marker type="!type!" size="!size!" color="!color!" />
+		<object model="1550" dimension="20.0"  position="!position!" />
 	</element>
 	<element name="hideout" friendlyname="Hide out">
 		<data name="position" type="coord3d" required="true" default="0,0,0" />
-		<data name="type" type="selection:checkpoint,ring" required="true" default="checkpoint" />
+		<data name="type" type="selection:checkpoint,ring" required="true" default="cylinder" />
 		<data name="size" type="number" required="true" default="20.0"/>
 		<data name="color" type="color" required="false" default="#00ff00ff" />
 		<marker type="!type!" size="!size!" color="!color!" />

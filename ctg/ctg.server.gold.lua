@@ -17,10 +17,22 @@ function spawnNewGold()
     local rotX, rotY, rotZ = rotFromEdl(spawnPoint)
 
     if (goldSpawnMarker == nil) then
-        goldSpawnMarker = createMarker(posX, posY, posZ, "arrow", 2.0, 255, 0, 0)
+        goldSpawnMarker = createGold(posX, posY, posZ)
     end
     destroySpawnBlip()
     goldSpawnBlip = createBlip(posX, posY, posZ, 52)
+end
+
+function createGold(posX, posY, posZ)
+    local marker = createMarker(posX, posY, posZ + 6, "arrow", 2.0, 255, 0, 0)
+    local hitMarker = createMarker(posX, posY, posZ - 2, "checkpoint", 2.0, 0, 0, 0, 0, marker)
+    local model = createObject(1550, posX, posY , posZ + 2)
+    setObjectScale(model, 4.0)
+    setElementCollisionsEnabled(model, false)
+
+    setElementParent(model, hitMarker)
+    setElementParent(marker, hitMarker)
+    return hitMarker
 end
 
 function showCarrierBlip(carrier)
@@ -64,16 +76,30 @@ function destroyCarrierMarker()
     goldCarrierMarker = nil
 end
 
+function createCarrierMarker(player)
+    local marker = createMarker(0, 0, 1, "arrow", 2.0, 255, 0, 0)
+    attachElements(marker, player, 0, 0, 4)
+    return marker
+end
+
 function markerHit(markerHit, matchingDimension)
     if markerHit == goldSpawnMarker then
         destroySpawnMarker()
         destroySpawnBlip()
-        goldCarrierMarker = createMarker(0, 0, 1, "arrow", 2.0, 255, 0, 0)
-        attachElements(goldCarrierMarker, source, 0, 0, 4)
+        goldCarrierMarker = createCarrierMarker(source)
 
 		showCarrierBlip(source)
-		setGoldCarrier(source)
+		goldPickedUp(source)
         return
     end
 end
 addEventHandler("onPlayerMarkerHit", getRootElement(), markerHit)
+
+function onGoldCarrierChanged(player)
+    outputChatBox("13")
+    destroyCarrierBlip()
+    destroyCarrierMarker()
+    goldCarrierMarker = createCarrierMarker(player)
+    showCarrierBlip(player)
+end
+addEventHandler("goldCarrierChanged", getRootElement(), onGoldCarrierChanged)

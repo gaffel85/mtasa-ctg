@@ -12,8 +12,8 @@ local SCORE_KEY = "Score"
 local currentVehicle = 1
 local vehicles = {415, 551, 531, 475, 437, 557}
 
-addEvent("bombHolderChanged")
 addEvent("goldDelivered")
+addEvent("goldCarrierChanged")
 
 scoreboardRes = getResourceFromName("scoreboard")
 
@@ -29,8 +29,8 @@ function getGoldCarrier()
     return goldCarrier
 end
 
-function setGoldCarrier(player)
-    outputChatBox("1")
+function changeGoldCarrier(player)
+    outputChatBox("10")
     if (player == goldCarrier) then
         return
     end
@@ -42,13 +42,16 @@ function setGoldCarrier(player)
 
     goldCarrier = player
 	givePointsToPlayer(goldCarrier, 50)
+
     triggerClientEvent("onGoldCarrierChanged", player, oldGoldCarrier)
+    triggerEvent("goldCarrierChanged", getRootElement(), oldGoldCarrier)
+end
 
+function goldPickedUp(player)
+    outputChatBox("1")
+    changeGoldCarrier(player)
     showPresentGoldCarrier(goldCarrier)
-    fixVehicle(getPedOccupiedVehicle(player))
-
-    triggerEvent("goldCarrierChanged", goldCarrier, oldGoldCarrier)
-
+    
     outputChatBox("2")
     spawnNewHideout()
 end
@@ -56,12 +59,6 @@ end
 function clearGoldCarrier()
     goldCarrier = nil
     triggerEvent("onGoldCarrierCleared", root)
-end
-
-function goldDelivered()
-    givePointsToPlayer(goldCarrier, 500)
-    triggerEvent("goldDelivered", root, goldCarrier, 500)
-    activeRoundFinished()
 end
 
 -- Stop player from exiting vehicle
@@ -189,8 +186,9 @@ end
 
 function goldDelivered(player)
 	givePointsToPlayer(goldCarrier, 500)
-	destroyElementsByType ("blip")
+    triggerEvent("goldDelivered", root, goldCarrier, 500)
 	showTextGoldDelivered(goldCarrier)
+    activeRoundFinished()
 end
 
 function placeGold()
@@ -310,7 +308,7 @@ addCommandHandler("fixit", function(thePlayer, command, newModel)
 end)
 
 function collisisionWithPlayer(otherPlayer)
-    setGoldCarrier(otherPlayer)
+    changeGoldCarrier(otherPlayer)
 end
 addEvent("onCollisionWithPlayer", true)
 addEventHandler("onCollisionWithPlayer", getRootElement(), collisisionWithPlayer)

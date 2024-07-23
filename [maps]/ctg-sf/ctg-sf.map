@@ -1,16 +1,37 @@
-<map>
-
-  <playerSpawnPoint id="spawnpoint_1" posX="-1982.86" posY="112.54" posZ="27.68" rot="0" skin="60"/>
-  <playerSpawnPoint id="spawnpoint_2" posX="-2035.7490234375" posY="139.54206848145" posZ="28.8359375" rot="270" skin="170"/>
-  <playerSpawnPoint id="spawnpoint_3" posX="-1975.6838378906" posY="137.91412353516" posZ="27.6875" rot="90" skin="193"/>
-  <playerSpawnPoint id="spawnpoint_4" posX="-1996.7944335938" posY="155.26625061035" posZ="27.6875" rot="180" skin="73"/>
-  <playerSpawnPoint id="spawnpoint_5" posX="-2022.9180908203" posY="100.42859649658" posZ="27.950733184814" rot="270" skin="234"/>
-  
-  <goldSpawnPoint id="goldSpawnPoint_1" posX="-2396.72" posY="975.11" posZ="46.40" rot="180" skin="72"/>
-  <goldSpawnPoint id="goldSpawnPoint_2" posX="-2341.2966308594" posY="994.35699462891" posZ="50.8984375" rot="108" skin="43"/>
-  <goldSpawnPoint id="goldSpawnPoint_3" posX="-2410.0607910156" posY="943.81854248047" posZ="45.318504333496" rot="270" skin="101"/>
-
-  <hideout id="hideout_1" posX="-2376.1357421875" posY="1007.7263183594" posZ="52.289356231689" rot="180" skin="50"/>
-  <hideout id="hideout_2" posX="-2376.9436035156" posY="949.35491943359" posZ="45.4453125" rot="321" skin="7"/>
-  
+<map edf:definitions="ctg">
+    <playerSpawnPoint id="playerSpawnPoint (1)" interior="0" posX="-1847.8" posY="1281.3" posZ="22.4" rotX="0" rotY="0" rotZ="24"></playerSpawnPoint>
+    <playerSpawnPoint id="playerSpawnPoint (2)" alpha="255" interior="0" posX="-1842.2" posY="1283.6" posZ="22.4" rotX="0" rotY="0" rotZ="24"></playerSpawnPoint>
+    <playerSpawnPoint id="playerSpawnPoint (3)" alpha="255" interior="0" posX="-1845" posY="1282.4" posZ="22.4" rotX="0" rotY="0" rotZ="24"></playerSpawnPoint>
+    <playerSpawnPoint id="playerSpawnPoint (4)" alpha="255" interior="0" posX="-1839.6" posY="1284.6" posZ="22.4" rotX="0" rotY="0" rotZ="24"></playerSpawnPoint>
+    <playerSpawnPoint id="playerSpawnPoint (5)" alpha="255" interior="0" posX="-1836.8" posY="1286.1" posZ="22.4" rotX="0" rotY="0" rotZ="24"></playerSpawnPoint>
+    <playerSpawnPoint id="playerSpawnPoint (6)" alpha="255" interior="0" posX="-1834.1" posY="1287.1" posZ="22.4" rotX="0" rotY="0" rotZ="24"></playerSpawnPoint>
+    <playerSpawnPoint id="playerSpawnPoint (7)" alpha="255" interior="0" posX="-1831.2" posY="1287.9" posZ="22.4" rotX="0" rotY="0" rotZ="24"></playerSpawnPoint>
+    <playerSpawnPoint id="playerSpawnPoint (8)" alpha="255" interior="0" posX="-1827.4" posY="1289" posZ="22.4" rotX="0" rotY="0" rotZ="24"></playerSpawnPoint>
+    <playerSpawnPoint id="playerSpawnPoint (9)" alpha="255" interior="0" posX="-1824.6" posY="1290.9" posZ="22.4" rotX="0" rotY="0" rotZ="24"></playerSpawnPoint>
+    <playerSpawnPoint id="playerSpawnPoint (10)" alpha="255" interior="0" posX="-1820.1" posY="1292.1" posZ="22.4" rotX="0" rotY="0" rotZ="24"></playerSpawnPoint>
+    <playerSpawnPoint id="playerSpawnPoint (11)" alpha="255" interior="0" posX="-1813" posY="1292.3" posZ="22.4" rotX="0" rotY="0" rotZ="24"></playerSpawnPoint>
+    <playerSpawnPoint id="playerSpawnPoint (12)" alpha="255" interior="0" posX="-1793.8" posY="1294.2" posZ="22.4" rotX="0" rotY="0" rotZ="24"></playerSpawnPoint>
+    <playerSpawnPoint id="playerSpawnPoint (13)" alpha="255" interior="0" posX="-1779.8" posY="1293.8" posZ="22.4" rotX="0" rotY="0" rotZ="24"></playerSpawnPoint>
+    <playerSpawnPoint id="playerSpawnPoint (14)" alpha="255" interior="0" posX="-1782.8" posY="1293.4" posZ="22.4" rotX="0" rotY="0" rotZ="24"></playerSpawnPoint>
+    <playerSpawnPoint id="playerSpawnPoint (15)" alpha="255" interior="0" posX="-1785.4" posY="1292.5" posZ="22.4" rotX="0" rotY="0" rotZ="24"></playerSpawnPoint>
+    <playerSpawnPoint id="playerSpawnPoint (16)" alpha="255" interior="0" posX="-1789.7" posY="1293.6" posZ="22.4" rotX="0" rotY="0" rotZ="24"></playerSpawnPoint>
+    <playerSpawnPoint id="playerSpawnPoint (17)" alpha="255" interior="0" posX="-1798.1" posY="1293.7" posZ="22.4" rotX="0" rotY="0" rotZ="24"></playerSpawnPoint>
+    <playerSpawnPoint id="playerSpawnPoint (18)" alpha="255" interior="0" posX="-1804.4" posY="1292.4" posZ="22.4" rotX="0" rotY="0" rotZ="24"></playerSpawnPoint>
+    <goldSpawnPoint id="goldSpawnPoint (1)" interior="0" posX="-1637" posY="1415.3" posZ="6.6" rotX="0" rotY="0" rotZ="0"></goldSpawnPoint>
+    <goldSpawnPoint id="goldSpawnPoint (2)" interior="0" posX="-2683" posY="1451.7" posZ="6.5" rotX="0" rotY="0" rotZ="0"></goldSpawnPoint>
+    <goldSpawnPoint id="goldSpawnPoint (3)" interior="0" posX="-2989.2" posY="471.29999" posZ="4.3" rotX="0" rotY="0" rotZ="0"></goldSpawnPoint>
+    <goldSpawnPoint id="goldSpawnPoint (4)" interior="0" posX="-2072.8999" posY="930" posZ="62.5" rotX="0" rotY="0" rotZ="0"></goldSpawnPoint>
+    <goldSpawnPoint id="goldSpawnPoint (5)" interior="0" posX="-1468.7" posY="392.79999" posZ="6.6" rotX="0" rotY="0" rotZ="0"></goldSpawnPoint>
+    <goldSpawnPoint id="goldSpawnPoint (6)" interior="0" posX="-1673.7" posY="66" posZ="-11.8" rotX="0" rotY="0" rotZ="0"></goldSpawnPoint>
+    <goldSpawnPoint id="goldSpawnPoint (7)" interior="0" posX="-2116.7" posY="-199.60001" posZ="34.7" rotX="0" rotY="0" rotZ="0"></goldSpawnPoint>
+    <goldSpawnPoint id="goldSpawnPoint (8)" interior="0" posX="-2758.6001" posY="-40.3" posZ="6.3" rotX="0" rotY="0" rotZ="0"></goldSpawnPoint>
+    <hideout id="hideout (1)" color="#00FF00FF" type="checkpoint" size="3" interior="0" posX="-2029.5" posY="159.39999" posZ="27.9" rotX="0" rotY="0" rotZ="0"></hideout>
+    <hideout id="hideout (2)" color="#00FF00FF" type="checkpoint" size="3" interior="0" posX="-1830.8" posY="672.79999" posZ="29.5" rotX="0" rotY="0" rotZ="0"></hideout>
+    <hideout id="hideout (3)" color="#00FF00FF" type="checkpoint" size="3" interior="0" posX="-1441.6" posY="895.09998" posZ="6.2" rotX="0" rotY="0" rotZ="0"></hideout>
+    <hideout id="hideout (4)" color="#00FF00FF" type="checkpoint" size="3" interior="0" posX="-1681.3" posY="1064.3" posZ="53.7" rotX="0" rotY="0" rotZ="0"></hideout>
+    <hideout id="hideout (5)" color="#00FF00FF" type="checkpoint" size="3" interior="0" posX="-2138.3" posY="1219.6" posZ="46.3" rotX="0" rotY="0" rotZ="0"></hideout>
+    <hideout id="hideout (6)" color="#00FF00FF" type="checkpoint" size="3" interior="0" posX="-2700.1001" posY="1606.1" posZ="64" rotX="0" rotY="0" rotZ="0"></hideout>
+    <hideout id="hideout (7)" color="#00FF00FF" type="checkpoint" size="3" interior="0" posX="-2674.5" posY="625.59998" posZ="13.5" rotX="0" rotY="0" rotZ="0"></hideout>
+    <hideout id="hideout (8)" color="#00FF00FF" type="checkpoint" size="3" interior="0" posX="-2513.1001" posY="122.4" posZ="21.3" rotX="0" rotY="0" rotZ="0"></hideout>
+    <hideout id="hideout (9)" color="#00FF00FF" type="checkpoint" size="3" interior="0" posX="-1696.5" posY="-126.2" posZ="2.6" rotX="0" rotY="0" rotZ="0"></hideout>
 </map>
