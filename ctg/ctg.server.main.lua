@@ -1,7 +1,9 @@
 local spawnPoints
 local currentSpawn = 1
 
+local tillbakaKakaShield = false
 local goldCarrier
+local oldGoldCarrier
 local previousGoldCarrier
 local previousGoldCarrierResetter
 local participants = {}
@@ -30,29 +32,47 @@ function getGoldCarrier()
 end
 
 function changeGoldCarrier(player)
-    outputChatBox("10")
+    outputChatBox("10 "..inspect(getPlayerName(player)))
     if (player == goldCarrier) then
+        outputChatBox("11")
         return
     end
 
-    local oldGoldCarrier = goldCarrier
+    if ( player == oldGoldCarrier and tillbakaKakaShield == true) then
+		outputChatBox("Did not change, tillbaka kaka")
+		return
+	end
+
+	tillbakaKakaShield = true
+	setTimer(function() 
+		tillbakaKakaShield = false
+	end, 5000, 1)
+
+    oldGoldCarrier = goldCarrier
     if (oldGoldCarrier ~= nil) then
         removeVehicleUpgrade(getPedOccupiedVehicle(oldGoldCarrier), 1009)
     end
 
     goldCarrier = player
+    tillbakaKakaShield = true
+
 	givePointsToPlayer(goldCarrier, 50)
 
     triggerClientEvent("onGoldCarrierChanged", player, oldGoldCarrier)
-    triggerEvent("goldCarrierChanged", getRootElement(), oldGoldCarrier)
+    triggerEvent("goldCarrierChanged", root, goldCarrier, oldGoldCarrier)
+    onGoldCarrierChanged( goldCarrier, oldGoldCarrier)
+    outputChatBox("12")
+
+	setTimer(function() 
+		tillbakaKakaShield = false
+	end, 5000, 1)
+    
 end
 
 function goldPickedUp(player)
-    outputChatBox("1")
     changeGoldCarrier(player)
     showPresentGoldCarrier(goldCarrier)
     
-    outputChatBox("2")
     spawnNewHideout()
 end
 

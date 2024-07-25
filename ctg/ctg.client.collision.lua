@@ -2,18 +2,12 @@ local damageBar = nil
 local damageLabel = nil
 
 function onCollision(collider)
-	outputChatBox("A1type "..inspect(getElementType ( collider )))
-	outputChatBox("ALocal1 "..inspect(getPlayerName ( localPlayer )))
-	outputChatBox("A1Carrier "..inspect(getPlayerName ( getGoldCarrier() )))
 	if ( collider ~= nil and localPlayer == getGoldCarrier() ) then
-		outputChatBox("A2")
 		outputDebugString("Collider type: "..inspect(getElementType ( collider )))
 		outputDebugString("Local player vehicle: "..inspect(getPedOccupiedVehicle(localPlayer)))
 		if ( source == getPedOccupiedVehicle(localPlayer) and getElementType ( collider ) == "vehicle" ) then
-			outputChatBox("A3")
 			local otherPlayer = getVehicleOccupant(collider)
 			if ( otherPlayer ~= false) then
-				outputChatBox("A4")
 				triggerServerEvent("onCollisionWithPlayer", resourceRoot, otherPlayer)
 			end
 		end
