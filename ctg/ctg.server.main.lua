@@ -237,16 +237,17 @@ function resetRoundVars()
 end
 
 function playerDied(ammo, attacker, weapon, bodypart)
-    local posX, posY, posZ = getElementPosition(source)
-    spawnAt(source, posX, posY, posZ, 0, 0, 0)
+    spawn(source)
+    --local posX, posY, posZ = getElementPosition(source)
+    --spawnAt(source, posX, posY, posZ, 0, 0, 0)
 
-    showRepairingCar(source)
-    toggleAllControls(source, false, true, false)
-    onRepairCar(source)
-    local theWasted = source
-    setTimer(function()
-        toggleAllControls(theWasted, true, true, true)
-    end, 5000, 1)
+    --showRepairingCar(source)
+    --toggleAllControls(source, false, true, false)
+    --onRepairCar(source)
+    --local theWasted = source
+    --setTimer(function()
+    --    toggleAllControls(theWasted, true, true, true)
+    --end, 5000, 1)
 end
 addEventHandler("onPlayerWasted", getRootElement(), playerDied)
 
