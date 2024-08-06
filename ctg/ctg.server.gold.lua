@@ -95,11 +95,11 @@ function markerHit(markerHit, matchingDimension)
 end
 addEventHandler("onPlayerMarkerHit", getRootElement(), markerHit)
 
-function onGoldCarrierChanged(player)
+function onGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
     outputChatBox("13")
     destroyCarrierBlip()
     destroyCarrierMarker()
-    goldCarrierMarker = createCarrierMarker(player)
-    showCarrierBlip(player)
+    goldCarrierMarker = createCarrierMarker(newGoldCarrier)
+    showCarrierBlip(newGoldCarrier)
 end
-addEventHandler("goldCarrierChanged", getRootElement(), onGoldCarrierChanged)
+addEventHandler("goldCarrierChanged", root, onGoldCarrierChanged)
