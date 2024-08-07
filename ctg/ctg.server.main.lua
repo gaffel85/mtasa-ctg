@@ -271,6 +271,15 @@ function playerDied(ammo, attacker, weapon, bodypart)
 end
 addEventHandler("onPlayerWasted", getRootElement(), playerDied)
 
+-- listen for event from client called "reportTransform"
+addEvent("reportLastTransform", true)
+addEvent("reportTransform", true)
+addEventHandler("reportTransform", resourceRoot, function(transform, params)
+    if params ~= nil and params == "replaceGold" then
+        spawnGoldAtTransform(transform.x, transform.y, transform.z)
+    end
+end)
+
 function startSpectating(player)
     triggerClientEvent("startSpectating", player)
 end

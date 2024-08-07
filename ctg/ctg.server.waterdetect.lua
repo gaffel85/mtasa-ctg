@@ -5,10 +5,11 @@ function checkWater()
         if isElementInWater(player) then
             if player == getGoldCarrier() then
                 removeOldHideout()
-                respawnGold()
+                -- trigger client event to report last spawn
+                triggerClientEvent(player, "reportLastTransform", resourceRoot, "replaceGold")
             end
             killPed(player, player)
         end
     end
 end
-setTimer(checkWater, 3000, 9999999999)
+setTimer(checkWater, 3000, 0)

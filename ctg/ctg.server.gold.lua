@@ -11,22 +11,22 @@ function setGoldSpawns(spawns)
 end
 
 function spawnNewGold()
-    removeOldGold()
-
     local spawnPoint = goldSpawns[math.random(#goldSpawns)]
     lastGoldSpawn = spawnPoint
     spawnGoldAt(spawnPoint)
 end
 
 function respawnGold()
-    removeOldGold()
     spawnGoldAt(lastGoldSpawn)
 end
 
 function spawnGoldAt(spawnEdl)
     local posX, posY, posZ = coordsFromEdl(spawnEdl)
-    local rotX, rotY, rotZ = rotFromEdl(spawnEdl)
+    spawnGoldAtTransform(posX, posY, posZ)
+end
 
+function spawnGoldAtTransform(posX, posY, posZ)
+    removeOldGold()
     if (goldSpawnMarker == nil) then
         goldSpawnMarker = createGold(posX, posY, posZ)
     end
