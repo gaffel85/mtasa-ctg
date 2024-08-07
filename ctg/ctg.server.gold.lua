@@ -4,6 +4,7 @@ local goldCarrierMarker = nil
 
 local goldSpawnBlip = nil
 local goldCarrierBlip = nil
+local lastGoldSpawn = nil
 
 function setGoldSpawns(spawns)
     goldSpawns = spawns
@@ -13,8 +14,18 @@ function spawnNewGold()
     removeOldGold()
 
     local spawnPoint = goldSpawns[math.random(#goldSpawns)]
-    local posX, posY, posZ = coordsFromEdl(spawnPoint)
-    local rotX, rotY, rotZ = rotFromEdl(spawnPoint)
+    lastGoldSpawn = spawnPoint
+    spawnGoldAt(spawnPoint)
+end
+
+function respawnGold()
+    removeOldGold()
+    spawnGoldAt(lastGoldSpawn)
+end
+
+function spawnGoldAt(spawnEdl)
+    local posX, posY, posZ = coordsFromEdl(spawnEdl)
+    local rotX, rotY, rotZ = rotFromEdl(spawnEdl)
 
     if (goldSpawnMarker == nil) then
         goldSpawnMarker = createGold(posX, posY, posZ)
@@ -96,7 +107,6 @@ end
 addEventHandler("onPlayerMarkerHit", getRootElement(), markerHit)
 
 function onGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
-    outputChatBox("13")
     destroyCarrierBlip()
     destroyCarrierMarker()
     goldCarrierMarker = createCarrierMarker(newGoldCarrier)

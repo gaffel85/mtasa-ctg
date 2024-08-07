@@ -13,6 +13,7 @@
 
 	<script src="ctg.client.timer.lua" type="client" />
 	<script src="ctg.server.timer.lua" />
+	<script src="ctg.server.waterdetect.lua" />
 
 	<script src="ctg.server.gold.lua" />
 	<script src="ctg.server.teams.lua" />

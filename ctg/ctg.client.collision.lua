@@ -46,14 +46,14 @@ addEventHandler ( "onClientVehicleDamage", root, function ( attacker, weapon, lo
 	if ( health < 250 ) then
 		
 		local driver = getVehicleOccupant ( vehicle )
-		if ( driver == getBombHolder() ) then
-			setVehicleDamageProof ( vehicle , true )
-			flipIfNeeded ( vehicle )
-			fixVehicle ( vehicle )
-			setTimer(function() 
-				setVehicleDamageProof ( vehicle , false )
-			end, 5000, 1)
-		else
+		--if ( driver == getBombHolder() ) then
+		--	setVehicleDamageProof ( vehicle , true )
+		--	flipIfNeeded ( vehicle )
+		--	fixVehicle ( vehicle )
+		--	setTimer(function() 
+		--		setVehicleDamageProof ( vehicle , false )
+		--	end, 5000, 1)
+		--else
 			outputDebugString("Reparing car for"..inspect(driver))
 			toggleAllControls ( false, true, false )
 			setVehicleDamageProof ( vehicle , true )
@@ -67,7 +67,7 @@ addEventHandler ( "onClientVehicleDamage", root, function ( attacker, weapon, lo
 				toggleAllControls ( true, true, true )
 				setVehicleDamageProof ( vehicle , false )
 			end, REPAIR_TIME * 1000, 1)
-		end
+		--end
 	end
 end )
 
