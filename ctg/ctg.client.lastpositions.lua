@@ -29,10 +29,10 @@ setTimer(storeTransform, 3000, 0)
 
 -- listen for the report last transform event called reportLastTransform
 addEvent("reportLastTransform", true)
-addEventHandler("reportLastTransform", resourceRoot, function(params)
+addEventHandler("reportLastTransform", resourceRoot, function(index, params)
 	if (#transforms == 0) then
 		return
 	end
-	local transform = transforms[#transforms]
+	local transform = transforms[#transforms - index]
 	triggerServerEvent("reportTransform", resourceRoot, transform, params)
 end)

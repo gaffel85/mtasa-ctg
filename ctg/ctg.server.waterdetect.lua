@@ -6,7 +6,7 @@ function checkWater()
             if player == getGoldCarrier() then
                 removeOldHideout()
                 -- trigger client event to report last spawn
-                triggerClientEvent(player, "reportLastTransform", resourceRoot, "replaceGold")
+                triggerClientEvent(player, "reportLastTransform", resourceRoot, 2, "replaceGold")
             end
             killPed(player, player)
         end
