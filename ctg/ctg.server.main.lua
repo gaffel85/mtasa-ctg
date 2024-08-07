@@ -299,6 +299,15 @@ function rotFromEdl(element)
 end
 
 function quitPlayer(quitType)
+    if (source == goldCarrier) then
+        removeOldHideout()
+        local playerX, playerY, playerZ = getElementPosition(source)
+        spawnGoldAt(playerX, playerY, playerZ)
+        local vechilce = getPedOccupiedVehicle(source)
+        if (vechilce ~= nil) then
+            destroyElement(vechilce)
+        end
+    end
 end
 addEventHandler("onPlayerQuit", getRootElement(), quitPlayer)
 
