@@ -101,3 +101,15 @@ function setVechicleHandling(carrier)
     setVehicleHandling(vehicle, "mass", newMass)
     setVehicleHandling(vehicle, "centerOfMass", newCenterOfMass)
 end
+
+-- function that combines to center of mass
+    function combineCenterOfMass( centerOfMass1, mass1, centerOfMass2, mass2 )
+        local x = (centerOfMass1[1] * mass1 + centerOfMass2[1] * mass2) / (mass1 + mass2)
+        local y = (centerOfMass1[2] * mass1 + centerOfMass2[2] * mass2) / (mass1 + mass2)
+        local z = (centerOfMass1[3] * mass1 + centerOfMass2[3] * mass2) / (mass1 + mass2)
+        return {
+            [1] = x,
+            [2] = y,
+            [3] = z
+        }
+    end
