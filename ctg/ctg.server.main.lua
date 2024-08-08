@@ -303,7 +303,7 @@ addEvent("onCollisionWithPlayer", true)
 addEventHandler("onCollisionWithPlayer", getRootElement(), collisisionWithPlayer)
 
 function onRepairCar(player)
-    showPlayerParalyzied(getBombHolder(), player)
+    -- showPlayerParalyzied(getBombHolder(), player)
 end
 addEvent("repairCar", true)
 addEventHandler("repairCar", getRootElement(), onRepairCar)

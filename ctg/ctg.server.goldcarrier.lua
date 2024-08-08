@@ -85,6 +85,9 @@ function setVechicleHandling(carrier)
     end
     local currentMass = getVehicleHandling ( vehicle, "mass" )
     local currentCenterOfMass = getVehicleHandling ( vehicle, "centerOfMass" )
+    local currentMaxVelocity = getVehicleHandling ( vehicle, "maxVelocity" )
+    local currentEngineAcceleration = getVehicleHandling ( vehicle, "engineAcceleration" )
+    local currentBrakeDeceleration = getVehicleHandling ( vehicle, "brakeDeceleration" )
     local vehicleId = getElementModel(vehicle)
     local currentHandling = {
         mass = currentMass,
@@ -93,23 +96,16 @@ function setVechicleHandling(carrier)
     vechicleHandlingLookup[vehicleId] = currentHandling
 
     local newMass = currentMass + GOLD_MASS
-    local newCenterOfMass = {}
-    newCenterOfMass[1] = currentCenterOfMass[1]
-    newCenterOfMass[2] = currentCenterOfMass[2]
-    newCenterOfMass[3] = currentCenterOfMass[3] + GOLD_HEIGHT
+    local newCenterOfMass = combineCenterOfMass(currentCenterOfMass, currentMass, GOLD_HEIGHT, 300)
 
     setVehicleHandling(vehicle, "mass", newMass)
     setVehicleHandling(vehicle, "centerOfMass", newCenterOfMass)
 end
 
--- function that combines to center of mass
-    function combineCenterOfMass( centerOfMass1, mass1, centerOfMass2, mass2 )
-        local x = (centerOfMass1[1] * mass1 + centerOfMass2[1] * mass2) / (mass1 + mass2)
-        local y = (centerOfMass1[2] * mass1 + centerOfMass2[2] * mass2) / (mass1 + mass2)
-        local z = (centerOfMass1[3] * mass1 + centerOfMass2[3] * mass2) / (mass1 + mass2)
-        return {
-            [1] = x,
-            [2] = y,
-            [3] = z
-        }
-    end
+function combineCenterOfMass( centerOfMass1, mass1, centerOfMassZ2, mass2 )
+    return {
+        [1] = centerOfMass1[1],
+        [2] = centerOfMass1[2],
+        [3] = (centerOfMass1[3] * mass1 + centerOfMassZ2 * mass2) / (mass1 + mass2)
+    }
+end
