@@ -149,7 +149,7 @@ addEventHandler("onPlayerJoin", getRootElement(), joinHandler)
 function startGameIfEnoughPlayers()
     local players = getElementsByType("player")
 	if #players < 3 then
-        resetGame()
+        --resetGame()
     end
 end
 
@@ -250,12 +250,13 @@ end
 function quitPlayer(quitType)
     if (source == getGoldCarrier()) then
         removeOldHideout()
-        local playerX, playerY, playerZ = getElementPosition(source)
-        spawnGoldAt(playerX, playerY, playerZ)
         local vechilce = getPedOccupiedVehicle(source)
         if (vechilce ~= nil) then
+            local playerX, playerY, playerZ = getElementPosition(vechilce)
+            spawnGoldAtTransform(playerX, playerY, playerZ)
             destroyElement(vechilce)
         end
+        goldCarrier = nil
     end
 end
 addEventHandler("onPlayerQuit", getRootElement(), quitPlayer)
