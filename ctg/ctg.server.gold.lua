@@ -109,6 +109,10 @@ addEventHandler("onPlayerMarkerHit", getRootElement(), markerHit)
 function onGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
     destroyCarrierBlip()
     destroyCarrierMarker()
+    if (newGoldCarrier == nil) then
+        return
+    end
+    
     goldCarrierMarker = createCarrierMarker(newGoldCarrier)
     showCarrierBlip(newGoldCarrier)
 end

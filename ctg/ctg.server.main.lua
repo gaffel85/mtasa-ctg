@@ -2,10 +2,6 @@ local spawnPoints
 local currentSpawn = 1
 
 local tillbakaKakaShield = false
-local goldCarrier
-local oldGoldCarrier
-local previousGoldCarrier
-local previousGoldCarrierResetter
 local participants = {}
 local blowingPlayer = nil
 
@@ -27,58 +23,11 @@ function getCurrentVehicle()
     return vehicles[currentVehicle]
 end
 
-function getGoldCarrier()
-    return goldCarrier
-end
-
-function changeGoldCarrier(player)
-    outputChatBox("10 "..inspect(getPlayerName(player)))
-    if (player == goldCarrier) then
-        outputChatBox("11")
-        return
-    end
-
-    if ( player == oldGoldCarrier and tillbakaKakaShield == true) then
-		outputChatBox("Did not change, tillbaka kaka")
-		return
-	end
-
-	tillbakaKakaShield = true
-	setTimer(function() 
-		tillbakaKakaShield = false
-	end, 5000, 1)
-
-    oldGoldCarrier = goldCarrier
-    if (oldGoldCarrier ~= nil) then
-        removeVehicleUpgrade(getPedOccupiedVehicle(oldGoldCarrier), 1009)
-    end
-
-    goldCarrier = player
-    tillbakaKakaShield = true
-
-	givePointsToPlayer(goldCarrier, 50)
-
-    triggerClientEvent("onGoldCarrierChanged", player, oldGoldCarrier)
-    triggerEvent("goldCarrierChanged", root, goldCarrier, oldGoldCarrier)
-    onGoldCarrierChanged( goldCarrier, oldGoldCarrier)
-    outputChatBox("12")
-
-	setTimer(function() 
-		tillbakaKakaShield = false
-	end, 5000, 1)
-    
-end
-
 function goldPickedUp(player)
     changeGoldCarrier(player)
-    showPresentGoldCarrier(goldCarrier)
+    showPresentGoldCarrier(getGoldCarrier())
     
     spawnNewHideout()
-end
-
-function clearGoldCarrier()
-    goldCarrier = nil
-    triggerEvent("onGoldCarrierCleared", root)
 end
 
 -- Stop player from exiting vehicle
@@ -205,9 +154,9 @@ function startGameIfEnoughPlayers()
 end
 
 function goldDelivered(player)
-	givePointsToPlayer(goldCarrier, 500)
-    triggerEvent("goldDelivered", root, goldCarrier, 500)
-	showTextGoldDelivered(goldCarrier)
+	givePointsToPlayer(getGoldCarrier(), 500)
+    triggerEvent("goldDelivered", root, getGoldCarrier(), 500)
+	showTextGoldDelivered(getGoldCarrier())
     activeRoundFinished()
 end
 
@@ -299,7 +248,7 @@ function rotFromEdl(element)
 end
 
 function quitPlayer(quitType)
-    if (source == goldCarrier) then
+    if (source == getGoldCarrier()) then
         removeOldHideout()
         local playerX, playerY, playerZ = getElementPosition(source)
         spawnGoldAt(playerX, playerY, playerZ)
