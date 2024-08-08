@@ -296,6 +296,14 @@ addCommandHandler("fixit", function(thePlayer, command, newModel)
     end
 end)
 
+addCommandHandler("param", function(source, paramName, paramValue)
+    if (paramName == "coeff") then
+        local newValue = tonumber(paramValue)
+        GOLD_HANDLING_COEFF = newValue
+        outputChatBox("Gold handling coeff set to: "..GOLD_HANDLING_COEFF)
+    end
+end
+
 function collisisionWithPlayer(otherPlayer)
     changeGoldCarrier(otherPlayer)
 end

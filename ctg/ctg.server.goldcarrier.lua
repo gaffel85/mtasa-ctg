@@ -91,15 +91,24 @@ function setVechicleHandling(carrier)
     local vehicleId = getElementModel(vehicle)
     local currentHandling = {
         mass = currentMass,
-        centerOfMass = currentCenterOfMass
+        centerOfMass = currentCenterOfMass,
+        maxVelocity = currentMaxVelocity,
+        engineAcceleration = currentEngineAcceleration,
+        brakeDeceleration = currentBrakeDeceleration
     }
     vechicleHandlingLookup[vehicleId] = currentHandling
 
     local newMass = currentMass + GOLD_MASS
     local newCenterOfMass = combineCenterOfMass(currentCenterOfMass, currentMass, GOLD_HEIGHT, 300)
+    local newMaxVelocity = currentMaxVelocity * GOLD_HANDLING_COEFF
+    local newEngineAcceleration = currentEngineAcceleration * GOLD_HANDLING_COEFF
+    local newBrakeDeceleration = currentBrakeDeceleration * GOLD_HANDLING_COEFF
 
     setVehicleHandling(vehicle, "mass", newMass)
     setVehicleHandling(vehicle, "centerOfMass", newCenterOfMass)
+    setVehicleHandling(vehicle, "maxVelocity", newMaxVelocity)
+    setVehicleHandling(vehicle, "engineAcceleration", newEngineAcceleration)
+    setVehicleHandling(vehicle, "brakeDeceleration", newBrakeDeceleration)
 end
 
 function combineCenterOfMass( centerOfMass1, mass1, centerOfMassZ2, mass2 )
