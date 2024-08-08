@@ -10,7 +10,7 @@ function getGoldCarrier()
 end
 
 function setGoldCarrier(carrier)
-    if (carrier == goldCarrier or carrier ~= nil) then
+    if (carrier == goldCarrier or carrier == nil) then
         return
     end
 
@@ -24,11 +24,12 @@ function setGoldCarrier(carrier)
 end
 
 function clearGoldCarrier()
+    outputChatBox("Clear gold carrier!!!!")
     local tmpGoldCarrier = goldCarrier
     setGoldCarrier(nil)
     oldGoldCarrier = nil
     tillbakaKakaShield = false
-    triggerClientEvent("onGoldCarrierChanged", nil, nil)
+    -- triggerClientEvent("onGoldCarrierChanged", nil, nil)
     triggerEvent("goldCarrierChanged", root, nil, tmpGoldCarrier)
     onGoldCarrierChanged( nil, tmpGoldCarrier)
     triggerEvent("onGoldCarrierCleared", root)
@@ -77,15 +78,14 @@ function removeVechicleHandling(oldCarrier)
     setVehicleHandling(vehicle, "centerOfMass", originalHandling.centerOfMass)
 end
 
-function setVechicleHandling(oldCarrier)
-    -- removeVehicleUpgrade(getPedOccupiedVehicle(oldGoldCarrier), 1009)
-    local vechicle = getPedOccupiedVehicle(oldCarrier)
-    if (vechicle == nil) then
+function setVechicleHandling(carrier)
+    local vehicle = getPedOccupiedVehicle(carrier)
+    if (vehicle == nil or vehicle == false) then
         return
     end
     local currentMass = getVehicleHandling ( vehicle, "mass" )
     local currentCenterOfMass = getVehicleHandling ( vehicle, "centerOfMass" )
-    local vehicleId = getElementModel(vechicle)
+    local vehicleId = getElementModel(vehicle)
     local currentHandling = {
         mass = currentMass,
         centerOfMass = currentCenterOfMass
