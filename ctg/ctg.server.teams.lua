@@ -17,7 +17,7 @@ local teamsScoreDisplay
 local team1ScoreText
 local team2ScoreText
 
-function setup() {
+function setup()
     team1.team = createTeam("Team 1", 100, 100, 255)
     team2.team = createTeam("Team 2", 100, 255, 100)
 
@@ -25,14 +25,16 @@ function setup() {
     local r1,g1,b1 = getTeamColor(team1.team)
     local r2,g2,b2 = getTeamColor(team2.team)
     team1HeaderText = textCreateTextItem ( "Team1", 0.3, 0.1, "medium", r1, g1, b1, 255, 2, "right", "top", 128) 
-    textDisplayAddText ( display, team1HeaderText )
+    textDisplayAddText ( teamsScoreDisplay, team1HeaderText )
     team2HeaderText = textCreateTextItem ( "Team1", 0.6, 0.1, "medium", r2, g2, b2, 255, 2, "left", "top", 128) 
-    textDisplayAddText ( display, team2HeaderText )
+    textDisplayAddText ( teamsScoreDisplay, team2HeaderText )
 
     team1.scoreLabel = textCreateTextItem ( "0", 0.3, 0.15, "medium", r1, g1, b1, 255, 2, "right", "top", 128)
     team2.scoreLabel = textCreateTextItem ( "0", 0.6, 0.15, "medium", r2, g2, b2, 255, 2, "right", "top", 128)
-}
-addEventHandler("onResourceStart", resourceRoot, setup)
+    textDisplayAddText ( teamsScoreDisplay, team1.scoreLabel )
+    textDisplayAddText ( teamsScoreDisplay, team2.scoreLabel )
+end
+addEventHandler("onResourceStart", getResourceRootElement(getThisResource()), setup)
 
 function removeFromPreviousTeam(player)
     setPlayerTeam(player, nil)
@@ -48,16 +50,17 @@ function updateTeamsActiviated()
     end
 end
 
-function switchToTeam(team)
+function switchToTeam(team, player)
     removeFromPreviousTeam(player)
     table.insert(team.members, getPlayerName(player))
     setPlayerTeam(player, team.team)
     updateTeamsActiviated()
 end
 
-function onGoldDelivered(goldCarrier, score)
+function giveTeamScore(player, score)
     local carrierTeam
-	if contains(team1.members, goldCarrier) then
+    local team = getPlayerTeam(player)
+	if team1.team == team then
         carrierTeam = team1
     else
         carrierTeam = team2
@@ -66,7 +69,6 @@ function onGoldDelivered(goldCarrier, score)
     carrierTeam.score = carrierTeam.score + score
     updateScoreDisplay()
 end
-addEventHandler("goldDelivered", root, onGoldDelivered)
 
 function updateScoreDisplay()
     textItemSetText(team1.scoreLabel, ""..team1.score)
@@ -74,11 +76,11 @@ function updateScoreDisplay()
 end
 
 function switchToTeam1(player)
-    switchToTeam(team1)
+    switchToTeam(team1, player)
 end
 
 function switchToTeam2(player)
-    switchToTeam(team2)
+    switchToTeam(team2, player)
 end
 
 function bindTheKeys ( )

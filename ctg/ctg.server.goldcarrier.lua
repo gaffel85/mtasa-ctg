@@ -74,8 +74,13 @@ function removeVechicleHandling(oldCarrier)
     end
 
     local originalHandling = vechicleHandlingLookup[getElementModel(vechicle)]
-    setVehicleHandling(vehicle, "mass", originalHandling.mass)
-    setVehicleHandling(vehicle, "centerOfMass", originalHandling.centerOfMass)
+    if (originalHandling ~= nil) then
+        setVehicleHandling(vechicle, "mass", originalHandling.mass)
+        setVehicleHandling(vechicle, "centerOfMass", originalHandling.centerOfMass)
+        setVehicleHandling(vechicle, "maxVelocity", originalHandling.maxVelocity)
+        setVehicleHandling(vechicle, "engineAcceleration", originalHandling.engineAcceleration)
+        setVehicleHandling(vechicle, "brakeDeceleration", originalHandling.brakeDeceleration)
+    end
 end
 
 function setVechicleHandling(carrier)
@@ -106,7 +111,7 @@ function setVechicleHandling(carrier)
 
     setVehicleHandling(vehicle, "mass", newMass)
     setVehicleHandling(vehicle, "centerOfMass", newCenterOfMass)
-    setVehicleHandling(vehicle, "maxVelocity", newMaxVelocity)
+    --setVehicleHandling(vehicle, "maxVelocity", newMaxVelocity)
     setVehicleHandling(vehicle, "engineAcceleration", newEngineAcceleration)
     setVehicleHandling(vehicle, "brakeDeceleration", newBrakeDeceleration)
 end

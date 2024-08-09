@@ -75,6 +75,7 @@ function repairAllCars()
 end
 
 function givePointsToPlayer(player, points)
+    giveTeamScore(player, points)
     local score = getElementData(player, SCORE_KEY)
     if (score == false) then
         score = 0
@@ -296,13 +297,31 @@ addCommandHandler("fixit", function(thePlayer, command, newModel)
     end
 end)
 
-addCommandHandler("param", function(source, paramName, paramValue)
+addCommandHandler("param", function(source, command, paramName, paramValue)
     if (paramName == "coeff") then
         local newValue = tonumber(paramValue)
+        local oldValue = GOLD_HANDLING_COEFF
         GOLD_HANDLING_COEFF = newValue
-        outputChatBox("Gold handling coeff set to: "..GOLD_HANDLING_COEFF)
+        outputChatBox("Gold handling coeff set to: "..GOLD_HANDLING_COEFF.." (old was "..oldValue..")")
     end
-end
+    if (paramName == "height") then
+        local newValue = tonumber(paramValue)
+        local oldValue = GOLD_HEIGHT
+        GOLD_HEIGHT = newValue
+        outputChatBox("Gold height set to: "..GOLD_HEIGHT.." (old was "..oldValue..")")
+    end
+    if (paramName == "mass") then
+        local newValue = tonumber(paramValue)
+        local oldValue = GOLD_MASS
+        GOLD_MASS = newValue
+        outputChatBox("Gold mass set to: "..GOLD_MASS.." (old was "..oldValue..")")
+    end
+    local carrier = getGoldCarrier()
+    if (carrier ~= nil) then
+        removeVechicleHandling(getGoldCarrier())
+        setVechicleHandling(getGoldCarrier())
+    end
+end)
 
 function collisisionWithPlayer(otherPlayer)
     changeGoldCarrier(otherPlayer)
