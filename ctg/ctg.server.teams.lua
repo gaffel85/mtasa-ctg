@@ -2,16 +2,40 @@ local teamsActivated = false
 
 local team1 = {
     members = {},
-    score = 0
+    team = nil,
+    score = 0,
+    scoreLabel = nil
 }
 local team2 = {
     members = {},
-    score = 0
+    team = nil,
+    score = 0,
+    scoreLabel = nil
 }
 
 local teamsScoreDisplay
+local team1ScoreText
+local team2ScoreText
+
+function setup() {
+    team1.team = createTeam("Team 1", 100, 100, 255)
+    team2.team = createTeam("Team 2", 100, 255, 100)
+
+    teamsScoreDisplay = textCreateDisplay ()
+    local r1,g1,b1 = getTeamColor(team1.team)
+    local r2,g2,b2 = getTeamColor(team2.team)
+    team1HeaderText = textCreateTextItem ( "Team1", 0.3, 0.1, "medium", r1, g1, b1, 255, 2, "right", "top", 128) 
+    textDisplayAddText ( display, team1HeaderText )
+    team2HeaderText = textCreateTextItem ( "Team1", 0.6, 0.1, "medium", r2, g2, b2, 255, 2, "left", "top", 128) 
+    textDisplayAddText ( display, team2HeaderText )
+
+    team1.scoreLabel = textCreateTextItem ( "0", 0.3, 0.15, "medium", r1, g1, b1, 255, 2, "right", "top", 128)
+    team2.scoreLabel = textCreateTextItem ( "0", 0.6, 0.15, "medium", r2, g2, b2, 255, 2, "right", "top", 128)
+}
+addEventHandler("onResourceStart", resourceRoot, setup)
 
 function removeFromPreviousTeam(player)
+    setPlayerTeam(player, nil)
     removeFromTable(team1.members, getPlayerName(player))
     removeFromTable(team2.members, getPlayerName(player))
 end
@@ -27,6 +51,7 @@ end
 function switchToTeam(team)
     removeFromPreviousTeam(player)
     table.insert(team.members, getPlayerName(player))
+    setPlayerTeam(player, team.team)
     updateTeamsActiviated()
 end
 
@@ -39,15 +64,34 @@ function onGoldDelivered(goldCarrier, score)
     end
 
     carrierTeam.score = carrierTeam.score + score
+    updateScoreDisplay()
 end
 addEventHandler("goldDelivered", root, onGoldDelivered)
+
+function updateScoreDisplay()
+    textItemSetText(team1.scoreLabel, ""..team1.score)
+    textItemSetText(team2.scoreLabel, ""..team2.score)
+end
 
 function switchToTeam1(player)
     switchToTeam(team1)
 end
---bindKey(bombHolder, "F1", "down", switchToTeam1)
 
 function switchToTeam2(player)
     switchToTeam(team2)
 end
---bindKey(bombHolder, "F2", "down", switchToTeam1)
+
+function bindTheKeys ( )
+    bindKey ( source, "F1", "up", switchToTeam1, source )
+    bindKey ( source, "F2", "up", switchToTeam2, source ) 
+    textDisplayAddObserver ( teamsScoreDisplay, source ) 
+end
+addEventHandler("onPlayerJoin", getRootElement(), bindTheKeys)
+
+  --unbind on quit
+function unbindTheKeys ( )
+    unbindKey ( source, "F1" )
+    unbindKey ( source, "F2" ) 
+    textDisplayRemoveObserver ( teamsScoreDisplay, source )
+end
+addEventHandler("onPlayerQuit", getRootElement(), unbindTheKeys)
