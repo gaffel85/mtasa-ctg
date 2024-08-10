@@ -316,6 +316,10 @@ addCommandHandler("param", function(source, command, paramName, paramValue)
         GOLD_MASS = newValue
         outputChatBox("Gold mass set to: "..GOLD_MASS.." (old was "..oldValue..")")
     end
+    if (paramName == "damage") then
+        local newValue = tonumber(paramValue)
+        triggerClientEvent("onPropertyChanged", getRootElement(), "DAMAGE_MULTIPLIER_WEIGHT", newValue)
+    end
     local carrier = getGoldCarrier()
     if (carrier ~= nil) then
         removeVechicleHandling(getGoldCarrier())
@@ -323,7 +327,7 @@ addCommandHandler("param", function(source, command, paramName, paramValue)
     end
 end)
 
-function collisisionWithPlayer(otherPlayer)
+function collisisionWithPlayer(otherPlayer, damage)
     changeGoldCarrier(otherPlayer)
 end
 addEvent("onCollisionWithPlayer", true)
