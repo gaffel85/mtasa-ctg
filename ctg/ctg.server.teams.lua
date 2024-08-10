@@ -37,7 +37,7 @@ function setup()
     textDisplayAddText ( teamsScoreDisplay, team2HeaderText )
 
     team1.scoreLabel = textCreateTextItem ( "0", 0.3, 0.15, "medium", r1, g1, b1, 255, 2, "right", "top", 128)
-    team2.scoreLabel = textCreateTextItem ( "0", 0.6, 0.15, "medium", r2, g2, b2, 255, 2, "right", "top", 128)
+    team2.scoreLabel = textCreateTextItem ( "0", 0.6, 0.15, "medium", r2, g2, b2, 255, 2, "left", "top", 128)
     textDisplayAddText ( teamsScoreDisplay, team1.scoreLabel )
     textDisplayAddText ( teamsScoreDisplay, team2.scoreLabel )
 

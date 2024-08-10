@@ -16,7 +16,7 @@ function setGoldCarrier(carrier)
 
     oldGoldCarrier = goldCarrier
     if (oldGoldCarrier ~= nil) then
-        removeVehicleHandling(oldGoldCarrier)
+        removeVechicleHandling(oldGoldCarrier)
     end
 
     goldCarrier = carrier
