@@ -10,6 +10,10 @@ function setGoldSpawns(spawns)
     goldSpawns = spawns
 end
 
+function getLastGoldSpawn()
+    return lastGoldSpawn
+end
+
 function spawnNewGold()
     local spawnPoint = goldSpawns[math.random(#goldSpawns)]
     lastGoldSpawn = spawnPoint
@@ -112,7 +116,7 @@ function onGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
     if (newGoldCarrier == nil) then
         return
     end
-    
+
     goldCarrierMarker = createCarrierMarker(newGoldCarrier)
     showCarrierBlip(newGoldCarrier)
 end

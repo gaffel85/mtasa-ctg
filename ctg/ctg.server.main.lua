@@ -224,9 +224,12 @@ addEventHandler("onPlayerWasted", getRootElement(), playerDied)
 -- listen for event from client called "reportTransform"
 addEvent("reportLastTransform", true)
 addEvent("reportTransform", true)
-addEventHandler("reportTransform", resourceRoot, function(transform, params)
-    if params ~= nil and params == "replaceGold" then
+addEventHandler("reportTransform", resourceRoot, function(transform, param1, param2, param3)
+    if param1 ~= nil and param1 == "replaceGold" then
         spawnGoldAtTransform(transform.x, transform.y, transform.z)
+    end
+    if param1 ~= nil and param1 == "telportTo" then
+        teleportTo(param2, transform)
     end
 end)
 
