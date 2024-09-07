@@ -1,10 +1,10 @@
-function askForTeleport(player)
-	local player = source
-	local leader = findLeader()
+function askForTeleport(player, secondParam)
+	local leader = findLeader(player)
 	if (leader == nil or leader == player) then
+		outputChatBox("No leader found")
 		return
 	end
-
+	outputChatBox("Leader is "..getPlayerName(leader))
 	triggerClientEvent(leader, "reportLastTransform", resourceRoot, 2, "telportTo", player)
 end
 
@@ -20,9 +20,10 @@ function teleportTo(player, transform)
 end
 
 -- function that finds the leader by first taking the goldCarrier, if there is one, and then the player that is closest to the gold
-function findLeader()
+function findLeader(me)
 	local goldCarrier = getGoldCarrier()
 	if goldCarrier ~= nil then
+		outputChatBox("Found gold carrier as leader")
 		return goldCarrier
 	end
 
@@ -31,15 +32,17 @@ function findLeader()
 	local closestDistance = 999999999
 	for k, player in ipairs(players) do
 		local distance = getDistanceToGold(player)
-		if distance < closestDistance then
+		outputChatBox("Distance to gold for player: "..getPlayerName(player))
+		if (distance < closestDistance and player ~= me) then
 			closestPlayer = player
 			closestDistance = distance
+			outputChatBox("Best player so far")
 		end
 	end
 	return closestPlayer
 end
 
-function distanceToGold(player)
+function getDistanceToGold(player)
 	local gold = getLastGoldSpawn()
 	if gold == nil then
 		return 999999999
@@ -52,7 +55,7 @@ end
 function bindXForTeleport()
 	bindKey(source, "x", "down", askForTeleport)
 end
-addEventHandler("ondPlayerJoin", getRootElement(), bindXForTeleport)
+addEventHandler("onPlayerJoin", getRootElement(), bindXForTeleport)
 
 -- unbind x key when player quits
 function unbindXForTeleport()

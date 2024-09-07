@@ -229,6 +229,7 @@ addEventHandler("reportTransform", resourceRoot, function(transform, param1, par
         spawnGoldAtTransform(transform.x, transform.y, transform.z)
     end
     if param1 ~= nil and param1 == "telportTo" then
+        outputChatBox(inspect(param2).." "..inspect(param3))
         teleportTo(param2, transform)
     end
 end)
