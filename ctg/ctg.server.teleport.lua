@@ -52,13 +52,22 @@ function getDistanceToGold(player)
 	return getDistanceBetweenPoints3D(x, y, z, x2, y2, z2)
 end
 
+function isFarEnoughFromLeader(player)
+	local leader = findLeader(player)
+	if leader == nil then
+		return false
+	end
+	local distance = getDistanceBetweenPoints3D(getElementPosition(player), getElementPosition(leader))
+	return distance > TELEPORT_MIN_DISTANCE
+end
+
 function bindXForTeleport()
 	bindKey(source, "x", "down", askForTeleport)
 end
-addEventHandler("onPlayerJoin", getRootElement(), bindXForTeleport)
+--addEventHandler("onPlayerJoin", getRootElement(), bindXForTeleport)
 
 -- unbind x key when player quits
 function unbindXForTeleport()
 	unbindKey(source, "x")
 end
-addEventHandler("onPlayerQuit", getRootElement(), unbindXForTeleport)
+--addEventHandler("onPlayerQuit", getRootElement(), unbindXForTeleport)

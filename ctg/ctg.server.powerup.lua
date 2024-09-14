@@ -6,16 +6,53 @@ local nitroPowerUp = {
 	duration = NITRO_DURATION,
 	onEnable = function(player)
 		addVehicleUpgrade(vehicle, 1009)
-		--bindKey(player, "lctrl", "down", activationFunction)
+		return true
 	end,
 	onDisable = function(player)
-		--unbindKey(player, "lctrl", "down", usingBooster)
 	end,
-	onAcitavted = function(player, vehicle)
+	onActivated = function(player, vehicle)
 		outputChatBox("Nitro activated", player)
 	end,
 	onDeactivated = function(player, vehicle)
 		removeVehicleUpgrade(vehicle, 1009)
+	end	
+}
+
+local teleportPowerUp = {
+	key = "teleport",
+	name = "Catch up",
+	bindKey = "x",
+	cooldown = TELEPORT_COOLDOWN,
+	duration = 0,
+	onEnable = function(player)
+		return isFarEnoughFromLeader(player)
+	end,
+	onDisable = function(player)
+	end,
+	onActivated = function(player, vehicle)
+		askForTeleport(player)
+	end,
+	onDeactivated = function(player, vehicle)
+	end	
+}
+
+local superCarPowerUp = {
+	key = "superCar",
+	name = "Super car",
+	bindKey = "c",
+	cooldown = 20,
+	duration = 20,
+	onEnable = function(player)
+		return true
+	end,
+	onDisable = function(player)
+	end,
+	onActivated = function(player, vehicle, state)
+		state.oldVehicleModel = getElementModel(vehicle)
+		setElementModel(theVehicle, SUPER_CAR_MODEL)
+	end,
+	onDeactivated = function(player, vehicle, state)
+		setElementModel(vehicle, state.oldVehicleModel)
 	end	
 }
 
@@ -84,7 +121,7 @@ function usePowerUp(player, key, keyState, powerUp)
 	local state = getPlayerState(player, powerUp)
 	state.activated = true
 	setPowerUpEndsTime(powerUp, state)
-	powerUp.onActivated(player, getPedOccupiedVehicle(player))
+	powerUp.onActivated(player, getPedOccupiedVehicle(player), state)
 	unbindKey(player, key, keyState, usePowerUp, powerUp)
 end
 
@@ -93,16 +130,30 @@ function tickPowerUps()
 		for j, powerUp in powerUps do
 			local powerUpState = getPlayerState(player, powerUp)
 
+			if (player == getGoldCarrier()) then
+				if (powerUpState.enabled) then
+					unbindKey(player, powerUp.bindKey, "down", usePowerUp, powerUp)
+					powerUp.onDisabled(player, getPedOccupiedVehicle(player), powerUpState)
+					powerUpState.enabled = false
+				end
+				if (powerUpState.activated) then
+					powerUp.onDeactivated(player, getPedOccupiedVehicle(player), powerUpState)
+					powerUpState.activated = false
+					powerUpState.enabled = false
+				end
+				continue
+			end
+
 			if (powerUpState.actived) then
 				local timeLeft = durationLeft(powerUpState)
 				if (timeLeft >= 0) then
-					triggerClientEvent(player, "boosterDurationTick", timeLeft, powerUp.duration, j, powerUp.name, powerUp.bindKey)
+					triggerClientEvent(player, "boosterDurationTick", timeLeft, powerUp.duration, j, powerUp.name, powerUp.bindKey, powerUpState.enabled)
 				end
 
 				if (timeLeft <= 0) then
 					local vehicle = getPedOccupiedVehicle (player)
 					if (vehicle ~= nil) then
-						powerUp.onDeactivated(player, vehicle)
+						powerUp.onDeactivated(player, vehicle, powerUpState)
 						powerUpState.activated = false
 						powerUpState.enabled = false
 						setBoostCooldown(powerUp, powerUpState)
@@ -111,16 +162,18 @@ function tickPowerUps()
 			elseif (!powerUpState.enabled) then
 				local timeLeft = boostCooldownLeft(powerUpState)
 				if (timeLeft >= 0) then
-					triggerClientEvent(player, "boosterCooldownTick", timeLeft, powerUp.cooldown, j, powerUp.name, powerUp.bindKey)
+					triggerClientEvent(player, "boosterCooldownTick", timeLeft, powerUp.cooldown, j, powerUp.name, powerUp.bindKey, powerUpState.enabled)
 				end
 
 				if (timeLeft <= 0) then
 					local vehicle = getPedOccupiedVehicle (player)
 					if (vehicle ~= nil) then
-						powerUp.onEnable(player, vehicle)
-						bindKey(player, powerUp.bindKey, "down", usePowerUp, powerUp)
-						powerUpState.enabled = true
-						powerUpState.activated = false
+						local wasEnabled = powerUp.onEnable(player, vehicle)
+						if (wasEnabled) then
+							bindKey(player, powerUp.bindKey, "down", usePowerUp, powerUp)
+							powerUpState.enabled = true
+							powerUpState.activated = false
+						end
 					end
 				end
 			end
