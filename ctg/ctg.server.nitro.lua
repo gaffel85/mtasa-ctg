@@ -2,6 +2,23 @@ local boostCooldown
 local boosterAdded = false
 local nitroEndsTime
 
+local nitroPowerUp = {
+	cooldown = BOOST_COOLDOWN,
+	duration = NITRO_DURATION,
+	onEnable = function(player)
+		bindKey(player, "lctrl", "down", usingBooster)
+	end,
+	onDisable = function(player)
+		unbindKey(player, "lctrl", "down", usingBooster)
+	end,
+	onAcitavted = function(player, vehicle)
+		addVehicleUpgrade(vehicle, 1009)
+	end,
+	onDeactivated = function(player, vehicle)
+		removeVehicleUpgrade(vehicle, 1009)
+	end	
+}
+
 function setBoostCooldown(duration)
 	local time = getRealTime()
 	boostCooldown = time.timestamp + duration
