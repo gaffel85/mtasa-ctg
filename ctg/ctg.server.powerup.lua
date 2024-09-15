@@ -4,6 +4,7 @@ local nitroPowerUp = {
 	bindKey = "lctrl",
 	cooldown = BOOST_COOLDOWN,
 	duration = NITRO_DURATION,
+	initCooldown = 5,
 	onEnable = function(player)
 		addVehicleUpgrade(vehicle, 1009)
 		return true
@@ -60,7 +61,7 @@ local initialState = {
 	enabled = false,
 	activated = false,
 	durationEnd = nil,
-	cooldownEnd = nil
+	cooldownEnd = 0
 }
 
 local powerUpStates = {}
@@ -71,9 +72,9 @@ function addPowerUp(powerUp)
 	powerUpStates[powerUp.key] = {}
 end
 
-function setBoostCooldown(powerUp, state)
+function setBoostCooldown(cooldown, state)
 	local time = getRealTime()
-	local boostCooldown = time.timestamp + powerUp.cooldown
+	local boostCooldown = time.timestamp + cooldown
 	state.cooldownEnd = boostCooldown
 end
 
@@ -112,6 +113,7 @@ function getPlayerState(player, powerUp)
 	local powerUpState = states[player]
 	if (powerUpState == nil) then
 		powerUpState = initialState
+		setBoostCooldown(powerUp.initCooldown, powerUpState)
 		states[player] = powerUpState
 	end
 	return powerUpState
@@ -154,7 +156,7 @@ function tickPowerUps()
 							powerUp.onDeactivated(player, vehicle, powerUpState)
 							powerUpState.activated = false
 							powerUpState.enabled = false
-							setBoostCooldown(powerUp, powerUpState)
+							setBoostCooldown(powerUp.coolDown, powerUpState)
 						end
 					end
 				elseif (powerUpState.enabled == false) then
