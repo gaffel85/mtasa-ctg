@@ -130,9 +130,11 @@ end
 function tickPowerUps()
 	for i, player in ipairs(getElementsByType("player")) do
 		for j, powerUp in ipairs(powerUps) do
+			outputChatBox("tickPowerUps "..powerUp.name.." for player "..getPlayerName(player))
 			local powerUpState = getPlayerState(player, powerUp)
 
 			if (player == getGoldCarrier()) then
+				outputChatBox("player is gold carrier")
 				if (powerUpState.enabled) then
 					unbindKey(player, powerUp.bindKey, "down", usePowerUp, powerUp)
 					powerUp.onDisabled(player, getPedOccupiedVehicle(player), powerUpState)
@@ -145,30 +147,41 @@ function tickPowerUps()
 				end
 			else
 				if (powerUpState.actived) then
+					outputChatBox("powerUpState.actived")
 					local timeLeft = durationLeft(powerUpState)
+					outputChatBox("timeLeft "..timeLeft)
 					if (timeLeft >= 0) then
+						outputChatBox("triggerClientEvent "..timeLeft.." "..powerUp.duration.." "..j.." "..powerUp.name.." "..powerUp.bindKey.." true")
 						triggerClientEvent(player, "boosterDurationTick", timeLeft, powerUp.duration, j, powerUp.name, powerUp.bindKey, true)
 					end
 
 					if (timeLeft <= 0) then
+						outputChatBox("timeLeft <= 0")
 						local vehicle = getPedOccupiedVehicle (player)
 						if (vehicle ~= nil) then
+							outputChatBox("deactivate powerUp")
 							powerUp.onDeactivated(player, vehicle, powerUpState)
 							powerUpState.activated = false
 							powerUpState.enabled = false
 							setBoostCooldown(powerUp.coolDown, powerUpState)
+							outputChatBox("cooldown reset to "..powerUpState.cooldownEnd)
 						end
 					end
 				elseif (powerUpState.enabled == false) then
+					outputChatBox("powerUpState.enabled == false")
 					local timeLeft = boostCooldownLeft(powerUpState)
+					outputChatBox("timeLeft "..timeLeft)
 					if (timeLeft >= 0) then
+						outputChatBox("triggerClientEvent "..timeLeft.." "..powerUp.cooldown.." "..j.." "..powerUp.name.." "..powerUp.bindKey.." true")
 						triggerClientEvent(player, "boosterCooldownTick", timeLeft, powerUp.cooldown, j, powerUp.name, powerUp.bindKey, true)
 					end
 
 					if (timeLeft <= 0) then
+						outputChatBox("timeLeft <= 0")
 						local vehicle = getPedOccupiedVehicle (player)
 						if (vehicle ~= nil) then
 							local wasEnabled = powerUp.onEnable(player, vehicle)
+							outputChatBox("wasEnabled "..tostring(wasEnabled))
 							if (wasEnabled) then
 								bindKey(player, powerUp.bindKey, "down", usePowerUp, powerUp)
 								powerUpState.enabled = true
