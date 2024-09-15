@@ -80,17 +80,10 @@ function setBoostCooldown(cooldown, state)
 	state.cooldownEnd = boostCooldown
 end
 
-function setPowerUpEndsTime(powerUp)
+function setPowerUpEndsTime(powerUp, state)
 	local time = getRealTime()
 	local endsTime = time.timestamp + powerUp.duration
-	powerUp.durationEnd = endsTime
-end
-
-function usingBooster(powerUp)
-	if (powerUp.activated) then
-		setPowerUpEndsTime(powerUp)
-		resetBoosterCountdown()
-	end
+	state.durationEnd = endsTime
 end
 
 function resetBoosterCountdown(powerUp)
@@ -122,6 +115,7 @@ function getPlayerState(player, powerUp)
 end
 
 function usePowerUp(player, key, keyState, powerUp)
+	outputChatBox("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
 	local state = getPlayerState(player, powerUp)
 	state.activated = true
 	setPowerUpEndsTime(powerUp, state)
@@ -199,81 +193,5 @@ function tickPowerUps()
 	end
 end
 setTimer(tickPowerUps, 1000, 0)
-
-function tickCooldown()
-	for i, powerUp in ipairs(powerUps) do
-		if (powerUp.enabled == false) then
-			local timeLeft = boostCooldownLeft(powerUp)
-			if (timeLeft >= 0) then
-				triggerClientEvent("boosterCooldownTick", bombHolder, timeLeft, powerUp.cooldown, i, powerUp.name)
-			end
-
-			if (timeLeft <= 0) then
-				local vehicle = getPedOccupiedVehicle (bombHolder)
-				if (vehicle ~= nil) then
-					powerUp.onEnabled(bombHolder, vehicle)
-					powerUp.enabled = true
-					showBooserAdded(bombHolder)
-				end
-			end
-		end
-	end
-	if ( boostCooldown == nil ) then
-		return
-	end
-
-	local bombHolder = getBombHolder()
-	local timeLeft = boostCooldownLeft()
-	if (timeLeft >= 0 and boosterAdded == false and bombHolder ~= nil) then
-		triggerClientEvent("boosterCooldownTick", bombHolder, timeLeft, BOOST_COOLDOWN)
-	end
-
-	if ( timeLeft <= 0 and boosterAdded == false ) then
-		local vehicle = getPedOccupiedVehicle (bombHolder)
-		if (vehicle ~= nil) then
-			addVehicleUpgrade(vehicle, 1009)
-			boosterAdded = true
-			showBooserAdded(bombHolder)
-		end
-	end
-end
-
-function tickDuration()
-	if (nitroEndsTime == nil) then
-		return
-	end
-
-	local bombHolder = getBombHolder()
-	local timeLeft = durationLeft()
-	if ( timeLeft <= 0) then
-		local vehicle = getPedOccupiedVehicle (bombHolder)
-		if (vehicle ~= nil) then
-			removeVehicleUpgrade(vehicle, 1009)
-			nitroEndsTime = nil
-		end
-	end
-end
-
-function tickNitro()
-	if (getGameState() ~= GAME_STATE_ACTIVE_GAME) then
-		return
-	end
-
-	tickCooldown()
-	tickDuration()
-end
--- setTimer(tickNitro, 1000, 0)
-
-function onBombHolderChanged(oldBombHolder)
-	local bombHolder = source
-	boosterAdded = false
-	bindKey(bombHolder, "lctrl", "down", usingBooster)
-	if ( oldBombHolder ~= nil ) then
-		unbindKey(oldBombHolder, "lctrl", "down", usingBooster)
-	end
-
-	setBoostCooldown(5)
-end
--- addEventHandler("bombHolderChanged", root, onBombHolderChanged)
 
 addPowerUp(nitroPowerUp)
