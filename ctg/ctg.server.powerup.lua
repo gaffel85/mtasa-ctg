@@ -11,9 +11,10 @@ local nitroPowerUp = {
 		return true
 	end,
 	onDisable = function(player, vechilce)
+		outputChatBox("Nitro onDisabled"..getPlayerName(player))
 	end,
 	onActivated = function(player, vehicle)
-		outputChatBox("Nitro activated", player)
+		outputChatBox("Nitro activated"..getPlayerName(player))
 	end,
 	onDeactivated = function(player, vehicle)
 		outputChatBox("Nitro deactivated"..getPlayerName(player))
