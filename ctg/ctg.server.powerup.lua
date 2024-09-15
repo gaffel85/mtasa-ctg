@@ -273,3 +273,5 @@ function onBombHolderChanged(oldBombHolder)
 	setBoostCooldown(5)
 end
 -- addEventHandler("bombHolderChanged", root, onBombHolderChanged)
+
+addPowerUp(nitroPowerUp)
