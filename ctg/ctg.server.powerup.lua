@@ -147,7 +147,7 @@ function tickPowerUps()
 			if (powerUpState.actived) then
 				local timeLeft = durationLeft(powerUpState)
 				if (timeLeft >= 0) then
-					triggerClientEvent(player, "boosterDurationTick", timeLeft, powerUp.duration, j, powerUp.name, powerUp.bindKey, powerUpState.enabled)
+					triggerClientEvent(player, "boosterDurationTick", timeLeft, powerUp.duration, j, powerUp.name, powerUp.bindKey, true)
 				end
 
 				if (timeLeft <= 0) then
@@ -162,7 +162,7 @@ function tickPowerUps()
 			elseif (!powerUpState.enabled) then
 				local timeLeft = boostCooldownLeft(powerUpState)
 				if (timeLeft >= 0) then
-					triggerClientEvent(player, "boosterCooldownTick", timeLeft, powerUp.cooldown, j, powerUp.name, powerUp.bindKey, powerUpState.enabled)
+					triggerClientEvent(player, "boosterCooldownTick", timeLeft, powerUp.cooldown, j, powerUp.name, powerUp.bindKey, true)
 				end
 
 				if (timeLeft <= 0) then
