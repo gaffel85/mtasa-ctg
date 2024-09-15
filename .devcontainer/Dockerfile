@@ -1,0 +1,33 @@
+FROM alpine:3.20.3
+
+RUN apk add --no-cache git
+CMD ["git","--version"]
+RUN apk add --no-cache make
+
+RUN set -ex \
+      && apk add --no-cache --virtual .lua-builddeps \
+      ca-certificates \
+      curl \
+      gcc \
+      libc-dev \
+      make \
+              readline-dev \
+                        && curl -fsSL -o /tmp/lua.tar.gz "https://www.lua.org/ftp/lua-5.4.7.tar.gz" \
+  && cd /tmp \
+      && echo "9fbf5e28ef86c69858f6d3d34eccc32e911c1a28b4120ff3e84aaa70cfbf1e30 *lua.tar.gz" | sha256sum -c - \
+    && mkdir /tmp/lua \
+  && tar -xf /tmp/lua.tar.gz -C /tmp/lua --strip-components=1 \
+  && cd /tmp/lua \
+      && make linux \
+    && make install \
+      && cd / \
+      && apk add --no-network --no-cache --virtual .lua-rundeps \
+              readline \
+                              && apk del --no-network .lua-builddeps \
+    && rm -rf /tmp/lua /tmp/lua.tar.gz \
+    && lua -v
+
+CMD ["lua"]
+
+LABEL org.opencontainers.image.source="https://github.com/GUI/lua-docker" \
+  org.opencontainers.image.licenses="MIT"

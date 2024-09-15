@@ -4,6 +4,10 @@
 	"name": "Alpine",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"image": "mcr.microsoft.com/devcontainers/base:alpine-3.20",
+	//"build": {
+//		"dockerfile": "Dockerfile",
+//		"context": ".."
+//	},
 	"features": {
 		"ghcr.io/veronoicc/devcontainer-features/luajit-2.1.0-beta3:1": {}
 	},

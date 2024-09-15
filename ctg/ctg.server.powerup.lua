@@ -127,7 +127,7 @@ end
 
 function tickPowerUps()
 	for i, player in ipairs(getElementsByType("player")) do
-		for j, powerUp in powerUps do
+		for j, powerUp in ipairs(powerUps) do
 			local powerUpState = getPlayerState(player, powerUp)
 
 			if (player == getGoldCarrier()) then
