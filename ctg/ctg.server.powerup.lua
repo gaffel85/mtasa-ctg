@@ -136,7 +136,7 @@ function tickPowerUps()
 				outputChatBox("player is gold carrier")
 				if (powerUpState.enabled) then
 					unbindKey(player, powerUp.bindKey, "down", usePowerUp, powerUp)
-					powerUp.onDisabled(player, getPedOccupiedVehicle(player), powerUpState)
+					powerUp.onDisable(player, getPedOccupiedVehicle(player), powerUpState)
 					powerUpState.enabled = false
 				end
 				if (powerUpState.activated) then
