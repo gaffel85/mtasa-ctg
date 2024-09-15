@@ -128,7 +128,9 @@ function usePowerUp(player, key, keyState, powerUp)
 end
 
 function tickPowerUps()
+	outputChatBox("tickPowerUps")
 	for i, player in ipairs(getElementsByType("player")) do
+		outputChatBox("tickPowerUps for player "..getPlayerName(player))
 		for j, powerUp in ipairs(powerUps) do
 			outputChatBox("tickPowerUps "..powerUp.name.." for player "..getPlayerName(player))
 			local powerUpState = getPlayerState(player, powerUp)
