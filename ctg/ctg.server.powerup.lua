@@ -118,10 +118,12 @@ function getPlayerState(player, powerUp)
 end
 
 function usePowerUp(player, key, keyState, powerUp)
+	outputServerLog("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
 	outputChatBox("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
 	local state = getPlayerState(player, powerUp)
 	state.activated = true
 	outputChatBox("state: "..tostring(state.activated))
+	outputServerLog("state: "..inspect(state))
 	setPowerUpEndsTime(powerUp, state)
 	local vehicle = getPedOccupiedVehicle(player)
 	if (vehicle ~= nil) then
@@ -150,7 +152,7 @@ function tickPowerUps()
 					powerUpState.enabled = false
 				end
 			else
-				if (powerUpState.actived) then
+				if (powerUpState.actived == true) then
 					outputChatBox("powerUpState.actived")
 					local timeLeft = durationLeft(powerUpState)
 					outputChatBox("timeLeft "..timeLeft)
