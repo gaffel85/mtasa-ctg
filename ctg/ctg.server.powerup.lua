@@ -157,7 +157,7 @@ function tickPowerUps()
 							setBoostCooldown(powerUp, powerUpState)
 						end
 					end
-				elseif (!powerUpState.enabled) then
+				elseif (powerUpState.enabled == false) then
 					local timeLeft = boostCooldownLeft(powerUpState)
 					if (timeLeft >= 0) then
 						triggerClientEvent(player, "boosterCooldownTick", timeLeft, powerUp.cooldown, j, powerUp.name, powerUp.bindKey, true)
