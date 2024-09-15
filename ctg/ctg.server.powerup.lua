@@ -117,6 +117,15 @@ function getPlayerState(player, powerUp)
 	return powerUpState
 end
 
+function findPowerUpWithKey(key)
+	for i, powerUp in ipairs(powerUps) do
+		if (powerUp.key == key) then
+			return powerUp
+		end
+	end
+	return nil
+end
+
 function usePowerUp(player, key, keyState, powerUp)
 	outputServerLog("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
 	outputChatBox("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
@@ -127,10 +136,14 @@ function usePowerUp(player, key, keyState, powerUp)
 	setPowerUpEndsTime(powerUp, state)
 	local vehicle = getPedOccupiedVehicle(player)
 	if (vehicle ~= nil) then
-		powerUp.onActivated(player, vehicle, state)
+		local realPowerUp = findPowerUpWithKey(powerUp.key)
+		if (realPowerUp ~= nil) then
+			realPowerUp.onActivated(player, vehicle, state)
+		end
 	else
 		outputChatBox("vehicle is nil")
 	end
+	
 	unbindKey(player, key, keyState, usePowerUp, powerUp)
 end
 
