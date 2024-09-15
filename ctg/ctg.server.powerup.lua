@@ -131,13 +131,15 @@ function usePowerUp(player, key, keyState, powerUp)
 	outputChatBox("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
 	local state = getPlayerState(player, powerUp)
 	state.activated = true
+	setPowerUpEndsTime(powerUp, state)
 	outputChatBox("state: "..tostring(state.activated))
 	outputServerLog("state: "..inspect(state))
-	setPowerUpEndsTime(powerUp, state)
 	local vehicle = getPedOccupiedVehicle(player)
 	if (vehicle ~= nil) then
 		local realPowerUp = findPowerUpWithKey(powerUp.key)
+		outputServerLog("realPowerUp: "..tostring(realPowerUp.name))
 		if (realPowerUp ~= nil) then
+			outputServerLog("activating: "..tostring(realPowerUp.name))
 			realPowerUp.onActivated(player, vehicle, state)
 		end
 	else
@@ -166,7 +168,7 @@ function tickPowerUps()
 				end
 			else
 				if (powerUpState.actived == true) then
-					outputChatBox("powerUpState.actived")
+					outputChatBox("powerUpState.actived ==============")
 					local timeLeft = durationLeft(powerUpState)
 					outputChatBox("timeLeft "..timeLeft)
 					if (timeLeft >= 0) then
