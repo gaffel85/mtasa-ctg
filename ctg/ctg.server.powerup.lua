@@ -123,7 +123,12 @@ function usePowerUp(player, key, keyState, powerUp)
 	state.activated = true
 	outputChatBox("state: "..tostring(state.activated))
 	setPowerUpEndsTime(powerUp, state)
-	powerUp.onActivated(player, getPedOccupiedVehicle(player), state)
+	local vehicle = getPedOccupiedVehicle(player)
+	if (vehicle ~= nil) then
+		powerUp.onActivated(player, vehicle, state)
+	else
+		outputChatBox("vehicle is nil")
+	end
 	unbindKey(player, key, keyState, usePowerUp, powerUp)
 end
 
