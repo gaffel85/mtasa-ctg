@@ -182,6 +182,7 @@ function tickPowerUps()
 							local wasEnabled = powerUp.onEnable(player, vehicle)
 							outputChatBox("wasEnabled "..tostring(wasEnabled))
 							if (wasEnabled) then
+								outputChatBox("bindKey "..powerUp.bindKey)
 								bindKey(player, powerUp.bindKey, "down", usePowerUp, powerUp)
 								powerUpState.enabled = true
 								powerUpState.activated = false
