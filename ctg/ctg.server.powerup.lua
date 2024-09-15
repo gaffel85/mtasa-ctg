@@ -154,7 +154,7 @@ function tickPowerUps()
 					outputChatBox("timeLeft "..timeLeft)
 					if (timeLeft >= 0) then
 						outputChatBox("triggerClientEvent "..timeLeft.." "..powerUp.duration.." "..j.." "..powerUp.name.." "..powerUp.bindKey.." true")
-						triggerClientEvent(player, "boosterDurationTick", timeLeft, powerUp.duration, j, powerUp.name, powerUp.bindKey, true)
+						triggerClientEvent(player, "boosterDurationTick", player, timeLeft, powerUp.duration, j, powerUp.name, powerUp.bindKey, true)
 					end
 
 					if (timeLeft <= 0) then
@@ -175,7 +175,7 @@ function tickPowerUps()
 					outputChatBox("timeLeft "..timeLeft)
 					if (timeLeft >= 0) then
 						outputChatBox("triggerClientEvent "..timeLeft.." "..powerUp.cooldown.." "..j.." "..powerUp.name.." "..powerUp.bindKey.." true")
-						triggerClientEvent(player, "boosterCooldownTick", timeLeft, powerUp.cooldown, j, powerUp.name, powerUp.bindKey, true)
+						triggerClientEvent(player, "boosterCooldownTick", player, timeLeft, powerUp.cooldown, j, powerUp.name, powerUp.bindKey, true)
 					end
 
 					if (timeLeft <= 0) then
