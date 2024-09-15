@@ -120,6 +120,7 @@ function usePowerUp(player, key, keyState, powerUp)
 	outputChatBox("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
 	local state = getPlayerState(player, powerUp)
 	state.activated = true
+	outputChatBox("state: "..tostring(state.activated))
 	setPowerUpEndsTime(powerUp, state)
 	powerUp.onActivated(player, getPedOccupiedVehicle(player), state)
 	unbindKey(player, key, keyState, usePowerUp, powerUp)
