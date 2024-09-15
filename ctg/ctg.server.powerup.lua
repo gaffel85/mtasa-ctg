@@ -6,6 +6,7 @@ local nitroPowerUp = {
 	duration = NITRO_DURATION,
 	initCooldown = 5,
 	onEnable = function(player)
+		outputChatBox("Nitro enabled "..getPlayerName(player))
 		addVehicleUpgrade(vehicle, 1009)
 		return true
 	end,
@@ -15,6 +16,7 @@ local nitroPowerUp = {
 		outputChatBox("Nitro activated", player)
 	end,
 	onDeactivated = function(player, vehicle)
+		outputChatBox("Nitro deactivated"..getPlayerName(player))
 		removeVehicleUpgrade(vehicle, 1009)
 	end	
 }
