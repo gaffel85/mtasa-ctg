@@ -27,10 +27,11 @@ local teleportPowerUp = {
 	bindKey = "x",
 	cooldown = TELEPORT_COOLDOWN,
 	duration = 0,
-	onEnable = function(player)
+	initCooldown = 5,
+	onEnable = function(player, vehicle)
 		return isFarEnoughFromLeader(player)
 	end,
-	onDisable = function(player)
+	onDisable = function(player, vehicle)
 	end,
 	onActivated = function(player, vehicle)
 		askForTeleport(player)
@@ -45,6 +46,7 @@ local superCarPowerUp = {
 	bindKey = "c",
 	cooldown = 20,
 	duration = 20,
+	initCooldown = 5,
 	onEnable = function(player)
 		return true
 	end,
@@ -124,11 +126,8 @@ function usePowerUp(player, key, keyState, powerUp)
 end
 
 function tickPowerUps()
-	outputChatBox("tickPowerUps")
 	for i, player in ipairs(getElementsByType("player")) do
-		outputChatBox("tickPowerUps for player "..getPlayerName(player))
 		for j, powerUp in ipairs(powerUps) do
-			outputChatBox("tickPowerUps "..powerUp.name.." for player "..getPlayerName(player))
 			local powerUpState = getPlayerState(player, powerUp)
 
 			if (player == getGoldCarrier()) then
