@@ -170,7 +170,7 @@ function tickPowerUps()
 					powerUpState.enabled = false
 				end
 			else
-				if (powerUpState.actived == true) then
+				if (powerUpState.activated == true) then
 					outputChatBox("powerUpState.actived ==============")
 					local timeLeft = durationLeft(powerUpState)
 					outputChatBox("timeLeft "..timeLeft)
