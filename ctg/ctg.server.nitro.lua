@@ -2,7 +2,7 @@ local boostCooldown
 local boosterAdded = false
 local nitroEndsTime
 
-local nitroPowerUp = {
+local nitroPowerUp2 = {
 	cooldown = BOOST_COOLDOWN,
 	duration = NITRO_DURATION,
 	onEnable = function(player)
@@ -19,7 +19,7 @@ local nitroPowerUp = {
 	end	
 }
 
-function setBoostCooldown(duration)
+function setBoostCooldownNitro(duration)
 	local time = getRealTime()
 	boostCooldown = time.timestamp + duration
 end
@@ -29,26 +29,26 @@ function setNitroEndsTime(duration)
 	nitroEndsTime = time.timestamp + duration
 end
 
-function usingBooster()
+function usingBoosterNitro()
 	if (boosterAdded) then
 		setNitroEndsTime(NITRO_DURATION)
 		resetBoosterCountdown()
 	end
 end
 
-function resetBoosterCountdown()
+function resetBoosterCountdownNitro()
 	if (boosterAdded) then
 		boosterAdded = false
 		setBoostCooldown(BOOST_COOLDOWN)
 	end
 end
 
-function boostCooldownLeft() 
+function boostCooldownLeftNitro() 
 	local currentTime = getRealTime()
 	return boostCooldown - currentTime.timestamp
 end
 
-function durationLeft() 
+function durationLeftNitro() 
 	local currentTime = getRealTime()
 	return nitroEndsTime - currentTime.timestamp
 end
