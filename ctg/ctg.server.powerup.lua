@@ -108,11 +108,12 @@ end
 
 function getPlayerState(player, powerUp)
 	local states = powerUpStates[powerUp.key]
-	local powerUpState = states[player]
+	local playerName = getPlayerName(player)
+	local powerUpState = states[playerName]
 	if (powerUpState == nil) then
 		powerUpState = initialState
 		setBoostCooldown(powerUp.initCooldown, powerUpState)
-		states[player] = powerUpState
+		states[playerName] = powerUpState
 	end
 	return powerUpState
 end
@@ -153,6 +154,8 @@ function tickPowerUps()
 	for i, player in ipairs(getElementsByType("player")) do
 		for j, powerUp in ipairs(powerUps) do
 			local powerUpState = getPlayerState(player, powerUp)
+
+			outputConsole("loop state: "..inspect(powerUpState))
 
 			if (player == getGoldCarrier()) then
 				outputChatBox("player is gold carrier")
@@ -216,6 +219,6 @@ function tickPowerUps()
 		end
 	end
 end
-setTimer(tickPowerUps, 1000, 0)
+setTimer(tickPowerUps, 3000, 0)
 
 addPowerUp(nitroPowerUp)
