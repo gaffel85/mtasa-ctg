@@ -198,7 +198,7 @@ function tickPowerUps()
 					local timeLeft = boostCooldownLeft(powerUpState)
 					--outputChatBox("timeLeft "..timeLeft)
 					if (timeLeft >= 0) then
-						outputChatBox("triggerClientEvent "..timeLeft.." "..powerUp.cooldown.." "..j.." "..powerUp.name.." "..powerUp.bindKey.." true")
+						--outputChatBox("triggerClientEvent "..timeLeft.." "..powerUp.cooldown.." "..j.." "..powerUp.name.." "..powerUp.bindKey.." true")
 						triggerClientEvent(player, "boosterCooldownTick", player, timeLeft, powerUp.cooldown, j, powerUp.name, powerUp.bindKey, true)
 					end
 
@@ -221,6 +221,8 @@ function tickPowerUps()
 		end
 	end
 end
-setTimer(tickPowerUps, 3000, 0)
+setTimer(tickPowerUps, 1000, 0)
 
 addPowerUp(nitroPowerUp)
+addPowerUp(teleportPowerUp)
+addPowerUp(superCarPowerUp)

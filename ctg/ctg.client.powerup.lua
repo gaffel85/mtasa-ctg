@@ -51,11 +51,7 @@ function tickBoosterDuration(timeLeft, totalTime, index, name, key, enabled)
 	local boosterLabel = boosterLabels[index]
 
 	local progress = 100 - (100 * (totalTime - timeLeft)/totalTime)
-	if ( progress < 99.5 ) then
-		guiLabelSetColor ( boosterLabel, 77, 77, 77 )
-	else 
-		guiLabelSetColor ( boosterLabel, 80, 255, 100 )
-	end
+	guiLabelSetColor ( boosterLabel, 77, 77, 77 )	
 	guiProgressBarSetProgress(boosterBar, progress)
 end
 addEvent("boosterDurationTick", true)
