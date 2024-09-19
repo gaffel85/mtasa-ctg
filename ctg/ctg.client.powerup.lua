@@ -7,7 +7,7 @@ for i = 1, 10 do
 	boosterLabels[i] = nil
 end
 
-function tickBoosterCooldown(timeLeft, totalTime, index, name, key, enabled)
+function getOrCreateBoosterBar(index, name, key)
 	local boosterBar = boosterBars[index]
 	if ( boosterBar ~= nil ) then
 		if ( source ~= localPlayer) then
@@ -22,16 +22,18 @@ function tickBoosterCooldown(timeLeft, totalTime, index, name, key, enabled)
 		boosterLabel = guiCreateLabel( 0, 0,1,1, name.." ("..key..")",true, boosterBar)
 		boosterBars[index] = boosterBar
 		boosterLabels[index] = boosterLabel
-		if (enabled) then
-			guiSetVisible(boosterBar, true)
-		else
-			guiSetVisible(boosterBar, false)
-		end
 		guiLabelSetColor ( boosterLabel, 0, 128, 0 )
 		guiLabelSetHorizontalAlign ( boosterLabel, "center" )
 		guiLabelSetVerticalAlign ( boosterLabel, "center" )
 		guiSetFont(boosterLabel, "default-bold-small")
 	end
+
+	return boosterBar
+end
+
+function tickBoosterCooldown(timeLeft, totalTime, index, name, key, enabled)
+	local boosterBar = getOrCreateBoosterBar(index, name, key)
+	local boosterLabel = boosterLabels[index]
 
 	local progress = 100 * (totalTime - timeLeft)/totalTime
 	if ( progress < 99.5 ) then
@@ -43,3 +45,18 @@ function tickBoosterCooldown(timeLeft, totalTime, index, name, key, enabled)
 end
 addEvent("boosterCooldownTick", true)
 addEventHandler("boosterCooldownTick", getRootElement(), tickBoosterCooldown)
+
+function tickBoosterDuration(timeLeft, totalTime, index, name, key, enabled)
+	local boosterBar = getOrCreateBoosterBar(index, name, key)
+	local boosterLabel = boosterLabels[index]
+
+	local progress = 100 - (100 * (totalTime - timeLeft)/totalTime)
+	if ( progress < 99.5 ) then
+		guiLabelSetColor ( boosterLabel, 77, 77, 77 )
+	else 
+		guiLabelSetColor ( boosterLabel, 80, 255, 100 )
+	end
+	guiProgressBarSetProgress(boosterBar, progress)
+end
+addEvent("boosterDurationTick", true)
+addEventHandler("boosterDurationTick", getRootElement(), tickBoosterDuration)

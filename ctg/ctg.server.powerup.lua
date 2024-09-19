@@ -81,6 +81,8 @@ function setBoostCooldown(cooldown, state)
 	local time = getRealTime()
 	local boostCooldown = time.timestamp + cooldown
 	state.cooldownEnd = boostCooldown
+	local timeLeft = boostCooldownLeft(state)
+	outputConsole("setBoostCooldown "..cooldown.." left: "..timeLeft)
 end
 
 function setPowerUpEndsTime(powerUp, state)
