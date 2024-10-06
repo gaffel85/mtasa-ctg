@@ -28,8 +28,9 @@ local teleportPowerUp = {
 	bindKey = "x",
 	cooldown = TELEPORT_COOLDOWN,
 	duration = 0,
-	initCooldown = 5,
+	initCooldown = 8,
 	onEnable = function(player, vehicle)
+		outputChatBox("teleport enabled "..getPlayerName(player))
 		return isFarEnoughFromLeader(player)
 	end,
 	onDisable = function(player, vehicle)
@@ -44,29 +45,23 @@ local teleportPowerUp = {
 local superCarPowerUp = {
 	key = "superCar",
 	name = "Super car",
-	bindKey = "c",
+	bindKey = "C",
 	cooldown = 20,
 	duration = 20,
-	initCooldown = 5,
+	initCooldown = 10,
 	onEnable = function(player)
+		outputChatBox("superCar enabled "..getPlayerName(player))
 		return true
 	end,
 	onDisable = function(player)
 	end,
 	onActivated = function(player, vehicle, state)
 		state.oldVehicleModel = getElementModel(vehicle)
-		setElementModel(theVehicle, SUPER_CAR_MODEL)
+		setElementModel(vehicle, SUPER_CAR_MODEL)
 	end,
 	onDeactivated = function(player, vehicle, state)
 		setElementModel(vehicle, state.oldVehicleModel)
 	end	
-}
-
-local initialState = {
-	enabled = false,
-	activated = false,
-	durationEnd = nil,
-	cooldownEnd = 0
 }
 
 local powerUpStates = {}
@@ -113,7 +108,13 @@ function getPlayerState(player, powerUp)
 	local playerName = getPlayerName(player)
 	local powerUpState = states[playerName]
 	if (powerUpState == nil) then
-		powerUpState = initialState
+		powerUpState = {
+			enabled = false,
+			activated = false,
+			durationEnd = nil,
+			cooldownEnd = 0,
+			name = powerUp.name
+		}
 		setBoostCooldown(powerUp.initCooldown, powerUpState)
 		states[playerName] = powerUpState
 	end
@@ -158,6 +159,8 @@ function tickPowerUps()
 			local powerUpState = getPlayerState(player, powerUp)
 
 			--outputConsole("loop state: "..inspect(powerUpState))
+			--outputChatBox("timeLeft "..inspect(powerUpState.name)..inspect(powerUp.key))
+			--outputChatBox("timeLeft "..timeLeft)
 
 			if (player == getGoldCarrier()) then
 				outputChatBox("player is gold carrier")
@@ -203,7 +206,7 @@ function tickPowerUps()
 					end
 
 					if (timeLeft <= 0) then
-						--outputChatBox("timeLeft <= 0")
+						outputChatBox("timeLeft <= 0 powerup: "..inspect(powerUp.name))
 						local vehicle = getPedOccupiedVehicle (player)
 						if (vehicle ~= nil) then
 							local wasEnabled = powerUp.onEnable(player, vehicle)

@@ -36,9 +36,12 @@ function exitVehicle(thePlayer, seat, jacked)
 end
 addEventHandler("onVehicleStartExit", getRootElement(), exitVehicle)
 
-function spawn(thePlayer)
-    local spawnPoint = spawnPoints[currentSpawn]
-    currentSpawn = currentSpawn % #spawnPoints + 1
+function spawn(thePlayer, random)
+    local spawnPoint = spawnPoints[math.random(#spawnPoints)]
+    if (random == true) then
+        local spawnPoint = spawnPoints[currentSpawn]
+        currentSpawn = currentSpawn % #spawnPoints + 1
+    end  
     local posX, posY, posZ = coordsFromEdl(spawnPoint)
     local rotX, rotY, rotZ = rotFromEdl(spawnPoint)
     spawnAt(thePlayer, posX, posY, posZ, rotX, rotY, rotZ)
@@ -133,6 +136,7 @@ function startGameMap(startedMap)
     spawnPoints = getElementsByType("playerSpawnPoint", mapRoot)
     goldSpawnPoints = getElementsByType("goldSpawnPoint", mapRoot)
     hideouts = getElementsByType("hideout", mapRoot)
+    currentSpawn = math.random(#spawnPoints)
     setGoldSpawns(goldSpawnPoints)
     setHideouts(hideouts)
 
@@ -141,7 +145,7 @@ end
 addEventHandler("onGamemodeMapStart", getRootElement(), startGameMap)
 
 function joinHandler()
-    spawn(source)
+    spawn(source, false)
     startGameIfEnoughPlayers()
     outputChatBox("Welcome to Capture the Gold!", source)
 end
@@ -207,7 +211,7 @@ function resetRoundVars()
 end
 
 function playerDied(ammo, attacker, weapon, bodypart)
-    spawn(source)
+    spawn(source, true)
     --local posX, posY, posZ = getElementPosition(source)
     --spawnAt(source, posX, posY, posZ, 0, 0, 0)
 
