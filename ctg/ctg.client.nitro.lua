@@ -2,7 +2,7 @@ local boosterBar = nil
 local boosterLabel = nil
 
 function tickBoosterCooldownNitro(timeLeft, totalTime, index, name)
-	if ( boosterBar ~= nil ) then
+	if ( boosterBar ) then
 		if ( source ~= localPlayer) then
 			guiSetVisible(boosterBar, false)
 		else

@@ -1,6 +1,6 @@
 local bombEndTime
 
-addEvent("bombTimesUp")
+-- addEvent("bombTimesUp")
 
 function bombTimeLeft() 
 	local currentTime = getRealTime()
@@ -36,14 +36,14 @@ function tickBombTimer()
 	end
 
 	local players = getElementsByType ( "player" )
-	if(getBombHolder() ~= nil and #players > 0) then
+	if(getBombHolder() and #players > 0) then
 		timeLeft = bombTimeLeft()
 		if (timeLeft < 12 and timeLeft > 10) then
 			triggerClientEvent("timesAlmostUp", getBombHolder())
 		end
 
 		if ( timeLeft < 0 ) then
-			triggerEvent("bombTimesUp", getBombHolder())
+			-- triggerEvent("bombTimesUp", getBombHolder())
 		else
 			triggerClientEvent("bombTimerTick", getBombHolder(), timeLeft, BOMB_START_SECONDS)
 		end

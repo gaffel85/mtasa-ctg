@@ -64,28 +64,28 @@ function removeOldGold()
 end
 
 function destroySpawnMarker()
-    if (goldSpawnMarker ~= nil) then
+    if (goldSpawnMarker) then
         destroyElement(goldSpawnMarker)
     end
     goldSpawnMarker = nil
 end
 
 function destroySpawnBlip()
-    if (goldSpawnBlip ~= nil) then
+    if (goldSpawnBlip) then
         destroyElement(goldSpawnBlip)
     end
     goldSpawnBlip = nil
 end
 
 function destroyCarrierBlip()
-    if (goldCarrierBlip ~= nil) then
+    if (goldCarrierBlip) then
         destroyElement(goldCarrierBlip)
     end
     goldCarrierBlip = nil
 end
 
 function destroyCarrierMarker()
-    if (goldCarrierMarker ~= nil) then
+    if (goldCarrierMarker) then
         destroyElement(goldCarrierMarker)
     end
     goldCarrierMarker = nil
@@ -111,9 +111,10 @@ end
 addEventHandler("onPlayerMarkerHit", getRootElement(), markerHit)
 
 function onGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
+    -- outputChatBox("onGoldCarrierChanged called")
     destroyCarrierBlip()
     destroyCarrierMarker()
-    if (newGoldCarrier == nil) then
+    if (not newGoldCarrier) then
         return
     end
 

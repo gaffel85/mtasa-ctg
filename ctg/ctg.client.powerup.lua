@@ -9,7 +9,7 @@ end
 
 function getOrCreateBoosterBar(index, name, key)
 	local boosterBar = boosterBars[index]
-	if ( boosterBar ~= nil ) then
+	if ( boosterBar ) then
 		if ( source ~= localPlayer) then
 			guiSetVisible(boosterBar, false)
 		else

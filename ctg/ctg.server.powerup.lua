@@ -6,18 +6,18 @@ local nitroPowerUp = {
 	duration = NITRO_DURATION,
 	initCooldown = 5,
 	onEnable = function(player, vehicle)
-		outputChatBox("Nitro enabled "..getPlayerName(player))
+		-- outputChatBox("Nitro enabled "..getPlayerName(player))
 		addVehicleUpgrade(vehicle, 1009)
 		return true
 	end,
 	onDisable = function(player, vechilce)
-		outputChatBox("Nitro onDisabled"..getPlayerName(player))
+		-- outputChatBox("Nitro onDisabled"..getPlayerName(player))
 	end,
 	onActivated = function(player, vehicle)
-		outputChatBox("Nitro activated"..getPlayerName(player))
+		-- outputChatBox("Nitro activated"..getPlayerName(player))
 	end,
 	onDeactivated = function(player, vehicle)
-		outputChatBox("Nitro deactivated"..getPlayerName(player))
+		-- outputChatBox("Nitro deactivated"..getPlayerName(player))
 		removeVehicleUpgrade(vehicle, 1009)
 	end	
 }
@@ -30,7 +30,7 @@ local teleportPowerUp = {
 	duration = 0,
 	initCooldown = 8,
 	onEnable = function(player, vehicle)
-		outputChatBox("teleport enabled "..getPlayerName(player))
+		-- outputChatBox("teleport enabled "..getPlayerName(player))
 		return isFarEnoughFromLeader(player)
 	end,
 	onDisable = function(player, vehicle)
@@ -50,7 +50,7 @@ local superCarPowerUp = {
 	duration = 20,
 	initCooldown = 10,
 	onEnable = function(player)
-		outputChatBox("superCar enabled "..getPlayerName(player))
+		-- outputChatBox("superCar enabled "..getPlayerName(player))
 		return true
 	end,
 	onDisable = function(player)
@@ -107,7 +107,7 @@ function getPlayerState(player, powerUp)
 	local states = powerUpStates[powerUp.key]
 	local playerName = getPlayerName(player)
 	local powerUpState = states[playerName]
-	if (powerUpState == nil) then
+	if (not powerUpState) then
 		powerUpState = {
 			enabled = false,
 			activated = false,
@@ -132,22 +132,22 @@ end
 
 function usePowerUp(player, key, keyState, powerUp)
 	outputServerLog("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
-	outputChatBox("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
+	-- outputChatBox("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
 	local state = getPlayerState(player, powerUp)
 	state.activated = true
 	setPowerUpEndsTime(powerUp, state)
-	outputChatBox("state: "..tostring(state.activated))
+	-- outputChatBox("state: "..tostring(state.activated))
 	outputServerLog("state: "..inspect(state))
 	local vehicle = getPedOccupiedVehicle(player)
-	if (vehicle ~= nil) then
+	if (vehicle) then
 		local realPowerUp = findPowerUpWithKey(powerUp.key)
 		outputServerLog("realPowerUp: "..tostring(realPowerUp.name))
-		if (realPowerUp ~= nil) then
+		if (realPowerUp) then
 			outputServerLog("activating: "..tostring(realPowerUp.name))
 			realPowerUp.onActivated(player, vehicle, state)
 		end
 	else
-		outputChatBox("vehicle is nil")
+		-- outputChatBox("vehicle is nil")
 	end
 	
 	unbindKey(player, key, keyState, usePowerUp, powerUp)
@@ -163,7 +163,7 @@ function tickPowerUps()
 			--outputChatBox("timeLeft "..timeLeft)
 
 			if (player == getGoldCarrier()) then
-				outputChatBox("player is gold carrier")
+				-- outputChatBox("player is gold carrier")
 				if (powerUpState.enabled) then
 					unbindKey(player, powerUp.bindKey, "down", usePowerUp, powerUp)
 					powerUp.onDisable(player, getPedOccupiedVehicle(player), powerUpState)
@@ -176,9 +176,9 @@ function tickPowerUps()
 				end
 			else
 				if (powerUpState.activated == true) then
-					outputChatBox("powerUpState.actived ==============")
+					-- outputChatBox("powerUpState.actived ==============")
 					local timeLeft = durationLeft(powerUpState)
-					outputChatBox("timeLeft "..timeLeft)
+					-- outputChatBox("timeLeft "..timeLeft)
 					if (timeLeft >= 0) then
 						--outputChatBox("triggerClientEvent "..timeLeft.." "..powerUp.duration.." "..j.." "..powerUp.name.." "..powerUp.bindKey.." true")
 						triggerClientEvent(player, "boosterDurationTick", player, timeLeft, powerUp.duration, j, powerUp.name, powerUp.bindKey, true)
@@ -187,7 +187,7 @@ function tickPowerUps()
 					if (timeLeft <= 0) then
 						--outputChatBox("timeLeft <= 0")
 						local vehicle = getPedOccupiedVehicle (player)
-						if (vehicle ~= nil) then
+						if (vehicle) then
 							--outputChatBox("deactivate powerUp")
 							powerUp.onDeactivated(player, vehicle, powerUpState)
 							powerUpState.activated = false
@@ -206,9 +206,9 @@ function tickPowerUps()
 					end
 
 					if (timeLeft <= 0) then
-						outputChatBox("timeLeft <= 0 powerup: "..inspect(powerUp.name))
+						-- outputChatBox("timeLeft <= 0 powerup: "..inspect(powerUp.name))
 						local vehicle = getPedOccupiedVehicle (player)
-						if (vehicle ~= nil) then
+						if (vehicle) then
 							local wasEnabled = powerUp.onEnable(player, vehicle)
 							--outputChatBox("wasEnabled "..tostring(wasEnabled))
 							if (wasEnabled) then

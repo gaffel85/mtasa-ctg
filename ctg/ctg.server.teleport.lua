@@ -1,16 +1,16 @@
 function askForTeleport(player, secondParam)
 	local leader = findLeader(player)
-	if (leader == nil or leader == player) then
-		outputChatBox("No leader found")
+	if (not leader or leader == player) then
+		-- outputChatBox("No leader found")
 		return
 	end
-	outputChatBox("Leader is "..getPlayerName(leader))
+	-- outputChatBox("Leader is "..getPlayerName(leader))
 	triggerClientEvent(leader, "reportLastTransform", resourceRoot, 2, "telportTo", player)
 end
 
 function teleportTo(player, transform)
 	local vehicle = getPedOccupiedVehicle(player)
-	if (vehicle == nil) then
+	if (not vehicle) then
 		return
 	end
 	setElementPosition(vehicle, transform.x, transform.y, transform.z)
@@ -22,8 +22,8 @@ end
 -- function that finds the leader by first taking the goldCarrier, if there is one, and then the player that is closest to the gold
 function findLeader(me)
 	local goldCarrier = getGoldCarrier()
-	if goldCarrier ~= nil then
-		outputChatBox("Found gold carrier as leader")
+	if goldCarrier then
+		-- outputChatBox("Found gold carrier as leader")
 		return goldCarrier
 	end
 
@@ -32,11 +32,11 @@ function findLeader(me)
 	local closestDistance = 999999999
 	for k, player in ipairs(players) do
 		local distance = getDistanceToGold(player)
-		outputChatBox("Distance to gold for player: "..getPlayerName(player))
+		-- outputChatBox("Distance to gold for player: "..getPlayerName(player))
 		if (distance < closestDistance and player ~= me) then
 			closestPlayer = player
 			closestDistance = distance
-			outputChatBox("Best player so far")
+			-- outputChatBox("Best player so far")
 		end
 	end
 	return closestPlayer
@@ -44,7 +44,7 @@ end
 
 function getDistanceToGold(player)
 	local gold = getLastGoldSpawn()
-	if gold == nil then
+	if not gold then
 		return 999999999
 	end
 	local x, y, z = getElementPosition(player)
@@ -54,11 +54,33 @@ end
 
 function isFarEnoughFromLeader(player)
 	local leader = findLeader(player)
-	if leader == nil then
+	outputDebugString("isFarEnoughFromLeader  for "..inspect(player).." "..inspect(leader))
+	if not leader then
 		return false
 	end
-	local distance = getDistanceBetweenPoints3D(getElementPosition(player), getElementPosition(leader))
-	return distance > TELEPORT_MIN_DISTANCE
+	local playerPosition = nil
+	if player then
+		playerPosition = getElementPosition(player)
+	else
+		-- outputChatBox("Player not null")
+	end
+	local leaderPosition = nil
+	if leader then
+		leaderPosition = getElementPosition(leader)
+	else
+		-- outputChatBox("Leader not null")
+	end
+	if leaderPosition and playerPosition then
+		local x1, y1, z1 = getElementPosition(player)
+		local x2, y2, z2 = getElementPosition(leader)
+		outputDebugString("1  for "..x1.." "..y1.." "..z1.." ")
+		outputDebugString("2  for "..x2.." "..y2.." "..z2.." ")
+		local distance = getDistanceBetweenPoints3D(x1,y1,z1,x2,y2,z2)
+		return distance > TELEPORT_MIN_DISTANCE
+	else
+		-- outputChatBox("leaderPosition or playerPosition null")
+	end
+	return false
 end
 
 function bindXForTeleport()

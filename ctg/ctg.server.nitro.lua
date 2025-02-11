@@ -60,13 +60,13 @@ function tickCooldown()
 
 	local bombHolder = getBombHolder()
 	local timeLeft = boostCooldownLeft()
-	if (timeLeft >= 0 and boosterAdded == false and bombHolder ~= nil) then
+	if (timeLeft >= 0 and boosterAdded == false and bombHolder) then
 		triggerClientEvent("boosterCooldownTick", bombHolder, timeLeft, BOOST_COOLDOWN)
 	end
 
 	if ( timeLeft <= 0 and boosterAdded == false ) then
 		local vehicle = getPedOccupiedVehicle (bombHolder)
-		if (vehicle ~= nil) then
+		if (vehicle) then
 			addVehicleUpgrade(vehicle, 1009)
 			boosterAdded = true
 			showBooserAdded(bombHolder)
@@ -83,7 +83,7 @@ function tickDuration()
 	local timeLeft = durationLeft()
 	if ( timeLeft <= 0) then
 		local vehicle = getPedOccupiedVehicle (bombHolder)
-		if (vehicle ~= nil) then
+		if (vehicle) then
 			removeVehicleUpgrade(vehicle, 1009)
 			nitroEndsTime = nil
 		end
@@ -104,7 +104,7 @@ function onBombHolderChanged(oldBombHolder)
 	local bombHolder = source
 	boosterAdded = false
 	bindKey(bombHolder, "lctrl", "down", usingBooster)
-	if ( oldBombHolder ~= nil ) then
+	if ( oldBombHolder ) then
 		unbindKey(oldBombHolder, "lctrl", "down", usingBooster)
 	end
 

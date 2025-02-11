@@ -2,11 +2,11 @@ local damageBar = nil
 local damageLabel = nil
 
 function onCollision(collider, damageImpulseMag)
-	if ( collider ~= nil and localPlayer == getGoldCarrier() ) then
+	if ( collider and localPlayer == getGoldCarrier() ) then
 		if ( source == getPedOccupiedVehicle(localPlayer) and getElementType ( collider ) == "vehicle" ) then
 			local fDamageMultiplier = getVehicleHandling(source).collisionDamageMultiplier
 			local damage = fDamageMultiplier * damageImpulseMag
-			outputChatBox("D: "..damage.." F: "..inspect(damageImpulseMag).." M: "..fDamageMultiplier)
+			-- outputChatBox("D: "..damage.." F: "..inspect(damageImpulseMag).." M: "..fDamageMultiplier)
 			local otherPlayer = getVehicleOccupant(collider)
 			if ( otherPlayer ~= false) then
 				triggerServerEvent("onCollisionWithPlayer", resourceRoot, otherPlayer, damage)

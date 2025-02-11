@@ -25,14 +25,14 @@ function removeOldHideout()
 end
 
 function destroyMarker()
-    if (hideoutMarker ~= nil) then
+    if (hideoutMarker) then
         destroyElement(hideoutMarker)
     end
     hideoutMarker = nil
 end
 
 function destroyBlip()
-    if (hideoutBlip ~= nil) then
+    if (hideoutBlip) then
         destroyElement(hideoutBlip)
     end
     hideoutBlip = nil
@@ -40,7 +40,7 @@ end
 
 function markerHit(markerHit, matchingDimension)
     if source == getGoldCarrier() and markerHit == hideoutMarker then
-        outputChatBox("6")
+        -- outputChatBox("6")
         removeOldHideout()
         goldDelivered(source)
     end

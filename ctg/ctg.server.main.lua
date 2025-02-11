@@ -10,8 +10,8 @@ local SCORE_KEY = "Score"
 local currentVehicle = 1
 local vehicles = {415, 551, 531, 475, 437, 557}
 
-addEvent("goldDelivered")
-addEvent("goldCarrierChanged")
+--addEvent("goldDelivered")
+--addEvent("goldCarrierChanged")
 
 scoreboardRes = getResourceFromName("scoreboard")
 
@@ -71,7 +71,7 @@ function repairAllCars()
     local players = getAlivePlayers()
     for k, v in ipairs(players) do
         local veh = getPedOccupiedVehicle(v)
-        if (veh ~= nil and veh ~= false ) then
+        if (veh and veh ~= false ) then
             fixVehicle(veh)
         end
     end
@@ -109,7 +109,7 @@ end
 
 function removeFromTable(tab, val)
     local idx = getIndex(tab, val)
-    if idx ~= nil then 
+    if idx then 
         table.remove(tab, idx)
         return true
     end
@@ -118,7 +118,7 @@ end
 
 function contains(tab, val)
     local idx = getIndex(tab, val)
-    if idx ~= nil then 
+    if idx then 
         return true
     end
     return false
@@ -160,7 +160,7 @@ end
 
 function goldDelivered(player)
 	givePointsToPlayer(getGoldCarrier(), 500)
-    triggerEvent("goldDelivered", root, getGoldCarrier(), 500)
+    -- triggerEvent("goldDelivered", root, getGoldCarrier(), 500)
 	showTextGoldDelivered(getGoldCarrier())
     activeRoundFinished()
 end
@@ -229,11 +229,11 @@ addEventHandler("onPlayerWasted", getRootElement(), playerDied)
 addEvent("reportLastTransform", true)
 addEvent("reportTransform", true)
 addEventHandler("reportTransform", resourceRoot, function(transform, param1, param2, param3)
-    if param1 ~= nil and param1 == "replaceGold" then
+    if param1 and param1 == "replaceGold" then
         spawnGoldAtTransform(transform.x, transform.y, transform.z)
     end
-    if param1 ~= nil and param1 == "telportTo" then
-        outputChatBox(inspect(param2).." "..inspect(param3))
+    if param1 and param1 == "telportTo" then
+        -- outputChatBox(inspect(param2).." "..inspect(param3))
         teleportTo(param2, transform)
     end
 end)
@@ -260,7 +260,7 @@ function quitPlayer(quitType)
     if (source == getGoldCarrier()) then
         removeOldHideout()
         local vechilce = getPedOccupiedVehicle(source)
-        if (vechilce ~= nil) then
+        if (vechilce) then
             local playerX, playerY, playerZ = getElementPosition(vechilce)
             spawnGoldAtTransform(playerX, playerY, playerZ)
             destroyElement(vechilce)
@@ -329,7 +329,7 @@ addCommandHandler("param", function(source, command, paramName, paramValue)
         triggerClientEvent("onPropertyChanged", getRootElement(), "DAMAGE_MULTIPLIER_WEIGHT", newValue)
     end
     local carrier = getGoldCarrier()
-    if (carrier ~= nil) then
+    if (carrier) then
         removeVechicleHandling(getGoldCarrier())
         setVechicleHandling(getGoldCarrier())
     end

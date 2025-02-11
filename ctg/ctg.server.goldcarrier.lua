@@ -10,29 +10,36 @@ function getGoldCarrier()
 end
 
 function setGoldCarrier(carrier)
-    if (carrier == goldCarrier or carrier == nil) then
+    if (carrier == goldCarrier) then
         return
     end
 
     oldGoldCarrier = goldCarrier
-    if (oldGoldCarrier ~= nil) then
+    if (oldGoldCarrier) then
         removeVechicleHandling(oldGoldCarrier)
     end
 
+    
     goldCarrier = carrier
-    setVechicleHandling(goldCarrier)
+    if (carrier) then
+        setVechicleHandling(goldCarrier)
+    end
 end
 
 function clearGoldCarrier()
-    outputChatBox("Clear gold carrier!!!!")
+    -- outputChatBox("Clear gold carrier!!!!")
     local tmpGoldCarrier = goldCarrier
     setGoldCarrier(nil)
     oldGoldCarrier = nil
     tillbakaKakaShield = false
     -- triggerClientEvent("onGoldCarrierChanged", nil, nil)
-    triggerEvent("goldCarrierChanged", root, nil, tmpGoldCarrier)
+
+    -- ALways togheter. Remove trigger?
+    -- triggerEvent("goldCarrierChanged", root, nil, tmpGoldCarrier)
     onGoldCarrierChanged( nil, tmpGoldCarrier)
-    triggerEvent("onGoldCarrierCleared", root)
+
+    -- SHould be triggerClientEvent?
+    triggerClientEvent("goldCarrierCleared", root)
 end
 
 function changeGoldCarrier(player)
@@ -41,7 +48,7 @@ function changeGoldCarrier(player)
     end
 
     if ( player == oldGoldCarrier and tillbakaKakaShield == true) then
-		outputChatBox("Did not change, tillbaka kaka")
+		-- outputChatBox("Did not change, tillbaka kaka")
 		return
 	end
 
@@ -56,10 +63,12 @@ function changeGoldCarrier(player)
 
 	givePointsToPlayer(goldCarrier, 50)
 
-    triggerClientEvent("onGoldCarrierChanged", player, oldGoldCarrier)
-    triggerEvent("goldCarrierChanged", root, goldCarrier, oldGoldCarrier)
+    -- ALways togheter. Remove trigger?
+    -- triggerEvent("goldCarrierChanged", root, goldCarrier, oldGoldCarrier)
     onGoldCarrierChanged( goldCarrier, oldGoldCarrier)
 
+    triggerClientEvent("onGoldCarrierChanged", player, oldGoldCarrier)
+    
 	setTimer(function() 
 		tillbakaKakaShield = false
 	end, 5000, 1)
@@ -69,12 +78,12 @@ end
 function removeVechicleHandling(oldCarrier)
     -- removeVehicleUpgrade(getPedOccupiedVehicle(oldGoldCarrier), 1009)
     local vechicle = getPedOccupiedVehicle(oldCarrier)
-    if (vechicle == nil) then
+    if (not vechicle) then
         return
     end
 
     local originalHandling = vechicleHandlingLookup[getElementModel(vechicle)]
-    if (originalHandling ~= nil) then
+    if (originalHandling) then
         setVehicleHandling(vechicle, "mass", originalHandling.mass)
         setVehicleHandling(vechicle, "centerOfMass", originalHandling.centerOfMass)
         setVehicleHandling(vechicle, "maxVelocity", originalHandling.maxVelocity)
@@ -85,7 +94,7 @@ end
 
 function setVechicleHandling(carrier)
     local vehicle = getPedOccupiedVehicle(carrier)
-    if (vehicle == nil or vehicle == false) then
+    if (not vehicle or vehicle == false) then
         return
     end
     local currentMass = getVehicleHandling ( vehicle, "mass" )

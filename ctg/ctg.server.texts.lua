@@ -22,7 +22,7 @@ end
 
 function showPrepareRoundTimer(timeLeft)
 	hideBombTimer()
-	if ( timeLeft ~= nil ) then
+	if ( timeLeft ) then
 		displayMessageForAll(PREPARING_ROUND_TEXT_ID, "Starting in "..timeLeft.."s", nil, nil, 2000, 0.5, 0.1, 0, 255, 0 )
 	end
 end
@@ -67,7 +67,7 @@ function displayMessageForAll(textId, text, specialPlayer, specialText, displayT
 			displayMessageForPlayer ( v, textId, text, displayTime, posX, posY, r, g, b, alpha, scale )
 		end
 	end
-	if specialPlayer ~= nil and  specialText ~= nil then
+	if specialPlayer and  specialText then
 		displayMessageForPlayer ( specialPlayer, textId, specialText, displayTime, posX, posY, r, g, b, alpha, scale )
 	end
 end

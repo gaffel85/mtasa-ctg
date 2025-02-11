@@ -59,7 +59,7 @@ local vehicleParams = {
 function getBombParams ( vehicle )
 	local model = getElementModel ( vehicle )
 	local params = vehicleParams[model]
-	if ( params ~= nil ) then
+	if ( params ) then
 		local bomb = params.bomb
 		return bomb.offset.x, bomb.offset.y, bomb.offset.z, bomb.rotation.x, bomb.rotation.y, bomb.rotation.z, bomb.scale
 	else 
@@ -68,14 +68,14 @@ function getBombParams ( vehicle )
 end
 
 function attachBombMarker ( player )
-	if(bombMarker == nil ) then
+	if(not bombMarker ) then
 		bombMarker = createMarker ( 0, 0, 1, "arrow", 2.0, 255, 0, 0)
 	end
 	attachElements ( bombMarker, player, 0, 0, 4 )
 
 	local vehicle = getPedOccupiedVehicle ( player )
 	local x,y,z,rx,ry,rz,scale = getBombParams ( vehicle )
-	if ( bombObj == nil ) then
+	if ( not bombObj ) then
 		bombObj = createObject( 1654, 0, 0, 0, 0, 0, 0, true )
 		setObjectScale ( bombObj, scale )
 		setElementCollisionsEnabled ( bombObj, false )
@@ -85,25 +85,25 @@ end
 
 function hideBombMarker ( exceptPlayer )
 	setElementVisibleTo(bombMarker, root, false)
-	if ( exceptPlayer ~= nil ) then
+	if ( exceptPlayer ) then
 		setElementVisibleTo(bombMarker, exceptPlayer, true)
 	end
 end
 
 function showBombMarker ( exceptPlayer )
 	setElementVisibleTo(bombMarker, root, true)
-	if ( exceptPlayer ~= nil ) then
+	if ( exceptPlayer ) then
 		setElementVisibleTo(bombMarker, exceptPlayer, false)
 	end
 end
 
 function resetBombMarker ()
-	if (bombMarker ~= nil) then
+	if (bombMarker) then
 		destroyElement(bombMarker)
 		bombMarker = nil
 	end 
 
-	if ( bombObj ~= nil ) then
+	if ( bombObj ) then
 		destroyElement ( bombObj )
 		bombObj = nil
 	end
