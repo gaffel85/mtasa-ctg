@@ -35,7 +35,8 @@ function spawnGoldAtTransform(posX, posY, posZ)
         goldSpawnMarker = createGold(posX, posY, posZ)
     end
     destroySpawnBlip()
-    goldSpawnBlip = createBlip(posX, posY, posZ, 52)
+    refreshAllBlips()
+    -- goldSpawnBlip = createBlip(posX, posY, posZ, 52)
 end
 
 function createGold(posX, posY, posZ)
@@ -52,8 +53,9 @@ end
 
 function showCarrierBlip(carrier)
 	destroyCarrierBlip()
-	goldCarrierBlip = createBlipAttachedTo ( carrier, 0 )
-	setElementVisibleTo(goldCarrierBlip, carrier, false)
+    refreshAllBlips()
+	-- goldCarrierBlip = createBlipAttachedTo ( carrier, 0 )
+	-- setElementVisibleTo(goldCarrierBlip, carrier, false)
 end
 
 function removeOldGold()
@@ -71,17 +73,19 @@ function destroySpawnMarker()
 end
 
 function destroySpawnBlip()
-    if (goldSpawnBlip) then
-        destroyElement(goldSpawnBlip)
-    end
-    goldSpawnBlip = nil
+    refreshAllBlips()
+    -- if (goldSpawnBlip) then
+    --    destroyElement(goldSpawnBlip)
+    -- end
+    -- goldSpawnBlip = nil
 end
 
 function destroyCarrierBlip()
-    if (goldCarrierBlip) then
-        destroyElement(goldCarrierBlip)
-    end
-    goldCarrierBlip = nil
+    refreshAllBlips()
+    -- if (goldCarrierBlip) then
+    --     destroyElement(goldCarrierBlip)
+    -- end
+    -- goldCarrierBlip = nil
 end
 
 function destroyCarrierMarker()

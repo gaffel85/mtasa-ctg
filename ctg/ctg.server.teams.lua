@@ -6,7 +6,8 @@ local team1 = {
     score = 0,
     scoreLabel = nil,
     textDisplay = nil,
-    otherTeam = nil
+    otherTeam = nil,
+    color = {100, 100, 255}
 }
 local team2 = {
     members = {},
@@ -14,7 +15,8 @@ local team2 = {
     score = 0,
     scoreLabel = nil,
     textDisplay = nil,
-    otherTeam = nil
+    otherTeam = nil,
+    color = {100, 255, 100}
 }
 
 local teamsScoreDisplay

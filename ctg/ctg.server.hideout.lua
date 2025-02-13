@@ -1,17 +1,21 @@
 local hideouts
 local hidoutMarker = nil
-local hidoutBlip = nil
+local hideoutBlip = nil
+local lastHideout = nil
 
 function setHideouts(spawns)
     hideouts = spawns
 end
 
+function getLastHideout()
+    return lastHideout
+end
+
 function spawnNewHideout()
     removeOldHideout()
 
-    local spawnPoint = hideouts[math.random(#hideouts)]
-    local posX, posY, posZ = coordsFromEdl(spawnPoint)
-    local rotX, rotY, rotZ = rotFromEdl(spawnPoint)
+    local lastHideout = hideouts[math.random(#hideouts)]
+    local posX, posY, posZ = coordsFromEdl(lastHideout)
 
     if (hideoutMarker == nil) then
         hideoutMarker = createMarker(posX, posY, posZ, "checkpoint", 2.0, 255, 0, 0)

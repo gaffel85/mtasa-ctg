@@ -19,6 +19,7 @@
 
 	<script src="ctg.server.gold.lua" />
 	<script src="ctg.server.goldcarrier.lua" />
+	<script src="ctg.server.blips.lua" />
 	<script src="ctg.server.teams.lua" />
 	<script src="ctg.server.hideout.lua" />
 	<script src="ctg.server.main.lua" />
