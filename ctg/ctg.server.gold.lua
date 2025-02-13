@@ -85,9 +85,12 @@ function destroyCarrierBlip()
 end
 
 function destroyCarrierMarker()
+    outputChatBox("gold.destroyCarrierMarker()")
     if (goldCarrierMarker) then
+        outputChatBox("gold.destroyCarrierMarker 1")
         destroyElement(goldCarrierMarker)
     end
+    outputChatBox("gold.destroyCarrierMarker 2")
     goldCarrierMarker = nil
 end
 
@@ -111,7 +114,7 @@ end
 addEventHandler("onPlayerMarkerHit", getRootElement(), markerHit)
 
 function onGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
-    -- outputChatBox("onGoldCarrierChanged called")
+    outputChatBox("gold.onGoldCarrierChanged("..inspect(newGoldCarrier)..", "..inspect(oldGoldCarrier)..")")
     destroyCarrierBlip()
     destroyCarrierMarker()
     if (not newGoldCarrier) then

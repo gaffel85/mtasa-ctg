@@ -243,10 +243,13 @@ function startSpectating(player)
 end
 
 function coordsFromEdl(element)
-    local posX = getElementData(element, "posX")
-    local posY = getElementData(element, "posY")
-    local posZ = getElementData(element, "posZ")
-    return posX or 0, posY or 0, posZ or 0
+    if element then 
+        local posX = getElementData(element, "posX")
+        local posY = getElementData(element, "posY")
+        local posZ = getElementData(element, "posZ")
+        return posX or 0, posY or 0, posZ or 0
+    end
+    return 0, 0, 0
 end
 
 function rotFromEdl(element)

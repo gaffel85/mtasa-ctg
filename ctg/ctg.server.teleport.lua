@@ -54,7 +54,7 @@ end
 
 function isFarEnoughFromLeader(player)
 	local leader = findLeader(player)
-	outputDebugString("isFarEnoughFromLeader  for "..inspect(player).." "..inspect(leader))
+	--outputDebugString("isFarEnoughFromLeader  for "..inspect(player).." "..inspect(leader))
 	if not leader then
 		return false
 	end
@@ -73,8 +73,8 @@ function isFarEnoughFromLeader(player)
 	if leaderPosition and playerPosition then
 		local x1, y1, z1 = getElementPosition(player)
 		local x2, y2, z2 = getElementPosition(leader)
-		outputDebugString("1  for "..x1.." "..y1.." "..z1.." ")
-		outputDebugString("2  for "..x2.." "..y2.." "..z2.." ")
+		--outputDebugString("1  for "..x1.." "..y1.." "..z1.." ")
+		--outputDebugString("2  for "..x2.." "..y2.." "..z2.." ")
 		local distance = getDistanceBetweenPoints3D(x1,y1,z1,x2,y2,z2)
 		return distance > TELEPORT_MIN_DISTANCE
 	else

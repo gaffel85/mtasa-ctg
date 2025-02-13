@@ -28,7 +28,7 @@ end
 addEventHandler ( "onClientVehicleDamage", root, function ( attacker, weapon, loss )
 
 	if ( getVehicleOccupant ( source ) ~= localPlayer ) then
-		outputDebugString("Not my vehicle"..inspect(source))
+		--outputDebugString("Not my vehicle"..inspect(source))
 		return
 	end	
 
@@ -55,7 +55,7 @@ addEventHandler ( "onClientVehicleDamage", root, function ( attacker, weapon, lo
 		--		setVehicleDamageProof ( vehicle , false )
 		--	end, 5000, 1)
 		--else
-			outputDebugString("Reparing car for"..inspect(driver))
+			--outputDebugString("Reparing car for"..inspect(driver))
 			toggleAllControls ( false, true, false )
 			setVehicleDamageProof ( vehicle , true )
 			triggerServerEvent("clientText", resourceRoot, "showRepairingCar")

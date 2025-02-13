@@ -36,6 +36,7 @@ function clearGoldCarrier()
 
     -- ALways togheter. Remove trigger?
     -- triggerEvent("goldCarrierChanged", root, nil, tmpGoldCarrier)
+    outputChatBox("goldcarrier.clearGoldCarrier, gold carrier: "..inspect(goldCarrier))
     onGoldCarrierChanged( nil, tmpGoldCarrier)
 
     -- SHould be triggerClientEvent?
