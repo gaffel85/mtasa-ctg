@@ -148,6 +148,7 @@ function joinHandler()
     spawn(source, false)
     startGameIfEnoughPlayers()
     outputChatBox("Welcome to Capture the Gold!", source)
+    refreshAllBlips()
 end
 addEventHandler("onPlayerJoin", getRootElement(), joinHandler)
 
@@ -270,6 +271,7 @@ function quitPlayer(quitType)
         end
         goldCarrier = nil
     end
+    refreshAllBlips()
 end
 addEventHandler("onPlayerQuit", getRootElement(), quitPlayer)
 

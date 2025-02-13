@@ -14,18 +14,20 @@ end
 function spawnNewHideout()
     removeOldHideout()
 
-    local lastHideout = hideouts[math.random(#hideouts)]
+    lastHideout = hideouts[math.random(#hideouts)]
     local posX, posY, posZ = coordsFromEdl(lastHideout)
 
     if (hideoutMarker == nil) then
         hideoutMarker = createMarker(posX, posY, posZ, "checkpoint", 2.0, 255, 0, 0)
     end
-	hideoutBlip = createBlip(posX, posY, posZ, 52)
+    refreshAllBlips()
+	--hideoutBlip = createBlip(posX, posY, posZ, 52)
 end
 
 function removeOldHideout()
 	destroyBlip()
     destroyMarker()
+    lastHideout = nil
 end
 
 function destroyMarker()
@@ -36,10 +38,11 @@ function destroyMarker()
 end
 
 function destroyBlip()
-    if (hideoutBlip) then
-        destroyElement(hideoutBlip)
-    end
-    hideoutBlip = nil
+    refreshAllBlips()
+    -- if (hideoutBlip) then
+    --    destroyElement(hideoutBlip)
+    -- end
+    -- hideoutBlip = nil
 end
 
 function markerHit(markerHit, matchingDimension)

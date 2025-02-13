@@ -79,6 +79,7 @@ function switchToTeam(team, player)
     setPlayerTeam(player, team.team)
     textDisplayAddObserver(team.textDisplay, player)
     updateTeamsActiviated()
+    refreshAllBlips()
 end
 
 function giveTeamScore(player, score)
