@@ -134,7 +134,9 @@ function startVote()
     end
 end
 
-function checkVoteResult()
+function checkVoteResult(player)
+    textDisplayRemoveObserver(voteScreen, player)
+
     local players = getElementsByType("player")
     local totalPossibleVotes = #players
     -- check if any cote is more than 50%
@@ -163,17 +165,17 @@ end
 
 function vote1(player)
     vote1Count = vote1Count + 1
-    checkVoteResult()
+    checkVoteResult(player)
 end
 
 function vote2(player)
     vote2Count = vote2Count + 1
-    checkVoteResult()
+    checkVoteResult(player)
 end
 
 function vote3(player)
     vote3Count = vote3Count + 1
-    checkVoteResult()
+    checkVoteResult(player)
 end
 
 function bindTheKeys ( )
