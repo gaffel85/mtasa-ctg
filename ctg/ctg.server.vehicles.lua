@@ -14,33 +14,6 @@ local vote1Count = 0
 local vote2Count = 0
 local vote3Count = 0
 
-local twoDoorVehicles = { -- boats and bikes not included
-	577, 511, 512, 593, 460, 548, 417, 488, 563, 447, 469,
-	602, 496, 401, 518, 527, 589, 419, 587, 533, 526, 474, 545, 517, 410, 600, 436, 439, 549, 491,
-	431, 525, 408, 552,
-	433, 528, 407, 544, 599, 601,
-	499, 524, 578, 573, 455, 403, 423, 414, 443, 515, 514, 456,
-	422, 605, 543, 478, 554,
-	489, 505, 442,
-	536, 575, 534, 535, 576, 412,
-	402, 542, 603, 475,
-	429, 541, 415, 480, 562, 565, 434, 494, 502, 503, 411, 559, 506, 451, 558, 555, 477,
-	538, 537,
-	424, 504, 483, 508, 500, 444, 556, 557, 495,
-}
-
-fourDoorVehicles = { -- boats and bikes not included
-	487, 497,
-	445, 604, 507, 585, 466, 492, 546, 551, 516, 467, 426, 547, 405, 580, 409, 550, 566, 540, 421, 529,
-	438, 420,
-	416, 427, 490, 470, 596, 597, 598, 428,
-	609, 498, 
-	459, 482, 418, 582, 413, 440,
-	579, 400, 404, 479, 458,
-	567,
-	561, 560,
-}
-
 local quota = {
     ["Airplanes"] = 0.1,
     ["Helicopters"] = 0.1,
@@ -145,6 +118,14 @@ function getVehicleCategory(vehicleId)
     end
 end
 
+function findVehicleListByCategory(category)
+    for k, v in pairs(vehiclesByType) do
+        if v.category == category then
+            return v.ids
+        end
+    end
+end
+
 function getRandomVehicle()
     local totalQuota = 0
     for k, v in pairs(quota) do
@@ -158,7 +139,7 @@ function getRandomVehicle()
         random = random - v
         -- if the random number is less than 0, return a random vehicle from the category
         if random < 0 then
-            local vehicles = vehiclesByType[k].ids
+            local vehicles = findVehicleListByCategory(k)
             return vehicles[math.random(1, #vehicles)]
         end
     end
