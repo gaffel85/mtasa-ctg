@@ -13,7 +13,6 @@ function refreshAllBlips()
         local blip = nil
         if player == getGoldCarrier() then
             blip = createBlipAttachedTo ( player, 0 )
-	        setElementVisibleTo(blip, player, false)
         else
             if not team then
                 blip = createBlipAttachedTo(player, 0, 2, 128, 128, 128)
@@ -49,6 +48,8 @@ function refreshAllBlips()
             table.insert(allBlips, hideoutBlip)
 
             local extraBlip = createBlip(posX, posY, posZ, 0, 2, 255, 0, 0, 255, 10)
+            setElementVisibleTo(extraBlip, root, false)
+            setElementVisibleTo(extraBlip, getGoldCarrier(), true)
             table.insert(allBlips, extraBlip)
         end
     end
