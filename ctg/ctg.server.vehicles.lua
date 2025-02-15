@@ -73,3 +73,26 @@ addCommandHandler("changeveh", function(thePlayer, command, newModel)
         setElementModel(theVehicle, newModel)
     end
 end)
+
+function startVote()
+    nextVehicle()
+end
+
+function bindTheKeys ( )
+    bindKey ( source, "F4", "up", startVote, source )
+    bindKey ( source, "F5", "up", vote1, source )
+    bindKey ( source, "F6", "up", vote2, source ) 
+    bindKey ( source, "F7", "up", vote3, source ) 
+    textDisplayAddObserver ( teamsScoreDisplay, source ) 
+end
+addEventHandler("onPlayerJoin", getRootElement(), bindTheKeys)
+
+  --unbind on quit
+function unbindTheKeys ( )
+    unbindKey ( source, "F4" )
+    unbindKey ( source, "F5" )
+    unbindKey ( source, "F6" ) 
+    unbindKey ( source, "F7" )
+    textDisplayRemoveObserver ( teamsScoreDisplay, source )
+end
+addEventHandler("onPlayerQuit", getRootElement(), unbindTheKeys)
