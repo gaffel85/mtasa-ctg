@@ -7,21 +7,10 @@ local blowingPlayer = nil
 
 local SCORE_KEY = "Score"
 
-local currentVehicle = 1
-local vehicles = {415, 551, 531, 475, 437, 557}
-
 --addEvent("goldDelivered")
 --addEvent("goldCarrierChanged")
 
 scoreboardRes = getResourceFromName("scoreboard")
-
-function nextVehicle()
-    currentVehicle = currentVehicle % #vehicles + 1
-end
-
-function getCurrentVehicle()
-    return vehicles[currentVehicle]
-end
 
 function goldPickedUp(player)
     changeGoldCarrier(player)
@@ -293,14 +282,6 @@ end)
 
 addEventHandler("onResourceStart", getResourceRootElement(getThisResource()), function()
     call(scoreboardRes, "addScoreboardColumn", SCORE_KEY)
-end)
-
-addCommandHandler("changeveh", function(thePlayer, command, newModel)
-    local theVehicle = getPedOccupiedVehicle(thePlayer) -- get the vehicle the player is in
-    newModel = tonumber(newModel) -- try to convert the string argument to a number
-    if theVehicle and newModel then -- make sure the player is in a vehicle and specified a number
-        setElementModel(theVehicle, newModel)
-    end
 end)
 
 addCommandHandler("fixit", function(thePlayer, command, newModel)
