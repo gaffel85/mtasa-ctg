@@ -24,7 +24,7 @@ local teamsScoreDisplay
 local team1Display
 local team2Display
 
-function setup()
+function setupTeams()
     team1.otherTeam = team2
     team2.otherTeam = team1
     team1.team = createTeam("Team 1", 100, 100, 255)
@@ -56,7 +56,7 @@ function setup()
     textDisplayAddText ( team2.textDisplay, team2SwitchText )
 
 end
-addEventHandler("onResourceStart", getResourceRootElement(getThisResource()), setup)
+addEventHandler("onResourceStart", getResourceRootElement(getThisResource()), setupTeams)
 
 function removeFromPreviousTeam(player)
     setPlayerTeam(player, nil)

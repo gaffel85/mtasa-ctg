@@ -1,5 +1,15 @@
 local currentVehicle = 526
 local CHANGE_VECHICLE_TEXT_ID = 963781
+local voteScreen = nil
+local vote1VehicleName = nil
+local vote2VehicleName = nil
+local vote3VehicleName = nil
+local vote1Model = nil
+local vote2Model = nil
+local vote3Model = nil
+local vote1Count = 0
+local vote2Count = 0
+local vote3Count = 0
 
 local twoDoorVehicles = { -- boats and bikes not included
 	577, 511, 512, 593, 460, 548, 417, 488, 563, 447, 469,
@@ -53,12 +63,15 @@ function getVehicleName(id)
     return vehicleNames[id - 399]
 end
 
-function nextVehicle()
+function getRandomVehicle()
     if math.random(1, 2) == 1 then
-        currentVehicle = twoDoorVehicles[math.random(1, #twoDoorVehicles)]
+        return twoDoorVehicles[math.random(1, #twoDoorVehicles)]
     else
-        currentVehicle = fourDoorVehicles[math.random(1, #fourDoorVehicles)]
+        return fourDoorVehicles[math.random(1, #fourDoorVehicles)]
     end
+end
+
+function setVehicleForAll()
     displayMessageForAll(CHANGE_VECHICLE_TEXT_ID, "New vehicle is "..getVehicleNameFromModel(currentVehicle), nil, nil, 3000, 0.5, 0.7, 88, 255, 120)
 	local players = getElementsByType("player")
     for k, player in ipairs(players) do
@@ -69,9 +82,34 @@ function nextVehicle()
     end
 end
 
+function nextVehicle()
+    currentVehicle = getRandomVehicle()
+    setVehicleForAll()
+end
+
 function getCurrentVehicle()
     return currentVehicle
 end
+
+function setupVehicleVote()
+    voteScreen = textCreateDisplay ()
+    
+    local vote1Header = textCreateTextItem ( "Vote F5", 0.35, 0.9, "medium", 128, 200, 180, 255, 2, "center", "top", 255)
+    vote1VehicleName = textCreateTextItem ( "Vehicle name", 0.35, 0.95, "medium", 90, 150, 220, 255, 2, "center", "top", 255)
+    textDisplayAddText ( voteScreen, vote1Header )
+    textDisplayAddText ( voteScreen, vote1VehicleName )
+
+    local vote2Header = textCreateTextItem ( "Vote F6", 0.5, 0.9, "medium", 128, 200, 180, 255, 2, "center", "top", 255)
+    vote2VehicleName = textCreateTextItem ( "Vehicle name", 0.5, 0.95, "medium", 90, 150, 220, 255, 2, "center", "top", 255)
+    textDisplayAddText ( voteScreen, vote2Header )
+    textDisplayAddText ( voteScreen, vote2VehicleName )
+
+    local vote3Header = textCreateTextItem ( "Vote F7", 0.65, 0.9, "medium", 128, 200, 180, 255, 2, "center", "top", 255)
+    vote3VehicleName = textCreateTextItem ( "Vehicle name", 0.65, 0.95, "medium", 90, 150, 220, 255, 2, "center", "top", 255)
+    textDisplayAddText ( voteScreen, vote3Header )
+    textDisplayAddText ( voteScreen, vote3VehicleName )
+end
+addEventHandler("onResourceStart", getResourceRootElement(getThisResource()), setupVehicleVote)
 
 addCommandHandler("changeveh", function(thePlayer, command, newModel)
     local theVehicle = getPedOccupiedVehicle(thePlayer) -- get the vehicle the player is in
@@ -82,7 +120,60 @@ addCommandHandler("changeveh", function(thePlayer, command, newModel)
 end)
 
 function startVote()
-    nextVehicle()
+    vote1Model = getRandomVehicle()
+    vote2Model = getRandomVehicle()
+    vote3Model = getRandomVehicle()
+
+    textItemSetText(vote1VehicleName, getVehicleName(vote1Model))
+    textItemSetText(vote2VehicleName, getVehicleName(vote2Model))
+    textItemSetText(vote3VehicleName, getVehicleName(vote3Model))
+
+    local players = getElementsByType("player")
+    for k, player in ipairs(players) do
+		textDisplayAddObserver(voteScreen, player)
+    end
+end
+
+function checkVoteResult()
+    local players = getElementsByType("player")
+    local totalPossibleVotes = #players
+    -- check if any cote is more than 50%
+    local nextVehicle = nil
+    if vote1Count > totalPossibleVotes / 2 then
+        nextVehicle = vote1Model
+    elseif vote2Count > totalPossibleVotes / 2 then
+        nextVehicle = vote2Model
+    elseif vote3Count > totalPossibleVotes / 2 then
+        nextVehicle = vote3Model
+    end
+
+    if (nextVehicle) then
+        currentVehicle = nextVehicle
+        setVehicleForAll()
+        vote1Count = 0
+        vote2Count = 0
+        vote3Count = 0
+
+        local players = getElementsByType("player")
+        for k, player in ipairs(players) do
+	    	textDisplayRemoveObserver(voteScreen, player)
+         end
+    end
+end
+
+function vote1(player)
+    vote1Count = vote1Count + 1
+    checkVoteResult()
+end
+
+function vote2(player)
+    vote2Count = vote2Count + 1
+    checkVoteResult()
+end
+
+function vote3(player)
+    vote3Count = vote3Count + 1
+    checkVoteResult()
 end
 
 function bindTheKeys ( )
