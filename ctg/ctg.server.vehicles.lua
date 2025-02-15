@@ -1,8 +1,8 @@
-local currentVehicle = 592
+local currentVehicle = 526
 local CHANGE_VECHICLE_TEXT_ID = 963781
 
 local twoDoorVehicles = { -- boats and bikes not included
-	592, 577, 511, 512, 593, 460, 548, 417, 488, 563, 447, 469,
+	577, 511, 512, 593, 460, 548, 417, 488, 563, 447, 469,
 	602, 496, 401, 518, 527, 589, 419, 587, 533, 526, 474, 545, 517, 410, 600, 436, 439, 549, 491,
 	431, 525, 408, 552,
 	433, 528, 407, 544, 599, 601,
