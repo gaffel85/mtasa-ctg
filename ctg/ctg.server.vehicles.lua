@@ -1,8 +1,8 @@
-local currentVehicle = 592
+local currentVehicle = 526
 local CHANGE_VECHICLE_TEXT_ID = 963781
 
 local twoDoorVehicles = { -- boats and bikes not included
-	592, 577, 511, 512, 593, 460, 548, 417, 488, 563, 447, 469,
+	577, 511, 512, 593, 460, 548, 417, 488, 563, 447, 469,
 	602, 496, 401, 518, 527, 589, 419, 587, 533, 526, 474, 545, 517, 410, 600, 436, 439, 549, 491,
 	431, 525, 408, 552,
 	433, 528, 407, 544, 599, 601,
@@ -73,3 +73,26 @@ addCommandHandler("changeveh", function(thePlayer, command, newModel)
         setElementModel(theVehicle, newModel)
     end
 end)
+
+function startVote()
+    nextVehicle()
+end
+
+function bindTheKeys ( )
+    bindKey ( source, "F4", "up", startVote, source )
+    bindKey ( source, "F5", "up", vote1, source )
+    bindKey ( source, "F6", "up", vote2, source ) 
+    bindKey ( source, "F7", "up", vote3, source ) 
+    textDisplayAddObserver ( teamsScoreDisplay, source ) 
+end
+addEventHandler("onPlayerJoin", getRootElement(), bindTheKeys)
+
+  --unbind on quit
+function unbindTheKeys ( )
+    unbindKey ( source, "F4" )
+    unbindKey ( source, "F5" )
+    unbindKey ( source, "F6" ) 
+    unbindKey ( source, "F7" )
+    textDisplayRemoveObserver ( teamsScoreDisplay, source )
+end
+addEventHandler("onPlayerQuit", getRootElement(), unbindTheKeys)
