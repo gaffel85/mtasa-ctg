@@ -60,6 +60,13 @@ function nextVehicle()
         currentVehicle = fourDoorVehicles[math.random(1, #fourDoorVehicles)]
     end
     displayMessageForAll(CHANGE_VECHICLE_TEXT_ID, "New vehicle is "..getVehicleNameFromModel(currentVehicle), nil, nil, 3000, 0.5, 0.7, 88, 255, 120)
+	local players = getElementsByType("player")
+    for k, player in ipairs(players) do
+		local theVehicle = getPedOccupiedVehicle(player)
+        if theVehicle then
+			setElementModel(theVehicle, getCurrentVehicle())
+		end
+    end
 end
 
 function getCurrentVehicle()

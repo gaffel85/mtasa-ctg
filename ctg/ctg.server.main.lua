@@ -167,15 +167,6 @@ end
 function activeRoundFinished()
     nextVehicle()
     resetRoundVars()
-
-	local players = getElementsByType("player")
-    for k, player in ipairs(players) do
-		local theVehicle = getPedOccupiedVehicle(player)
-        if theVehicle then
-			setElementModel(theVehicle, getCurrentVehicle())
-		end
-    end
-
 	setTimer(placeGold, 2000, 1, source)
 end
 
