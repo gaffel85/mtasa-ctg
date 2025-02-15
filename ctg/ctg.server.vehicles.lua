@@ -4,6 +4,9 @@ local voteScreen = nil
 local vote1VehicleName = nil
 local vote2VehicleName = nil
 local vote3VehicleName = nil
+local vote1VehicleType = nil
+local vote2VehicleType = nil
+local vote3VehicleType = nil
 local vote1Model = nil
 local vote2Model = nil
 local vote3Model = nil
@@ -38,7 +41,28 @@ fourDoorVehicles = { -- boats and bikes not included
 	561, 560,
 }
 
-local vehicleCategories = {
+local quota = {
+    ["Airplanes"] = 0.1,
+    ["Helicopters"] = 0.1,
+    ["Boats"] = 0,
+    ["Bikes"] = 0,
+    ["2-Door & Compact cars"] = 1,
+    ["4-Door & Luxury cars"] = 1,
+    ["Civil service"] = 1,
+    ["Government vehicles"] = 1,
+    ["Heavy & Utility trucks"] = 1,
+    ["Light trucks & Vans"] = 1,
+    ["SUVs & Wagons"] = 1,
+    ["Lowriders"] = 1,
+    ["Muscle cars"] = 1,
+    ["Street racers"] = 1,
+    ["RC Vehicles"] = 1,
+    ["Trailers"] = 0,
+    ["Trains & Railroad cars"] = 0,
+    ["Recreational"] = 1,
+}
+
+local vehiclesByType = {
 	{
 	  category = "Airplanes",
 	  ids = { 592, 577, 511, 512, 593, 520, 553, 476, 519, 460, 513 }
@@ -112,38 +136,31 @@ local vehicleCategories = {
 	  ids = { 568, 424, 504, 457, 483, 508, 571, 500, 444, 556, 557, 495 }
 	}
 }
-  
 
-vehicleNames = {"Landstalker", "Bravura", "Buffalo", "Linerunner", "Perennial", "Sentinel", "Dumper", "Fire Truck", "Trashmaster", "Stretch", "Manana", 
-	"Infernus", "Voodoo", "Pony", "Mule", "Cheetah", "Ambulance", "Leviathan", "Moonbeam", "Esperanto", "Taxi", "Washington", "Bobcat", 
-	"Mr. Whoopee", "BF Injection", "Hunter", "Premier", "Enforcer", "Securicar", "Banshee", "Predator", "Bus", "Rhino", "Barracks", "Hotknife", 
-	"Trailer 1", "Previon", "Coach", "Cabbie", "Stallion", "Rumpo", "RC Bandit", "Romero", "Packer", "Monster", "Admiral", "Squalo", 
-	"Seasparrow", "Pizzaboy", "Tram", "Trailer 2", "Turismo", "Speeder", "Reefer", "Tropic", "Flatbed", "Yankee", "Caddy", "Solair", 
-	"Berkley's RC Van", "Skimmer", "PCJ-600", "Faggio", "Freeway", "RC Baron", "RC Raider", "Glendale", "Oceanic", "Sanchez", "Sparrow", "Patriot", 
-	"Quadbike", "Coastguard", "Dinghy", "Hermes", "Sabre", "Rustler", "ZR-350", "Walton", "Regina", "Comet", "BMX", "Burrito", "Camper", "Marquis", 
-	"Baggage", "Dozer", "Maverick", "News Chopper", "Rancher", "FBI Rancher", "Virgo", "Greenwood", "Jetmax", "Hotring Racer", "Sandking", 
-	"Blista Compact", "Police Maverick", "Boxville", "Benson", "Mesa", "RC Goblin", "Hotring Racer 2", "Hotring Racer 3", "Bloodring Banger", 
-	"Rancher Lure", "Super GT", "Elegant", "Journey", "Bike", "Mountain Bike", "Beagle", "Cropduster", "Stuntplane", "Tanker", "Roadtrain", "Nebula", 
-	"Majestic", "Buccaneer", "Shamal", "Hydra", "FCR-900", "NRG-500", "HPV1000", "Cement Truck", "Towtruck", "Fortune", "Cadrona", "FBI Truck", 
-	"Willard", "Forklift", "Tractor", "Combine Harvester", "Feltzer", "Remington", "Slamvan", "Blade", "Freight", "Brown Streak", "Vortex", "Vincent", 
-	"Bullet", "Clover", "Sadler", "Fire Truck Ladder", "Hustler", "Intruder", "Primo", "Cargobob", "Tampa", "Sunrise", "Merit", "Utility Van", 
-	"Nevada", "Yosemite", "Windsor", "Monster 2", "Monster 3", "Uranus", "Jester", "Sultan", "Stratum", "Elegy", "Raindance", "RC Tiger", "Flash", 
-	"Tahoma", "Savanna", "Bandito", "Freight Train Flatbed", "Streak Train Trailer", "Kart", "Mower", "Dune", "Sweeper", "Broadway", "Tornado", 
-	"AT-400", "DFT-30", "Huntley", "Stafford", "BF-400", "Newsvan", "Tug", "Trailer (Tanker Commando)", "Emperor", "Wayfarer", "Euros", "Hotdog", 
-	"Club", "Box Freight", "Trailer 3", "Andromada", "Dodo", "RC Cam", "Launch", "Police LS", "Police SF", "Police LV", "Police Ranger", 
-	"Picador", "S.W.A.T.", "Alpha", "Phoenix", "Glendale Damaged", "Sadler Damaged", "Baggage Trailer (covered)", 
-	"Baggage Trailer (Uncovered)", "Trailer (Stairs)", "Boxville Mission", "Farm Trailer", "Street Clean Trailer"
-}
-
-function getVehicleName(id)
-    return vehicleNames[id - 399]
+function getVehicleCategory(vehicleId)
+    for k, v in pairs(vehiclesByType) do
+        if table.find(v.ids, vehicleId) then
+            return v.category
+        end
+    end
 end
 
 function getRandomVehicle()
-    if math.random(1, 2) == 1 then
-        return twoDoorVehicles[math.random(1, #twoDoorVehicles)]
-    else
-        return fourDoorVehicles[math.random(1, #fourDoorVehicles)]
+    local totalQuota = 0
+    for k, v in pairs(quota) do
+        totalQuota = totalQuota + v
+    end
+
+    -- get a random number between 0 and totalQuota
+    local random = math.random() * totalQuota
+    -- iterate over the quota table and subtract the quota of each category from the random number
+    for k, v in pairs(quota) do
+        random = random - v
+        -- if the random number is less than 0, return a random vehicle from the category
+        if random < 0 then
+            local vehicles = vehiclesByType[k].ids
+            return vehicles[math.random(1, #vehicles)]
+        end
     end
 end
 
@@ -172,18 +189,23 @@ function setupVehicleVote()
     
     local vote1Header = textCreateTextItem ( "Vote F5", 0.35, 0.9, "medium", 128, 200, 180, 255, 2, "center", "top", 255)
     vote1VehicleName = textCreateTextItem ( "Vehicle name", 0.35, 0.95, "medium", 90, 150, 220, 255, 2, "center", "top", 255)
+    vote1VehicleType = textCreateTextItem ( "Vehicle type", 0.35, 0.97, "medium", 90, 150, 220, 255, 2, "center", "top", 255)
     textDisplayAddText ( voteScreen, vote1Header )
     textDisplayAddText ( voteScreen, vote1VehicleName )
+    textDisplayAddText ( voteScreen, vote1VehicleType )
 
     local vote2Header = textCreateTextItem ( "Vote F6", 0.5, 0.9, "medium", 128, 200, 180, 255, 2, "center", "top", 255)
     vote2VehicleName = textCreateTextItem ( "Vehicle name", 0.5, 0.95, "medium", 90, 150, 220, 255, 2, "center", "top", 255)
+    vote2VehicleType = textCreateTextItem ( "Vehicle type", 0.5, 0.97, "medium", 90, 150, 220, 255, 2, "center", "top", 255)
     textDisplayAddText ( voteScreen, vote2Header )
     textDisplayAddText ( voteScreen, vote2VehicleName )
+    textDisplayAddText ( voteScreen, vote2VehicleType )
 
     local vote3Header = textCreateTextItem ( "Vote F7", 0.65, 0.9, "medium", 128, 200, 180, 255, 2, "center", "top", 255)
     vote3VehicleName = textCreateTextItem ( "Vehicle name", 0.65, 0.95, "medium", 90, 150, 220, 255, 2, "center", "top", 255)
+    vote3VehicleType = textCreateTextItem ( "Vehicle type", 0.65, 0.97, "medium", 90, 150, 220, 255, 2, "center", "top", 255)
     textDisplayAddText ( voteScreen, vote3Header )
-    textDisplayAddText ( voteScreen, vote3VehicleName )
+    textDisplayAddText ( voteScreen, vote3VehicleType )
 end
 addEventHandler("onResourceStart", getResourceRootElement(getThisResource()), setupVehicleVote)
 
@@ -204,6 +226,10 @@ function startVote()
     textItemSetText(vote2VehicleName, getVehicleName(vote2Model))
     textItemSetText(vote3VehicleName, getVehicleName(vote3Model))
 
+    textItemSetText(vote1VehicleType, getVehicleCategory(vote1Model))
+    textItemSetText(vote2VehicleType, getVehicleCategory(vote2Model))
+    textItemSetText(vote3VehicleType, getVehicleCategory(vote3Model))
+
     local players = getElementsByType("player")
     for k, player in ipairs(players) do
 		textDisplayAddObserver(voteScreen, player)
@@ -216,12 +242,14 @@ function checkVoteResult(player)
     local players = getElementsByType("player")
     local totalPossibleVotes = #players
     -- check if any cote is more than 50%
+    local limit = totalPossibleVotes * 0.75
+    local allVotesGiven = vote1Count + vote2Count + vote3Count == totalPossibleVotes
     local nextVehicle = nil
-    if vote1Count > totalPossibleVotes / 2 then
+    if vote1Count > limit or (allVotesGiven and vote1Count > vote2Count and vote1Count > vote3Count) then
         nextVehicle = vote1Model
-    elseif vote2Count > totalPossibleVotes / 2 then
+    elseif vote2Count > limit or (allVotesGiven and vote2Count > vote1Count and vote2Count > vote3Count) then
         nextVehicle = vote2Model
-    elseif vote3Count > totalPossibleVotes / 2 then
+    elseif vote3Count > limit or (allVotesGiven and vote3Count > vote2Count and vote3Count > vote1Count) then
         nextVehicle = vote3Model
     end
 
