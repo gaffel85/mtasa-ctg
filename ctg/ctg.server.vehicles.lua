@@ -38,6 +38,82 @@ fourDoorVehicles = { -- boats and bikes not included
 	561, 560,
 }
 
+local vehicleCategories = {
+	{
+	  category = "Airplanes",
+	  ids = { 592, 577, 511, 512, 593, 520, 553, 476, 519, 460, 513 }
+	},
+	{
+	  category = "Helicopters",
+	  ids = { 548, 425, 417, 487, 488, 497, 563, 447, 469 }
+	},
+	{
+	  category = "Boats",
+	  ids = { 472, 473, 493, 595, 484, 430, 453, 452, 446, 454 }
+	},
+	{
+	  category = "Bikes",
+	  ids = { 581, 509, 481, 462, 521, 463, 510, 522, 461, 448, 468, 586 }
+	},
+	{
+	  category = "2-Door & Compact cars",
+	  ids = { 602, 496, 401, 518, 527, 589, 419, 587, 533, 526, 474, 545, 517, 410, 600, 436, 439, 549, 491 }
+	},
+	{
+	  category = "4-Door & Luxury cars",
+	  ids = { 445, 604, 507, 585, 466, 492, 546, 551, 516, 467, 426, 547, 405, 580, 409, 550, 566, 540, 421, 529 }
+	},
+	{
+	  category = "Civil service",
+	  ids = { 485, 431, 438, 437, 574, 420, 525, 408, 552 }
+	},
+	{
+	  category = "Government vehicles",
+	  ids = { 416, 433, 427, 490, 528, 407, 544, 523, 470, 596, 598, 599, 597, 432, 601, 428 }
+	},
+	{
+	  category = "Heavy & Utility trucks",
+	  ids = { 499, 609, 498, 524, 532, 578, 486, 406, 573, 455, 588, 403, 423, 414, 443, 515, 514, 531, 456 }
+	},
+	{
+	  category = "Light trucks & Vans",
+	  ids = { 459, 422, 482, 605, 530, 418, 572, 582, 413, 440, 543, 583, 478, 554 }
+	},
+	{
+	  category = "SUVs & Wagons",
+	  ids = { 579, 400, 404, 489, 505, 479, 442, 458 }
+	},
+	{
+	  category = "Lowriders",
+	  ids = { 536, 575, 534, 567, 535, 576, 412 }
+	},
+	{
+	  category = "Muscle cars",
+	  ids = { 402, 542, 603, 475 }
+	},
+	{
+	  category = "Street racers",
+	  ids = { 429, 541, 415, 480, 562, 565, 434, 494, 502, 503, 411, 559, 506, 451, 558, 555, 477 }
+	},
+	{
+	  category = "RC Vehicles",
+	  ids = { 441, 464, 594, 501, 465, 564 }
+	},
+	{
+	  category = "Trailers",
+	  ids = { 606, 607, 610, 584, 611, 608, 435, 450, 591 }
+	},
+	{
+	  category = "Trains & Railroad cars",
+	  ids = { 590, 538, 570, 569, 537, 449 }
+	},
+	{
+	  category = "Recreational",
+	  ids = { 568, 424, 504, 457, 483, 508, 571, 500, 444, 556, 557, 495 }
+	}
+}
+  
+
 vehicleNames = {"Landstalker", "Bravura", "Buffalo", "Linerunner", "Perennial", "Sentinel", "Dumper", "Fire Truck", "Trashmaster", "Stretch", "Manana", 
 	"Infernus", "Voodoo", "Pony", "Mule", "Cheetah", "Ambulance", "Leviathan", "Moonbeam", "Esperanto", "Taxi", "Washington", "Bobcat", 
 	"Mr. Whoopee", "BF Injection", "Hunter", "Premier", "Enforcer", "Securicar", "Banshee", "Predator", "Bus", "Rhino", "Barracks", "Hotknife", 
@@ -182,9 +258,7 @@ function bindTheKeys ( )
     bindKey ( source, "F4", "up", startVote, source )
     bindKey ( source, "F5", "up", vote1, source )
     bindKey ( source, "F6", "up", vote2, source ) 
-    bindKey ( source, "F7", "up", vote3, source ) 
-    textDisplayAddObserver ( teamsScoreDisplay, source ) 
-end
+    bindKey ( source, "F7", "up", vote3, source ) end
 addEventHandler("onPlayerJoin", getRootElement(), bindTheKeys)
 
   --unbind on quit
@@ -193,6 +267,6 @@ function unbindTheKeys ( )
     unbindKey ( source, "F5" )
     unbindKey ( source, "F6" ) 
     unbindKey ( source, "F7" )
-    textDisplayRemoveObserver ( teamsScoreDisplay, source )
+    textDisplayRemoveObserver ( voteScreen, source )
 end
 addEventHandler("onPlayerQuit", getRootElement(), unbindTheKeys)
