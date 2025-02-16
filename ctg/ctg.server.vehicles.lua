@@ -202,12 +202,14 @@ addCommandHandler("changeveh", function(thePlayer, command, newModel)
     end
 end)
 
+addEvent("voteFinnished")
 function startVote()
     vote1Model = getRandomVehicle()
     vote2Model = getRandomVehicle()
     vote3Model = getRandomVehicle()
 
-    startPoll {
+    outputChatBox("Stating poll "..inspect(startPoll))
+    exports.votemanager:startPoll {
         --start settings (dictionary part)
         title="Vote for next vehicle",
         percentage=75,
@@ -216,26 +218,26 @@ function startVote()
         maxnominations=2,
         visibleTo=getRootElement(),
         --start options (array part)
-        [1]={getVehicleName(vote1Model).."["..getVehicleCategory(vote1Model).."]", "voteFinnished", vote1Model},
-        [2]={getVehicleName(vote2Model).."["..getVehicleCategory(vote2Model).."]", "voteFinnished", vote2Model},
-        [3]={getVehicleName(vote3Model).."["..getVehicleCategory(vote3Model).."]", "voteFinnished", vote3Model},
-        [4]={"Keep current", "voteFinnished", currentVehicle},
+        [1]={getVehicleNameFromModel(vote1Model).."["..getVehicleCategory(vote1Model).."]", "voteFinnished", nil, vote1Model},
+        [2]={getVehicleNameFromModel(vote2Model).."["..getVehicleCategory(vote2Model).."]", "voteFinnished", nil, vote2Model},
+        [3]={getVehicleNameFromModel(vote3Model).."["..getVehicleCategory(vote3Model).."]", "voteFinnished", nil, vote3Model},
+        [4]={"Keep current", "voteFinnished", currentVehicle}
     }
 
-    /*
-    textItemSetText(vote1VehicleName, getVehicleNameFromModel(vote1Model))
-    textItemSetText(vote2VehicleName, getVehicleNameFromModel(vote2Model))
-    textItemSetText(vote3VehicleName, getVehicleNameFromModel(vote3Model))
+    
+    --textItemSetText(vote1VehicleName, getVehicleNameFromModel(vote1Model))
+    --textItemSetText(vote2VehicleName, getVehicleNameFromModel(vote2Model))
+    --textItemSetText(vote3VehicleName, getVehicleNameFromModel(vote3Model))
 
-    textItemSetText(vote1VehicleType, getVehicleCategory(vote1Model))
-    textItemSetText(vote2VehicleType, getVehicleCategory(vote2Model))
-    textItemSetText(vote3VehicleType, getVehicleCategory(vote3Model))
+    --textItemSetText(vote1VehicleType, getVehicleCategory(vote1Model))
+    --textItemSetText(vote2VehicleType, getVehicleCategory(vote2Model))
+    --textItemSetText(vote3VehicleType, getVehicleCategory(vote3Model))
 
-    local players = getElementsByType("player")
-    for k, player in ipairs(players) do
-		textDisplayAddObserver(voteScreen, player)
-    end
-    */
+    --local players = getElementsByType("player")
+    --for k, player in ipairs(players) do
+		--textDisplayAddObserver(voteScreen, player)
+    --end
+    
 end
 
 function checkVoteResult(player)
@@ -269,7 +271,7 @@ function checkVoteResult(player)
     end
 end
 
-function voteFinnished(nextVehicle)
+addEventHandler("voteFinnished", getResourceRootElement(getThisResource()), function(nextVehicle)
     if nextVehicle == currentVehicle then
         return
     end
@@ -282,9 +284,9 @@ function voteFinnished(nextVehicle)
 
     local players = getElementsByType("player")
     for k, player in ipairs(players) do
-        textDisplayRemoveObserver(voteScreen, player)
-        end
-end
+      textDisplayRemoveObserver(voteScreen, player)
+    end
+end)
 
 function vote1(player)
     vote1Count = vote1Count + 1
