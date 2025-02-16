@@ -203,6 +203,19 @@ function startVote()
     vote2Model = getRandomVehicle()
     vote3Model = getRandomVehicle()
 
+    startPoll {
+        --start settings (dictionary part)
+        title="Vote for next vehicle",
+        percentage=75,
+        timeout=30,
+        allowchange=true,
+        maxnominations=2,
+        visibleTo=getRootElement(),
+        --start options (array part)
+        [1]={getVehicleName(vote1Model).."["..getVehicleCategory(vote1Model).."]", "voteFinnished", vote1Model},
+        [2]={"No", "doOutputChatBox", notEnoughVotesMessage, getRootElement(), vR, vG, vB; default=true},
+    }
+
     textItemSetText(vote1VehicleName, getVehicleName(vote1Model))
     textItemSetText(vote2VehicleName, getVehicleName(vote2Model))
     textItemSetText(vote3VehicleName, getVehicleName(vote3Model))
@@ -246,6 +259,23 @@ function checkVoteResult(player)
 	    	textDisplayRemoveObserver(voteScreen, player)
          end
     end
+end
+
+function voteFinnished(nextVehicle)
+    if nextVehicle == currentVehicle then
+        return
+    end
+    
+    currentVehicle = nextVehicle
+    setVehicleForAll()
+    vote1Count = 0
+    vote2Count = 0
+    vote3Count = 0
+
+    local players = getElementsByType("player")
+    for k, player in ipairs(players) do
+        textDisplayRemoveObserver(voteScreen, player)
+        end
 end
 
 function vote1(player)
