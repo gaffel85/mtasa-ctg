@@ -112,9 +112,11 @@ local vehiclesByType = {
 
 function getVehicleCategory(vehicleId)
     for k, v in pairs(vehiclesByType) do
-        if table.find(v.ids, vehicleId) then
-            return v.category
-        end
+		for k1, v1 in pairs(v.ids) do
+			if v1 == vehicleId then
+				return v.category
+			end
+		end
     end
 end
 
@@ -140,7 +142,9 @@ function getRandomVehicle()
         -- if the random number is less than 0, return a random vehicle from the category
         if random < 0 then
             local vehicles = findVehicleListByCategory(k)
-            return vehicles[math.random(1, #vehicles)]
+            local result = vehicles[math.random(1, #vehicles)]
+			outputChatBox("Random: "..inspect(result).." "..inspect(k))
+			return result
         end
     end
 end
@@ -169,22 +173,22 @@ function setupVehicleVote()
     voteScreen = textCreateDisplay ()
     
     local vote1Header = textCreateTextItem ( "Vote F5", 0.35, 0.9, "medium", 128, 200, 180, 255, 2, "center", "top", 255)
-    vote1VehicleName = textCreateTextItem ( "Vehicle name", 0.35, 0.95, "medium", 90, 150, 220, 255, 2, "center", "top", 255)
-    vote1VehicleType = textCreateTextItem ( "Vehicle type", 0.35, 0.97, "medium", 90, 150, 220, 255, 2, "center", "top", 255)
+    vote1VehicleName = textCreateTextItem ( "Vehicle name", 0.35, 0.94, "medium", 90, 150, 220, 255, 2, "center", "top", 255)
+    vote1VehicleType = textCreateTextItem ( "Vehicle type", 0.35, 0.97, "small", 90, 150, 220, 255, 2, "center", "top", 255)
     textDisplayAddText ( voteScreen, vote1Header )
     textDisplayAddText ( voteScreen, vote1VehicleName )
     textDisplayAddText ( voteScreen, vote1VehicleType )
 
     local vote2Header = textCreateTextItem ( "Vote F6", 0.5, 0.9, "medium", 128, 200, 180, 255, 2, "center", "top", 255)
-    vote2VehicleName = textCreateTextItem ( "Vehicle name", 0.5, 0.95, "medium", 90, 150, 220, 255, 2, "center", "top", 255)
-    vote2VehicleType = textCreateTextItem ( "Vehicle type", 0.5, 0.97, "medium", 90, 150, 220, 255, 2, "center", "top", 255)
+    vote2VehicleName = textCreateTextItem ( "Vehicle name", 0.5, 0.94, "medium", 90, 150, 220, 255, 2, "center", "top", 255)
+    vote2VehicleType = textCreateTextItem ( "Vehicle type", 0.5, 0.97, "small", 90, 150, 220, 255, 2, "center", "top", 255)
     textDisplayAddText ( voteScreen, vote2Header )
     textDisplayAddText ( voteScreen, vote2VehicleName )
     textDisplayAddText ( voteScreen, vote2VehicleType )
 
     local vote3Header = textCreateTextItem ( "Vote F7", 0.65, 0.9, "medium", 128, 200, 180, 255, 2, "center", "top", 255)
-    vote3VehicleName = textCreateTextItem ( "Vehicle name", 0.65, 0.95, "medium", 90, 150, 220, 255, 2, "center", "top", 255)
-    vote3VehicleType = textCreateTextItem ( "Vehicle type", 0.65, 0.97, "medium", 90, 150, 220, 255, 2, "center", "top", 255)
+    vote3VehicleName = textCreateTextItem ( "Vehicle name", 0.65, 0.94, "medium", 90, 150, 220, 255, 2, "center", "top", 255)
+    vote3VehicleType = textCreateTextItem ( "Vehicle type", 0.65, 0.97, "small", 90, 150, 220, 255, 2, "center", "top", 255)
     textDisplayAddText ( voteScreen, vote3Header )
     textDisplayAddText ( voteScreen, vote3VehicleType )
 end
@@ -213,12 +217,15 @@ function startVote()
         visibleTo=getRootElement(),
         --start options (array part)
         [1]={getVehicleName(vote1Model).."["..getVehicleCategory(vote1Model).."]", "voteFinnished", vote1Model},
-        [2]={"No", "doOutputChatBox", notEnoughVotesMessage, getRootElement(), vR, vG, vB; default=true},
+        [2]={getVehicleName(vote2Model).."["..getVehicleCategory(vote2Model).."]", "voteFinnished", vote2Model},
+        [3]={getVehicleName(vote3Model).."["..getVehicleCategory(vote3Model).."]", "voteFinnished", vote3Model},
+        [4]={"Keep current", "voteFinnished", currentVehicle},
     }
 
-    textItemSetText(vote1VehicleName, getVehicleName(vote1Model))
-    textItemSetText(vote2VehicleName, getVehicleName(vote2Model))
-    textItemSetText(vote3VehicleName, getVehicleName(vote3Model))
+    /*
+    textItemSetText(vote1VehicleName, getVehicleNameFromModel(vote1Model))
+    textItemSetText(vote2VehicleName, getVehicleNameFromModel(vote2Model))
+    textItemSetText(vote3VehicleName, getVehicleNameFromModel(vote3Model))
 
     textItemSetText(vote1VehicleType, getVehicleCategory(vote1Model))
     textItemSetText(vote2VehicleType, getVehicleCategory(vote2Model))
@@ -228,6 +235,7 @@ function startVote()
     for k, player in ipairs(players) do
 		textDisplayAddObserver(voteScreen, player)
     end
+    */
 end
 
 function checkVoteResult(player)
@@ -265,7 +273,7 @@ function voteFinnished(nextVehicle)
     if nextVehicle == currentVehicle then
         return
     end
-    
+
     currentVehicle = nextVehicle
     setVehicleForAll()
     vote1Count = 0
