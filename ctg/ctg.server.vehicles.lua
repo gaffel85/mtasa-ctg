@@ -164,12 +164,14 @@ addCommandHandler("changeveh", function(thePlayer, command, newModel)
     end
 end)
 
+addEvent("voteFinnished")
 function startVote()
     local vote1Model = getRandomVehicle()
     local vote2Model = getRandomVehicle()
     local vote3Model = getRandomVehicle()
 
-    startPoll {
+    outputChatBox("Stating poll "..inspect(startPoll))
+    exports.votemanager:startPoll {
         --start settings (dictionary part)
         title="Vote for next vehicle",
         percentage=75,
@@ -178,14 +180,14 @@ function startVote()
         maxnominations=2,
         visibleTo=getRootElement(),
         --start options (array part)
-        [1]={getVehicleName(vote1Model).."["..getVehicleCategory(vote1Model).."]", "voteFinnished", vote1Model},
-        [2]={getVehicleName(vote2Model).."["..getVehicleCategory(vote2Model).."]", "voteFinnished", vote2Model},
-        [3]={getVehicleName(vote3Model).."["..getVehicleCategory(vote3Model).."]", "voteFinnished", vote3Model},
-        [4]={"Keep current", "voteFinnished", currentVehicle},
+        [1]={getVehicleNameFromModel(vote1Model).."["..getVehicleCategory(vote1Model).."]", "voteFinnished", nil, vote1Model},
+        [2]={getVehicleNameFromModel(vote2Model).."["..getVehicleCategory(vote2Model).."]", "voteFinnished", nil, vote2Model},
+        [3]={getVehicleNameFromModel(vote3Model).."["..getVehicleCategory(vote3Model).."]", "voteFinnished", nil, vote3Model},
+        [4]={"Keep current", "voteFinnished", currentVehicle}
     }
 end
 
-function voteFinnished(nextVehicle)
+addEventHandler("voteFinnished", getResourceRootElement(getThisResource()), function(nextVehicle)
     if nextVehicle == currentVehicle then
         return
     end
