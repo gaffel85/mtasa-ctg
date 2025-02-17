@@ -1,18 +1,5 @@
 local currentVehicle = 526
 local CHANGE_VECHICLE_TEXT_ID = 963781
-local voteScreen = nil
-local vote1VehicleName = nil
-local vote2VehicleName = nil
-local vote3VehicleName = nil
-local vote1VehicleType = nil
-local vote2VehicleType = nil
-local vote3VehicleType = nil
-local vote1Model = nil
-local vote2Model = nil
-local vote3Model = nil
-local vote1Count = 0
-local vote2Count = 0
-local vote3Count = 0
 
 local quota = {
     ["Airplanes"] = 0.1,
@@ -169,31 +156,6 @@ function getCurrentVehicle()
     return currentVehicle
 end
 
-function setupVehicleVote()
-    voteScreen = textCreateDisplay ()
-    
-    local vote1Header = textCreateTextItem ( "Vote F5", 0.35, 0.9, "medium", 128, 200, 180, 255, 2, "center", "top", 255)
-    vote1VehicleName = textCreateTextItem ( "Vehicle name", 0.35, 0.94, "medium", 90, 150, 220, 255, 2, "center", "top", 255)
-    vote1VehicleType = textCreateTextItem ( "Vehicle type", 0.35, 0.97, "small", 90, 150, 220, 255, 2, "center", "top", 255)
-    textDisplayAddText ( voteScreen, vote1Header )
-    textDisplayAddText ( voteScreen, vote1VehicleName )
-    textDisplayAddText ( voteScreen, vote1VehicleType )
-
-    local vote2Header = textCreateTextItem ( "Vote F6", 0.5, 0.9, "medium", 128, 200, 180, 255, 2, "center", "top", 255)
-    vote2VehicleName = textCreateTextItem ( "Vehicle name", 0.5, 0.94, "medium", 90, 150, 220, 255, 2, "center", "top", 255)
-    vote2VehicleType = textCreateTextItem ( "Vehicle type", 0.5, 0.97, "small", 90, 150, 220, 255, 2, "center", "top", 255)
-    textDisplayAddText ( voteScreen, vote2Header )
-    textDisplayAddText ( voteScreen, vote2VehicleName )
-    textDisplayAddText ( voteScreen, vote2VehicleType )
-
-    local vote3Header = textCreateTextItem ( "Vote F7", 0.65, 0.9, "medium", 128, 200, 180, 255, 2, "center", "top", 255)
-    vote3VehicleName = textCreateTextItem ( "Vehicle name", 0.65, 0.94, "medium", 90, 150, 220, 255, 2, "center", "top", 255)
-    vote3VehicleType = textCreateTextItem ( "Vehicle type", 0.65, 0.97, "small", 90, 150, 220, 255, 2, "center", "top", 255)
-    textDisplayAddText ( voteScreen, vote3Header )
-    textDisplayAddText ( voteScreen, vote3VehicleType )
-end
-addEventHandler("onResourceStart", getResourceRootElement(getThisResource()), setupVehicleVote)
-
 addCommandHandler("changeveh", function(thePlayer, command, newModel)
     local theVehicle = getPedOccupiedVehicle(thePlayer) -- get the vehicle the player is in
     newModel = tonumber(newModel) -- try to convert the string argument to a number
@@ -203,9 +165,9 @@ addCommandHandler("changeveh", function(thePlayer, command, newModel)
 end)
 
 function startVote()
-    vote1Model = getRandomVehicle()
-    vote2Model = getRandomVehicle()
-    vote3Model = getRandomVehicle()
+    local vote1Model = getRandomVehicle()
+    local vote2Model = getRandomVehicle()
+    local vote3Model = getRandomVehicle()
 
     startPoll {
         --start settings (dictionary part)
@@ -221,52 +183,6 @@ function startVote()
         [3]={getVehicleName(vote3Model).."["..getVehicleCategory(vote3Model).."]", "voteFinnished", vote3Model},
         [4]={"Keep current", "voteFinnished", currentVehicle},
     }
-
-    /*
-    textItemSetText(vote1VehicleName, getVehicleNameFromModel(vote1Model))
-    textItemSetText(vote2VehicleName, getVehicleNameFromModel(vote2Model))
-    textItemSetText(vote3VehicleName, getVehicleNameFromModel(vote3Model))
-
-    textItemSetText(vote1VehicleType, getVehicleCategory(vote1Model))
-    textItemSetText(vote2VehicleType, getVehicleCategory(vote2Model))
-    textItemSetText(vote3VehicleType, getVehicleCategory(vote3Model))
-
-    local players = getElementsByType("player")
-    for k, player in ipairs(players) do
-		textDisplayAddObserver(voteScreen, player)
-    end
-    */
-end
-
-function checkVoteResult(player)
-    textDisplayRemoveObserver(voteScreen, player)
-
-    local players = getElementsByType("player")
-    local totalPossibleVotes = #players
-    -- check if any cote is more than 50%
-    local limit = totalPossibleVotes * 0.75
-    local allVotesGiven = vote1Count + vote2Count + vote3Count == totalPossibleVotes
-    local nextVehicle = nil
-    if vote1Count > limit or (allVotesGiven and vote1Count > vote2Count and vote1Count > vote3Count) then
-        nextVehicle = vote1Model
-    elseif vote2Count > limit or (allVotesGiven and vote2Count > vote1Count and vote2Count > vote3Count) then
-        nextVehicle = vote2Model
-    elseif vote3Count > limit or (allVotesGiven and vote3Count > vote2Count and vote3Count > vote1Count) then
-        nextVehicle = vote3Model
-    end
-
-    if (nextVehicle) then
-        currentVehicle = nextVehicle
-        setVehicleForAll()
-        vote1Count = 0
-        vote2Count = 0
-        vote3Count = 0
-
-        local players = getElementsByType("player")
-        for k, player in ipairs(players) do
-	    	textDisplayRemoveObserver(voteScreen, player)
-         end
-    end
 end
 
 function voteFinnished(nextVehicle)
@@ -276,44 +192,37 @@ function voteFinnished(nextVehicle)
 
     currentVehicle = nextVehicle
     setVehicleForAll()
-    vote1Count = 0
-    vote2Count = 0
-    vote3Count = 0
-
-    local players = getElementsByType("player")
-    for k, player in ipairs(players) do
-        textDisplayRemoveObserver(voteScreen, player)
-        end
 end
 
-function vote1(player)
-    vote1Count = vote1Count + 1
-    checkVoteResult(player)
+function bindKeysForPlayer(player)
+    bindKey(player, "F4", "up", startVote, player)
 end
 
-function vote2(player)
-    vote2Count = vote2Count + 1
-    checkVoteResult(player)
-end
-
-function vote3(player)
-    vote3Count = vote3Count + 1
-    checkVoteResult(player)
+function unbindKeysForPlayer(player)
+    unbindKey(player, "F4")
 end
 
 function bindTheKeys ( )
-    bindKey ( source, "F4", "up", startVote, source )
-    bindKey ( source, "F5", "up", vote1, source )
-    bindKey ( source, "F6", "up", vote2, source ) 
-    bindKey ( source, "F7", "up", vote3, source ) end
+    bindKeysForPlayer(source)
+end
 addEventHandler("onPlayerJoin", getRootElement(), bindTheKeys)
 
   --unbind on quit
 function unbindTheKeys ( )
-    unbindKey ( source, "F4" )
-    unbindKey ( source, "F5" )
-    unbindKey ( source, "F6" ) 
-    unbindKey ( source, "F7" )
-    textDisplayRemoveObserver ( voteScreen, source )
+    unbindKeysForPlayer(source)
 end
 addEventHandler("onPlayerQuit", getRootElement(), unbindTheKeys)
+
+function bindKeysOnStart()
+    for k, player in ipairs(getElementsByType("player")) do
+        bindKeysForPlayer(player)
+    end
+end
+addEventHandler("onResourceStart", getResourceRootElement(getThisResource()), bindKeysOnStart)
+
+function unbindKeysOnStop()
+    for k, player in ipairs(getElementsByType("player")) do
+        unbindKeysForPlayer(player)
+    end
+end
+addEventHandler("onResourceStop", getResourceRootElement(getThisResource()), unbindKeysOnStop)
