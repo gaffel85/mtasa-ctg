@@ -56,11 +56,10 @@ local superCarPowerUp = {
 	onDisable = function(player)
 	end,
 	onActivated = function(player, vehicle, state)
-		state.oldVehicleModel = getElementModel(vehicle)
 		setElementModel(vehicle, SUPER_CAR_MODEL)
 	end,
 	onDeactivated = function(player, vehicle, state)
-		setElementModel(vehicle, state.oldVehicleModel)
+		setElementModel(vehicle, getCurrentVehicle())
 	end	
 }
 
@@ -131,19 +130,19 @@ function findPowerUpWithKey(key)
 end
 
 function usePowerUp(player, key, keyState, powerUp)
-	outputServerLog("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
+	--outputServerLog("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
 	-- outputChatBox("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
 	local state = getPlayerState(player, powerUp)
 	state.activated = true
 	setPowerUpEndsTime(powerUp, state)
 	-- outputChatBox("state: "..tostring(state.activated))
-	outputServerLog("state: "..inspect(state))
+	--outputServerLog("state: "..inspect(state))
 	local vehicle = getPedOccupiedVehicle(player)
 	if (vehicle) then
 		local realPowerUp = findPowerUpWithKey(powerUp.key)
-		outputServerLog("realPowerUp: "..tostring(realPowerUp.name))
+		--outputServerLog("realPowerUp: "..tostring(realPowerUp.name))
 		if (realPowerUp) then
-			outputServerLog("activating: "..tostring(realPowerUp.name))
+			--outputServerLog("activating: "..tostring(realPowerUp.name))
 			realPowerUp.onActivated(player, vehicle, state)
 		end
 	else

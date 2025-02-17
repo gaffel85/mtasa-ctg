@@ -1,5 +1,6 @@
 local currentVehicle = 526
 local CHANGE_VECHICLE_TEXT_ID = 963781
+local playersToKeepTheirVehicle = {}
 
 local quota = {
     ["Airplanes"] = 0.1,
@@ -137,14 +138,26 @@ function getRandomVehicle()
 end
 
 function setVehicleForAll()
-    displayMessageForAll(CHANGE_VECHICLE_TEXT_ID, "New vehicle is "..getVehicleNameFromModel(currentVehicle), nil, nil, 3000, 0.5, 0.7, 88, 255, 120)
-	local players = getElementsByType("player")
-    for k, player in ipairs(players) do
-		local theVehicle = getPedOccupiedVehicle(player)
-        if theVehicle then
-			setElementModel(theVehicle, getCurrentVehicle())
-		end
+  local players = getElementsByType("player")
+  for k, player in ipairs(players) do
+    if not playersToKeepTheirVehicle[player] then
+
+      displayMessageForPlayer(CHANGE_VECHICLE_TEXT_ID, "New vehicle is "..getVehicleNameFromModel(currentVehicle), nil, nil, 3000, 0.5, 0.7, 88, 255, 120)
+
+      local theVehicle = getPedOccupiedVehicle(player)
+      if theVehicle then
+        setElementModel(theVehicle, getCurrentVehicle())
+      end
     end
+  end
+end
+
+function preventChangeFor(player)table
+  playersToKeepTheirVehicle[player] = true
+end
+
+function unpreventChangeFor(player)
+  playersToKeepTheirVehicle[player] = nil
 end
 
 function nextVehicle()
