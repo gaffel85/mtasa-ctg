@@ -78,7 +78,7 @@ local waterLevelPowerUp = {
 	onDisable = function(player)
 	end,
 	onActivated = function(player, vehicle, state)
-		raiseWaterEffect(10)
+		raiseWaterEffect(player, 10)
 	end,
 	onDeactivated = function(player, vehicle, state)
 		
