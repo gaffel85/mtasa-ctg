@@ -25,6 +25,8 @@
 	<script src="ctg.server.main.lua" />
 	<script src="ctg.server.vehicles.lua" />
 
+	<script src="server/powerups/water.powerup.lua" />
+
 	<script src="ctg.client.goldcarrier.lua" type="client" />
     <script src="ctg.client.collision.lua" type="client" />
 	<script src="ctg.client.lastpositions.lua" type="client" />
