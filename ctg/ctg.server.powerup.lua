@@ -56,10 +56,32 @@ local superCarPowerUp = {
 	onDisable = function(player)
 	end,
 	onActivated = function(player, vehicle, state)
+		preventChangeFor(player)
 		setElementModel(vehicle, SUPER_CAR_MODEL)
 	end,
 	onDeactivated = function(player, vehicle, state)
+		unpreventChangeFor(player)
 		setElementModel(vehicle, getCurrentVehicle())
+	end	
+}
+
+local waterLevelPowerUp = {
+	key = "waterLevel",
+	name = "Flood",
+	bindKey = "C",
+	cooldown = 1,
+	duration = 10,
+	initCooldown = 1,
+	onEnable = function(player)
+		return true
+	end,
+	onDisable = function(player)
+	end,
+	onActivated = function(player, vehicle, state)
+		raiseWaterEffect(player, 10)
+	end,
+	onDeactivated = function(player, vehicle, state)
+		
 	end	
 }
 
@@ -227,4 +249,5 @@ setTimer(tickPowerUps, 1000, 0)
 
 addPowerUp(nitroPowerUp)
 addPowerUp(teleportPowerUp)
-addPowerUp(superCarPowerUp)
+--addPowerUp(superCarPowerUp)
+addPowerUp(waterLevelPowerUp)
