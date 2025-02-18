@@ -24,7 +24,7 @@ function refreshAllBlips()
             local posX, posY, posZ = coordsFromEdl(goldSpawnEdl)
             local goldSpawnBlip = createBlip(posX, posY, posZ, 52)
 
-            local extraBlip = createBlip(posX, posY, posZ, 0, 2, 255, 0, 0, 255, 10)
+            local extraBlip = createBlip(posX, posY, posZ, 0, 1, 255, 0, 0, 255, 10)
         end
     else 
         local teams = getTeams()
@@ -34,14 +34,14 @@ function refreshAllBlips()
             if team.hideout then
                 local posX, posY, posZ = team.hideout.pos.x, team.hideout.pos.y, team.hideout.pos.z
                 
-                local ownTeamHideoutBlip = createBlip(posX, posY, posZ, 31, 2, 255, 0, 0, 255, 5)
-                local otherTeamHideoutBlip = createBlip(posX, posY, posZ, 23, 2, 255, 0, 0, 255, 5)
+                local ownTeamHideoutBlip = createBlip(posX, posY, posZ, 31, 1, 255, 0, 0, 255, 5)
+                local otherTeamHideoutBlip = createBlip(posX, posY, posZ, 23, 1, 255, 0, 0, 255, 5)
                 setElementVisibleTo(ownTeamHideoutBlip, root, false)
                 setElementVisibleTo(otherTeamHideoutBlip, root, false)
-                for k, member in ipairs(team.members) do
+                for k, member in ipairs(getPlayersInTeam(team.team)) do
                     setElementVisibleTo(ownTeamHideoutBlip, member, true)    
                 end
-                for k, member in ipairs(team.otherTeam.members) do
+                for k, member in ipairs(getPlayersInTeam(team.otherTeam.team)) do
                     setElementVisibleTo(otherTeamHideoutBlip, member, true)    
                 end
 

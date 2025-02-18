@@ -70,6 +70,10 @@ function setupTeams()
     textDisplayAddText ( team2.textDisplay, team2YourTeamText )
     textDisplayAddText ( team2.textDisplay, team2SwitchText )
 
+    outputServerLog("hhhheeej")
+    for k, player in ipairs(getElementsByType("player")) do
+        bindTeamKeysForPlayer(player)
+    end
 end
 addEventHandler("onResourceStart", getResourceRootElement(getThisResource()), setupTeams)
 
@@ -116,17 +120,29 @@ function switchToTeam2(player)
     switchToTeam(team2, player)
 end
 
+function bindTeamKeysForPlayer(player)
+    outputServerLog("bind "..inspect(player))
+    bindKey ( player, "F1", "up", switchToTeam1, player )
+    bindKey ( player, "F2", "up", switchToTeam2, player ) 
+    textDisplayAddObserver ( teamsScoreDisplay, player )
+end
+
+function unbindTeamKeysForPlayer(player)
+    outputServerLog("unbind "..inspect(player))
+    unbindKey ( player, "F1" )
+    unbindKey ( player, "F2" ) 
+    textDisplayRemoveObserver ( teamsScoreDisplay, player )
+end
+
 function bindTheKeys ( )
-    bindKey ( source, "F1", "up", switchToTeam1, source )
-    bindKey ( source, "F2", "up", switchToTeam2, source ) 
-    textDisplayAddObserver ( teamsScoreDisplay, source ) 
+    outputServerLog("source bind "..inspect(source))
+    bindTeamKeysForPlayer(source)
 end
 addEventHandler("onPlayerJoin", getRootElement(), bindTheKeys)
 
   --unbind on quit
 function unbindTheKeys ( )
-    unbindKey ( source, "F1" )
-    unbindKey ( source, "F2" ) 
-    textDisplayRemoveObserver ( teamsScoreDisplay, source )
+    outputServerLog("source unbindTheKeys "..inspect(source))
+    unbindTeamKeysForPlayer(source)
 end
 addEventHandler("onPlayerQuit", getRootElement(), unbindTheKeys)
