@@ -45,7 +45,7 @@ function refreshAllBlips()
                     setElementVisibleTo(otherTeamHideoutBlip, member, true)    
                 end
 
-                if (team.team = goldCarrierNativeTeam) then
+                if (team.team == goldCarrierNativeTeam) then
                     local extraBlip = createBlip(posX, posY, posZ, 0, 2, 255, 0, 0, 255, 10)
                     setElementVisibleTo(extraBlip, root, false)
                     setElementVisibleTo(extraBlip, getGoldCarrier(), true)
