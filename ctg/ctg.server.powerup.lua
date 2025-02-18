@@ -56,10 +56,87 @@ local superCarPowerUp = {
 	onDisable = function(player)
 	end,
 	onActivated = function(player, vehicle, state)
+		preventChangeFor(player)
 		setElementModel(vehicle, SUPER_CAR_MODEL)
 	end,
 	onDeactivated = function(player, vehicle, state)
+		unpreventChangeFor(player)
 		setElementModel(vehicle, getCurrentVehicle())
+	end	
+}
+
+local waterLevelPowerUp = {
+	key = "waterLevel",
+	name = "Flood",
+	bindKey = "C",
+	cooldown = 1,
+	duration = 10,
+	initCooldown = 1,
+	onEnable = function(player)
+		-- outputChatBox("superCar enabled "..getPlayerName(player))
+		return true
+	end,
+	onDisable = function(player)
+	end,
+	onActivated = function(player, vehicle, state)
+
+		local duration = 10
+		local timeDeltas = 50
+		
+
+		local x, y, z = getElementPosition(player)
+		-- Setting water properties.
+		height = z - 20
+		SizeVal = 100
+		-- Defining variables.
+		southWest_X = x-SizeVal
+		southWest_Y = y-SizeVal
+		southEast_X = x+SizeVal
+		southEast_Y = y-SizeVal
+		northWest_X = x-SizeVal
+		northWest_Y = y+SizeVal
+		northEast_X = x+SizeVal
+		northEast_Y = y+SizeVal
+
+		outputServerLog(southWest_X, southWest_Y, height, southEast_X, southEast_Y, height, northWest_X, northWest_Y, height, northEast_X, northEast_Y, height)
+		water = createWater ( southWest_X, southWest_Y, height, southEast_X, southEast_Y, height, northWest_X, northWest_Y, height, northEast_X, northEast_Y, height )
+		if not water then
+			outputServerLog("Could not create water", southWest_X, southWest_Y, height, southEast_X, southEast_Y, height, northWest_X, northWest_Y, height, northEast_X, northEast_Y, height)
+			return
+		end
+		state.water = water
+		state.waterHeight = z - 2
+		setWaterLevel ( water, height )
+		-- setElementModel(vehicle, SUPER_CAR_MODEL)
+
+		local level = height
+		local totalHeightToRaise = 18
+		local raisPart = 0.33333
+		local repetitions = duration * 1000 / timeDeltas
+		local steps = totalHeightToRaise / (repetitions * raisPart)
+		local index = 0
+		function drainSomeWater()
+			if water then
+				if index < repetitions * raisPart then
+					level = level + steps
+					setWaterLevel ( water, level )
+				elseif index > 2 * repetitions * raisPart then
+					level = level - steps
+					setWaterLevel ( water, level )
+				end
+			end
+			index = index + 1
+			if (index >= repetitions - 1) then
+				if water then
+					destroyElement(water)
+				end
+				water = nil
+			end
+		end
+		setTimer ( drainSomeWater, timeDeltas, repetitions )
+	end,
+	onDeactivated = function(player, vehicle, state)
+		
 	end	
 }
 
@@ -227,4 +304,5 @@ setTimer(tickPowerUps, 1000, 0)
 
 addPowerUp(nitroPowerUp)
 addPowerUp(teleportPowerUp)
-addPowerUp(superCarPowerUp)
+--addPowerUp(superCarPowerUp)
+addPowerUp(waterLevelPowerUp)

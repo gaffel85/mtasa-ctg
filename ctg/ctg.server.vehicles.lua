@@ -142,7 +142,7 @@ function setVehicleForAll()
   for k, player in ipairs(players) do
     if not playersToKeepTheirVehicle[player] then
 
-      displayMessageForPlayer(CHANGE_VECHICLE_TEXT_ID, "New vehicle is "..getVehicleNameFromModel(currentVehicle), nil, nil, 3000, 0.5, 0.7, 88, 255, 120)
+      displayMessageForPlayer(player, CHANGE_VECHICLE_TEXT_ID, "New vehicle is "..getVehicleNameFromModel(currentVehicle), nil, nil, 3000, 0.5, 0.7, 88, 255, 120)
 
       local theVehicle = getPedOccupiedVehicle(player)
       if theVehicle then
@@ -152,7 +152,7 @@ function setVehicleForAll()
   end
 end
 
-function preventChangeFor(player)table
+function preventChangeFor(player)
   playersToKeepTheirVehicle[player] = true
 end
 
@@ -207,7 +207,7 @@ addEventHandler("voteFinnished", getResourceRootElement(getThisResource()), func
 
     currentVehicle = nextVehicle
     setVehicleForAll()
-end
+end)
 
 function bindKeysForPlayer(player)
     bindKey(player, "F4", "up", startVote, player)
