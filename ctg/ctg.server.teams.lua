@@ -7,6 +7,7 @@ local team1 = {
     scoreLabel = nil,
     textDisplay = nil,
     otherTeam = nil,
+    hideOut = nil,
     color = {100, 100, 255}
 }
 local team2 = {
@@ -16,6 +17,7 @@ local team2 = {
     scoreLabel = nil,
     textDisplay = nil,
     otherTeam = nil,
+    hideOut = nil,
     color = {100, 255, 100}
 }
 
@@ -23,6 +25,19 @@ local teamsScoreDisplay
 
 local team1Display
 local team2Display
+
+function getTeams()
+    return  { team1, team2 }
+end
+
+function getCtgTeam(player)
+    local team = getPlayerTeam(player)
+	if team1.team == team then
+        return team1
+    else
+        return team2
+    end
+end
 
 function setupTeams()
     team1.otherTeam = team2
@@ -83,14 +98,7 @@ function switchToTeam(team, player)
 end
 
 function giveTeamScore(player, score)
-    local carrierTeam
-    local team = getPlayerTeam(player)
-	if team1.team == team then
-        carrierTeam = team1
-    else
-        carrierTeam = team2
-    end
-
+    local carrierTeam = getCtgTeam(player)
     carrierTeam.score = carrierTeam.score + score
     updateScoreDisplay()
 end
