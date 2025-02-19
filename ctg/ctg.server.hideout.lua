@@ -24,10 +24,13 @@ function spawnNewHideoutForTeam(team)
 end
 
 function spawnNewHideout()
+    local teams = getTeams()
+    if teams[1].hideout then
+        return
+    end
     removeOldHideout()
 
     -- for each team create a new hideout
-    local teams = getTeams()
     if isTeamsActivated() then
         for i, team in ipairs(teams) do
             spawnNewHideoutForTeam(team)
@@ -44,6 +47,16 @@ end
 
 function removeOldHideout()
     local teams = getTeams()
+    if not isTeamsActivated() then
+        local team = teams[1]
+        if team.hideout and team.hideout.marker then
+            destroyElement(team.hideout.marker)
+        end
+        team.hideout = nil
+        team.otherTeam.hideout = nil
+        return
+    end
+
     for i, team in ipairs(teams) do
         if team.hideout and team.hideout.marker then
             destroyElement(team.hideout.marker)

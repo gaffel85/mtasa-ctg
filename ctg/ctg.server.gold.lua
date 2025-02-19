@@ -89,12 +89,9 @@ function destroyCarrierBlip()
 end
 
 function destroyCarrierMarker()
-    outputChatBox("gold.destroyCarrierMarker()")
     if (goldCarrierMarker) then
-        outputChatBox("gold.destroyCarrierMarker 1")
         destroyElement(goldCarrierMarker)
     end
-    outputChatBox("gold.destroyCarrierMarker 2")
     goldCarrierMarker = nil
 end
 

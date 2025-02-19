@@ -19,6 +19,7 @@ function refreshAllBlips()
     end
 
     if not getGoldCarrier() then
+        -- fix so that it points to last gold
         local goldSpawnEdl = getLastGoldSpawn()
         if (goldSpawnEdl) then
             local posX, posY, posZ = coordsFromEdl(goldSpawnEdl)
@@ -62,7 +63,6 @@ function refreshAllBlips()
                 local extraBlip = createBlip(posX, posY, posZ, 0, 2, 255, 0, 0, 255, 10)
                 setElementVisibleTo(extraBlip, root, false)
                 setElementVisibleTo(extraBlip, getGoldCarrier(), true)
-                table.insert(allBlips, extraBlip)
             end
         end
     end

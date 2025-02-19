@@ -68,7 +68,7 @@ local superCarPowerUp = {
 local waterLevelPowerUp = {
 	key = "waterLevel",
 	name = "Flood",
-	bindKey = "C",
+	bindKey = "R",
 	cooldown = 1,
 	duration = 10,
 	initCooldown = 1,
@@ -249,5 +249,5 @@ setTimer(tickPowerUps, 1000, 0)
 
 addPowerUp(nitroPowerUp)
 addPowerUp(teleportPowerUp)
---addPowerUp(superCarPowerUp)
+addPowerUp(superCarPowerUp)
 addPowerUp(waterLevelPowerUp)

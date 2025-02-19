@@ -149,6 +149,7 @@ function startGameIfEnoughPlayers()
 end
 
 function goldDelivered(player)
+    removeOldHideout()
 	givePointsToPlayer(getGoldCarrier(), 500)
     -- triggerEvent("goldDelivered", root, getGoldCarrier(), 500)
 	showTextGoldDelivered(getGoldCarrier())
@@ -191,8 +192,20 @@ function resetRoundVars()
     clearGoldCarrier()
 end
 
-function playerDied(ammo, attacker, weapon, bodypart)
-    spawn(source, true)
+function playerDied(player)
+    outputChatBox("Died")
+    if player == getGoldCarrier() then
+        clearGoldCarrier()
+        local posX, posY, posZ = getElementPosition(player)
+        outputChatBox("had position"..inspect(posX))
+        spawnGoldAtTransform(posX, posY, posZ)
+        refreshAllBlips()
+    end
+    spawn(player, true)
+end
+
+function playerWastedMain(ammo, attacker, weapon, bodypart)
+    playerDied(source)
     --local posX, posY, posZ = getElementPosition(source)
     --spawnAt(source, posX, posY, posZ, 0, 0, 0)
 
@@ -204,7 +217,7 @@ function playerDied(ammo, attacker, weapon, bodypart)
     --    toggleAllControls(theWasted, true, true, true)
     --end, 5000, 1)
 end
-addEventHandler("onPlayerWasted", getRootElement(), playerDied)
+addEventHandler("onPlayerWasted", getRootElement(), playerWastedMain)
 
 -- listen for event from client called "reportTransform"
 addEvent("reportLastTransform", true)
@@ -212,6 +225,7 @@ addEvent("reportTransform", true)
 addEventHandler("reportTransform", resourceRoot, function(transform, param1, param2, param3)
     if param1 and param1 == "replaceGold" then
         spawnGoldAtTransform(transform.x, transform.y, transform.z)
+        refreshAllBlips()
     end
     if param1 and param1 == "telportTo" then
         -- outputChatBox(inspect(param2).." "..inspect(param3))
@@ -258,6 +272,7 @@ addEventHandler("onPlayerQuit", getRootElement(), quitPlayer)
 function commitSuicide(sourcePlayer)
     -- kill the player and make him responsible for it
     killPed(sourcePlayer, sourcePlayer)
+    playerDied(sourcePlayer)
 end
 addCommandHandler("kill", commitSuicide)
 

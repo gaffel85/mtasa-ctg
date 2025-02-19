@@ -144,10 +144,18 @@ function setVehicleForAll()
 
       displayMessageForPlayer(player, CHANGE_VECHICLE_TEXT_ID, "New vehicle is "..getVehicleNameFromModel(currentVehicle), nil, nil, 3000, 0.5, 0.7, 88, 255, 120)
 
-      local theVehicle = getPedOccupiedVehicle(player)
-      if theVehicle then
-        setElementModel(theVehicle, getCurrentVehicle())
-      end
+      setVehicleForPlayer(player, getCurrentVehicle())
+    end
+  end
+end
+
+function setVehicleForPlayer(player, model)
+  local theVehicle = getPedOccupiedVehicle(player)
+  if theVehicle then
+    local upgrades = getVehicleUpgrades ( theVehicle )
+    setElementModel(theVehicle, model)
+    for _, upgrade in ipairs ( upgrades ) do
+      addVehicleUpgrade(theVehicle,  upgrade )
     end
   end
 end
@@ -172,8 +180,8 @@ end
 addCommandHandler("changeveh", function(thePlayer, command, newModel)
     local theVehicle = getPedOccupiedVehicle(thePlayer) -- get the vehicle the player is in
     newModel = tonumber(newModel) -- try to convert the string argument to a number
-    if theVehicle and newModel then -- make sure the player is in a vehicle and specified a number
-        setElementModel(theVehicle, newModel)
+    if newModel then -- make sure the player is in a vehicle and specified a number
+      setVehicleForPlayer(thePlayer, newModel)
     end
 end)
 
