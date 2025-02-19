@@ -27,30 +27,43 @@ function refreshAllBlips()
             local extraBlip = createBlip(posX, posY, posZ, 0, 2, 255, 0, 0, 255, 10)
         end
     else 
-        local teams = getTeams()
-        local goldCarrierNativeTeam = getPlayerTeam(getGoldCarrier())
-        -- loop over teams
-        for i, team in ipairs(teams) do
-            if team.hideout then
-                local posX, posY, posZ = team.hideout.pos.x, team.hideout.pos.y, team.hideout.pos.z
-                
-                local ownTeamHideoutBlip = createBlip(posX, posY, posZ, 31, 2, 255, 0, 0, 255, 5)
-                local otherTeamHideoutBlip = createBlip(posX, posY, posZ, 23, 2, 255, 0, 0, 255, 5)
-                setElementVisibleTo(ownTeamHideoutBlip, root, false)
-                setElementVisibleTo(otherTeamHideoutBlip, root, false)
-                for k, member in ipairs(team.members) do
-                    setElementVisibleTo(ownTeamHideoutBlip, member, true)    
-                end
-                for k, member in ipairs(team.otherTeam.members) do
-                    setElementVisibleTo(otherTeamHideoutBlip, member, true)    
-                end
+        
+        if isTeamsActivated() then
+            local goldCarrierNativeTeam = getPlayerTeam(getGoldCarrier())
+            local teams = getTeams()
+            for i, team in ipairs(teams) do
+                if team.hideout then
+                    local posX, posY, posZ = team.hideout.pos.x, team.hideout.pos.y, team.hideout.pos.z
+                    
+                    local ownTeamHideoutBlip = createBlip(posX, posY, posZ, 31, 2, 255, 0, 0, 255, 5)
+                    local otherTeamHideoutBlip = createBlip(posX, posY, posZ, 23, 2, 255, 0, 0, 255, 5)
+                    setElementVisibleTo(ownTeamHideoutBlip, root, false)
+                    setElementVisibleTo(otherTeamHideoutBlip, root, false)
+                    for k, member in ipairs(team.members) do
+                        setElementVisibleTo(ownTeamHideoutBlip, member, true)    
+                    end
+                    for k, member in ipairs(team.otherTeam.members) do
+                        setElementVisibleTo(otherTeamHideoutBlip, member, true)    
+                    end
 
-                if (team.team = goldCarrierNativeTeam) then
-                    local extraBlip = createBlip(posX, posY, posZ, 0, 2, 255, 0, 0, 255, 10)
-                    setElementVisibleTo(extraBlip, root, false)
-                    setElementVisibleTo(extraBlip, getGoldCarrier(), true)
+                    if (goldCarrierNativeTeam and team.team = goldCarrierNativeTeam) then
+                        local extraBlip = createBlip(posX, posY, posZ, 0, 2, 255, 0, 0, 255, 10)
+                        setElementVisibleTo(extraBlip, root, false)
+                        setElementVisibleTo(extraBlip, getGoldCarrier(), true)
+                    end
                 end
             end
+        end
+    else 
+        local team = getTeams()[1] -- same hideout for non team members
+        if team.hideout then
+            local posX, posY, posZ = team.hideout.pos.x, team.hideout.pos.y, team.hideout.pos.z
+            createBlip(posX, posY, posZ, 31, 2, 255, 0, 0, 255, 5)
+
+            local extraBlip = createBlip(posX, posY, posZ, 0, 2, 255, 0, 0, 255, 10)
+            setElementVisibleTo(extraBlip, root, false)
+            setElementVisibleTo(extraBlip, getGoldCarrier(), true)
+            table.insert(allBlips, extraBlip)
         end
     end
 end

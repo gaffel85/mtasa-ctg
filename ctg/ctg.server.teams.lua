@@ -1,5 +1,3 @@
-local teamsActivated = false
-
 local team1 = {
     members = {},
     team = nil,
@@ -28,6 +26,10 @@ local team2Display
 
 function getTeams()
     return  { team1, team2 }
+end
+
+function isTeamsActivated()
+    return team1.members and team2.members and #team1.members > 0 and #team2.members > 0
 end
 
 function getCtgTeam(player)

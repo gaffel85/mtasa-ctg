@@ -20,6 +20,7 @@ function spawnNewHideoutForTeam(team)
         pos = { x = posX, y = posY, z = posZ },
         marker = createMarker(posX, posY, posZ, "checkpoint", 2.0, 255, 0, 0)
     }
+    return team.hideout
 end
 
 function spawnNewHideout()
@@ -27,8 +28,16 @@ function spawnNewHideout()
 
     -- for each team create a new hideout
     local teams = getTeams()
-    for i, team in ipairs(teams) do
-        spawnNewHideoutForTeam(team)
+    if isTeamsActivated() then
+        for i, team in ipairs(teams) do
+            spawnNewHideoutForTeam(team)
+        end
+    else
+        local hideout = spawnNewHideoutForTeam(teams[1])
+        --for the rest of the teams, use the same hideout
+        for i = 2, #teams do
+            teams[i].hideout = hideout
+        end
     end
     refreshAllBlips()
 end
