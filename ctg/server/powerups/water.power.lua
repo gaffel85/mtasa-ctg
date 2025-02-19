@@ -13,7 +13,7 @@ local function createWaterAt(x, y, z, size)
 
 end
 
-function raiseWaterEffect(duration)
+function raiseWaterEffect(player, duration)
     local duration = 10
     local timeDeltas = 50
     
@@ -26,7 +26,7 @@ function raiseWaterEffect(duration)
     local water = nil
     while not (water and radius >= 10) do
         water = createWaterAt(x, y, z, radius)
-        if raduis < 200 then
+        if radius < 200 then
             radius = radius - 10    
         else 
             radius = radius - 100    
