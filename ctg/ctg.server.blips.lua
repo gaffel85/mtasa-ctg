@@ -20,9 +20,9 @@ function refreshAllBlips()
 
     if not getGoldCarrier() then
         -- fix so that it points to last gold
-        local goldSpawnEdl = getLastGoldSpawn()
-        if (goldSpawnEdl) then
-            local posX, posY, posZ = coordsFromEdl(goldSpawnEdl)
+        local goldSpawn = getLastGoldSpawn()
+        if (goldSpawn) then
+            local posX, posY, posZ = goldSpawn.x, goldSpawn.y, goldSpawn.z
             local goldSpawnBlip = createBlip(posX, posY, posZ, 52)
 
             local extraBlip = createBlip(posX, posY, posZ, 0, 1, 255, 0, 0, 255, 10)
