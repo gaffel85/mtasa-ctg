@@ -11,8 +11,14 @@ function getTeamHideout(player)
     end
 end
 
-function spawnNewHideoutForTeam(team)
-    local hideout = hideouts[math.random(#hideouts)]
+function spawnNewHideoutForTeam(team, otherTeamsHideout)
+    local meanPlayerPos = meanPositionOfPlayers()
+    local distanceFromMean = 500
+    if otherTeamsHideout then
+        local x1, y1, z1 = coordsFromEdl(otherTeamsHideout)
+        distanceFromMean = getDistanceBetweenPoints3D(x1, y1, z1, meanPlayerPos.x, meanPlayerPos.y, meanPlayerPos.z)
+    end
+    local hideout = chooseRandomCloseTo(hideouts, meanPlayerPos , distanceFromMean)
     local posX, posY, posZ = coordsFromEdl(hideout)
 
     team.hideout = {
@@ -31,9 +37,10 @@ function spawnNewHideout()
     removeOldHideout()
 
     -- for each team create a new hideout
+    local lastTeamHideout = nil
     if isTeamsActivated() then
         for i, team in ipairs(teams) do
-            spawnNewHideoutForTeam(team)
+            lastTeamHideout = spawnNewHideoutForTeam(team).dl
         end
     else
         local hideout = spawnNewHideoutForTeam(teams[1])
