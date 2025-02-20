@@ -15,17 +15,14 @@ function getLastGoldSpawn()
 end
 
 function spawnNewGold()
-    local spawnPoint = goldSpawns[math.random(#goldSpawns)]
-    lastGoldSpawn = spawnPoint
-    spawnGoldAt(spawnPoint)
-end
-
-function respawnGold()
-    spawnGoldAt(lastGoldSpawn)
-end
-
-function spawnGoldAt(spawnEdl)
+    local spawnEdl = goldSpawns[math.random(#goldSpawns)]
     local posX, posY, posZ = coordsFromEdl(spawnEdl)
+    lastGoldSpawn = {
+        edl = spawnEdl,
+        x = posX,
+        y = posY,
+        z = posZ
+    }
     spawnGoldAtTransform(posX, posY, posZ)
 end
 
@@ -34,7 +31,9 @@ function spawnGoldAtTransform(posX, posY, posZ)
     if (goldSpawnMarker == nil) then
         goldSpawnMarker = createGold(posX, posY, posZ)
     end
-    destroySpawnBlip()
+    lastGoldSpawn.x = posX
+    lastGoldSpawn.y = posY
+    lastGoldSpawn.z = posZ
     refreshAllBlips()
     -- goldSpawnBlip = createBlip(posX, posY, posZ, 52)
 end
@@ -89,12 +88,9 @@ function destroyCarrierBlip()
 end
 
 function destroyCarrierMarker()
-    outputChatBox("gold.destroyCarrierMarker()")
     if (goldCarrierMarker) then
-        outputChatBox("gold.destroyCarrierMarker 1")
         destroyElement(goldCarrierMarker)
     end
-    outputChatBox("gold.destroyCarrierMarker 2")
     goldCarrierMarker = nil
 end
 

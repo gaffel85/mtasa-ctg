@@ -48,7 +48,7 @@ function getDistanceToGold(player)
 		return 999999999
 	end
 	local x, y, z = getElementPosition(player)
-	local x2, y2, z2 = coordsFromEdl(gold)
+	local x2, y2, z2 = gold.x, gold.y, gold.z
 	return getDistanceBetweenPoints3D(x, y, z, x2, y2, z2)
 end
 

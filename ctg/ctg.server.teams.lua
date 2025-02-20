@@ -1,5 +1,3 @@
-local teamsActivated = false
-
 local team1 = {
     members = {},
     team = nil,
@@ -7,6 +5,7 @@ local team1 = {
     scoreLabel = nil,
     textDisplay = nil,
     otherTeam = nil,
+    hideOut = nil,
     color = {100, 100, 255}
 }
 local team2 = {
@@ -16,6 +15,7 @@ local team2 = {
     scoreLabel = nil,
     textDisplay = nil,
     otherTeam = nil,
+    hideOut = nil,
     color = {100, 255, 100}
 }
 
@@ -23,6 +23,23 @@ local teamsScoreDisplay
 
 local team1Display
 local team2Display
+
+function getTeams()
+    return  { team1, team2 }
+end
+
+function isTeamsActivated()
+    return team1.members and team2.members and #team1.members > 0 and #team2.members > 0
+end
+
+function getCtgTeam(player)
+    local team = getPlayerTeam(player)
+	if team1.team == team then
+        return team1
+    else
+        return team2
+    end
+end
 
 function setupTeams()
     team1.otherTeam = team2
@@ -55,6 +72,10 @@ function setupTeams()
     textDisplayAddText ( team2.textDisplay, team2YourTeamText )
     textDisplayAddText ( team2.textDisplay, team2SwitchText )
 
+    outputServerLog("hhhheeej")
+    for k, player in ipairs(getElementsByType("player")) do
+        bindTeamKeysForPlayer(player)
+    end
 end
 addEventHandler("onResourceStart", getResourceRootElement(getThisResource()), setupTeams)
 
@@ -83,14 +104,7 @@ function switchToTeam(team, player)
 end
 
 function giveTeamScore(player, score)
-    local carrierTeam
-    local team = getPlayerTeam(player)
-	if team1.team == team then
-        carrierTeam = team1
-    else
-        carrierTeam = team2
-    end
-
+    local carrierTeam = getCtgTeam(player)
     carrierTeam.score = carrierTeam.score + score
     updateScoreDisplay()
 end
@@ -108,17 +122,29 @@ function switchToTeam2(player)
     switchToTeam(team2, player)
 end
 
+function bindTeamKeysForPlayer(player)
+    outputServerLog("bind "..inspect(player))
+    bindKey ( player, "F1", "up", switchToTeam1, player )
+    bindKey ( player, "F2", "up", switchToTeam2, player ) 
+    textDisplayAddObserver ( teamsScoreDisplay, player )
+end
+
+function unbindTeamKeysForPlayer(player)
+    outputServerLog("unbind "..inspect(player))
+    unbindKey ( player, "F1" )
+    unbindKey ( player, "F2" ) 
+    textDisplayRemoveObserver ( teamsScoreDisplay, player )
+end
+
 function bindTheKeys ( )
-    bindKey ( source, "F1", "up", switchToTeam1, source )
-    bindKey ( source, "F2", "up", switchToTeam2, source ) 
-    textDisplayAddObserver ( teamsScoreDisplay, source ) 
+    outputServerLog("source bind "..inspect(source))
+    bindTeamKeysForPlayer(source)
 end
 addEventHandler("onPlayerJoin", getRootElement(), bindTheKeys)
 
   --unbind on quit
 function unbindTheKeys ( )
-    unbindKey ( source, "F1" )
-    unbindKey ( source, "F2" ) 
-    textDisplayRemoveObserver ( teamsScoreDisplay, source )
+    outputServerLog("source unbindTheKeys "..inspect(source))
+    unbindTeamKeysForPlayer(source)
 end
 addEventHandler("onPlayerQuit", getRootElement(), unbindTheKeys)
