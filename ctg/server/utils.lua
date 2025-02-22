@@ -34,11 +34,16 @@ end
 
 function meanPositionOfPlayers()
     local players = getElementsByType("player")
+    if #players == 0 then
+        return {x = 0, y = 0, z = 0}
+    end
+
     local x, y, z = 0, 0, 0
     for i, player in ipairs(players) do
-        x = x + getElementPosition(player).x
-        y = y + getElementPosition(player).y
-        z = z + getElementPosition(player).z
+        local posX, posY, posZ = getElementPosition(player)
+        x = x + posX
+        y = y + posY
+        z = z + posZ
     end
     return {x = x / #players, y = y / #players, z = z / #players}
 end

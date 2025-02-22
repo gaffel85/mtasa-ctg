@@ -29,6 +29,8 @@
 
 	<script src="server/powerups/water.power.lua" />
 
+	<script src="client/power.gui.lua" type="client" />
+
 	<script src="ctg.client.goldcarrier.lua" type="client" />
     <script src="ctg.client.collision.lua" type="client" />
 	<script src="ctg.client.lastpositions.lua" type="client" />
