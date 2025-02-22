@@ -1,28 +1,40 @@
 local powerBoxes = {}
 local xDiff = 0.1
 
+GUIEditor = {
+    progressbar = {},
+    radiobutton = {},
+    button = {},
+    window = {},
+    label = {}
+}
+
 function createPowerUpBox(index)
-    local posX = 0.9 - xDiff * index
-    local powerwindow = guiCreateWindow(posX, 0.90, 0.08, 0.09, "Power Up", true)
+    local posX = 0.7 - xDiff * index
+    local powerwindow = guiCreateWindow(posX, 0.92, 0.08, 0.06, "Power Up", true)
     guiWindowSetSizable(powerwindow, false)
     guiSetAlpha(powerwindow, 1.00)
     guiSetProperty(powerwindow, "CaptionColour", "FEFFFFFF")
 
-    local powercooldown = guiCreateProgressBar(10, 83, 129, 16, false, powerwindow)
+    local powercooldown = guiCreateProgressBar(54, 45, 85, 12, false, powerwindow)
     guiSetAlpha(powercooldown, 0.88)
     guiProgressBarSetProgress(powercooldown, 42)
-    local powerbutton = guiCreateButton(48, 31, 62, 42, "key", false, powerwindow)
+    local powerbutton = guiCreateButton(10, 21, 36, 36, "lctrl", false, powerwindow)
     guiSetFont(powerbutton, "clear-normal")
     guiSetProperty(powerbutton, "NormalTextColour", "FEFFFFFF")
-    local charge1 = guiCreateRadioButton(131, 21, 15, 15, "", false, powerwindow)
-    local charge2 = guiCreateRadioButton(131, 41, 15, 15, "", false, powerwindow)
-    local charge3 = guiCreateRadioButton(132, 61, 15, 15, "", false, powerwindow)
+    local charge1 = guiCreateRadioButton(56, 26, 14, 15, "", false, powerwindow)
+    local charge2 = guiCreateRadioButton(74, 26, 14, 15, "", false, powerwindow)
+    local charge3 = guiCreateRadioButton(92, 26, 14, 15, "", false, powerwindow)
+    local charge4 = guiCreateRadioButton(110, 26, 14, 15, "", false, powerwindow)
+    local charge5 = guiCreateRadioButton(128, 26, 14, 15, "", false, powerwindow)
+    local status = guiCreateLabel(53, 26, 88, 19, "Status update", false, powerwindow)
+    guiSetVisible(status, false)
     --guiRadioButtonSetSelected(charge3, true)
     return {
         window = powerwindow,
         button = powerbutton,
         progress = powercooldown,
-        charges = {charge1, charge2, charge3}
+        charges = {charge1, charge2, charge3, charge4, charge5},
     }
 end
 --addEventHandler("onClientResourceStart", resourceRoot, createPowerUpBox)
@@ -33,13 +45,10 @@ end
 
 function getOrCreatePowerBox(index, name, key)
 	local powerBox = powerBoxes[index]
-    outputChatBox("Found powerBox: "..inspect(powerBox))
 	if ( powerBox ) then
 		if ( source ~= localPlayer) then
-            outputChatBox("Plauer false powerBox: "..inspect(source).." "..inspect(localPlayer))
 			guiSetVisible(powerBox.window, false)
 		else
-            outputChatBox("Plauer true powerBox: "..inspect(source).." "..inspect(localPlayer))
 			guiSetVisible(powerBox.window, true)
 		end
 	end
@@ -48,8 +57,6 @@ function getOrCreatePowerBox(index, name, key)
         powerBox = createPowerUpBox(index)
 		powerBoxes[index] = powerBox
 	end
-
-    outputChatBox("Returning powerBox: "..inspect(powerBox))
 
 	return powerBox
 end

@@ -1,4 +1,4 @@
-local boosterBars = {}
+/*local boosterBars = {}
 local boosterLabels = {}
 local barHeight = 0.05
 
@@ -56,3 +56,4 @@ function tickBoosterDuration(timeLeft, totalTime, index, name, key, enabled)
 end
 addEvent("boosterDurationTick", true)
 addEventHandler("boosterDurationTick", getRootElement(), tickBoosterDuration)
+*/

@@ -14,6 +14,7 @@ local function createWaterAt(x, y, z, size)
 end
 
 function raiseWaterEffect(player, duration)
+    setPreventDieFromWater(true)
     local duration = 10
     local timeDeltas = 50
     
@@ -59,6 +60,7 @@ function raiseWaterEffect(player, duration)
         end
         index = index + 1
         if (index >= repetitions - 1) then
+            setPreventDieFromWater(false)
             if water then
                 destroyElement(water)
             end
