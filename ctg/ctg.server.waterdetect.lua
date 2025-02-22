@@ -1,4 +1,14 @@
+local preventDieFromWater = false
+
+function setPreventDieFromWater(value)
+    preventDieFromWater = value
+end
+
 function checkWater()
+    if preventDieFromWater then
+        return
+    end
+
     local players = getElementsByType("player")
     for k, player in ipairs(players) do
         local vechicle = getPedOccupiedVehicle(player)
