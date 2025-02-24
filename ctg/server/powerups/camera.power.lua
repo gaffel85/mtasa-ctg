@@ -28,3 +28,5 @@ local cinematicCamera = {
         end
 	end	
 }
+
+addPowerUp(cinematicCamera)

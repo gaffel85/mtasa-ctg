@@ -5,20 +5,21 @@ function getDefaultConfig()
         active = {
             { key = "nitro", bindKey = "lctrl" },
             { key = "teleport", bindKey = "X" },
-            { key = "superCar", bindKey = "C" },
+            { key = "busses", bindKey = "C" },
             { key = "waterLevel", bindKey = "R" },
             { key = "canon", bindKey = "B" },
-            { key = "plane", bindKey = "<" },
+            { key = "plane", bindKey = "P" },
             { key = "cinematic", bindKey = "N" },
         },
         owned = {
             "nitro",
             "teleport",
-            "superCar",
+            "busses",
             "waterLevel",
             "canon",
             "plane",
             "cinematic",
+            "superCar",
         },
     }
 end

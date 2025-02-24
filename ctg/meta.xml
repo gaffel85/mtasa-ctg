@@ -29,8 +29,13 @@
 
 	<script src="server/player.powerconfig.lua" />
 	<script src="server/powerups/water.power.lua" />
+	<script src="server/powerups/camera.power.lua" />
+	<script src="server/powerups/vehicle.power.lua" />
+	<script src="server/powerups/canon.power.lua" />
+	
 
 	<script src="client/power.gui.lua" type="client" />
+	<script src="client/power.cameraangle.lua" type="client" />
 
 	<script src="ctg.client.goldcarrier.lua" type="client" />
     <script src="ctg.client.collision.lua" type="client" />

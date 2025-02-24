@@ -146,6 +146,9 @@ function tickPowerUps()
 		local powerConfig = getPlayerPowerConfig(player)
 		for j, powerUpConfig in ipairs(powerConfig.active) do
 			local powerUp = findPowerUpWithKey(powerUpConfig.key)
+			if powerUp == nil then
+				outputChatBox("powerUp is nil "..inspect(powerUpConfig.key))
+			end
 			local powerUpState = getPlayerState(player, powerUp)
 
 			--outputConsole("loop state: "..inspect(powerUpState))
