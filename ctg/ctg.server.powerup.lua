@@ -5,6 +5,7 @@ local nitroPowerUp = {
 	cooldown = BOOST_COOLDOWN,
 	duration = NITRO_DURATION,
 	initCooldown = 5,
+	allowedGoldCarrier = false,
 	onEnable = function(player, vehicle)
 		-- outputChatBox("Nitro enabled "..getPlayerName(player))
 		addVehicleUpgrade(vehicle, 1009)
@@ -12,6 +13,7 @@ local nitroPowerUp = {
 	end,
 	onDisable = function(player, vechilce)
 		-- outputChatBox("Nitro onDisabled"..getPlayerName(player))
+		removeVehicleUpgrade(vehicle, 1009)
 	end,
 	onActivated = function(player, vehicle)
 		-- outputChatBox("Nitro activated"..getPlayerName(player))
@@ -29,6 +31,7 @@ local teleportPowerUp = {
 	cooldown = TELEPORT_COOLDOWN,
 	duration = 0,
 	initCooldown = 8,
+	allowedGoldCarrier = false,
 	onEnable = function(player, vehicle)
 		-- outputChatBox("teleport enabled "..getPlayerName(player))
 		return isFarEnoughFromLeader(player)
@@ -40,49 +43,6 @@ local teleportPowerUp = {
 		spawnCloseToLeader(player)
 	end,
 	onDeactivated = function(player, vehicle)
-	end	
-}
-
-local superCarPowerUp = {
-	key = "superCar",
-	name = "Super car",
-	bindKey = "C",
-	cooldown = 20,
-	duration = 20,
-	initCooldown = 10,
-	onEnable = function(player)
-		-- outputChatBox("superCar enabled "..getPlayerName(player))
-		return true
-	end,
-	onDisable = function(player)
-	end,
-	onActivated = function(player, vehicle, state)
-		preventChangeFor(player)
-		setElementModel(vehicle, SUPER_CAR_MODEL)
-	end,
-	onDeactivated = function(player, vehicle, state)
-		unpreventChangeFor(player)
-		setElementModel(vehicle, getCurrentVehicle())
-	end	
-}
-
-local waterLevelPowerUp = {
-	key = "waterLevel",
-	name = "Flood",
-	bindKey = "R",
-	cooldown = 1,
-	duration = 10,
-	initCooldown = 1,
-	onEnable = function(player)
-		return true
-	end,
-	onDisable = function(player)
-	end,
-	onActivated = function(player, vehicle, state)
-		raiseWaterEffect(player, 10)
-	end,
-	onDeactivated = function(player, vehicle, state)
-		
 	end	
 }
 
@@ -135,6 +95,7 @@ function getPlayerState(player, powerUp)
 			activated = false,
 			durationEnd = nil,
 			cooldownEnd = 0,
+			charges = powerUp.charges,
 			name = powerUp.name
 		}
 		setBoostCooldown(powerUp.initCooldown, powerUpState)
@@ -175,6 +136,11 @@ function usePowerUp(player, key, keyState, powerUp)
 	unbindKey(player, key, keyState, usePowerUp, powerUp)
 end
 
+--addEvent("powerupSetCooldownClient", true)
+--addEvent("powerupSetReadyClient", true)
+--addEvent("powerupSetDisabledClient", true)
+--addEvent("powerupSetDurationClient", true)
+
 function tickPowerUps()
 	for i, player in ipairs(getElementsByType("player")) do
 		local powerConfig = getPlayerPowerConfig(player)
@@ -186,7 +152,7 @@ function tickPowerUps()
 			--outputChatBox("timeLeft "..inspect(powerUpState.name)..inspect(powerUp.key))
 			--outputChatBox("timeLeft "..timeLeft)
 
-			if (player == getGoldCarrier()) then
+			if (player == getGoldCarrier() and not powerUp.allowedGoldCarrier) then
 				-- outputChatBox("player is gold carrier")
 				if (powerUpState.enabled) then
 					unbindKey(player, powerUpConfig.bindKey, "down", usePowerUp, powerUp)
@@ -252,5 +218,3 @@ setTimer(tickPowerUps, 1000, 0)
 
 addPowerUp(nitroPowerUp)
 addPowerUp(teleportPowerUp)
-addPowerUp(superCarPowerUp)
-addPowerUp(waterLevelPowerUp)

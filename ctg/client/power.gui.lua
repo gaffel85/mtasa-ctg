@@ -1,13 +1,12 @@
 local powerBoxes = {}
 local xDiff = 0.1
 
-GUIEditor = {
-    progressbar = {},
-    radiobutton = {},
-    button = {},
-    window = {},
-    label = {}
-}
+addEvent("boosterCooldownTick", true)
+addEvent("boosterDurationTick", true)
+addEvent("powerupSetCooldownClient", true)
+addEvent("powerupSetReadyClient", true)
+addEvent("powerupSetDisabledClient", true)
+addEvent("powerupSetDurationClient", true)
 
 function createPowerUpBox(index)
     local posX = 0.7 - xDiff * index
@@ -77,7 +76,6 @@ function tickPowerUpCooldown(timeLeft, totalTime, index, name, key, enabled)
 	end
 	guiProgressBarSetProgress(powerBox.progress, progress)
 end
-addEvent("boosterCooldownTick", true)
 addEventHandler("boosterCooldownTick", getRootElement(), tickPowerUpCooldown)
 
 function tickPowerUpDuration(timeLeft, totalTime, index, name, key, enabled)
@@ -89,5 +87,4 @@ function tickPowerUpDuration(timeLeft, totalTime, index, name, key, enabled)
     guiSetAlpha ( powerBox.button, 0.5 )
 	guiProgressBarSetProgress(powerBox.progress, progress)
 end
-addEvent("boosterDurationTick", true)
 addEventHandler("boosterDurationTick", getRootElement(), tickPowerUpDuration)
