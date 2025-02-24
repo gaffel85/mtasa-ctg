@@ -12,13 +12,20 @@ function getTeamHideout(player)
 end
 
 function spawnNewHideoutForTeam(team, otherTeamsHideout)
-    local meanPlayerPos = meanPositionOfPlayers()
+    local sourcePos
+    if getGoldCarrier() then
+        local x, y, z = getElementPosition(getGoldCarrier())
+        sourcePos = { x = x, y = y, z = z }
+    else
+        sourcePos = meanPositionOfPlayers()
+    end
+
     local distanceFromMean = 500
     if otherTeamsHideout then
         local x1, y1, z1 = otherTeamsHideout.pos.x, otherTeamsHideout.pos.y, otherTeamsHideout.pos.z
-        distanceFromMean = getDistanceBetweenPoints3D(x1, y1, z1, meanPlayerPos.x, meanPlayerPos.y, meanPlayerPos.z)
+        distanceFromMean = getDistanceBetweenPoints3D(x1, y1, z1, sourcePos.x, sourcePos.y, sourcePos.z)
     end
-    local hideout = chooseRandomCloseTo(hideouts, meanPlayerPos , distanceFromMean)
+    local hideout = chooseRandomCloseTo(hideouts, sourcePos , distanceFromMean)
     local posX, posY, posZ = coordsFromEdl(hideout)
 
     team.hideout = {

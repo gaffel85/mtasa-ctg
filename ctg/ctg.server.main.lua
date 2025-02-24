@@ -128,16 +128,29 @@ function startGameMap(startedMap)
     currentSpawn = math.random(#spawnPoints)
     setGoldSpawns(goldSpawnPoints)
     setHideouts(hideouts)
-
+    plotPoints()
     resetGame()
 end
 addEventHandler("onGamemodeMapStart", getRootElement(), startGameMap)
+
+function  plotPoints()
+    outputChatBox("Plotting points")
+    for k, goldSpawn in ipairs(goldSpawnPoints) do
+        local posX, posY, posZ = coordsFromEdl(goldSpawn)
+        createBlip(posX, posY, posZ, 0, 2, 0, 255, 255, 255, 0)
+    end
+    for k, hideout in ipairs(hideouts) do
+        local posX, posY, posZ = coordsFromEdl(hideout)
+        createBlip(posX, posY, posZ, 0, 2, 0, 0, 255, 255, 0)
+    end
+end
 
 function joinHandler()
     spawn(source, false)
     startGameIfEnoughPlayers()
     outputChatBox("Welcome to Capture the Gold!", source)
     refreshAllBlips()
+    plotPoints()
 end
 addEventHandler("onPlayerJoin", getRootElement(), joinHandler)
 
