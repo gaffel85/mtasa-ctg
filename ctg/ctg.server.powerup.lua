@@ -36,7 +36,8 @@ local teleportPowerUp = {
 	onDisable = function(player, vehicle)
 	end,
 	onActivated = function(player, vehicle)
-		askForTeleport(player)
+		-- askForTeleport(player)
+		spawnCloseToLeader(player)
 	end,
 	onDeactivated = function(player, vehicle)
 	end	

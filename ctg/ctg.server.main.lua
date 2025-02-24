@@ -19,6 +19,10 @@ function goldPickedUp(player)
     spawnNewHideout()
 end
 
+function getSpawnPoints()
+    return spawnPoints
+end
+
 -- Stop player from exiting vehicle
 function exitVehicle(thePlayer, seat, jacked)
     cancelEvent()
