@@ -27,6 +27,7 @@
 
 	<script src="server/utils.lua" />
 
+	<script src="server/player.powerconfig.lua" />
 	<script src="server/powerups/water.power.lua" />
 
 	<script src="client/power.gui.lua" type="client" />

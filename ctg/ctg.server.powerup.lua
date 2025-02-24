@@ -177,7 +177,9 @@ end
 
 function tickPowerUps()
 	for i, player in ipairs(getElementsByType("player")) do
-		for j, powerUp in ipairs(powerUps) do
+		local powerConfig = getPlayerPowerConfig(player)
+		for j, powerUpConfig in ipairs(powerConfig.active) do
+			local powerUp = findPowerUpWithKey(powerUpConfig.key)
 			local powerUpState = getPlayerState(player, powerUp)
 
 			--outputConsole("loop state: "..inspect(powerUpState))
@@ -187,7 +189,7 @@ function tickPowerUps()
 			if (player == getGoldCarrier()) then
 				-- outputChatBox("player is gold carrier")
 				if (powerUpState.enabled) then
-					unbindKey(player, powerUp.bindKey, "down", usePowerUp, powerUp)
+					unbindKey(player, powerUpConfig.bindKey, "down", usePowerUp, powerUp)
 					powerUp.onDisable(player, getPedOccupiedVehicle(player), powerUpState)
 					powerUpState.enabled = false
 				end
@@ -203,7 +205,7 @@ function tickPowerUps()
 					-- outputChatBox("timeLeft "..timeLeft)
 					if (timeLeft >= 0) then
 						--outputChatBox("triggerClientEvent "..timeLeft.." "..powerUp.duration.." "..j.." "..powerUp.name.." "..powerUp.bindKey.." true")
-						triggerClientEvent(player, "boosterDurationTick", player, timeLeft, powerUp.duration, j, powerUp.name, powerUp.bindKey, true)
+						triggerClientEvent(player, "boosterDurationTick", player, timeLeft, powerUp.duration, j, powerUp.name, powerUpConfig.bindKey, true)
 					end
 
 					if (timeLeft <= 0) then
@@ -224,7 +226,7 @@ function tickPowerUps()
 					--outputChatBox("timeLeft "..timeLeft)
 					if (timeLeft >= 0) then
 						--outputChatBox("triggerClientEvent "..timeLeft.." "..powerUp.cooldown.." "..j.." "..powerUp.name.." "..powerUp.bindKey.." true")
-						triggerClientEvent(player, "boosterCooldownTick", player, timeLeft, powerUp.cooldown, j, powerUp.name, powerUp.bindKey, true)
+						triggerClientEvent(player, "boosterCooldownTick", player, timeLeft, powerUp.cooldown, j, powerUp.name, powerUpConfig.bindKey, true)
 					end
 
 					if (timeLeft <= 0) then
@@ -235,7 +237,7 @@ function tickPowerUps()
 							--outputChatBox("wasEnabled "..tostring(wasEnabled))
 							if (wasEnabled) then
 								--outputChatBox("bindKey "..powerUp.bindKey)
-								bindKey(player, powerUp.bindKey, "down", usePowerUp, powerUp)
+								bindKey(player, powerUpConfig.bindKey, "down", usePowerUp, powerUp)
 								powerUpState.enabled = true
 								powerUpState.activated = false
 							end
