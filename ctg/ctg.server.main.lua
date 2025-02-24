@@ -35,6 +35,10 @@ function spawn(thePlayer, random)
         local spawnPoint = spawnPoints[currentSpawn]
         currentSpawn = currentSpawn % #spawnPoints + 1
     end  
+    spawnAtSpawnpoint(thePlayer, spawnPoint)
+end
+
+function spawnAtSpawnpoint(thePlayer, spawnPoint)
     local posX, posY, posZ = coordsFromEdl(spawnPoint)
     local rotX, rotY, rotZ = rotFromEdl(spawnPoint)
     spawnAt(thePlayer, posX, posY, posZ, rotX, rotY, rotZ)
@@ -211,14 +215,15 @@ end
 
 function playerDied(player)
     outputChatBox("Died")
+    local posX, posY, posZ = getElementPosition(player)
     if player == getGoldCarrier() then
         clearGoldCarrier()
-        local posX, posY, posZ = getElementPosition(player)
         outputChatBox("had position"..inspect(posX))
         spawnGoldAtTransform(posX, posY, posZ)
         refreshAllBlips()
     end
-    spawn(player, true)
+    local closestSpawn = positionCloseTo(spawnPoints, {x = posX, y = posY, z = posZ}, 0)
+    spawnAtSpawnpoint(player, closestSpawn)
 end
 
 function playerWastedMain(ammo, attacker, weapon, bodypart)

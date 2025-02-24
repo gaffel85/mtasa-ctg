@@ -6,7 +6,7 @@ function getDefaultConfig()
             { key = "nitro", bindKey = "lctrl" },
             { key = "teleport", bindKey = "X" },
             { key = "superCar", bindKey = "C" },
-            { key = "waterLevel", bindKey = "R" }
+            { key = "waterLevel", bindKey = "Z" }
         },
         owned = {
             "nitro",

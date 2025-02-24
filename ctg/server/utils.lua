@@ -51,8 +51,8 @@ function positionCloseTo(edls, firstPosition, firstRadius, secondPosition, secon
     local edlsWithDistances = {}
     for i, edl in ipairs(edls) do
         local x, y, z = coordsFromEdl(edl)
-        local distance = getDistanceBetweenPoints3D(x, y, z, position.x, position.y, position.z)
-        local distanceFromRadius = math.abs(distance - wantedRadius)
+        local distance = getDistanceBetweenPoints3D(x, y, z, firstPosition.x, firstPosition.y, firstPosition.z)
+        local distanceFromRadius = math.abs(distance - firstRadius)
 
         local secondDistance = -1
         if secondPosition then
