@@ -8,6 +8,9 @@ function setCinematicCameraAngle()
     oldCameraMode = veh
     setCameraViewMode(5)
 
+    if (forceTimer) then
+        return
+    end
     forceTimer = setTimer(function()
         local veh, ped = getCameraViewMode()
         if veh ~= 5 then

@@ -113,6 +113,10 @@ function findPowerUpWithKey(key)
 	return nil
 end
 
+function getPowerUps()
+	return powerUps
+end
+
 function usePowerUp(player, key, keyState, powerUp)
 	--outputServerLog("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
 	-- outputChatBox("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)

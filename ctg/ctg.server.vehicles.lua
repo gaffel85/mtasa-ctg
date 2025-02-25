@@ -204,7 +204,7 @@ function startVote()
         [1]={getVehicleNameFromModel(vote1Model).."["..getVehicleCategory(vote1Model).."]", "voteFinnished", nil, vote1Model},
         [2]={getVehicleNameFromModel(vote2Model).."["..getVehicleCategory(vote2Model).."]", "voteFinnished", nil, vote2Model},
         [3]={getVehicleNameFromModel(vote3Model).."["..getVehicleCategory(vote3Model).."]", "voteFinnished", nil, vote3Model},
-        [4]={"Keep current", "voteFinnished", currentVehicle}
+        [4]={"Keep current", "voteFinnished", nil, currentVehicle}
     }
 end
 
