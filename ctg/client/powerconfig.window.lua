@@ -3,6 +3,8 @@ local scrollpane = nil
 local doneButton = nil
 local powerUps = nil
 local powerConfig = nil
+local powerUpBoxes = {}
+local boundPowerBoxes = {}
 
 function getPowerUp(key)
     for k, v in ipairs(powerUps) do
@@ -36,6 +38,15 @@ end
 addEvent("onPowerupsLoadedClient", true)
 addEventHandler("onPowerupsLoadedClient", resourceRoot, onPowerupsLoaded)
 
+function openWindowFromServer(config)
+    powerConfig = config
+    populateBoxes()
+    openWindow()
+end
+addEvent("onOpenPowerConfigWindowClient", true)
+addEventHandler("onOpenPowerConfigWindowClient", resourceRoot, openWindowFromServer)
+
+
 function isOwned(key)
     for k, v in ipairs(powerConfig.owned) do
         if v == key then
@@ -43,6 +54,30 @@ function isOwned(key)
         end
     end
     return false
+end
+
+function createActivePowerBox(powerUp, boundKey, col)
+    local xBox = 0.17 + (0.18 * (col - 1))
+    local yBox = 0.03
+
+    boundPowerBox = guiCreateButton(xBox, yBox, 0.16, 0.06, "", true, powerwindow)
+
+    boundPowerKey = guiCreateButton(0.04, 0.14, 0.27, 0.71, boundKey, true, boundPowerBox)
+    guiSetAlpha(boundPowerKey, 0.99)
+    guiBringToFront(boundPowerKey)
+
+    boundPowerName = guiCreateLabel(0.32, 0.15, 0.63, 0.70, powerUp.name, true, boundPowerBox)
+    guiLabelSetHorizontalAlign(boundPowerName, "center", false)
+    guiLabelSetVerticalAlign(boundPowerName, "center")
+
+    guiSetAlpha(boundPowerBox, 0.99)
+    guiBringToFront(boundPowerBox)
+
+    return {
+        box = boundPowerBox,
+        key = boundPowerKey,
+        name = boundPowerName
+    }
 end
 
 function createPowerBox(powerUp, isOwned, row, col)
@@ -54,9 +89,9 @@ function createPowerBox(powerUp, isOwned, row, col)
     guiSetFont(powerTitle, "clear-normal")
     guiLabelSetHorizontalAlign(powerTitle, "center", false)
 
-    durationTitle = guiCreateLabel(0.06, 0.13, 0.87, 0.05, "Duration: ", true, powerbox)
-    cooldownTitle = guiCreateLabel(0.06, 0.18, 0.87, 0.05, "Cooldown: ", true, powerbox)
-    usedAsGoldCarrierTitle = guiCreateLabel(0.42, 0.13, 0.30, 0.16, "Can be used when carrying gold:", true, powerbox)
+    durationTitle = guiCreateLabel(0.06, 0.13, 0.87, 0.07, "Duration: ", true, powerbox)
+    cooldownTitle = guiCreateLabel(0.06, 0.18, 0.87, 0.07, "Cooldown: ", true, powerbox)
+    usedAsGoldCarrierTitle = guiCreateLabel(0.42, 0.13, 0.30, 0.20, "Can be used when carrying gold:", true, powerbox)
     guiSetFont(durationTitle, "default-bold-small")
     guiSetFont(cooldownTitle, "default-bold-small")
     guiSetFont(usedAsGoldCarrierTitle, "default-bold-small")
@@ -97,17 +132,73 @@ function populateBoxes()
         return
     end
 
+    for k, box in ipairs(powerUpBoxes) do
+        if isElement(box.box) then
+            destroyElement(box.box)
+        end
+    end
+
+    for k, box in ipairs(boundPowerBoxes) do
+        if isElement(box.box) then
+            destroyElement(box.box)
+        end
+    end
+
     local row = 1
     local col = 1
     for k, powerUp in ipairs(powerUps) do
         local isOwned = isOwned(powerUp.key)
         outputConsole("Power up: "..powerUp.key.." owned: "..tostring(isOwned))
-        createPowerBox(powerUp, isOwned, row, col)
+        local box = createPowerBox(powerUp, isOwned, row, col)
+        table.insert(powerUpBoxes, box)
         col = col + 1
         if col > 5 then
             col = 1
             row = row + 1
         end
+    end
+
+    col = 1
+    for k, activePower in ipairs(powerConfig.active) do
+        local powerUp = getPowerUp(activePower.key)
+        outputConsole("1111Active power up: "..activePower.key)
+        if powerUp then
+            outputConsole("---Active power up: "..powerUp.key.." "..activePower.bindKey)
+            local box = createActivePowerBox(powerUp, activePower.bindKey, col)
+            table.insert(boundPowerBoxes, box)
+            col = col + 1
+        end
+    end
+end
+
+function openWindow()
+    guiSetInputEnabled(true)
+    showCursor(true)
+    guiSetVisible(powerwindow, true)
+
+    addEventHandler("onClientGUIClick", doneButton, function()
+        guiSetInputEnabled(false)
+        showCursor(false)
+        guiSetVisible(powerwindow, false)
+    end, false)
+
+    if powerUps and powerConfig then
+        populateBoxes()
+    else
+        loadPowerUps()
+    end
+
+    loadPowerConfig()
+end
+
+function toggleWindow()
+    outputChatBox("toggleWindow")
+    if guiGetVisible(powerwindow) then
+        guiSetInputEnabled(false)
+        showCursor(false)
+        guiSetVisible(powerwindow, false)
+    else
+        openWindow()
     end
 end
 
@@ -119,31 +210,35 @@ addEventHandler("onClientResourceStart", resourceRoot,
         guiWindowSetSizable(powerwindow, false)
         guiSetAlpha(powerwindow, 0.93)
 
-        scrollpane = guiCreateScrollPane(0.01, 0.09, 0.99, 0.89, true, powerwindow)
-        boundPowerBox = guiCreateButton(323, 30, 211, 66, "", false, powerwindow)
-
-        boundPowerKey = guiCreateButton(0.04, 0.14, 0.27, 0.71, "lctrl", true, boundPowerBox)
-        boundPowerName = guiCreateLabel(0.32, 0.15, 0.63, 0.70, "Power name", true, boundPowerBox)
-        guiLabelSetHorizontalAlign(boundPowerName, "center", false)
-        guiLabelSetVerticalAlign(boundPowerName, "center")
+        scrollpane = guiCreateScrollPane(0.01, 0.2, 0.99, 0.79, true, powerwindow)
 
         doneButton = guiCreateButton(0.93, 0.02, 0.06, 0.05, "Done", true, powerwindow)
-
-        guiSetInputEnabled(true)
-		showCursor(true)
-
-        addEventHandler("onClientGUIClick", doneButton, function()
-            guiSetInputEnabled(false)
-		    showCursor(false)
-            guiSetVisible(powerwindow, false)
-        end, false)
-
-        if powerUps and powerConfig then
-            populateBoxes()
-        else
-            loadPowerUps()
-            loadPowerConfig()
-        end
-        
+        guiSetVisible(powerwindow, false)
+        --openWindow()  
     end
 )
+
+function bindConfigPowerKeys(player)
+    outputChatBox("bindConfigPowerKeys")
+    bindKey ( "F3", "up", toggleWindow )
+end
+
+function unbindConfigPowerKeys(player)
+    unbindKey ( "F3" )
+end
+
+function onJoinForPowerKeys ( )
+    bindConfigPowerKeys(source)
+end
+addEventHandler("onPlayerJoin", getRootElement(), onJoinForPowerKeys)
+
+  --unbind on quit
+function onQuitForPowerKeys ( )
+    unbindConfigPowerKeys(source)
+end
+addEventHandler("onPlayerQuit", getRootElement(), onQuitForPowerKeys)
+
+addEventHandler("onClientResourceStart", getResourceRootElement(getThisResource()), function()
+    outputChatBox("onClientResourceStart3333"..inspect(source))
+    bindConfigPowerKeys(source)
+end)

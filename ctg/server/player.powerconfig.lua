@@ -81,36 +81,12 @@ function openConfigPanel(player, index)
 end
 
 function onOpenConfigPanelPressed(player)
-    openConfigPanel(player, 1)
+    local data = getPlayerPowerConfig(player)
+	triggerClientEvent(player, "onOpenPowerConfigWindowClient", player, data)
 end
 
 addEvent("loadPowerupsConfigServer", true)
 addEventHandler("loadPowerupsConfigServer", root, function()
 	local data = getPlayerPowerConfig(client)
 	triggerClientEvent(client, "onPowerupsConfigLoadedClient", this, data)
-end)
-
-function bindConfigPowerKeys(player)
-    bindKey ( player, "F3", "up", onOpenConfigPanelPressed, player )
-end
-
-function unbindConfigPowerKeys(player)
-    unbindKey ( player, "F3" )
-end
-
-function onJoinForPowerKeys ( )
-    bindConfigPowerKeys(source)
-end
-addEventHandler("onPlayerJoin", getRootElement(), onJoinForPowerKeys)
-
-  --unbind on quit
-function onQuitForPowerKeys ( )
-    unbindConfigPowerKeys(source)
-end
-addEventHandler("onPlayerQuit", getRootElement(), onQuitForPowerKeys)
-
-addEventHandler("onResourceStart", getResourceRootElement(getThisResource()), function()
-    for k, player in ipairs(getElementsByType("player")) do
-        bindConfigPowerKeys(player)
-    end
 end)
