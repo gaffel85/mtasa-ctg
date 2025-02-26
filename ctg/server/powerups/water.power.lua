@@ -73,6 +73,7 @@ end
 local waterLevelPowerUp = {
 	key = "waterLevel",
 	name = "Flood",
+    desc = "Makes the sea level rise to 2m below you. Vehicles in the water will not be able to move until the water level is back to normal.",
 	cooldown = 30,
 	duration = 10,
 	initCooldown = 1,

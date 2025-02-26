@@ -131,7 +131,7 @@ function getRandomVehicle()
         if random < 0 then
             local vehicles = findVehicleListByCategory(k)
             local result = vehicles[math.random(1, #vehicles)]
-			outputChatBox("Random: "..inspect(result).." "..inspect(k))
+			-- outputChatBox("Random: "..inspect(result).." "..inspect(k))
 			return result
         end
     end

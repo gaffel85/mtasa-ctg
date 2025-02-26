@@ -214,7 +214,6 @@ function resetRoundVars()
 end
 
 function playerDied(player)
-    outputChatBox("Died")
     local posX, posY, posZ = getElementPosition(player)
     if player == getGoldCarrier() then
         clearGoldCarrier()
