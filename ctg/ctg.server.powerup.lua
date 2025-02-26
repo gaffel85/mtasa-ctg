@@ -28,6 +28,7 @@ local nitroPowerUp = {
 local teleportPowerUp = {
 	key = "teleport",
 	name = "Catch up",
+	desc = "Teleports you to a better location to catch up with the leader. Useful when you are about to give up. Can only be used when you are far enough from the leader.",
 	bindKey = "x",
 	cooldown = TELEPORT_COOLDOWN,
 	duration = 0,

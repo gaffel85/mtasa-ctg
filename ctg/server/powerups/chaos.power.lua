@@ -2,6 +2,7 @@ local duration = 20
 local trafficChaos = {
 	key = "chaos",
 	name = "Traffic chaos",
+	desc = "Randomly changes your opponent's vehicle every 2 seconds.",
 	cooldown = 20,
 	duration = duration,
 	initCooldown = 1,

@@ -3,6 +3,7 @@ local factor = 3
 local canonPushPowerup = {
 	key = "canon",
 	name = "Canon ball",
+    desc = "Instantly increase the speed of your vehicle with a factor of 3. The effect is instanst and will not affect your speed over time.",
 	cooldown = 5,
 	duration = 1,
     charges = 1,
