@@ -84,6 +84,12 @@ function onOpenConfigPanelPressed(player)
     openConfigPanel(player, 1)
 end
 
+addEvent("loadPowerupsConfigServer", true)
+addEventHandler("loadPowerupsConfigServer", root, function()
+	local data = getPlayerPowerConfig(client)
+	triggerClientEvent(client, "onPowerupsConfigLoadedClient", this, data)
+end)
+
 function bindConfigPowerKeys(player)
     bindKey ( player, "F3", "up", onOpenConfigPanelPressed, player )
 end

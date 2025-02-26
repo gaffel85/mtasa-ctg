@@ -1,38 +1,120 @@
 local powerwindow = nil
 local scrollpane = nil
+local doneButton = nil
+local powerUps = nil
+local powerConfig = nil
 
-function createPowerBox()
-    powerbox = guiCreateButton(0.01, 0.10, 0.16, 0.24, "", true, scrollpane)
+function getPowerUp(key)
+    for k, v in ipairs(powerUps) do
+        if v.key == key then
+            return v
+        end
+    end
+    return nil
+end
 
-    powerTitle = guiCreateLabel(0.06, 0.05, 0.87, 0.08, "Power Name", true, powerbox)
+function loadPowerUps()
+    triggerServerEvent("loadPowerUpsServer", resourceRoot)
+end
+
+function loadPowerConfig()
+    triggerServerEvent("loadPowerupsConfigServer", resourceRoot)
+end
+
+function onPowerupsConfigLoaded(config)
+    powerConfig = config
+    populateBoxes()
+end
+addEvent("onPowerupsConfigLoadedClient", true)
+addEventHandler("onPowerupsConfigLoadedClient", resourceRoot, onPowerupsConfigLoaded)
+
+
+function onPowerupsLoaded(powers)
+    powerUps = powers
+    populateBoxes()
+end
+addEvent("onPowerupsLoadedClient", true)
+addEventHandler("onPowerupsLoadedClient", resourceRoot, onPowerupsLoaded)
+
+function isOwned(key)
+    for k, v in ipairs(powerConfig.owned) do
+        if v == key then
+            return true
+        end
+    end
+    return false
+end
+
+function createPowerBox(powerUp, isOwned, row, col)
+    local xBox = 0.01 + (0.18 * (col - 1))
+    local yBox = 0.01 + (0.30 * (row - 1))
+    powerbox = guiCreateButton(xBox, yBox, 0.16, 0.24, "", true, scrollpane)
+
+    powerTitle = guiCreateLabel(0.06, 0.05, 0.87, 0.08, powerUp.name, true, powerbox)
     guiSetFont(powerTitle, "clear-normal")
     guiLabelSetHorizontalAlign(powerTitle, "center", false)
-    unlockButton = guiCreateButton(0.71, 0.86, 0.23, 0.10, "Unlock", true, powerbox)
+
     durationTitle = guiCreateLabel(0.06, 0.13, 0.87, 0.05, "Duration: ", true, powerbox)
-    guiSetFont(durationTitle, "default-bold-small")
-
-    durationValue = guiCreateLabel(0.24, 0.07, 0.24, 0.93, "10s", true, durationTitle)
-
-    GUIEditor.label[1] = guiCreateLabel(649, -58, 255, 15, "Duration: ", false, powerbox)
-    guiSetFont(GUIEditor.label[1], "default-bold-small")
     cooldownTitle = guiCreateLabel(0.06, 0.18, 0.87, 0.05, "Cooldown: ", true, powerbox)
-    guiSetFont(cooldownTitle, "default-bold-small")
-
-    cooldownValue = guiCreateLabel(0.25, 0.00, 0.16, 1.00, "20s", true, cooldownTitle)
-
-    bindXButton = guiCreateButton(0.05, 0.86, 0.28, 0.10, "Bind X", true, powerbox)
     usedAsGoldCarrierTitle = guiCreateLabel(0.42, 0.13, 0.30, 0.16, "Can be used when carrying gold:", true, powerbox)
+    guiSetFont(durationTitle, "default-bold-small")
+    guiSetFont(cooldownTitle, "default-bold-small")
     guiSetFont(usedAsGoldCarrierTitle, "default-bold-small")
     guiLabelSetHorizontalAlign(usedAsGoldCarrierTitle, "right", true)
-    usedAsGoldCarrierValue = guiCreateLabel(0.76, 0.13, 0.18, 0.16, "Yes", true, powerbox)
+    guiLabelSetColor (durationTitle, 0, 255, 0)
 
-    description = guiCreateLabel(0.01, 0.09, 0.14, 0.14, "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.", true, powerbox)
+    if not isOwned then
+        unlockButton = guiCreateButton(0.71, 0.86, 0.23, 0.10, "Unlock", true, powerbox)
+    else
+        bindXButton = guiCreateButton(0.05, 0.86, 0.28, 0.10, "Bind X", true, powerbox)
+        bindCButton = guiCreateButton(0.06, 0.24, 0.05, 0.03, "Bind C", true, powerbox)
+    end
+
+    durationValue = guiCreateLabel(0.24, 0.07, 0.24, 0.93, powerUp.duration.."s", true, durationTitle)
+    cooldownValue = guiCreateLabel(0.25, 0.00, 0.16, 1.00, powerUp.cooldown.."s", true, cooldownTitle)
+    local canBeYsedAsGoldCarrier = powerUp.allowedGoldCarrier and "Yes" or "No"
+    usedAsGoldCarrierValue = guiCreateLabel(0.76, 0.13, 0.18, 0.16, canBeYsedAsGoldCarrier, true, powerbox)
+    description = guiCreateLabel(0.06, 0.35, 0.88, 0.5, powerUp.desc, true, powerbox)
+
     guiLabelSetHorizontalAlign(description, "left", true)
-    bindCButton = guiCreateButton(0.06, 0.24, 0.05, 0.03, "Bind C", true, powerbox)
+
+    return {
+        powerUp = powerUp,
+        box = powerbox,
+        title = powerTitle,
+        duration = durationValue,
+        cooldown = cooldownValue,
+        bindX = bindXButton,
+        bindC = bindCButton,
+        unlock = unlockButton,
+        usedAsGoldCarrier = usedAsGoldCarrierValue,
+        description = description
+    }
+end
+
+function populateBoxes()
+    if not powerUps or not powerConfig then
+        return
+    end
+
+    local row = 1
+    local col = 1
+    for k, powerUp in ipairs(powerUps) do
+        local isOwned = isOwned(powerUp.key)
+        outputConsole("Power up: "..powerUp.key.." owned: "..tostring(isOwned))
+        createPowerBox(powerUp, isOwned, row, col)
+        col = col + 1
+        if col > 5 then
+            col = 1
+            row = row + 1
+        end
+    end
 end
 
 addEventHandler("onClientResourceStart", resourceRoot,
     function()
+        outputConsole("----------------------------")
+
         powerwindow = guiCreateWindow(0.01, 0.02, 0.98, 0.95, "Choose power-ups", true)
         guiWindowSetSizable(powerwindow, false)
         guiSetAlpha(powerwindow, 0.93)
@@ -47,8 +129,21 @@ addEventHandler("onClientResourceStart", resourceRoot,
 
         doneButton = guiCreateButton(0.93, 0.02, 0.06, 0.05, "Done", true, powerwindow)
 
-        createPowerBox()
+        guiSetInputEnabled(true)
+		showCursor(true)
 
+        addEventHandler("onClientGUIClick", doneButton, function()
+            guiSetInputEnabled(false)
+		    showCursor(false)
+            guiSetVisible(powerwindow, false)
+        end, false)
+
+        if powerUps and powerConfig then
+            populateBoxes()
+        else
+            loadPowerUps()
+            loadPowerConfig()
+        end
         
     end
 )

@@ -1,6 +1,7 @@
 local nitroPowerUp = {
 	key = "nitro",
 	name = "Nitro",
+	desc = "Nitro is a powerup that gives you a speed boost for a short period of time. It can be activated by pressing the left control key.",
 	bindKey = "lctrl",
 	cooldown = BOOST_COOLDOWN,
 	duration = NITRO_DURATION,
@@ -59,7 +60,6 @@ function setBoostCooldown(cooldown, state)
 	local boostCooldown = time.timestamp + cooldown
 	state.cooldownEnd = boostCooldown
 	local timeLeft = boostCooldownLeft(state)
-	outputConsole("setBoostCooldown "..cooldown.." left: "..timeLeft)
 end
 
 function setPowerUpEndsTime(powerUp, state)
@@ -115,6 +115,24 @@ end
 
 function getPowerUps()
 	return powerUps
+end
+
+function getPowerUpsData()
+	local data = {}
+	for i, powerUp in ipairs(powerUps) do
+		table.insert(data, {
+			key = powerUp.key,
+			name = powerUp.name,
+			desc = powerUp.desc,
+			bindKey = powerUp.bindKey,
+			cooldown = powerUp.cooldown,
+			duration = powerUp.duration,
+			charges = powerUp.charges,
+			initCooldown = powerUp.initCooldown,
+			allowedGoldCarrier = powerUp.allowedGoldCarrier
+		})
+	end
+	return data
 end
 
 function usePowerUp(player, key, keyState, powerUp)
@@ -222,6 +240,14 @@ function tickPowerUps()
 	end
 end
 setTimer(tickPowerUps, 1000, 0)
+
+addEvent("loadPowerUpsServer", true)
+addEventHandler("loadPowerUpsServer", root, function()
+	local data = getPowerUpsData()
+	--triggerClientEvent("onPowerupsLoadedClient", getRootElement(), data)
+	triggerClientEvent(client, "onPowerupsLoadedClient", this, data)
+	--triggerClientEvent(source, "onPowerupsLoadedClient", this, data)
+end)
 
 addPowerUp(nitroPowerUp)
 addPowerUp(teleportPowerUp)
