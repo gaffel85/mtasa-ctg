@@ -15,6 +15,10 @@ function getPowerUp(key)
     return nil
 end
 
+function savePowerConfig()
+    triggerServerEvent("setConfigFromClient", resourceRoot, powerConfig)
+end
+
 function loadPowerUps()
     triggerServerEvent("loadPowerUpsServer", resourceRoot)
 end
@@ -45,6 +49,35 @@ function openWindowFromServer(config)
 end
 addEvent("onOpenPowerConfigWindowClient", true)
 addEventHandler("onOpenPowerConfigWindowClient", resourceRoot, openWindowFromServer)
+
+function unlock(powerKey)
+    outputConsole("unlock "..powerKey)
+    table.insert(powerConfig.owned, powerKey)
+    savePowerConfig()
+    populateBoxes()
+end
+
+function bindWithKey(powerKey, bindKey)
+    outputConsole("bindWithKey "..powerKey.." "..bindKey)
+    for k, v in ipairs(powerConfig.owned) do
+        if v == powerKey then
+
+            -- remove previous binding with same key
+            for k, activePower in ipairs(powerConfig.active) do
+                if activePower.bindKey == bindKey then
+                    table.remove(powerConfig.active, k)
+                    break
+                end
+            end
+
+            table.insert(powerConfig.active, { key = powerKey, bindKey = bindKey })
+
+            savePowerConfig()
+            populateBoxes()
+            return
+        end
+    end
+end
 
 
 function isOwned(key)
@@ -100,9 +133,18 @@ function createPowerBox(powerUp, isOwned, row, col)
 
     if not isOwned then
         unlockButton = guiCreateButton(0.71, 0.86, 0.23, 0.10, "Unlock", true, powerbox)
+        addEventHandler("onClientGUIClick", unlockButton, function()
+            unlock(powerUp.key)
+        end, false)
     else
         bindXButton = guiCreateButton(0.05, 0.86, 0.28, 0.10, "Bind X", true, powerbox)
-        bindCButton = guiCreateButton(0.06, 0.24, 0.05, 0.03, "Bind C", true, powerbox)
+        bindCButton = guiCreateButton(0.46, 0.86, 0.28, 0.10, "Bind C", true, powerbox)
+        addEventHandler("onClientGUIClick", bindXButton, function()
+            bindWithKey(powerUp.key, "X")
+        end, false)
+        addEventHandler("onClientGUIClick", bindCButton, function()
+            bindWithKey(powerUp.key, "C")
+        end, false)
     end
 
     durationValue = guiCreateLabel(0.24, 0.07, 0.24, 0.93, powerUp.duration.."s", true, durationTitle)

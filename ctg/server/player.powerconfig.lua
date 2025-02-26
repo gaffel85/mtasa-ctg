@@ -3,6 +3,7 @@ local bindableKeys = {"C", "Z"}
 
 function getDefaultConfig()
     return {
+        bindableKeys,
         active = {
             { key = "nitro", bindKey = "lctrl" },
             { key = "teleport", bindKey = "X" },
@@ -34,6 +35,10 @@ function getPlayerPowerConfig(player)
 		configs[playerName] = powerupConfig
 	end
 	return powerupConfig
+end
+
+function setPlayerPowerConfig(player, config)
+    configs[getPlayerName(player)] = config
 end
 
 addEvent("powerSelectedEvent")
@@ -89,4 +94,9 @@ addEvent("loadPowerupsConfigServer", true)
 addEventHandler("loadPowerupsConfigServer", root, function()
 	local data = getPlayerPowerConfig(client)
 	triggerClientEvent(client, "onPowerupsConfigLoadedClient", this, data)
+end)
+
+addEvent("setConfigFromClient", true)
+addEventHandler("setConfigFromClient", root, function(config)
+	setPlayerPowerConfig(client, config)
 end)
