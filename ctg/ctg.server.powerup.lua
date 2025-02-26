@@ -1,6 +1,7 @@
 local nitroPowerUp = {
 	key = "nitro",
 	name = "Nitro",
+	desc = "Nitro is a powerup that gives you a speed boost for a short period of time. It can be activated by pressing the left control key.",
 	bindKey = "lctrl",
 	cooldown = BOOST_COOLDOWN,
 	duration = NITRO_DURATION,
@@ -117,6 +118,24 @@ function getPowerUps()
 	return powerUps
 end
 
+function getPowerUpsData()
+	local data = {}
+	for i, powerUp in ipairs(powerUps) do
+		table.insert(data, {
+			key = powerUp.key,
+			name = powerUp.name,
+			desc = powerUp.desc,
+			bindKey = powerUp.bindKey,
+			cooldown = powerUp.cooldown,
+			duration = powerUp.duration,
+			charges = powerUp.charges,
+			initCooldown = powerUp.initCooldown,
+			allowedGoldCarrier = powerUp.allowedGoldCarrier
+		})
+	end
+	return data
+end
+
 function usePowerUp(player, key, keyState, powerUp)
 	--outputServerLog("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
 	-- outputChatBox("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
@@ -222,6 +241,11 @@ function tickPowerUps()
 	end
 end
 setTimer(tickPowerUps, 1000, 0)
+
+addEvent("loadPowerUpsServer", true)
+addEventHandler("loadPowerUpsServer", root, function()
+	triggerClientEvent(client, "onPowerupsLoadedClient", client, getPowerUpsData())
+end)
 
 addPowerUp(nitroPowerUp)
 addPowerUp(teleportPowerUp)

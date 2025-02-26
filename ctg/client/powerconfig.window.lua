@@ -43,7 +43,15 @@ function getPowerUp(key)
     }
 end
 
-function 
+function loadPowerUps()
+    triggerServerEvent("loadPowerUpsServer", resourceRoot)
+end
+
+function onPowerupsLoaded(powerUps)
+   
+end
+addEvent("onPowerupsLoadedClient", true)
+addEventHandler("onPowerupsLoadedClient", resourceRoot, onPowerupsLoaded)
 
 function isOwned(key)
     for k, v in ipairs(dummyData.owned) do
