@@ -48,6 +48,7 @@ addEventHandler("onClientResourceStart", resourceRoot,
         doneButton = guiCreateButton(0.93, 0.02, 0.06, 0.05, "Done", true, powerwindow)
 
         createPowerBox()
+
         
     end
 )
