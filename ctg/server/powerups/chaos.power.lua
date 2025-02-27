@@ -1,4 +1,4 @@
-local duration = 20
+local duration = 16
 local trafficChaos = {
 	key = "chaos",
 	name = "Traffic chaos",
@@ -8,7 +8,6 @@ local trafficChaos = {
 	initCooldown = 1,
 	allowedGoldCarrier = false,
 	onEnable = function(player)
-		-- outputChatBox("superCar enabled "..getPlayerName(player))
 		return true
 	end,
 	onDisable = function(player)
@@ -23,7 +22,8 @@ local trafficChaos = {
 				local otherVehicle = getPedOccupiedVehicle(otherPlayer)
 				-- if the player is in a vehicle
 				if otherVehicle and otherPlayer ~= player then
-					if index >= times then
+					if index + 1 >= times then
+						outputChatBox("Disabling chaos for "..getPlayerName(otherPlayer))
 						unpreventChangeFor(otherPlayer)
 						setElementModel(otherVehicle, getCurrentVehicle())
 					else
@@ -36,13 +36,8 @@ local trafficChaos = {
 		end, 2000, times)
 	end,
 	onDeactivated = function(player, vehicle, state)
-        unpreventChangeFor(otherPlayer)
-		setElementModel(otherVehicle, getCurrentVehicle())
+        
 	end	
 }
 
-addPowerUp(helicopterPowerup)
-addPowerUp(superCarPowerUp)
-addPowerUp(offoadPowerUp)
-addPowerUp(bussesForEveryone)
-addPowerUp(planePowerup)
+addPowerUp(trafficChaos)

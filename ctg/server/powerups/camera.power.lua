@@ -2,9 +2,9 @@ local cinematicCamera = {
 	key = "cinematic",
 	name = "Cinematic camera",
     desc = "Changes to a helicopter view for all your opponents. This will make it harder for them to see where they drive and affect there accuracy.",
-	cooldown = 20,
-	duration = 10,
-	initCooldown = 10,
+	cooldown = 3,
+	duration = 3,
+	initCooldown = 0,
 	allowedGoldCarrier = true,
 	onEnable = function(player)
 		-- outputChatBox("superCar enabled "..getPlayerName(player))

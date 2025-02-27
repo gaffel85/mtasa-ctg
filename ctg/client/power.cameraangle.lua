@@ -1,4 +1,5 @@
 addEvent("setCinematicCameraAngle", true)
+addEvent("resetCameraAngle", true)
 
 local oldCameraMode = nil
 local forceTimer = nil
@@ -8,7 +9,7 @@ function setCinematicCameraAngle()
     oldCameraMode = veh
     setCameraViewMode(5)
 
-    if (forceTimer) then
+    if forceTimer then
         return
     end
     forceTimer = setTimer(function()
