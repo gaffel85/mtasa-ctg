@@ -87,7 +87,7 @@ function markerHit(markerHit, matchingDimension)
     local player = source
     if player == getGoldCarrier() then
         local team = getCtgTeam(player)
-        if markerHit == team.hideout.marker then
+        if team and team.hideout and markerHit == team.hideout.marker then
             removeOldHideout()
             goldDelivered(player)
         end

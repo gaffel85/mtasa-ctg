@@ -7,6 +7,7 @@ function getDefaultConfig()
         active = {
             { key = "nitro", bindKey = "lctrl" },
             { key = "teleport", bindKey = "Z" },
+            { key = "shield", bindKey = "C" },
             --{ key = "busses", bindKey = "C" },
             --{ key = "waterLevel", bindKey = "R" },
             --{ key = "canon", bindKey = "B" },
@@ -23,6 +24,7 @@ function getDefaultConfig()
             "plane",
             "cinematic",
             "superCar",
+            "shield",
         },
     }
 end

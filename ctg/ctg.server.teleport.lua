@@ -83,7 +83,7 @@ function isFarEnoughFromLeader(player)
 	return false
 end
 
-function spawnCloseToLeader()
+function spawnCloseToLeader(player)
 	local leader = findLeader(player)
 	if (not leader or leader == player) then
 		return

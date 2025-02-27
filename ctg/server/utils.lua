@@ -60,16 +60,16 @@ function positionCloseTo(edls, firstPosition, firstRadius, secondPosition, secon
             secondDistance = math.abs(distance2 - secondRadius)
         end
 
-        table.insert(edlsWithDistances, {edl = edl, distance = distanceFromRadius, x, y, z, secondDistance})
+        table.insert(edlsWithDistances, {edl = edl, distance = distanceFromRadius, x, y, z, secondDistance = secondDistance})
     end
 
     if secondWeight then
         table.sort(edlsWithDistances, function(a, b) 
-            return (a.distance + a.secondDistance * secondWeight) > (b.distance + b.secondDistance * secondWeight)
+            return (a.distance + a.secondDistance * secondWeight) < (b.distance + b.secondDistance * secondWeight)
         end)
     else
         table.sort(edlsWithDistances, function(a, b) 
-            return a.distance > b.distance 
+            return a.distance < b.distance 
         end)
     end
     return edlsWithDistances[1].edl

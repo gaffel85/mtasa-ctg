@@ -12,7 +12,7 @@ local nitroPowerUp = {
 		addVehicleUpgrade(vehicle, 1009)
 		return true
 	end,
-	onDisable = function(player, vechilce)
+	onDisable = function(player, vehicle)
 		-- outputChatBox("Nitro onDisabled"..getPlayerName(player))
 		removeVehicleUpgrade(vehicle, 1009)
 	end,
