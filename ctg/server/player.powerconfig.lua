@@ -1,5 +1,5 @@
 local configs = {}
-local bindableKeys = {"C", "Z"}
+local bindableKeys = {"X", "C"}
 
 function getDefaultConfig()
     return {

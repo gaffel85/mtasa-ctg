@@ -5,6 +5,7 @@ local powerUps = nil
 local powerConfig = nil
 local powerUpBoxes = {}
 local boundPowerBoxes = {}
+local boundableKeys = { "lctrl", "Z", "X", "C" }
 
 function getPowerUp(key)
     for k, v in ipairs(powerUps) do
@@ -58,7 +59,6 @@ function unlock(powerKey)
 end
 
 function bindWithKey(powerKey, bindKey)
-    outputConsole("bindWithKey "..powerKey.." "..bindKey)
     for k, v in ipairs(powerConfig.owned) do
         if v == powerKey then
 
@@ -89,7 +89,7 @@ function isOwned(key)
     return false
 end
 
-function createActivePowerBox(powerUp, boundKey, col)
+function createActivePowerBox(powerUpName, boundKey, col)
     local xBox = 0.17 + (0.18 * (col - 1))
     local yBox = 0.03
 
@@ -99,7 +99,7 @@ function createActivePowerBox(powerUp, boundKey, col)
     guiSetAlpha(boundPowerKey, 0.99)
     guiBringToFront(boundPowerKey)
 
-    boundPowerName = guiCreateLabel(0.32, 0.15, 0.63, 0.70, powerUp.name, true, boundPowerBox)
+    boundPowerName = guiCreateLabel(0.32, 0.15, 0.63, 0.70, powerUpName, true, boundPowerBox)
     guiLabelSetHorizontalAlign(boundPowerName, "center", false)
     guiLabelSetVerticalAlign(boundPowerName, "center")
 
@@ -190,7 +190,6 @@ function populateBoxes()
     local col = 1
     for k, powerUp in ipairs(powerUps) do
         local isOwned = isOwned(powerUp.key)
-        outputConsole("Power up: "..powerUp.key.." owned: "..tostring(isOwned))
         local box = createPowerBox(powerUp, isOwned, row, col)
         table.insert(powerUpBoxes, box)
         col = col + 1
@@ -201,15 +200,26 @@ function populateBoxes()
     end
 
     col = 1
-    for k, activePower in ipairs(powerConfig.active) do
-        local powerUp = getPowerUp(activePower.key)
-        outputConsole("1111Active power up: "..activePower.key)
-        if powerUp then
-            outputConsole("---Active power up: "..powerUp.key.." "..activePower.bindKey)
-            local box = createActivePowerBox(powerUp, activePower.bindKey, col)
-            table.insert(boundPowerBoxes, box)
-            col = col + 1
+    for _, boundablKey in ipairs(boundableKeys) do
+
+        local activePower = nil
+        for k, a in ipairs(powerConfig.active) do
+            if a.bindKey == boundablKey then
+                activePower = a
+            end
         end
+
+        local powerName = "Unbound"
+        if activePower then
+            local powerUp = getPowerUp(activePower.key)
+            if powerUp then
+                powerName = powerUp.name
+            end
+        end
+
+        local box = createActivePowerBox(powerName, boundablKey, col)
+        table.insert(boundPowerBoxes, box)
+        col = col + 1
     end
 end
 
