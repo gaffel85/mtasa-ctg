@@ -156,7 +156,7 @@ function usePowerUp(player, key, keyState, powerUp)
 		-- outputChatBox("vehicle is nil")
 	end
 	
-	unbindKey(player, key, keyState, usePowerUp, powerUp)
+	--unbindKey(player, key, keyState, usePowerUp, powerUp)
 end
 
 --addEvent("powerupSetCooldownClient", true)
@@ -181,7 +181,7 @@ function tickPowerUps()
 			if (player == getGoldCarrier() and not powerUp.allowedGoldCarrier) then
 				-- outputChatBox("player is gold carrier")
 				if (powerUpState.enabled) then
-					unbindKey(player, powerUpConfig.bindKey, "down", usePowerUp, powerUp)
+					--unbindKey(player, powerUpConfig.bindKey, "down", usePowerUp, powerUp)
 					powerUp.onDisable(player, getPedOccupiedVehicle(player), powerUpState)
 					powerUpState.enabled = false
 				end
@@ -229,7 +229,7 @@ function tickPowerUps()
 							--outputChatBox("wasEnabled "..tostring(wasEnabled))
 							if (wasEnabled) then
 								--outputChatBox("bindKey "..powerUp.bindKey)
-								bindKey(player, powerUpConfig.bindKey, "down", usePowerUp, powerUp)
+								--bindKey(player, powerUpConfig.bindKey, "down", usePowerUp, powerUp)
 								powerUpState.enabled = true
 								powerUpState.activated = false
 							end
@@ -252,3 +252,73 @@ end)
 
 addPowerUp(nitroPowerUp)
 addPowerUp(teleportPowerUp)
+
+function powerButtonPressed(player, button)
+	local powerConfig = getPlayerPowerConfig(player)
+	local powerForBoundKey = nil
+	for i, powerUpConfig in ipairs(powerConfig.active) do
+		-- compare both with lower and upper case
+		if (string.lower(powerUpConfig.bindKey) == string.lower(button)) then
+			powerForBoundKey = powerUpConfig
+			break
+		end
+	end
+
+	local powerUpState = nil
+	local powerUp = nil
+	if (powerForBoundKey) then
+		powerUp = findPowerUpWithKey(powerForBoundKey.key)
+		if (powerUp) then
+			powerUpState = getPlayerState(player, powerUp)
+		end
+	else 
+		outputChatBox("No power bound for button: "..button)
+	end
+
+	if powerUpState then
+	 	if powerUpState.enabled and not powerUpState.activated then
+			usePowerUp(player, button, "up", powerUp)
+		else
+			outputChatBox("Power not ready yet: "..inspect(powerUp.name))
+		end
+	end
+end
+
+function bindPowerKeysForPlayer(player)
+    bindKey(player, "Z", "up", powerButtonPressed)
+	bindKey(player, "X", "up", powerButtonPressed)
+	bindKey(player, "C", "up", powerButtonPressed)
+	bindKey(player, "lctrl", "up", powerButtonPressed)
+end
+
+function unbindPowerKeysForPlayer(player)
+    unbindKey(player, "Z")
+	unbindKey(player, "X")
+	unbindKey(player, "C")
+	unbindKey(player, "lctrl")
+end
+
+function bindThePowerKeys ( )
+    bindPowerKeysForPlayer(source)
+end
+addEventHandler("onPlayerJoin", getRootElement(), bindThePowerKeys)
+
+  --unbind on quit
+function unbindThePowerKeys ( )
+    unbindPowerKeysForPlayer(source)
+end
+addEventHandler("onPlayerQuit", getRootElement(), unbindThePowerKeys)
+
+function bindPowerKeysOnStart()
+    for k, player in ipairs(getElementsByType("player")) do
+        bindPowerKeysForPlayer(player)
+    end
+end
+addEventHandler("onResourceStart", getResourceRootElement(getThisResource()), bindPowerKeysOnStart)
+
+function unbindPowerKeysOnStop()
+    for k, player in ipairs(getElementsByType("player")) do
+        unbindPowerKeysForPlayer(player)
+    end
+end
+addEventHandler("onResourceStop", getResourceRootElement(getThisResource()), unbindPowerKeysOnStop)

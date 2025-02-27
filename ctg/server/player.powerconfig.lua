@@ -6,7 +6,7 @@ function getDefaultConfig()
         bindableKeys,
         active = {
             { key = "nitro", bindKey = "lctrl" },
-            { key = "teleport", bindKey = "X" },
+            { key = "teleport", bindKey = "Z" },
             --{ key = "busses", bindKey = "C" },
             --{ key = "waterLevel", bindKey = "R" },
             --{ key = "canon", bindKey = "B" },
