@@ -34,13 +34,14 @@
 	<script src="server/powerups/canon.power.lua" />
 	<script src="server/powerups/chaos.power.lua" />
 	<script src="server/powerups/shield.power.lua" />
+	<script src="server/collision.lua" />
 	
 
 	<script src="client/power.gui.lua" type="client" />
 	<script src="client/power.cameraangle.lua" type="client" />
 	<script src="client/powerconfig.window.lua" type="client" />
-	<script src="client/power.shield.lua" type="client" />
-	
+	<script src="client/power.shielded.lua" type="client" />
+	<script src="client/shieldball.lua" type="client" />
 
 	<script src="ctg.client.goldcarrier.lua" type="client" />
     <script src="ctg.client.collision.lua" type="client" />
@@ -51,6 +52,8 @@
 	<script src="ctg.client.powerup.lua" type="client" />
 
 	<script src="ctg.client.spectate.lua" type="client" />
+
+	<min_mta_version server="1.5.3" client="1.5.3" />
 
 </meta>
 

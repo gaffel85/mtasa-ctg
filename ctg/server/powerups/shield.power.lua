@@ -3,7 +3,7 @@ local cinematicCamera = {
 	name = "Gold shield",
     desc = "Protects you from losing the gold if hit by another player.",
 	cooldown = 3,
-	duration = 3,
+	duration = 6,
     charges = 1,
 	initCooldown = 0,
 	allowedGoldCarrier = true,
@@ -13,10 +13,12 @@ local cinematicCamera = {
 	onDisable = function(player)
 	end,
 	onActivated = function(player, vehicle, state)
-        triggerClientEvent(getRootElement(), "onShieldAddedFromServer", getRootElement(), player)
+		addShieldedPlayer(player)
+		triggerClientEvent(getRootElement(), "onShieldAddedFromServer", getRootElement(), player)
 	end,
 	onDeactivated = function(player, vehicle, state)
-		triggerClientEvent(getRootElement(), "onShieldRemovedFromServer", getRootElement(), player)
+		removeShieldedPlayer(player)
+		triggerClientEvent(getRootElement(), "onShieldRemovedFromServer", resourceRoot, player)
 	end	
 }
 

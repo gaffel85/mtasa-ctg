@@ -348,12 +348,6 @@ addCommandHandler("param", function(source, command, paramName, paramValue)
     end
 end)
 
-function collisisionWithPlayer(otherPlayer, damage)
-    changeGoldCarrier(otherPlayer)
-end
-addEvent("onCollisionWithPlayer", true)
-addEventHandler("onCollisionWithPlayer", getRootElement(), collisisionWithPlayer)
-
 function onRepairCar(player)
     -- showPlayerParalyzied(getBombHolder(), player)
 end
