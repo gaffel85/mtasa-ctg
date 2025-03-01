@@ -19,6 +19,10 @@ function goldPickedUp(player)
     spawnNewHideout()
 end
 
+function getSpawnPoints()
+    return spawnPoints
+end
+
 -- Stop player from exiting vehicle
 function exitVehicle(thePlayer, seat, jacked)
     cancelEvent()
@@ -31,6 +35,10 @@ function spawn(thePlayer, random)
         local spawnPoint = spawnPoints[currentSpawn]
         currentSpawn = currentSpawn % #spawnPoints + 1
     end  
+    spawnAtSpawnpoint(thePlayer, spawnPoint)
+end
+
+function spawnAtSpawnpoint(thePlayer, spawnPoint)
     local posX, posY, posZ = coordsFromEdl(spawnPoint)
     local rotX, rotY, rotZ = rotFromEdl(spawnPoint)
     spawnAt(thePlayer, posX, posY, posZ, rotX, rotY, rotZ)
@@ -128,16 +136,29 @@ function startGameMap(startedMap)
     currentSpawn = math.random(#spawnPoints)
     setGoldSpawns(goldSpawnPoints)
     setHideouts(hideouts)
-
+    plotPoints()
     resetGame()
 end
 addEventHandler("onGamemodeMapStart", getRootElement(), startGameMap)
+
+function  plotPoints()
+    outputChatBox("Plotting points")
+    for k, goldSpawn in ipairs(goldSpawnPoints) do
+        local posX, posY, posZ = coordsFromEdl(goldSpawn)
+        createBlip(posX, posY, posZ, 0, 2, 0, 255, 255, 255, 0)
+    end
+    for k, hideout in ipairs(hideouts) do
+        local posX, posY, posZ = coordsFromEdl(hideout)
+        createBlip(posX, posY, posZ, 0, 2, 0, 0, 255, 255, 0)
+    end
+end
 
 function joinHandler()
     spawn(source, false)
     startGameIfEnoughPlayers()
     outputChatBox("Welcome to Capture the Gold!", source)
     refreshAllBlips()
+    plotPoints()
 end
 addEventHandler("onPlayerJoin", getRootElement(), joinHandler)
 
@@ -193,15 +214,15 @@ function resetRoundVars()
 end
 
 function playerDied(player)
-    outputChatBox("Died")
+    local posX, posY, posZ = getElementPosition(player)
     if player == getGoldCarrier() then
         clearGoldCarrier()
-        local posX, posY, posZ = getElementPosition(player)
         outputChatBox("had position"..inspect(posX))
         spawnGoldAtTransform(posX, posY, posZ)
         refreshAllBlips()
     end
-    spawn(player, true)
+    local closestSpawn = positionCloseTo(spawnPoints, {x = posX, y = posY, z = posZ}, 0)
+    spawnAtSpawnpoint(player, closestSpawn)
 end
 
 function playerWastedMain(ammo, attacker, weapon, bodypart)
@@ -326,12 +347,6 @@ addCommandHandler("param", function(source, command, paramName, paramValue)
         setVechicleHandling(getGoldCarrier())
     end
 end)
-
-function collisisionWithPlayer(otherPlayer, damage)
-    changeGoldCarrier(otherPlayer)
-end
-addEvent("onCollisionWithPlayer", true)
-addEventHandler("onCollisionWithPlayer", getRootElement(), collisisionWithPlayer)
 
 function onRepairCar(player)
     -- showPlayerParalyzied(getBombHolder(), player)

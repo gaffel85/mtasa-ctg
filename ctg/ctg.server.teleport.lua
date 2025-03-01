@@ -83,13 +83,25 @@ function isFarEnoughFromLeader(player)
 	return false
 end
 
-function bindXForTeleport()
-	bindKey(source, "x", "down", askForTeleport)
-end
---addEventHandler("onPlayerJoin", getRootElement(), bindXForTeleport)
+function spawnCloseToLeader(player)
+	local leader = findLeader(player)
+	if (not leader or leader == player) then
+		return
+	end
 
--- unbind x key when player quits
-function unbindXForTeleport()
-	unbindKey(source, "x")
+	local vehicle = getPedOccupiedVehicle(player)
+	if (not vehicle) then
+		return
+	end
+
+	local leaderX, leaderY, leaderZ = getElementPosition(leader)
+	local spwans = getSpawnPoints()
+	local spawn = positionCloseTo(spwans, {x = leaderX, y = leaderY, z = leaderZ}, 0)
+	local x, y, z = coordsFromEdl(spawn)
+	local rx, ry, rz = rotFromEdl(spawn)
+	
+	setElementPosition(vehicle, x, y, z)
+	setElementRotation(vehicle, rx, ry, rz)
+	setElementVelocity(vehicle, 0, 0, 0)
+	setElementAngularVelocity(vehicle, 0, 0, 0)
 end
---addEventHandler("onPlayerQuit", getRootElement(), unbindXForTeleport)

@@ -72,7 +72,6 @@ function setupTeams()
     textDisplayAddText ( team2.textDisplay, team2YourTeamText )
     textDisplayAddText ( team2.textDisplay, team2SwitchText )
 
-    outputServerLog("hhhheeej")
     for k, player in ipairs(getElementsByType("player")) do
         bindTeamKeysForPlayer(player)
     end

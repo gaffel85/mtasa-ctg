@@ -12,13 +12,23 @@ function getTeamHideout(player)
 end
 
 function spawnNewHideoutForTeam(team, otherTeamsHideout)
-    local meanPlayerPos = meanPositionOfPlayers()
-    local distanceFromMean = 500
+    local sourcePos
+    if getGoldCarrier() then
+        local x, y, z = getElementPosition(getGoldCarrier())
+        sourcePos = { x = x, y = y, z = z }
+    else
+        sourcePos = meanPositionOfPlayers()
+    end
+
+    local hideout
     if otherTeamsHideout then
         local x1, y1, z1 = otherTeamsHideout.pos.x, otherTeamsHideout.pos.y, otherTeamsHideout.pos.z
-        distanceFromMean = getDistanceBetweenPoints3D(x1, y1, z1, meanPlayerPos.x, meanPlayerPos.y, meanPlayerPos.z)
+        local distanceFromMean = getDistanceBetweenPoints3D(x1, y1, z1, sourcePos.x, sourcePos.y, sourcePos.z)
+        hideout = positionCloseTo(hideouts, sourcePos, distanceFromMean, otherTeamsHideout.pos, 300, 0.4)
+    else
+        local distanceFromMean = 800
+        hideout = chooseRandomCloseTo(hideouts, sourcePos , distanceFromMean)
     end
-    local hideout = chooseRandomCloseTo(hideouts, meanPlayerPos , distanceFromMean)
     local posX, posY, posZ = coordsFromEdl(hideout)
 
     team.hideout = {
@@ -77,7 +87,7 @@ function markerHit(markerHit, matchingDimension)
     local player = source
     if player == getGoldCarrier() then
         local team = getCtgTeam(player)
-        if markerHit == team.hideout.marker then
+        if team and team.hideout and markerHit == team.hideout.marker then
             removeOldHideout()
             goldDelivered(player)
         end

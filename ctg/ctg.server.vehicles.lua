@@ -131,7 +131,7 @@ function getRandomVehicle()
         if random < 0 then
             local vehicles = findVehicleListByCategory(k)
             local result = vehicles[math.random(1, #vehicles)]
-			outputChatBox("Random: "..inspect(result).." "..inspect(k))
+			-- outputChatBox("Random: "..inspect(result).." "..inspect(k))
 			return result
         end
     end
@@ -204,7 +204,7 @@ function startVote()
         [1]={getVehicleNameFromModel(vote1Model).."["..getVehicleCategory(vote1Model).."]", "voteFinnished", nil, vote1Model},
         [2]={getVehicleNameFromModel(vote2Model).."["..getVehicleCategory(vote2Model).."]", "voteFinnished", nil, vote2Model},
         [3]={getVehicleNameFromModel(vote3Model).."["..getVehicleCategory(vote3Model).."]", "voteFinnished", nil, vote3Model},
-        [4]={"Keep current", "voteFinnished", currentVehicle}
+        [4]={"Keep current", "voteFinnished", nil, currentVehicle}
     }
 end
 
