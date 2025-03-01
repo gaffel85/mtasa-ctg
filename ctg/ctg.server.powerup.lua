@@ -7,6 +7,7 @@ local nitroPowerUp = {
 	duration = NITRO_DURATION,
 	initCooldown = 5,
 	allowedGoldCarrier = false,
+	charges = 3, -- optional field for charges
 	onEnable = function(player, vehicle)
 		-- outputChatBox("Nitro enabled "..getPlayerName(player))
 		addVehicleUpgrade(vehicle, 1009)
@@ -34,6 +35,7 @@ local teleportPowerUp = {
 	duration = 0,
 	initCooldown = 8,
 	allowedGoldCarrier = false,
+	charges = 1, -- optional field for charges
 	onEnable = function(player, vehicle)
 		-- outputChatBox("teleport enabled "..getPlayerName(player))
 		return isFarEnoughFromLeader(player)
@@ -99,6 +101,9 @@ function getPlayerState(player, powerUp)
 			charges = powerUp.charges,
 			name = powerUp.name
 		}
+		if powerUp.charges then
+			powerUpState.charges = powerUp.charges
+		end
 		setBoostCooldown(powerUp.initCooldown, powerUpState)
 		states[playerName] = powerUpState
 	end
@@ -142,6 +147,9 @@ function usePowerUp(player, key, keyState, powerUp)
 	local state = getPlayerState(player, powerUp)
 	state.activated = true
 	setPowerUpEndsTime(powerUp, state)
+	if state.charges and state.charges > 0 then
+		state.charges = state.charges - 1
+	end
 	-- outputChatBox("state: "..tostring(state.activated))
 	--outputServerLog("state: "..inspect(state))
 	local vehicle = getPedOccupiedVehicle(player)
@@ -197,7 +205,7 @@ function tickPowerUps()
 					-- outputChatBox("timeLeft "..timeLeft)
 					if (timeLeft >= 0) then
 						--outputChatBox("triggerClientEvent "..timeLeft.." "..powerUp.duration.." "..j.." "..powerUp.name.." "..powerUp.bindKey.." true")
-						triggerClientEvent(player, "boosterDurationTick", player, timeLeft, powerUp.duration, j, powerUp.name, powerUpConfig.bindKey, true)
+						triggerClientEvent(player, "boosterDurationTick", player, timeLeft, powerUp.duration, j, powerUp.name, powerUpConfig.bindKey, true, powerUpState.charges)
 					end
 
 					if (timeLeft <= 0) then
@@ -208,7 +216,12 @@ function tickPowerUps()
 							powerUp.onDeactivated(player, vehicle, powerUpState)
 							powerUpState.activated = false
 							powerUpState.enabled = false
-							setBoostCooldown(powerUp.cooldown, powerUpState)
+							if (powerUpState.charges and powerUpState.charges <= 0) then
+								--outputChatBox("charges == 0")
+								--unbindKey(player, powerUpConfig.bindKey, "down", usePowerUp, powerUp)
+							else
+								setBoostCooldown(powerUp.cooldown, powerUpState)
+							end
 							--outputChatBox("cooldown reset to "..powerUpState.cooldownEnd)
 						end
 					end
@@ -218,7 +231,7 @@ function tickPowerUps()
 					--outputChatBox("timeLeft "..timeLeft)
 					if (timeLeft >= 0) then
 						--outputChatBox("triggerClientEvent "..timeLeft.." "..powerUp.cooldown.." "..j.." "..powerUp.name.." "..powerUp.bindKey.." true")
-						triggerClientEvent(player, "boosterCooldownTick", player, timeLeft, powerUp.cooldown, j, powerUp.name, powerUpConfig.bindKey, true)
+						triggerClientEvent(player, "boosterCooldownTick", player, timeLeft, powerUp.cooldown, j, powerUp.name, powerUpConfig.bindKey, true, powerUpState.charges))
 					end
 
 					if (timeLeft <= 0) then

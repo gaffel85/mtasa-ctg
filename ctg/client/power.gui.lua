@@ -67,7 +67,7 @@ function getOrCreatePowerBox(index, name, key)
 	return powerBox
 end
 
-function tickPowerUpCooldown(timeLeft, totalTime, index, name, key, enabled)
+function tickPowerUpCooldown(timeLeft, totalTime, index, name, key, enabled, charges)
     --outputChatBox("tickPowerUpCooldown")
 	local powerBox = getOrCreatePowerBox(index, name, key)
     guiSetVisible(powerBox.window, true)
@@ -86,6 +86,17 @@ function tickPowerUpCooldown(timeLeft, totalTime, index, name, key, enabled)
 		guiSetAlpha ( powerBox.window, 1 )
 	end
 	guiProgressBarSetProgress(powerBox.progress, progress)
+	
+	if charges then
+		for i, charge in ipairs(powerBox.charges) do
+			guiSetVisible(charge, i <= charges)
+			guiRadioButtonSetSelected(charge, i <= charges - timeLeft)
+		end
+	else
+        for i, charge in ipairs(powerBox.charges) do
+			guiSetVisible(charge, false)
+		end
+    end
 end
 addEventHandler("boosterCooldownTick", getRootElement(), tickPowerUpCooldown)
 
@@ -99,5 +110,16 @@ function tickPowerUpDuration(timeLeft, totalTime, index, name, key, enabled)
     guiSetVisible(powerBox.button, false)
     guiSetVisible(powerBox.progress, true)
 	guiProgressBarSetProgress(powerBox.progress, progress)
+	
+	if charges then
+		for i, charge in ipairs(powerBox.charges) do
+			guiSetVisible(charge, i <= charges)
+			guiRadioButtonSetSelected(charge, i <= powerBox.charges - timeLeft)
+		end
+    else
+        for i, charge in ipairs(powerBox.charges) do
+			guiSetVisible(charge, false)
+		end
+	end
 end
 addEventHandler("boosterDurationTick", getRootElement(), tickPowerUpDuration)
