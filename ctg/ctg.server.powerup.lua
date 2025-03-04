@@ -41,7 +41,10 @@ local teleportPowerUp = {
 		if isFarEnoughFromLeader(player) then
 			return true
 		else
-			return 5000
+			return {
+				pollTime = 5,
+				message = "Too close to leader"
+			}
 		end
 	end,
 	onDisable = function(player, vehicle)
@@ -198,7 +201,7 @@ function tryEnablePower(powerUp, powerUpState, player)
 		setState(powerUp, player, stateEnum.READY, "Ready", powerUpState, nil)
 		powerUpState.endTime = nil,
 	else
-		setStateWithTimer(stateEnum.WAITING, wasEnabledOrWaitTime, powerUpState, player, powerUp, "Waiting")
+		setStateWithTimer(stateEnum.WAITING, wasEnabledOrWaitTime.pollTime, powerUpState, player, powerUp, wasEnabledOrWaitTime.message)
 	end
 end
 
