@@ -152,7 +152,7 @@ local function pausePower(player, powerUp, powerUpState)
 		-- do nothing
 	end
 
-	setState(powerUp, player, stateEnum.PAUSED, "Message", state, nil)
+	setState(powerUp, player, stateEnum.PAUSED, "Paused while leading", state, nil)
 	local vehicle = getPedOccupiedVehicle (player)
 	if vehicle then
 		powerUp.onDeactivated(player, vehicle)
@@ -209,8 +209,7 @@ function tryDeactivatePower(powerUp, powerUpState, player)
 	end
 
 	if powerUpState.charges and powerUpState.charges <= 0 then
-		setState(powerUp, player, stateEnum.OUT_OF_CHARGES, "Message", state, nil)
-		powerUpState.stateMessage = "Out of charges"
+		setState(powerUp, player, stateEnum.OUT_OF_CHARGES, "Out of charges", state, nil)
 	else
 		setStateWithTimer(stateEnum.COOLDOWN, powerUp.cooldown, powerUpState, player, powerUp)
 	end
@@ -270,7 +269,11 @@ function setState(powerUp, player, stateType, stateMessage, state, config)
 	local oldState = state.state
 	state.state = stateType
 	state.stateMessage = stateMessage
-	triggerClientEvent(player, "powerupStateChangedClient", player, stateType, oldState, powerUp.name, stateMessage, config.bindKey, state.charges, timeLeft(state))
+	local totalCharges = 0
+	if powerUp.charges and powerUp.charges > 0 then
+		totalCharges = powerUp.charges
+	end
+	triggerClientEvent(player, "powerupStateChangedClient", player, stateType, oldState, powerUp.name, stateMessage, config.bindKey, state.charges, totalCharges, timeLeft(state))
 end
 
 function findPowerUpWithKey(key)

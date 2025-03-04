@@ -111,7 +111,7 @@ function setProgressTimer(powerBox, bindKey, timeLeft)
 end
 
 -- triggerClientEvent(player, "powerupStateChangedClient", player, stateType, oldState, powerUp.name, stateMessage, config.bindKey, state.charges, timeLeft(state))
-addEventHandler("powerupStateChangedClient", getRootElement(), function (state, oldState, name, message, bindKey, charges, charges, timeLeft)
+addEventHandler("powerupStateChangedClient", getRootElement(), function (state, oldState, name, message, bindKey, charges, totalCharges, timeLeft)
     local powerBox = getOrCreatePowerBox(bindKey)
     killTimersForKey(bindKey)
 
@@ -119,34 +119,51 @@ addEventHandler("powerupStateChangedClient", getRootElement(), function (state, 
 	guiSetText(powerBox.button, key)
     guiSetText(powerBox.window, name)
 
+    guiSetVisible(powerBox.button, false)
+    guiSetVisible(powerBox.progress, false)
+    guiSetVisible(powerBox.status, false)
+    -- hide charges
+    for i, charge in ipairs(powerBox.charges) do
+        guiSetVisible(charge, false)
+    end
+
     if state == stateEnum.COOLDOWN then
-        guiSetVisible(powerBox.button, false)
         guiSetVisible(powerBox.progress, true)
 		guiSetAlpha ( powerBox.window,0.5 )
         setProgressTimer(powerBox, bindKey, timeLeft)
     elseif state == stateEnum.IN_USE then
-        guiSetVisible(powerBox.button, false)
         guiSetVisible(powerBox.progress, true)
         setProgressTimer(powerBox, bindKey, timeLeft)
     elseif state == stateEnum.OUT_OF_CHARGES then
-        guiSetVisible(powerBox.button, false)
-        guiSetVisible(powerBox.progress, false)
         guiSetAlpha ( powerBox.button, 0.5 )
-        guiSetText(powerBox.status, "Out of charges")
+        guiSetVisible(powerBox.status, true)
+        guiSetText(powerBox.status, message)
     elseif state == stateEnum.PAUSED then
-        guiSetVisible(powerBox.button, false)
-        guiSetVisible(powerBox.progress, false)
+        guiSetVisible(powerBox.status, true)
         guiSetAlpha ( powerBox.button, 0.5 )
-        guiSetText(powerBox.status, "Paused when leading")
+        guiSetText(powerBox.status, message)
     elseif state == stateEnum.WAITING then
-        guiSetVisible(powerBox.button, false)
-        guiSetVisible(powerBox.progress, false)
+        guiSetVisible(powerBox.status, true)
         guiSetAlpha ( powerBox.button, 0.5 )
-        guiSetText(powerBox.status, "Criteria not met")
+        guiSetText(powerBox.status, message)
     elseif state == stateEnum.READY then
         guiSetVisible(powerBox.button, true)
-        guiSetVisible(powerBox.progress, false)
         guiSetAlpha ( powerBox.button, 1 )
         guiSetAlpha ( powerBox.window, 1 )
+
+        if totalCharges > 0 then
+            for i, charge in ipairs(powerBox.charges) do
+                if i <= totalCharges then
+                    guiSetVisible(charge, true)
+                    if i <= charges then
+                        guiRadioButtonSetSelected(charge, true)
+                    else
+                        guiRadioButtonSetSelected(charge, false)
+                    end
+                else
+                    guiSetVisible(charge, false)
+                end
+            end
+        end
     end
 end)
