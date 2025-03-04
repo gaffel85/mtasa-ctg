@@ -102,12 +102,26 @@ end
 
 function setProgressTimer(powerBox, bindKey, timeLeft)
     guiProgressBarSetProgress(powerBox.progress, 0)
-    local steps = timeLeft * 100
-    local progressSteps = 100 / steps
+    local progressSteps = 1
+    local steps = 100 / progressSteps
+    local timeDelta = 1000 * timeLeft / steps
+    
+    outputChatBox("timeLef: "..inspect(timeLeft).." steps: "..steps.." progressSteps: "..progressSteps.." timeDelta: "..timeDelta)
     addTimerForKey(setTimer(function()
-        local oldProgress = guiProgressBarGetProgress
-        guiProgressBarSetProgress(powerBox.progress, oldProgress + progressSteps)
-    end, 10, steps), bindKey)
+        local oldProgress = guiProgressBarGetProgress(powerBox.progress)
+        local newProgress = oldProgress + progressSteps
+        --outputChatBox("oldProgress: "..oldProgress.." newProgress: "..newProgress)
+        guiProgressBarSetProgress(powerBox.progress, newProgress)
+    end, timeDelta, steps), bindKey)
+end
+
+local function setStatus(powerBoxStatusField, message)
+    if message then
+        guiSetText(powerBoxStatusField, message)
+        guiSetVisible(powerBoxStatusField, true)
+    else
+        guiSetVisible(powerBoxStatusField, false)
+    end
 end
 
 -- triggerClientEvent(player, "powerupStateChangedClient", player, stateType, oldState, powerUp.name, stateMessage, config.bindKey, state.charges, timeLeft(state))
@@ -116,7 +130,7 @@ addEventHandler("powerupStateChangedClient", getRootElement(), function (state, 
     killTimersForKey(bindKey)
 
     guiSetVisible(powerBox.window, true)
-	guiSetText(powerBox.button, key)
+	guiSetText(powerBox.button, bindKey)
     guiSetText(powerBox.window, name)
 
     guiSetVisible(powerBox.button, false)
@@ -137,15 +151,15 @@ addEventHandler("powerupStateChangedClient", getRootElement(), function (state, 
     elseif state == stateEnum.OUT_OF_CHARGES then
         guiSetAlpha ( powerBox.button, 0.5 )
         guiSetVisible(powerBox.status, true)
-        guiSetText(powerBox.status, message)
+        setStatus(powerBox.status, message)
     elseif state == stateEnum.PAUSED then
         guiSetVisible(powerBox.status, true)
         guiSetAlpha ( powerBox.button, 0.5 )
-        guiSetText(powerBox.status, message)
+        setStatus(powerBox.status, message)
     elseif state == stateEnum.WAITING then
         guiSetVisible(powerBox.status, true)
         guiSetAlpha ( powerBox.button, 0.5 )
-        guiSetText(powerBox.status, message)
+        setStatus(powerBox.status, message)
     elseif state == stateEnum.READY then
         guiSetVisible(powerBox.button, true)
         guiSetAlpha ( powerBox.button, 1 )
