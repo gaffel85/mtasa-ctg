@@ -1,12 +1,26 @@
 local powerBoxes = {}
+local timers = {}
 local xDiff = 0.12
+local keyOrder = { "lctrl", "z", "x", "c" }
+local stateEnum = {
+	READY = 1,
+	COOLDOWN = 2,
+	IN_USE = 3,
+	OUT_OF_CHARGES = 4,
+	PAUSED = 5,
+	WAITING = 6
+}
 
-addEvent("boosterCooldownTick", true)
-addEvent("boosterDurationTick", true)
-addEvent("powerupSetCooldownClient", true)
-addEvent("powerupSetReadyClient", true)
-addEvent("powerupSetDisabledClient", true)
-addEvent("powerupSetDurationClient", true)
+local function getKeyIndex(key) 
+    for i, k in ipairs(keyOrder) do
+        if (k == string.lower(key)) then
+            return i
+        end
+    end
+    return 0
+end
+
+addEvent("powerupStateChangedClient", true)
 
 function createPowerUpBox(index)
     local posX = 0.7 - xDiff * index
@@ -41,17 +55,14 @@ function createPowerUpBox(index)
         button = powerbutton,
         progress = powercooldown,
         charges = {charge1, charge2, charge3, charge4, charge5},
+        status = status
     }
 end
 --addEventHandler("onClientResourceStart", resourceRoot, createPowerUpBox)
 
-for i = 1, 10 do
-    powerBoxes[i] = nil
-end
-
-function getOrCreatePowerBox(index, name, key)
-	local powerBox = powerBoxes[index]
-	if ( powerBox ) then
+function getOrCreatePowerBox(bindKey)
+	local powerBox = powerBoxes[bindKey]
+	if powerBox then
 		if ( source ~= localPlayer) then
 			guiSetVisible(powerBox.window, false)
 		else
@@ -60,66 +71,82 @@ function getOrCreatePowerBox(index, name, key)
 	end
 
 	if (powerBox == nil) then
+        local index = getKeyIndex(bindKey)
         powerBox = createPowerUpBox(index)
-		powerBoxes[index] = powerBox
+		powerBoxes[bindKey] = powerBox
 	end
 
 	return powerBox
 end
 
-function tickPowerUpCooldown(timeLeft, totalTime, index, name, key, enabled, charges)
-    --outputChatBox("tickPowerUpCooldown")
-	local powerBox = getOrCreatePowerBox(index, name, key)
+local function addTimerForKey(timer, bindKey)
+    local timerArray = timers[bindKey]
+    if not timerArray then
+        timerArray = {}
+        timers[bindKey] = timerArray
+    end
+    table.insert(timerArray, timer)
+end
+
+local function killTimersForKey(bindKey)
+    local timerArray = timers[bindKey]
+    if timerArray then
+        for i, timer in ipairs(timerArray) do
+            if isTimer(timer) then
+                killTimer(timer)
+            end
+        end
+    end
+    timers[bindKey] = {}
+end
+
+function setProgressTimer(powerBox, bindKey, timeLeft)
+    guiProgressBarSetProgress(powerBox.progress, 0)
+    local steps = timeLeft * 100
+    local progressSteps = 100 / steps
+    addTimerForKey(setTimer(function()
+        local oldProgress = guiProgressBarGetProgress
+        guiProgressBarSetProgress(powerBox.progress, oldProgress + progressSteps)
+    end, 10, steps), bindKey)
+end
+
+-- triggerClientEvent(player, "powerupStateChangedClient", player, stateType, oldState, powerUp.name, stateMessage, config.bindKey, state.charges, timeLeft(state))
+addEventHandler("powerupStateChangedClient", getRootElement(), function (state, oldState, name, message, bindKey, charges, charges, timeLeft)
+    local powerBox = getOrCreatePowerBox(bindKey)
+    killTimersForKey(bindKey)
+
     guiSetVisible(powerBox.window, true)
 	guiSetText(powerBox.button, key)
     guiSetText(powerBox.window, name)
 
-	local progress = 100 * (totalTime - timeLeft)/totalTime
-	if ( progress < 99.5 ) then
+    if state == stateEnum.COOLDOWN then
         guiSetVisible(powerBox.button, false)
         guiSetVisible(powerBox.progress, true)
 		guiSetAlpha ( powerBox.window,0.5 )
-	else 
+        setProgressTimer(powerBox, bindKey, timeLeft)
+    elseif state == stateEnum.IN_USE then
+        guiSetVisible(powerBox.button, false)
+        guiSetVisible(powerBox.progress, true)
+        setProgressTimer(powerBox, bindKey, timeLeft)
+    elseif state == stateEnum.OUT_OF_CHARGES then
+        guiSetVisible(powerBox.button, false)
+        guiSetVisible(powerBox.progress, false)
+        guiSetAlpha ( powerBox.button, 0.5 )
+        guiSetText(powerBox.status, "Out of charges")
+    elseif state == stateEnum.PAUSED then
+        guiSetVisible(powerBox.button, false)
+        guiSetVisible(powerBox.progress, false)
+        guiSetAlpha ( powerBox.button, 0.5 )
+        guiSetText(powerBox.status, "Paused when leading")
+    elseif state == stateEnum.WAITING then
+        guiSetVisible(powerBox.button, false)
+        guiSetVisible(powerBox.progress, false)
+        guiSetAlpha ( powerBox.button, 0.5 )
+        guiSetText(powerBox.status, "Criteria not met")
+    elseif state == stateEnum.READY then
         guiSetVisible(powerBox.button, true)
         guiSetVisible(powerBox.progress, false)
         guiSetAlpha ( powerBox.button, 1 )
-		guiSetAlpha ( powerBox.window, 1 )
-	end
-	guiProgressBarSetProgress(powerBox.progress, progress)
-	
-	if charges then
-		for i, charge in ipairs(powerBox.charges) do
-			guiSetVisible(charge, i <= charges)
-			guiRadioButtonSetSelected(charge, i <= charges - timeLeft)
-		end
-	else
-        for i, charge in ipairs(powerBox.charges) do
-			guiSetVisible(charge, false)
-		end
+        guiSetAlpha ( powerBox.window, 1 )
     end
-end
-addEventHandler("boosterCooldownTick", getRootElement(), tickPowerUpCooldown)
-
-function tickPowerUpDuration(timeLeft, totalTime, index, name, key, enabled)
-	local powerBox = getOrCreatePowerBox(index, name, key)
-	--local boosterLabel = boosterLabels[index]
-
-	local progress = 100 - (100 * (totalTime - timeLeft)/totalTime)
-	-- guiLabelSetColor ( boosterLabel, 77, 77, 77 )
-    guiSetAlpha ( powerBox.button, 0.5 )
-    guiSetVisible(powerBox.button, false)
-    guiSetVisible(powerBox.progress, true)
-	guiProgressBarSetProgress(powerBox.progress, progress)
-	
-	if charges then
-		for i, charge in ipairs(powerBox.charges) do
-			guiSetVisible(charge, i <= charges)
-			guiRadioButtonSetSelected(charge, i <= powerBox.charges - timeLeft)
-		end
-    else
-        for i, charge in ipairs(powerBox.charges) do
-			guiSetVisible(charge, false)
-		end
-	end
-end
-addEventHandler("boosterDurationTick", getRootElement(), tickPowerUpDuration)
+end)

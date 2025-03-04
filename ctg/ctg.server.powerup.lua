@@ -38,7 +38,11 @@ local teleportPowerUp = {
 	charges = 1, -- optional field for charges
 	onEnable = function(player, vehicle)
 		-- outputChatBox("teleport enabled "..getPlayerName(player))
-		return isFarEnoughFromLeader(player)
+		if isFarEnoughFromLeader(player) then
+			return true
+		else
+			return 5000
+		end
 	end,
 	onDisable = function(player, vehicle)
 	end,
@@ -58,34 +62,184 @@ function addPowerUp(powerUp)
 	powerUpStates[powerUp.key] = {}
 end
 
-function setBoostCooldown(cooldown, state)
-	local time = getRealTime()
-	local boostCooldown = time.timestamp + cooldown
-	state.cooldownEnd = boostCooldown
-	local timeLeft = boostCooldownLeft(state)
-end
-
-function setPowerUpEndsTime(powerUp, state)
-	local time = getRealTime()
-	local endsTime = time.timestamp + powerUp.duration
-	state.durationEnd = endsTime
-end
-
-function resetBoosterCountdown(powerUp)
-	if (powerUp.activated) then
-		powerUp.activated = false
-		setBoostCooldown(powerUp)
+function resetPowerStates()
+	for i, player in ipairs(getElementsByType("player")) do
+		local powerConfig = getPlayerPowerConfig(player)
+		for j, powerUpConfig in ipairs(powerConfig.active) do
+			local powerUp = findPowerUpWithKey(powerUpConfig.key)
+			resetPowerState(player, powerUp)
+		end
 	end
 end
 
-function boostCooldownLeft(powerUpState) 
-	local currentTime = getRealTime()
-	return powerUpState.cooldownEnd - currentTime.timestamp
+function handlePowersForGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
+	loopOverPowersForPlayer(oldGoldCarrier, function(player, powerUp, powerUpState, powerConfig)
+		if not powerUp.allowedGoldCarrier then
+			unpausePower(player, powerUp, powerUpState)
+		end
+	end)
+
+	loopOverPowersForPlayer(newGoldCarrier, function(player, powerUp, powerUpState, powerConfig)
+		if not powerUp.allowedGoldCarrier then
+			pausePower(player, powerUp, powerUpState)
+		end
+	end)
 end
 
-function durationLeft(powerUpState) 
+local stateEnum = {
+	READY = 1,
+	COOLDOWN = 2,
+	IN_USE = 3,
+	OUT_OF_CHARGES = 4,
+	PAUSED = 5,
+	WAITING = 6
+}
+
+function resetPowerState(player, powerUp)
+	local playerName = getPlayerName(player)
+
+	-- get old state and kill timer
+	local powerUpState = states[playerName]
+	if powerUpState then
+		if powerUpState.timer then
+			killTimer(powerUpState.timer)
+			powerUpState.timer = nil
+		end
+	end
+
+	powerUpState = {
+		state = stateEnum.READY,
+		endTime = nil,
+		timeLeftOnPause = nil,
+		stateMessage = nil,
+		stateBeforePause = nil,
+		charges = powerUp.charges,
+		name = powerUp.name,
+		timer = nil
+	}
+	if powerUp.initCooldown > 0 then
+		setStateWithTimer(stateEnum.COOLDOWN, powerUp.initCooldown, powerUpState, player, powerUp)
+	else
+		setState(powerUp, player, stateEnum.READY, "Ready", powerUpState, nil)
+	end
+	states[playerName] = powerUpState
+	return powerUpState
+end
+
+local function killTimer(state)
+	if state.timer then
+		killTimer(state.timer)
+		state.timer = nil
+	end
+end
+
+local function pausePower(player, powerUp, powerUpState)
+	-- switch case for state values
+	if powerUpState.state == stateEnum.COOLDOWN then
+		powerUpState.timeLeftOnPause = timeLeft(powerUpState)
+		powerUpState.stateBeforePause = stateEnum.COOLDOWN
+	elseif powerUpState.state == stateEnum.IN_USE then
+		powerUpState.timeLeftOnPause = durationLeft(powerUpState)
+		powerUpState.stateBeforePause = stateEnum.IN_USE
+	elseif powerUpState.state == stateEnum.READY then
+		powerUpState.stateBeforePause = stateEnum.READY
+	elseif powerUpState.state == stateEnum.OUT_OF_CHARGES then
+		powerUpState.stateBeforePause = stateEnum.OUT_OF_CHARGES
+	elseif powerUpState.state == stateEnum.WAITING then
+		powerUpState.stateBeforePause = stateEnum.WAITING
+		powerUpState.timeLeftOnPause = timeLeft(powerUpState)
+	elseif powerUpState.state == stateEnum.PAUSED then
+		-- do nothing
+	end
+
+	setState(powerUp, player, stateEnum.PAUSED, "Message", state, nil)
+	local vehicle = getPedOccupiedVehicle (player)
+	if vehicle then
+		powerUp.onDeactivated(player, vehicle)
+	end
+	-- kill timer
+	killTimer(powerUpState.timer)
+end
+
+local function unpausePower(player, powerUp, powerUpState)
+	killTimer(powerUpState)
+	if powerUpState.state == stateEnum.PAUSED then
+		if powerUpState.stateBeforePause == stateEnum.COOLDOWN then
+			setStateWithTimer(stateEnum.COOLDOWN, powerUpState.timeLeftOnPause, powerUpState, player, powerUp)
+		elseif powerUpState.stateBeforePause == stateEnum.IN_USE then
+			setStateWithTimer(stateEnum.IN_USE, powerUpState.timeLeftOnPause, powerUpState, player, powerUp)
+		elseif powerUpState.stateBeforePause == stateEnum.WAITING then
+			setStateWithTimer(stateEnum.WAITING, powerUpState.timeLeftOnPause, powerUpState, player, powerUp)
+		elseif powerUpState.stateBeforePause == stateEnum.READY then
+			tryEnablePower(powerUp, powerUpState, player)
+		elseif powerUpState.stateBeforePause == stateEnum.OUT_OF_CHARGES then
+			setState(powerUp, player, stateEnum.OUT_OF_CHARGES, "Out of charges", state, nil)
+		end
+	end
+
+	powerUpState.timeLeftOnPause = nil,
+	powerUpState.stateBeforePause = nil,
+end
+
+function setEndsTime(duration, state)
+	local time = getRealTime()
+	local endsTime = time.timestamp + duration
+	state.endTime = endsTime
+end
+
+function tryEnablePower(powerUp, powerUpState, player)
+	local vehicle = getPedOccupiedVehicle (player)
+	if not vehicle then
+		setStateWithTimer(stateEnum.WAITING, 2000, powerUpState, player, powerUp, "Waiting for vehicle")
+	end
+
+	local wasEnabledOrWaitTime = powerUp.onEnable(player, vehicle)
+	if (wasEnabled) then
+		setState(powerUp, player, stateEnum.READY, "Ready", powerUpState, nil)
+		powerUpState.endTime = nil,
+	else
+		setStateWithTimer(stateEnum.WAITING, wasEnabledOrWaitTime, powerUpState, player, powerUp, "Waiting")
+	end
+end
+
+function tryDeactivatePower(powerUp, powerUpState, player)
+	local vehicle = getPedOccupiedVehicle (player)
+	if vehicle then
+		powerUp.onDeactivated(player, vehicle, powerUpState)
+	end
+
+	if powerUpState.charges and powerUpState.charges <= 0 then
+		setState(powerUp, player, stateEnum.OUT_OF_CHARGES, "Message", state, nil)
+		powerUpState.stateMessage = "Out of charges"
+	else
+		setStateWithTimer(stateEnum.COOLDOWN, powerUp.cooldown, powerUpState, player, powerUp)
+	end
+end
+
+function timerDone(player, powerUpKey)
+	local powerUp = findPowerUpWithKey(powerUpKey)
+	local powerUpState = getPlayerState(player, powerUp)
+	killTimer(powerUpState)
+	if powerUpState.state == stateEnum.COOLDOWN then
+		tryEnablePower(powerUp, powerUpState, player)
+	elseif powerUpState.state == stateEnum.IN_USE then
+		tryDeactivatePower(powerUp, powerUpState, player)
+	elseif powerUpState.state == stateEnum.WAITING then
+		tryEnablePower(powerUp, powerUpState, player, vehicle)
+	end
+end
+
+function setStateWithTimer(stateType, duration, state, player, powerUp, message)
+	setEndsTime(duration, state)
+	setState(powerUp, player, stateType, message, state, nil)
+	state.timer = setTimer(function()
+		timerDone(player, powerUp.key)
+	end, timeLeft(state) * 1000, 1)
+end
+
+function timeLeft(powerUpState)
 	local currentTime = getRealTime()
-	return powerUpState.durationEnd - currentTime.timestamp
+	return powerUpState.endTime - currentTime.timestamp
 end
 
 function getPlayerState(player, powerUp)
@@ -93,21 +247,30 @@ function getPlayerState(player, powerUp)
 	local playerName = getPlayerName(player)
 	local powerUpState = states[playerName]
 	if (not powerUpState) then
-		powerUpState = {
-			enabled = false,
-			activated = false,
-			durationEnd = nil,
-			cooldownEnd = 0,
-			charges = powerUp.charges,
-			name = powerUp.name
-		}
-		if powerUp.charges then
-			powerUpState.charges = powerUp.charges
-		end
-		setBoostCooldown(powerUp.initCooldown, powerUpState)
-		states[playerName] = powerUpState
+		powerUpState = resetPowerState(player, powerUp)
 	end
 	return powerUpState
+end
+
+function setState(powerUp, player, stateType, stateMessage, state, config)
+	if not config then
+		local powerConfig = getPlayerPowerConfig(player)
+		for j, powerUpConfig in ipairs(powerConfig.active) do
+			if powerUpConfig.key == powerUp.key then
+				config = powerUpConfig
+				break
+			end
+		end
+	end
+	
+	if not state then
+		state = getPlayerState(player, powerUp)
+	end
+
+	local oldState = state.state
+	state.state = stateType
+	state.stateMessage = stateMessage
+	triggerClientEvent(player, "powerupStateChangedClient", player, stateType, oldState, powerUp.name, stateMessage, config.bindKey, state.charges, timeLeft(state))
 end
 
 function findPowerUpWithKey(key)
@@ -142,11 +305,15 @@ function getPowerUpsData()
 end
 
 function usePowerUp(player, key, keyState, powerUp)
+	if not powerUpState.state == stateEnum.READY then
+		outputChatBox("Power not ready yet: "..inspect(powerUp.name))
+		return
+	end
+
 	--outputServerLog("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
 	-- outputChatBox("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
 	local state = getPlayerState(player, powerUp)
-	state.activated = true
-	setPowerUpEndsTime(powerUp, state)
+	setStateWithTimer(stateEnum.IN_USE, statepowerUp.duration, state, player, powerUp, "In use")
 	if state.charges and state.charges > 0 then
 		state.charges = state.charges - 1
 	end
@@ -167,93 +334,22 @@ function usePowerUp(player, key, keyState, powerUp)
 	--unbindKey(player, key, keyState, usePowerUp, powerUp)
 end
 
---addEvent("powerupSetCooldownClient", true)
---addEvent("powerupSetReadyClient", true)
---addEvent("powerupSetDisabledClient", true)
---addEvent("powerupSetDurationClient", true)
-
-function tickPowerUps()
-	for i, player in ipairs(getElementsByType("player")) do
-		local powerConfig = getPlayerPowerConfig(player)
-		for j, powerUpConfig in ipairs(powerConfig.active) do
-			local powerUp = findPowerUpWithKey(powerUpConfig.key)
-			if powerUp == nil then
-				outputChatBox("powerUp is nil "..inspect(powerUpConfig.key))
-			end
-			local powerUpState = getPlayerState(player, powerUp)
-
-			--outputConsole("loop state: "..inspect(powerUpState))
-			--outputChatBox("timeLeft "..inspect(powerUpState.name)..inspect(powerUp.key))
-			--outputChatBox("timeLeft "..timeLeft)
-
-			if (player == getGoldCarrier() and not powerUp.allowedGoldCarrier) then
-				-- outputChatBox("player is gold carrier")
-				if (powerUpState.enabled) then
-					--unbindKey(player, powerUpConfig.bindKey, "down", usePowerUp, powerUp)
-					powerUp.onDisable(player, getPedOccupiedVehicle(player), powerUpState)
-					powerUpState.enabled = false
-				end
-				if (powerUpState.activated) then
-					powerUp.onDeactivated(player, getPedOccupiedVehicle(player), powerUpState)
-					powerUpState.activated = false
-					powerUpState.enabled = false
-				end
-			else
-				if (powerUpState.activated == true) then
-					-- outputChatBox("powerUpState.actived ==============")
-					local timeLeft = durationLeft(powerUpState)
-					-- outputChatBox("timeLeft "..timeLeft)
-					if (timeLeft >= 0) then
-						--outputChatBox("triggerClientEvent "..timeLeft.." "..powerUp.duration.." "..j.." "..powerUp.name.." "..powerUp.bindKey.." true")
-						triggerClientEvent(player, "boosterDurationTick", player, timeLeft, powerUp.duration, j, powerUp.name, powerUpConfig.bindKey, true, powerUpState.charges)
-					end
-
-					if (timeLeft <= 0) then
-						--outputChatBox("timeLeft <= 0")
-						local vehicle = getPedOccupiedVehicle (player)
-						if (vehicle) then
-							--outputChatBox("deactivate powerUp")
-							powerUp.onDeactivated(player, vehicle, powerUpState)
-							powerUpState.activated = false
-							powerUpState.enabled = false
-							if (powerUpState.charges and powerUpState.charges <= 0) then
-								--outputChatBox("charges == 0")
-								--unbindKey(player, powerUpConfig.bindKey, "down", usePowerUp, powerUp)
-							else
-								setBoostCooldown(powerUp.cooldown, powerUpState)
-							end
-							--outputChatBox("cooldown reset to "..powerUpState.cooldownEnd)
-						end
-					end
-				elseif (powerUpState.enabled == false) then
-					--outputChatBox("powerUpState.enabled == false")
-					local timeLeft = boostCooldownLeft(powerUpState)
-					--outputChatBox("timeLeft "..timeLeft)
-					if (timeLeft >= 0) then
-						--outputChatBox("triggerClientEvent "..timeLeft.." "..powerUp.cooldown.." "..j.." "..powerUp.name.." "..powerUp.bindKey.." true")
-						triggerClientEvent(player, "boosterCooldownTick", player, timeLeft, powerUp.cooldown, j, powerUp.name, powerUpConfig.bindKey, true, powerUpState.charges))
-					end
-
-					if (timeLeft <= 0) then
-						-- outputChatBox("timeLeft <= 0 powerup: "..inspect(powerUp.name))
-						local vehicle = getPedOccupiedVehicle (player)
-						if (vehicle) then
-							local wasEnabled = powerUp.onEnable(player, vehicle)
-							--outputChatBox("wasEnabled "..tostring(wasEnabled))
-							if (wasEnabled) then
-								--outputChatBox("bindKey "..powerUp.bindKey)
-								--bindKey(player, powerUpConfig.bindKey, "down", usePowerUp, powerUp)
-								powerUpState.enabled = true
-								powerUpState.activated = false
-							end
-						end
-					end
-				end
-			end
+function loopOverPowersForPlayer(player, callback)
+	local powerConfig = getPlayerPowerConfig(player)
+	for j, powerUpConfig in ipairs(powerConfig.active) do
+		local powerUp = findPowerUpWithKey(powerUpConfig.key)
+		if powerUp == nil then
+			outputServerLog("powerUp is nil "..inspect(powerUpConfig.key))
+			break
 		end
+		local powerUpState = getPlayerState(player, powerUp)
+		if not powerUpState then
+			outputServerLog("powerUpState is nil "..inspect(powerUpConfig.key))
+			break
+		end
+		callback(player, powerUp, powerUpState, powerConfig)
 	end
 end
-setTimer(tickPowerUps, 1000, 0)
 
 addEvent("loadPowerUpsServer", true)
 addEventHandler("loadPowerUpsServer", root, function()
@@ -289,11 +385,7 @@ function powerButtonPressed(player, button)
 	end
 
 	if powerUpState then
-	 	if powerUpState.enabled and not powerUpState.activated then
-			usePowerUp(player, button, "up", powerUp)
-		else
-			outputChatBox("Power not ready yet: "..inspect(powerUp.name))
-		end
+	 	userPowerUp(player, button, powerUpState, powerUp)
 	end
 end
 

@@ -40,7 +40,24 @@ function getPlayerPowerConfig(player)
 end
 
 function setPlayerPowerConfig(player, config)
+    local oldConfig = getPlayerPowerConfig(player)
+    local newPowers = {}
+    for i, powerUp in ipairs(config.active) do
+        local wasActiveInOldConfig = false
+        for j, oldPowerUp in ipairs(oldConfig.active) do
+            if powerUp.key == oldPowerUp.key then
+                wasActiveInOldConfig = true
+                break
+            end
+        end
+        if not wasActiveInOldConfig then
+            table.insert(newPowers, powerUp.key)
+        end
+    end
     configs[getPlayerName(player)] = config
+    for i, powerUpKey in ipairs(newPowers) do
+        resetPowerState(player, powerUp)
+    end
 end
 
 addEvent("powerSelectedEvent")
