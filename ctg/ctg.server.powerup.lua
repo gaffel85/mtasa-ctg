@@ -139,7 +139,7 @@ function resetPowerState(player, powerUp)
 	return powerUpState
 end
 
-local function killPowerTimer(state)
+function killPowerTimer(state)
 	if state.timer then
 		killTimer(state.timer)
 		state.timer = nil
@@ -152,7 +152,7 @@ function pausePower(player, powerUp, powerUpState)
 		powerUpState.timeLeftOnPause = timeLeft(powerUpState)
 		powerUpState.stateBeforePause = stateEnum.COOLDOWN
 	elseif powerUpState.state == stateEnum.IN_USE then
-		powerUpState.timeLeftOnPause = durationLeft(powerUpState)
+		powerUpState.timeLeftOnPause = timeLeft(powerUpState)
 		powerUpState.stateBeforePause = stateEnum.IN_USE
 	elseif powerUpState.state == stateEnum.READY then
 		powerUpState.stateBeforePause = stateEnum.READY
@@ -329,11 +329,15 @@ end
 function usePowerUp(player, key, keyState, powerUp)
 	--outputServerLog("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
 	-- outputChatBox("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
-	outputServerLog("usePowerUp "..inspect(player))
+	
 	local state = getPlayerState(player, powerUp)
-	if not state.state == stateEnum.READY then
+	outputServerLog("usePowerUp "..inspect(player)..inspect(state.state)..inspect(stateEnum.READY).." "..inspect(state.state == stateEnum.READY))
+	if not (state.state == stateEnum.READY) then
+		outputServerLog("returns")
 		outputChatBox("Power not ready yet: "..inspect(powerUp.name))
 		return
+	else
+		outputServerLog("continues")
 	end
 
 	setStateWithTimer(stateEnum.IN_USE, powerUp.duration, state, player, powerUp, "In use")

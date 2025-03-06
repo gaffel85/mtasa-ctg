@@ -119,7 +119,7 @@ function setProgressTimer(powerBox, bindKey, timeLeft, backwards)
         progressSteps = -progressSteps
     end
     
-    outputChatBox("timeLef: "..inspect(timeLeft).." steps: "..steps.." progressSteps: "..progressSteps.." timeDelta: "..timeDelta)
+    --outputChatBox("timeLef: "..inspect(timeLeft).." steps: "..steps.." progressSteps: "..progressSteps.." timeDelta: "..timeDelta)
     addTimerForKey(setTimer(function()
         local oldProgress = guiProgressBarGetProgress(powerBox.progress)
         local newProgress = oldProgress + progressSteps
@@ -180,12 +180,14 @@ addEventHandler("powerupStateChangedClient", getRootElement(), function (state, 
 
         if totalCharges > 0 then
             for i, charge in ipairs(powerBox.charges) do
-                outputChatBox("charge index: "..inspect(i).." charges: "..inspect(charges).." totalCharges: "..inspect(totalCharges))
+                --outputChatBox("charge index: "..inspect(i).." charges: "..inspect(charges).." totalCharges: "..inspect(totalCharges))
                 guiRadioButtonSetSelected(charge, false)
                 if i <= totalCharges then
                     guiSetVisible(charge, true)
                     if i <= charges then
-                        guiRadioButtonSetSelected(charge, true)
+                        guiSetAlpha(charge, 1)
+                    else
+                        guiSetAlpha(charge, 0.5)
                     end
                 else
                     guiSetVisible(charge, false)
