@@ -21,7 +21,8 @@ function spawnNewGold()
         edl = spawnEdl,
         x = posX,
         y = posY,
-        z = posZ
+        z = posZ,
+        desc = getElementData(spawnEdl, "desc")
     }
     spawnGoldAtTransform(posX, posY, posZ)
 end
