@@ -68,9 +68,9 @@ function addPowerUp(powerUp)
 end
 
 function resetPowerStatesOnDeliverd()
-	local config = getPlayerPowerConfig(player)
-	config.completedRank = config.usedRank
 	for i, player in ipairs(getElementsByType("player")) do
+		local config = getPlayerPowerConfig(player)
+		config.completedRank = config.usedRank
 		resetPowerStatesForPlayer(player)
 	end
 end

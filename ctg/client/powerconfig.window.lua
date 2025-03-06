@@ -58,8 +58,10 @@ end
 addEvent("onOpenPowerConfigWindowClient", true)
 addEventHandler("onOpenPowerConfigWindowClient", resourceRoot, openWindowFromServer)
 
-function unlock(powerKey)
+function unlock(powerUp)
+    local powerKey = powerUp.key
     outputConsole("unlock "..powerKey)
+    setPlayerMoney(getPlayerMoney() - cost(powerUp))
     table.insert(powerConfig.owned, powerKey)
     savePowerConfig()
     populateBoxes()
@@ -100,7 +102,11 @@ function isOwned(key)
 end
 
 function cost(powerUp)
-    return 500 + powerUp.rank * 100
+    return 200 + powerUp.rank * 150
+end
+
+function canAfford(powerUp)
+    return getPlayerMoney() >= cost(powerUp)
 end
 
 function createActivePowerBox(powerUpName, boundKey, col)
@@ -150,7 +156,7 @@ function createPowerBox(powerUp, row, col)
             unlockButton = guiCreateButton(0.71, 0.86, 0.23, 0.10, "Unlock "..cost(powerUp).."$" , true, powerbox)
             if canAfford(powerUp) then
                 addEventHandler("onClientGUIClick", unlockButton, function()
-                    unlock(powerUp.key)
+                    unlock(powerUp)
                 end, false)
             else
                 guiSetEnabled(unlockButton, false)

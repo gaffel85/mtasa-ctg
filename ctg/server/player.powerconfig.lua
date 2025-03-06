@@ -19,13 +19,6 @@ function getDefaultConfig()
         owned = {
             "nitro",
             "teleport",
-            "busses",
-            "waterLevel",
-            "canon",
-            "plane",
-            "cinematic",
-            "superCar",
-            "shield",
         },
     }
 end
