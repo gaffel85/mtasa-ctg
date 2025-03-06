@@ -36,25 +36,30 @@ function createPowerUpBox(index)
     guiSetFont(powerbutton, "clear-normal")
     guiSetProperty(powerbutton, "NormalTextColour", "FEFFFFFF")
     
-    local charge1 = guiCreateRadioButton(56, 26, 14, 15, "", false, powerwindow)
-    local charge2 = guiCreateRadioButton(74, 26, 14, 15, "", false, powerwindow)
-    local charge3 = guiCreateRadioButton(92, 26, 14, 15, "", false, powerwindow)
-    local charge4 = guiCreateRadioButton(110, 26, 14, 15, "", false, powerwindow)
-    local charge5 = guiCreateRadioButton(128, 26, 14, 15, "", false, powerwindow)
-    local status = guiCreateLabel(53, 26, 88, 19, "Status update", false, powerwindow)
+    -- loop over cols and ropws for charges, 2 rows and 3 cols
+    local charges = {}
+    for i = 1, 5 do
+        local row = math.floor((i - 1) / 3)
+        local col = (i - 1) % 3
+        local charge = guiCreateRadioButton(0.72 + col * 0.08, 0.37 + row * 0.2, 0.1, 0.18, "", true, powerwindow)
+        guiSetVisible(charge, false)
+        table.insert(charges, charge)
+    end
 
-    guiSetVisible(charge1, false)
-    guiSetVisible(charge2, false)
-    guiSetVisible(charge3, false)
-    guiSetVisible(charge4, false)
-    guiSetVisible(charge5, false)
+    --local charge1 = guiCreateRadioButton(56, 26, 14, 15, "", false, powerwindow)
+    --local charge2 = guiCreateRadioButton(74, 26, 14, 15, "", false, powerwindow)
+    --local charge3 = guiCreateRadioButton(92, 26, 14, 15, "", false, powerwindow)
+    --local charge4 = guiCreateRadioButton(110, 26, 14, 15, "", false, powerwindow)
+    --local charge5 = guiCreateRadioButton(128, 26, 14, 15, "", false, powerwindow)
+    local status = guiCreateLabel(0.3, 0.3, 0.4, 1, "Status update", true, powerwindow)
+
     guiSetVisible(status, false)
     --guiRadioButtonSetSelected(charge3, true)
     return {
         window = powerwindow,
         button = powerbutton,
         progress = powercooldown,
-        charges = {charge1, charge2, charge3, charge4, charge5},
+        charges = charges,
         status = status
     }
 end
@@ -100,11 +105,19 @@ local function killTimersForKey(bindKey)
     timers[bindKey] = {}
 end
 
-function setProgressTimer(powerBox, bindKey, timeLeft)
-    guiProgressBarSetProgress(powerBox.progress, 0)
+function setProgressTimer(powerBox, bindKey, timeLeft, backwards)
+    if backwards then
+        guiProgressBarSetProgress(powerBox.progress, 100)
+    else
+        guiProgressBarSetProgress(powerBox.progress, 0)
+    end
     local progressSteps = 1
     local steps = 100 / progressSteps
     local timeDelta = 1000 * timeLeft / steps
+
+    if backwards then
+        progressSteps = -progressSteps
+    end
     
     outputChatBox("timeLef: "..inspect(timeLeft).." steps: "..steps.." progressSteps: "..progressSteps.." timeDelta: "..timeDelta)
     addTimerForKey(setTimer(function()
@@ -144,10 +157,10 @@ addEventHandler("powerupStateChangedClient", getRootElement(), function (state, 
     if state == stateEnum.COOLDOWN then
         guiSetVisible(powerBox.progress, true)
 		guiSetAlpha ( powerBox.window,0.5 )
-        setProgressTimer(powerBox, bindKey, timeLeft)
+        setProgressTimer(powerBox, bindKey, timeLeft, false)
     elseif state == stateEnum.IN_USE then
         guiSetVisible(powerBox.progress, true)
-        setProgressTimer(powerBox, bindKey, timeLeft)
+        setProgressTimer(powerBox, bindKey, timeLeft, true)
     elseif state == stateEnum.OUT_OF_CHARGES then
         guiSetAlpha ( powerBox.button, 0.5 )
         guiSetVisible(powerBox.status, true)
@@ -167,12 +180,12 @@ addEventHandler("powerupStateChangedClient", getRootElement(), function (state, 
 
         if totalCharges > 0 then
             for i, charge in ipairs(powerBox.charges) do
+                outputChatBox("charge index: "..inspect(i).." charges: "..inspect(charges).." totalCharges: "..inspect(totalCharges))
+                guiRadioButtonSetSelected(charge, false)
                 if i <= totalCharges then
                     guiSetVisible(charge, true)
                     if i <= charges then
                         guiRadioButtonSetSelected(charge, true)
-                    else
-                        guiRadioButtonSetSelected(charge, false)
                     end
                 else
                     guiSetVisible(charge, false)

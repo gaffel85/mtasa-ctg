@@ -7,7 +7,7 @@ local nitroPowerUp = {
 	duration = NITRO_DURATION,
 	initCooldown = 5,
 	allowedGoldCarrier = false,
-	charges = 3, -- optional field for charges
+	charges = 5, -- optional field for charges
 	onEnable = function(player, vehicle)
 		-- outputChatBox("Nitro enabled "..getPlayerName(player))
 		addVehicleUpgrade(vehicle, 1009)
@@ -75,6 +75,7 @@ function resetPowerStatesForPlayer(player)
 	local powerConfig = getPlayerPowerConfig(player)
 	for j, powerUpConfig in ipairs(powerConfig.active) do
 		local powerUp = findPowerUpWithKey(powerUpConfig.key)
+		--outputServerLog("resetPowerStatesForPlayer "..inspect(player).." "..inspect(powerUp).." "..inspect(powerUpConfig))
 		resetPowerState(player, powerUp)
 	end
 end
@@ -145,7 +146,7 @@ local function killPowerTimer(state)
 	end
 end
 
-local function pausePower(player, powerUp, powerUpState)
+function pausePower(player, powerUp, powerUpState)
 	-- switch case for state values
 	if powerUpState.state == stateEnum.COOLDOWN then
 		powerUpState.timeLeftOnPause = timeLeft(powerUpState)
@@ -173,7 +174,7 @@ local function pausePower(player, powerUp, powerUpState)
 	killPowerTimer(powerUpState)
 end
 
-local function unpausePower(player, powerUp, powerUpState)
+function unpausePower(player, powerUp, powerUpState)
 	killPowerTimer(powerUpState)
 	if powerUpState.state == stateEnum.PAUSED then
 		if powerUpState.stateBeforePause == stateEnum.COOLDOWN then

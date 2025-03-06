@@ -56,6 +56,7 @@ function setPlayerPowerConfig(player, config)
     end
     configs[getPlayerName(player)] = config
     for i, powerUpKey in ipairs(newPowers) do
+        local powerUp = findPowerUpWithKey(powerUpKey)
         resetPowerState(player, powerUp)
     end
 end
