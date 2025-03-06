@@ -25,6 +25,31 @@ function flipIfNeeded(vehicle)
 	end
 end
 
+function paralyzeAndRepairCar(vehicle)
+	local driver = getVehicleOccupant ( vehicle )
+	--if ( driver == getBombHolder() ) then
+	--	setVehicleDamageProof ( vehicle , true )
+	--	flipIfNeeded ( vehicle )
+	--	fixVehicle ( vehicle )
+	--	setTimer(function() 
+	--		setVehicleDamageProof ( vehicle , false )
+	--	end, 5000, 1)
+	--else
+		--outputDebugString("Reparing car for"..inspect(driver))
+	toggleAllControls ( false, true, false )
+	setVehicleDamageProof ( vehicle , true )
+	triggerServerEvent("clientText", resourceRoot, "showRepairingCar")
+	triggerServerEvent("repairCar", resourceRoot, driver)
+
+	fixVehicle (vehicle)
+	flipIfNeeded ( vehicle )
+
+	setTimer(function() 
+		toggleAllControls ( true, true, true )
+		setVehicleDamageProof ( vehicle , false )
+	end, REPAIR_TIME * 1000, 1)
+end
+
 addEventHandler ( "onClientVehicleDamage", root, function ( attacker, weapon, loss )
 
 	if ( getVehicleOccupant ( source ) ~= localPlayer ) then
@@ -45,31 +70,43 @@ addEventHandler ( "onClientVehicleDamage", root, function ( attacker, weapon, lo
 	local health = getElementHealth ( vehicle )
 	guiProgressBarSetProgress(damageBar, 100 * (math.max(health, 250) - 250) / 750)
 	if ( health < 250 ) then
-		
-		local driver = getVehicleOccupant ( vehicle )
-		--if ( driver == getBombHolder() ) then
-		--	setVehicleDamageProof ( vehicle , true )
-		--	flipIfNeeded ( vehicle )
-		--	fixVehicle ( vehicle )
-		--	setTimer(function() 
-		--		setVehicleDamageProof ( vehicle , false )
-		--	end, 5000, 1)
-		--else
-			--outputDebugString("Reparing car for"..inspect(driver))
-			toggleAllControls ( false, true, false )
-			setVehicleDamageProof ( vehicle , true )
-			triggerServerEvent("clientText", resourceRoot, "showRepairingCar")
-			triggerServerEvent("repairCar", resourceRoot, driver)
-
-			fixVehicle (vehicle)
-			flipIfNeeded ( vehicle )
-
-			setTimer(function() 
-				toggleAllControls ( true, true, true )
-				setVehicleDamageProof ( vehicle , false )
-			end, REPAIR_TIME * 1000, 1)
-		--end
+		paralyzeAndRepairCar(vehicle)
 	end
 end )
+
+function manualRepair()
+	local vehicle = getPedOccupiedVehicle(localPlayer)
+	if ( vehicle ) then
+		local posX, posY, posZ = getElementPosition ( vehicle )
+		setElementPosition (vehicle, posX, posY, posZ + 2)
+		setElementRotation (vehicle, 0, 0, rz)
+		paralyzeAndRepairCar(vehicle)
+	end
+end
+
+function bindConfigResetKeys(player)
+    outputChatBox("bindConfigResetKeys")
+    bindKey ( "R", "up", manualRepair )
+end
+
+function unbindConfigResetKeys(player)
+    unbindKey ( "F3" )
+end
+
+function onJoinForResetKeys ( )
+    bindConfigResetKeys(source)
+end
+addEventHandler("onPlayerJoin", getRootElement(), onJoinForResetKeys)
+
+  --unbind on quit
+function onQuitForResetKeys ( )
+    unbindConfigResetKeys(source)
+end
+addEventHandler("onPlayerQuit", getRootElement(), onQuitForResetKeys)
+
+addEventHandler("onClientResourceStart", getResourceRootElement(getThisResource()), function()
+    bindConfigResetKeys(source)
+end)
+
 
 

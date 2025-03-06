@@ -210,6 +210,7 @@ function resetScore()
 end
 
 function resetRoundVars()
+    resetPowerStates()
     clearGoldCarrier()
 end
 
