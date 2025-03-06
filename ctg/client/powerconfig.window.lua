@@ -293,10 +293,10 @@ addEventHandler("onClientResourceStart", resourceRoot,
         guiSetAlpha(powerwindow, 0.93)
 
         local playerRankTitle = guiCreateLabel(0.01, 0.02, 0.1, 0.05, "Rank:", true, powerwindow)
-        playerRankLabel = guiCreateLabel(0.1, 0.02, 0.98, 0.05, "1", true, powerwindow)
+        playerRankLabel = guiCreateLabel(0.05, 0.02, 0.98, 0.05, "1", true, powerwindow)
 
-        local playerMoneyTitle = guiCreateLabel(0.9, 0.02, 0.1, 0.05, "Money:", true, powerwindow)
-        playerMoneyLabel = guiCreateLabel(0.95, 0.02, 0.98, 0.05, "0", true, powerwindow)
+        local playerMoneyTitle = guiCreateLabel(0.01, 0.05, 0.1, 0.05, "Money:", true, powerwindow)
+        playerMoneyLabel = guiCreateLabel(0.05, 0.02, 0.98, 0.05, "0", true, powerwindow)
 
         scrollpane = guiCreateScrollPane(0.01, 0.2, 0.99, 0.79, true, powerwindow)
 
