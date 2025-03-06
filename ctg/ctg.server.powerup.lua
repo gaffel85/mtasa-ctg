@@ -120,6 +120,13 @@ function resetPowerState(player, powerUp)
 		end
 	end
 
+	if powerUpState and (powerUpState.state == stateEnum.IN_USE or powerUpState.state == stateEnum.READY) then
+		local vehicle = getPedOccupiedVehicle (player)
+		if vehicle then
+			powerUp.onDeactivated(player, vehicle)
+		end
+	end
+
 	powerUpState = {
 		state = stateEnum.READY,
 		endTime = nil,
