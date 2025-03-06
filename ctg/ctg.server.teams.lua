@@ -105,6 +105,22 @@ end
 function giveTeamScore(player, score)
     local carrierTeam = getCtgTeam(player)
     carrierTeam.score = carrierTeam.score + score
+
+    for i, memberName in ipairs(carrierTeam.members) do
+        local member = getPlayerFromName(memberName)
+        if member then
+            givePlayerMoney(member, score)
+        end
+    end
+
+    local opponentTeam = carrierTeam.otherTeam
+    for i, memberName in ipairs(opponentTeam.members) do
+        local member = getPlayerFromName(memberName)
+        if member then
+            givePlayerMoney(member, score * 0.7)
+        end
+    end
+
     updateScoreDisplay()
 end
 

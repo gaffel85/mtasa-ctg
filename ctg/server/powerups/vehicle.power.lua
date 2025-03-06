@@ -1,4 +1,3 @@
-
 local helicopterPowerup = {
 	key = "helicopter",
 	name = "Helicopter",
@@ -8,6 +7,7 @@ local helicopterPowerup = {
     charges = -1,
 	initCooldown = 1,
 	allowedGoldCarrier = false,
+	rank = 5,
 	onEnable = function(player)
 		return true
 	end,
@@ -33,6 +33,7 @@ local planePowerup = {
     charges = 1,
 	initCooldown = 1,
 	allowedGoldCarrier = false,
+	rank = 4,
 	onEnable = function(player)
 		return true
 	end,
@@ -57,6 +58,7 @@ local offoadPowerUp = {
     charges = -1,
 	initCooldown = 1,
 	allowedGoldCarrier = false,
+	rank = 3,
 	onEnable = function(player)
 		return true
 	end,
@@ -80,6 +82,7 @@ local superCarPowerUp = {
 	duration = 20,
 	initCooldown = 10,
 	allowedGoldCarrier = false,
+	rank = 5,
 	onEnable = function(player)
 		-- outputChatBox("superCar enabled "..getPlayerName(player))
 		return true
@@ -104,6 +107,7 @@ local bussesForEveryone = {
 	duration = 20,
 	initCooldown = 10,
 	allowedGoldCarrier = false,
+	rank = 4,
 	onEnable = function(player)
 		-- outputChatBox("superCar enabled "..getPlayerName(player))
 		return true

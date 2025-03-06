@@ -6,6 +6,7 @@ local cinematicCamera = {
 	duration = 3,
 	initCooldown = 0,
 	allowedGoldCarrier = true,
+	rank = 3,
 	onEnable = function(player)
 		-- outputChatBox("superCar enabled "..getPlayerName(player))
 		return true

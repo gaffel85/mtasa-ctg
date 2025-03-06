@@ -7,6 +7,7 @@ local cinematicCamera = {
     charges = 3,
 	initCooldown = 0,
 	allowedGoldCarrier = true,
+	rank = 3,
 	onEnable = function(player)
 		return true
 	end,

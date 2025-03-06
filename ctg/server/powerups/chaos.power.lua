@@ -5,6 +5,7 @@ local trafficChaos = {
 	desc = "Randomly changes your opponent's vehicle every 2 seconds.",
 	cooldown = 20,
 	duration = duration,
+	rank = 4,
 	initCooldown = 1,
 	allowedGoldCarrier = false,
 	onEnable = function(player)

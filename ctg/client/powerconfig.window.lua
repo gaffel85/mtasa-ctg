@@ -1,5 +1,7 @@
 local powerwindow = nil
 local scrollpane = nil
+local playerRankLabel = nil
+local playerMoneyLabel = nil
 local doneButton = nil
 local powerUps = nil
 local powerConfig = nil
@@ -30,6 +32,7 @@ end
 
 function onPowerupsConfigLoaded(config)
     powerConfig = config
+    playerMoney = getPlayerMoney()
     populateBoxes()
 end
 addEvent("onPowerupsConfigLoadedClient", true)
@@ -38,6 +41,10 @@ addEventHandler("onPowerupsConfigLoadedClient", resourceRoot, onPowerupsConfigLo
 
 function onPowerupsLoaded(powers)
     powerUps = powers
+    -- sort powers by rank
+    table.sort(powerUps, function(a, b)
+        return a.rank < b.rank
+    end)
     populateBoxes()
 end
 addEvent("onPowerupsLoadedClient", true)
@@ -79,6 +86,9 @@ function bindWithKey(powerKey, bindKey)
     end
 end
 
+function availableRank(powerUp)
+    return powerConfig.completedRank + 1 >= powerUp.rank
+end
 
 function isOwned(key)
     for k, v in ipairs(powerConfig.owned) do
@@ -87,6 +97,10 @@ function isOwned(key)
         end
     end
     return false
+end
+
+function cost(powerUp)
+    return 500 + powerUp.rank * 100
 end
 
 function createActivePowerBox(powerUpName, boundKey, col)
@@ -113,7 +127,7 @@ function createActivePowerBox(powerUpName, boundKey, col)
     }
 end
 
-function createPowerBox(powerUp, isOwned, row, col)
+function createPowerBox(powerUp, row, col)
     local xBox = 0.01 + (0.18 * (col - 1))
     local yBox = 0.01 + (0.30 * (row - 1))
     powerbox = guiCreateButton(xBox, yBox, 0.16, 0.24, "", true, scrollpane)
@@ -131,11 +145,19 @@ function createPowerBox(powerUp, isOwned, row, col)
     guiLabelSetHorizontalAlign(usedAsGoldCarrierTitle, "right", true)
     guiLabelSetColor (durationTitle, 0, 255, 0)
 
-    if not isOwned then
-        unlockButton = guiCreateButton(0.71, 0.86, 0.23, 0.10, "Unlock", true, powerbox)
-        addEventHandler("onClientGUIClick", unlockButton, function()
-            unlock(powerUp.key)
-        end, false)
+    if not isOwned(powerUp.key) then
+        if availableRank(powerUp) then
+            unlockButton = guiCreateButton(0.71, 0.86, 0.23, 0.10, "Unlock "..cost(powerUp).."$" , true, powerbox)
+            if canAfford(powerUp) then
+                addEventHandler("onClientGUIClick", unlockButton, function()
+                    unlock(powerUp.key)
+                end, false)
+            else
+                guiSetEnabled(unlockButton, false)
+            end
+        else
+            local message = guiCreateLabel(0.1, 0.86, 0.9, 0.10, "Rank "..powerUp.rank.." required", true, powerbox)
+        end
     else
         bindXButton = guiCreateButton(0.05, 0.86, 0.28, 0.10, "Bind X", true, powerbox)
         bindCButton = guiCreateButton(0.46, 0.86, 0.28, 0.10, "Bind C", true, powerbox)
@@ -186,11 +208,13 @@ function populateBoxes()
         end
     end
 
+    playerRankLabel = powerConfig.completedRank
+    playerMoneyLabel = getPlayerMoney()
+
     local row = 1
     local col = 1
     for k, powerUp in ipairs(powerUps) do
-        local isOwned = isOwned(powerUp.key)
-        local box = createPowerBox(powerUp, isOwned, row, col)
+        local box = createPowerBox(powerUp, row, col)
         table.insert(powerUpBoxes, box)
         col = col + 1
         if col > 5 then
@@ -261,6 +285,12 @@ addEventHandler("onClientResourceStart", resourceRoot,
         powerwindow = guiCreateWindow(0.01, 0.02, 0.98, 0.95, "Choose power-ups", true)
         guiWindowSetSizable(powerwindow, false)
         guiSetAlpha(powerwindow, 0.93)
+
+        local playerRankTitle = guiCreateLabel(0.01, 0.02, 0.1, 0.05, "Rank:", true, powerwindow)
+        playerRankLabel = guiCreateLabel(0.1, 0.02, 0.98, 0.05, "1", true, powerwindow)
+
+        local playerMoneyTitle = guiCreateLabel(0.9, 0.02, 0.1, 0.05, "Money:", true, powerwindow)
+        playerMoneyLabel = guiCreateLabel(0.95, 0.02, 0.98, 0.05, "0", true, powerwindow)
 
         scrollpane = guiCreateScrollPane(0.01, 0.2, 0.99, 0.79, true, powerwindow)
 
