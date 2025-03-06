@@ -35,6 +35,7 @@
 	<script src="server/powerups/chaos.power.lua" />
 	<script src="server/powerups/shield.power.lua" />
 	<script src="server/collision.lua" />
+	<script src="server/distance.meter.lua" />
 	
 
 	<script src="client/power.gui.lua" type="client" />

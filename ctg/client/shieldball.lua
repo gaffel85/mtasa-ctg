@@ -1,4 +1,31 @@
+local lastTargetPosKey = "lastTargetPosKey"
+local screenX, screenY = guiGetScreenSize() -- get the screen resolution (width and height)
+local shadowColor = tocolor(0, 0, 0, 255) -- define shadow color outside render scope and use it afterwards (for performance reasons)
+local textColor = tocolor(90, 123, 199, 255) -- define color outside render scope and use it afterwards (for performance reasons)
+
+local xLeft = screenX/2 - 100
+local yTop = 30
+local xRight = screenX/2 + 100
+local yBottom = screenY
+
+function distanceMeter()
+    -- cgeck distance for all player to target and display
+    local targetPos = getElementData(localPlayer, lastTargetPosKey)
+    if targetPos then
+        local x, y, z = getElementPosition(localPlayer)
+        local distance = getDistanceBetweenPoints3D(x, y, z, targetPos.x, targetPos.y, targetPos.z)
+        distance = math.floor(distance)
+
+        
+        --screenX/2 - 200, screenY + 60, screenX/2 + 200, screenY + 120
+        dxDrawText(distance.."m", xLeft + 5, yTop + 5, xRight, yBottom, shadowColor, 2.06, "pricedown", "center")
+        -- draw zone name text
+        dxDrawText(distance.."m", xLeft, yTop, xRight, yBottom, textColor, 2, "pricedown", "center")
+    end
+end
+
 function updateCamera ()
+    distanceMeter()
     --outputChatBox('Hello, world!'..inspect(getElementPosition(localPlayer)))
     for player, active in pairs(getShieldedPlayers()) do
         if active then

@@ -1,4 +1,5 @@
 function refreshAllBlips()
+    updateDescriptionOnBlipsChange()
     destroyElementsByType("blip")
 
     local players = getElementsByType("player")
