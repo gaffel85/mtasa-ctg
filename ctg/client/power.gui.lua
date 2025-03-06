@@ -51,7 +51,9 @@ function createPowerUpBox(index)
     --local charge3 = guiCreateRadioButton(92, 26, 14, 15, "", false, powerwindow)
     --local charge4 = guiCreateRadioButton(110, 26, 14, 15, "", false, powerwindow)
     --local charge5 = guiCreateRadioButton(128, 26, 14, 15, "", false, powerwindow)
-    local status = guiCreateLabel(0.3, 0.3, 0.4, 1, "Status update", true, powerwindow)
+    local status = guiCreateLabel(0.05, 0.3, 0.9, 0.7, "Status update", true, powerwindow)
+    guiLabelSetHorizontalAlign ( status, "center" )
+    guiLabelSetVerticalAlign ( status, "center" )
 
     guiSetVisible(status, false)
     --guiRadioButtonSetSelected(charge3, true)
@@ -149,6 +151,11 @@ addEventHandler("powerupStateChangedClient", getRootElement(), function (state, 
     guiSetVisible(powerBox.button, false)
     guiSetVisible(powerBox.progress, false)
     guiSetVisible(powerBox.status, false)
+
+    guiSetAlpha ( powerBox.button, 1 )
+    guiSetAlpha ( powerBox.window, 1 )
+
+
     -- hide charges
     for i, charge in ipairs(powerBox.charges) do
         guiSetVisible(charge, false)
@@ -162,16 +169,16 @@ addEventHandler("powerupStateChangedClient", getRootElement(), function (state, 
         guiSetVisible(powerBox.progress, true)
         setProgressTimer(powerBox, bindKey, timeLeft, true)
     elseif state == stateEnum.OUT_OF_CHARGES then
-        guiSetAlpha ( powerBox.button, 0.5 )
+        guiSetAlpha ( powerBox.window, 0.5 )
         guiSetVisible(powerBox.status, true)
         setStatus(powerBox.status, message)
     elseif state == stateEnum.PAUSED then
         guiSetVisible(powerBox.status, true)
-        guiSetAlpha ( powerBox.button, 0.5 )
+        guiSetAlpha ( powerBox.window, 0.5 )
         setStatus(powerBox.status, message)
     elseif state == stateEnum.WAITING then
         guiSetVisible(powerBox.status, true)
-        guiSetAlpha ( powerBox.button, 0.5 )
+        guiSetAlpha ( powerBox.window,0.5 )
         setStatus(powerBox.status, message)
     elseif state == stateEnum.READY then
         guiSetVisible(powerBox.button, true)
