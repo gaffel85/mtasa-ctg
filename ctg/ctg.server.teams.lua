@@ -103,9 +103,33 @@ function switchToTeam(team, player)
 end
 
 function giveTeamScore(player, score)
-    local carrierTeam = getCtgTeam(player)
-    carrierTeam.score = carrierTeam.score + score
-    updateScoreDisplay()
+    if isTeamsActivated() then
+        local carrierTeam = getCtgTeam(player)
+        carrierTeam.score = carrierTeam.score + score
+        updateScoreDisplay()
+
+        for i, memberName in ipairs(carrierTeam.members) do
+            local member = getPlayerFromName(memberName)
+            if member then
+                givePlayerMoney(member, score)
+            end
+        end
+    
+        local opponentTeam = carrierTeam.otherTeam
+        for i, memberName in ipairs(opponentTeam.members) do
+            local member = getPlayerFromName(memberName)
+            if member then
+                givePlayerMoney(member, score * MONEY_TO_OPPONENTS_PERCENTAGE)
+            end
+        end
+    else
+        givePlayerMoney(player, score)
+        for i, player in ipairs(getElementsByType("player")) do
+            if player ~= player then
+                givePlayerMoney(player, score * MONEY_TO_OPPONENTS_PERCENTAGE)
+            end
+        end
+    end
 end
 
 function updateScoreDisplay()

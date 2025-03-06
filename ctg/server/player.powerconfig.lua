@@ -7,7 +7,6 @@ function getDefaultConfig()
         active = {
             { key = "nitro", bindKey = "lctrl" },
             { key = "teleport", bindKey = "Z" },
-            { key = "shield", bindKey = "C" },
             --{ key = "busses", bindKey = "C" },
             --{ key = "waterLevel", bindKey = "R" },
             --{ key = "canon", bindKey = "B" },
@@ -15,16 +14,11 @@ function getDefaultConfig()
             --{ key = "cinematic", bindKey = "N" },
         },
         wanted = {},
+        completedRank = 0,
+        usedRank = 1,
         owned = {
             "nitro",
             "teleport",
-            "busses",
-            "waterLevel",
-            "canon",
-            "plane",
-            "cinematic",
-            "superCar",
-            "shield",
         },
     }
 end
@@ -58,6 +52,7 @@ function setPlayerPowerConfig(player, config)
     for i, powerUpKey in ipairs(newPowers) do
         local powerUp = findPowerUpWithKey(powerUpKey)
         resetPowerState(player, powerUp)
+        config.usedRank = powerUp.rank
     end
 end
 

@@ -8,6 +8,7 @@ local nitroPowerUp = {
 	initCooldown = 5,
 	allowedGoldCarrier = false,
 	charges = 5, -- optional field for charges
+	rank = 1,
 	onEnable = function(player, vehicle)
 		-- outputChatBox("Nitro enabled "..getPlayerName(player))
 		addVehicleUpgrade(vehicle, 1009)
@@ -36,6 +37,7 @@ local teleportPowerUp = {
 	initCooldown = 8,
 	allowedGoldCarrier = false,
 	charges = 1, -- optional field for charges
+	rank = 1,
 	onEnable = function(player, vehicle)
 		-- outputChatBox("teleport enabled "..getPlayerName(player))
 		if isFarEnoughFromLeader(player) then
@@ -65,8 +67,10 @@ function addPowerUp(powerUp)
 	powerUpStates[powerUp.key] = {}
 end
 
-function resetPowerStates()
+function resetPowerStatesOnDeliverd()
 	for i, player in ipairs(getElementsByType("player")) do
+		local config = getPlayerPowerConfig(player)
+		config.completedRank = config.usedRank
 		resetPowerStatesForPlayer(player)
 	end
 end
@@ -327,7 +331,8 @@ function getPowerUpsData()
 			duration = powerUp.duration,
 			charges = powerUp.charges,
 			initCooldown = powerUp.initCooldown,
-			allowedGoldCarrier = powerUp.allowedGoldCarrier
+			allowedGoldCarrier = powerUp.allowedGoldCarrier,
+			rank = powerUp.rank
 		})
 	end
 	return data

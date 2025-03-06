@@ -9,6 +9,7 @@ local canonPushPowerup = {
     charges = 1,
 	initCooldown = 1,
 	allowedGoldCarrier = false,
+	rank = 2,
 	onEnable = function(player)
 		return true
 	end,

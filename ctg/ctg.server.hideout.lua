@@ -34,7 +34,8 @@ function spawnNewHideoutForTeam(team, otherTeamsHideout)
     team.hideout = {
         edl = hideout,
         pos = { x = posX, y = posY, z = posZ },
-        marker = createMarker(posX, posY, posZ, "checkpoint", 2.0, 255, 0, 0)
+        marker = createMarker(posX, posY, posZ, "checkpoint", 2.0, 255, 0, 0),
+        desc = getElementData(hideout, "desc")
     }
     return team.hideout
 end
