@@ -3,12 +3,12 @@ local nitroPowerUp = {
 	name = "Nitro",
 	desc = "Nitro is a powerup that gives you a speed boost for a short period of time. It can be activated by pressing the left control key.",
 	bindKey = "lctrl",
-	cooldown = BOOST_COOLDOWN,
-	duration = NITRO_DURATION,
-	initCooldown = 5,
-	allowedGoldCarrier = false,
-	charges = 5, -- optional field for charges
-	rank = 1,
+	cooldown = function() return getPowerConst().nitro.cooldown end,
+	duration = function() return getPowerConst().nitro.duration end,
+	initCooldown = function() return getPowerConst().nitro.initCooldown end,
+	allowedGoldCarrier = function() return getPowerConst().nitro.allowedGoldCarrier end,
+	charges = function() return getPowerConst().nitro.charges end,
+	rank = function() return getPowerConst().nitro.rank end,
 	onEnable = function(player, vehicle)
 		-- outputChatBox("Nitro enabled "..getPlayerName(player))
 		addVehicleUpgrade(vehicle, 1009)
@@ -32,12 +32,12 @@ local teleportPowerUp = {
 	name = "Catch up",
 	desc = "Teleports you to a better location to catch up with the leader. Useful when you are about to give up. Can only be used when you are far enough from the leader.",
 	bindKey = "x",
-	cooldown = TELEPORT_COOLDOWN,
-	duration = 0,
-	initCooldown = 8,
-	allowedGoldCarrier = false,
-	charges = 1, -- optional field for charges
-	rank = 1,
+	cooldown = function() return getPowerConst().teleport.cooldown end,
+	duration = function() return getPowerConst().teleport.duration end,
+	initCooldown = function() return getPowerConst().teleport.initCooldown end,
+	allowedGoldCarrier = function() return getPowerConst().teleport.allowedGoldCarrier end,
+	charges = function() return getPowerConst().teleport.charges end,
+	rank = function() return getPowerConst().teleport.rank end,
 	onEnable = function(player, vehicle)
 		-- outputChatBox("teleport enabled "..getPlayerName(player))
 		if isFarEnoughFromLeader(player) then
@@ -87,7 +87,7 @@ end
 function handlePowersForGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
 	if oldGoldCarrier then
 		loopOverPowersForPlayer(oldGoldCarrier, function(player, powerUp, powerUpState, powerConfig)
-			if not powerUp.allowedGoldCarrier then
+			if not powerUp.allowedGoldCarrier() then
 				unpausePower(player, powerUp, powerUpState)
 			end
 		end)
@@ -95,7 +95,7 @@ function handlePowersForGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
 
 	if newGoldCarrier then
 	loopOverPowersForPlayer(newGoldCarrier, function(player, powerUp, powerUpState, powerConfig)
-			if not powerUp.allowedGoldCarrier then
+			if not powerUp.allowedGoldCarrier() then
 				pausePower(player, powerUp, powerUpState)
 			end
 		end)
@@ -137,12 +137,12 @@ function resetPowerState(player, powerUp)
 		timeLeftOnPause = nil,
 		stateMessage = nil,
 		stateBeforePause = nil,
-		charges = powerUp.charges,
+		charges = powerUp.charges(),
 		name = powerUp.name,
 		timer = nil
 	}
-	if powerUp.initCooldown > 0 then
-		setStateWithTimer(stateEnum.COOLDOWN, powerUp.initCooldown, powerUpState, player, powerUp)
+	if powerUp.initCooldown() > 0 then
+		setStateWithTimer(stateEnum.COOLDOWN, powerUp.initCooldown(), powerUpState, player, powerUp)
 	else
 		setState(powerUp, player, stateEnum.READY, "Ready", powerUpState, nil)
 	end
@@ -235,7 +235,7 @@ function tryDeactivatePower(powerUp, powerUpState, player)
 	if powerUpState.charges and powerUpState.charges <= 0 then
 		setState(powerUp, player, stateEnum.OUT_OF_CHARGES, "Out of charges", state, nil)
 	else
-		setStateWithTimer(stateEnum.COOLDOWN, powerUp.cooldown, powerUpState, player, powerUp)
+		setStateWithTimer(stateEnum.COOLDOWN, powerUp.cooldown(), powerUpState, player, powerUp)
 	end
 end
 
@@ -327,12 +327,12 @@ function getPowerUpsData()
 			name = powerUp.name,
 			desc = powerUp.desc,
 			bindKey = powerUp.bindKey,
-			cooldown = powerUp.cooldown,
-			duration = powerUp.duration,
-			charges = powerUp.charges,
-			initCooldown = powerUp.initCooldown,
-			allowedGoldCarrier = powerUp.allowedGoldCarrier,
-			rank = powerUp.rank
+			cooldown = powerUp.cooldown(),
+			duration = powerUp.duration(),
+			charges = powerUp.charges(),
+			initCooldown = powerUp.initCooldown(),
+			allowedGoldCarrier = powerUp.allowedGoldCarrier(),
+			rank = powerUp.rank()
 		})
 	end
 	return data
@@ -352,7 +352,7 @@ function usePowerUp(player, key, keyState, powerUp)
 		outputServerLog("continues")
 	end
 
-	setStateWithTimer(stateEnum.IN_USE, powerUp.duration, state, player, powerUp, "In use")
+	setStateWithTimer(stateEnum.IN_USE, powerUp.duration(), state, player, powerUp, "In use")
 	if state.charges and state.charges > 0 then
 		state.charges = state.charges - 1
 	end

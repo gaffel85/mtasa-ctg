@@ -2,12 +2,12 @@ local cinematicCamera = {
 	key = "shield",
 	name = "Gold shield",
     desc = "Protects you from losing the gold if hit by another player.",
-	cooldown = 3,
-	duration = 6,
-    charges = 3,
-	initCooldown = 0,
-	allowedGoldCarrier = true,
-	rank = 3,
+	cooldown = function() return getPowerConst().shield.cooldown end,
+	duration = function() return getPowerConst().shield.duration end,
+    charges = function() return getPowerConst().shield.charges end,
+	initCooldown = function() return getPowerConst().shield.initCooldown end,
+	allowedGoldCarrier = function() return getPowerConst().shield.allowedGoldCarrier end,
+	rank = function() return getPowerConst().shield.rank end,
 	onEnable = function(player)
 		return true
 	end,

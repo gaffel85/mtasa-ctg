@@ -1,13 +1,12 @@
-local duration = 16
 local trafficChaos = {
 	key = "chaos",
 	name = "Traffic chaos",
 	desc = "Randomly changes your opponent's vehicle every 2 seconds.",
-	cooldown = 20,
-	duration = duration,
-	rank = 4,
-	initCooldown = 1,
-	allowedGoldCarrier = false,
+	cooldown = function() return getPowerConst().chaos.cooldown end,
+	duration = function() return getPowerConst().chaos.duration end,
+	initCooldown = function() return getPowerConst().chaos.initCooldown end,
+	allowedGoldCarrier = function() return getPowerConst().chaos.allowedGoldCarrier end,
+	rank = function() return getPowerConst().chaos.rank end,
 	onEnable = function(player)
 		return true
 	end,
@@ -15,7 +14,7 @@ local trafficChaos = {
 	end,
 	onActivated = function(player, vehicle, state)
         -- loop over all players
-		local times = duration / 2
+		local times = trafficChaos.duration() / 2
 		local index = 0
 		setTimer(function()
 			for i, otherPlayer in ipairs(getElementsByType("player")) do

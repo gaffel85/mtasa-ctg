@@ -74,7 +74,7 @@ function changeGoldCarrier(player)
     
 	setTimer(function() 
 		tillbakaKakaShield = false
-	end, 5000, 1)
+	end, getConst().tillbakaKakatime, 1)
     
 end
 
