@@ -76,7 +76,7 @@ function isFarEnoughFromLeader(player)
 		--outputDebugString("1  for "..x1.." "..y1.." "..z1.." ")
 		--outputDebugString("2  for "..x2.." "..y2.." "..z2.." ")
 		local distance = getDistanceBetweenPoints3D(x1,y1,z1,x2,y2,z2)
-		return distance > TELEPORT_MIN_DISTANCE
+		return distance > getPowerConst().teleport.minDistance
 	else
 		-- outputChatBox("leaderPosition or playerPosition null")
 	end

@@ -119,14 +119,14 @@ function giveTeamScore(player, score)
         for i, memberName in ipairs(opponentTeam.members) do
             local member = getPlayerFromName(memberName)
             if member then
-                givePlayerMoney(member, score * MONEY_TO_OPPONENTS_PERCENTAGE)
+                givePlayerMoney(member, score * getConst().moneyToOpponentsPercentage)
             end
         end
     else
         givePlayerMoney(player, score)
         for i, player in ipairs(getElementsByType("player")) do
             if player ~= player then
-                givePlayerMoney(player, score * MONEY_TO_OPPONENTS_PERCENTAGE)
+                givePlayerMoney(player, score * getConst().moneyToOpponentsPercentage)
             end
         end
     end

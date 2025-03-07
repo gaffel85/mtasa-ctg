@@ -91,7 +91,7 @@ local superCarPowerUp = {
 	end,
 	onActivated = function(player, vehicle, state)
 		preventChangeFor(player)
-		setElementModel(vehicle, SUPER_CAR_MODEL)
+		setElementModel(vehicle, getPowerConst().superCar.model)
 	end,
 	onDeactivated = function(player, vehicle, state)
 		unpreventChangeFor(player)

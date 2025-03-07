@@ -1,26 +1,13 @@
-BOOST_COOLDOWN = 20
-NITRO_DURATION = 6
-TELEPORT_COOLDOWN = 20
-CLOAK_COOLDOWN = 20
-CLOAK_DURATION = 6
-SWITCH_EXTRA_TIME = 10
-REPAIR_TIME = 5
-PRESENT_WINNER_TIME = 7
-ALL_SEE_BOMB_HOLDER = true
-CLOAK_HIDES_CAR = false
-DISTANCE_FOR_STRESS_SOUND = 70
-DISTANCE_FOR_ACTIVATING_STRESS_CHECK = 100
-GOLD_MASS = 1000
-GOLD_HEIGHT = 2
-GOLD_HANDLING_COEFF = 0.8
-DAMAGE_MULTIPLIER_WEIGHT = 1.0
-TELEPORT_MIN_DISTANCE = 300
-SUPER_CAR_MODEL = 541
-MONEY_TO_OPPONENTS_PERCENTAGE = 0.7
-
 local props = {
     consts = {
-        tillbakaKakatime = 5000
+        tillbakaKakatime = 5000,
+        repairTime = 5,
+        presentGoldDeliveredTime = 7,
+        goldMass = 1000,
+        goldHeight = 2,
+        goldHandlingCoeff = 0.8,
+        damageMultiplierWeight = 1.0,
+        moneyToOpponentsPercentage = 0.7,
     },
     powers = {
         nitro = {
@@ -38,6 +25,7 @@ local props = {
             allowedGoldCarrier = false,
             charges = 1,
             rank = 1,
+            minDistance = 300,
         },
         waterLevel = {
             duration = 10,
@@ -76,6 +64,7 @@ local props = {
             initCooldown = 10,
             allowedGoldCarrier = false,
             rank = 5,
+            model = 541,
         },
         busses = {
             duration = 20,

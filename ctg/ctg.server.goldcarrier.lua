@@ -115,11 +115,11 @@ function setVechicleHandling(carrier)
     }
     vechicleHandlingLookup[vehicleId] = currentHandling
 
-    local newMass = currentMass + GOLD_MASS
-    local newCenterOfMass = combineCenterOfMass(currentCenterOfMass, currentMass, GOLD_HEIGHT, 300)
-    local newMaxVelocity = currentMaxVelocity * GOLD_HANDLING_COEFF
-    local newEngineAcceleration = currentEngineAcceleration * GOLD_HANDLING_COEFF
-    local newBrakeDeceleration = currentBrakeDeceleration * GOLD_HANDLING_COEFF
+    local newMass = currentMass + getConst().goldMass
+    local newCenterOfMass = combineCenterOfMass(currentCenterOfMass, currentMass, getConst().goldHeight, 300)
+    local newMaxVelocity = currentMaxVelocity * getConst().goldHandlingCoeff
+    local newEngineAcceleration = currentEngineAcceleration * getConst().goldHandlingCoeff
+    local newBrakeDeceleration = currentBrakeDeceleration * getConst().goldHandlingCoeff
 
     setVehicleHandling(vehicle, "mass", newMass)
     setVehicleHandling(vehicle, "centerOfMass", newCenterOfMass)

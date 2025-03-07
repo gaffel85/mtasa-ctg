@@ -15,7 +15,7 @@ end
 
 function raiseWaterEffect(player, duration)
     setPreventDieFromWater(true)
-    local duration = 10
+    local duration = getPowerConst().waterLevel.duration
     local timeDeltas = 50
     
 

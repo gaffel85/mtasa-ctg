@@ -47,7 +47,7 @@ function paralyzeAndRepairCar(vehicle)
 	setTimer(function() 
 		toggleAllControls ( true, true, true )
 		setVehicleDamageProof ( vehicle , false )
-	end, REPAIR_TIME * 1000, 1)
+	end, getConst().repairTime * 1000, 1)
 end
 
 addEventHandler ( "onClientVehicleDamage", root, function ( attacker, weapon, loss )

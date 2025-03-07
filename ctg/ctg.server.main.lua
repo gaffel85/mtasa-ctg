@@ -322,25 +322,27 @@ end)
 addCommandHandler("param", function(source, command, paramName, paramValue)
     if (paramName == "coeff") then
         local newValue = tonumber(paramValue)
-        local oldValue = GOLD_HANDLING_COEFF
-        GOLD_HANDLING_COEFF = newValue
-        outputChatBox("Gold handling coeff set to: "..GOLD_HANDLING_COEFF.." (old was "..oldValue..")")
+        local oldValue = getConst().goldHandlingCoeff
+        getConst().goldHandlingCoeff = newValue
+        outputChatBox("Gold handling coeff set to: "..getConst().goldHandlingCoeff.." (old was "..oldValue..")")
     end
     if (paramName == "height") then
         local newValue = tonumber(paramValue)
-        local oldValue = GOLD_HEIGHT
-        GOLD_HEIGHT = newValue
-        outputChatBox("Gold height set to: "..GOLD_HEIGHT.." (old was "..oldValue..")")
+        local oldValue = getConst().goldHeight
+        getConst().goldHeight = newValue
+        outputChatBox("Gold height set to: "..getConst().goldHeight.." (old was "..oldValue..")")
     end
     if (paramName == "mass") then
         local newValue = tonumber(paramValue)
-        local oldValue = GOLD_MASS
-        GOLD_MASS = newValue
-        outputChatBox("Gold mass set to: "..GOLD_MASS.." (old was "..oldValue..")")
+        local oldValue = getConst().goldMass
+        getConst().goldMass = newValue
+        outputChatBox("Gold mass set to: "..getConst().goldMass.." (old was "..oldValue..")")
     end
     if (paramName == "damage") then
         local newValue = tonumber(paramValue)
-        triggerClientEvent("onPropertyChanged", getRootElement(), "DAMAGE_MULTIPLIER_WEIGHT", newValue)
+        local oldValue = getConst().damageMultiplierWeight
+        getConst().damageMultiplierWeight = newValue
+        outputChatBox("Damage multiplier set to: "..getConst().damageMultiplierWeight.." (old was "..oldValue..")")
     end
     local carrier = getGoldCarrier()
     if (carrier) then
