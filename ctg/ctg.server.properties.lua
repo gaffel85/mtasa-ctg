@@ -115,3 +115,29 @@ end
 function getPowerConst()
     return getElementData(resourceRoot, "props").powers
 end
+
+-- funtion to get props based on passed key. It should support nested keys like "powers.nitro.duration"
+function getProps(key)
+    local keys = split(key, ".")
+    local props = getElementData(resourceRoot, "props")
+    local current = props
+    for i, k in ipairs(keys) do
+        current = current[k]
+    end
+    return current
+end
+
+-- function to update props based on passed key and value. It should support nested keys like "powers.nitro.duration"
+function updateProps(key, value)
+    local keys = split(key, ".")
+    local props = getElementData(resourceRoot, "props")
+    local current = props
+    for i, k in ipairs(keys) do
+        if i == #keys then
+            current[k] = value
+        else
+            current = current[k]
+        end
+    end
+    setElementData(resourceRoot, "props", props)
+end
