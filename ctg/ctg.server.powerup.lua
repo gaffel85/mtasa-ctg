@@ -300,8 +300,8 @@ function setState(powerUp, player, stateType, stateMessage, state, config)
 	state.state = stateType
 	state.stateMessage = stateMessage
 	local totalCharges = 0
-	if powerUp.charges and powerUp.charges > 0 then
-		totalCharges = powerUp.charges
+	if powerUp.charges() and powerUp.charges() > 0 then
+		totalCharges = powerUp.charges()
 	end
 	triggerClientEvent(player, "powerupStateChangedClient", player, stateType, oldState, powerUp.name, stateMessage, config.bindKey, state.charges, totalCharges, timeLeft(state))
 end
@@ -322,6 +322,10 @@ end
 function getPowerUpsData()
 	local data = {}
 	for i, powerUp in ipairs(powerUps) do
+		local charges = nil
+		if powerUp.charges then
+			charges = powerUp.charges()
+		end
 		table.insert(data, {
 			key = powerUp.key,
 			name = powerUp.name,
@@ -329,7 +333,7 @@ function getPowerUpsData()
 			bindKey = powerUp.bindKey,
 			cooldown = powerUp.cooldown(),
 			duration = powerUp.duration(),
-			charges = powerUp.charges(),
+			charges = charges,
 			initCooldown = powerUp.initCooldown(),
 			allowedGoldCarrier = powerUp.allowedGoldCarrier(),
 			rank = powerUp.rank()
