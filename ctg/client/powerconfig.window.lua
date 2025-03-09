@@ -31,6 +31,7 @@ function loadPowerConfig()
 end
 
 function onPowerupsConfigLoaded(config)
+    outputConsole("onPowerupsConfigLoadedClient: "..inspect(config))
     powerConfig = config
     playerMoney = getPlayerMoney()
     populateBoxes()
@@ -51,6 +52,7 @@ addEvent("onPowerupsLoadedClient", true)
 addEventHandler("onPowerupsLoadedClient", resourceRoot, onPowerupsLoaded)
 
 function openWindowFromServer(config)
+    outputConsole("openWindowFromServer: "..inspect(config))
     powerConfig = config
     populateBoxes()
     openWindow()
@@ -89,6 +91,7 @@ function bindWithKey(powerKey, bindKey)
 end
 
 function availableRank(powerUp)
+    outputConsole("completedRank: "..inspect(powerConfig))
     return powerConfig.completedRank + 1 >= powerUp.rank
 end
 

@@ -3,7 +3,7 @@ local bindableKeys = {"X", "C"}
 
 function getDefaultConfig()
     return {
-        bindableKeys,
+        bindableKeys = bindableKeys,
         active = {
             { key = "nitro", bindKey = "lctrl" },
             { key = "teleport", bindKey = "Z" },
@@ -52,7 +52,8 @@ function setPlayerPowerConfig(player, config)
     for i, powerUpKey in ipairs(newPowers) do
         local powerUp = findPowerUpWithKey(powerUpKey)
         resetPowerState(player, powerUp)
-        config.usedRank = powerUp.rank
+        outputServerLog("setting userRand "..inspect(config).." "..inspect(powerUp.rank()))
+        config.usedRank = powerUp.rank()
     end
 end
 

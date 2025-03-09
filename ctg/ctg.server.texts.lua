@@ -51,11 +51,11 @@ function showWaitingForPlayersMessage(bombHolder)
 end
 
 function showRepairingCar(player)
-	displayMessageForAll(REPAIRING_CAR_TEXT_ID, "", player, "Car broken. Wait "..REPAIR_TIME.."s.", REPAIR_TIME*1000, 0.5, 0.3, 0, 0, 255 )
+	displayMessageForAll(REPAIRING_CAR_TEXT_ID, "", player, "Car broken. Wait "..getConst().repairTime.."s.", getConst().repairTime*1000, 0.5, 0.3, 0, 0, 255 )
 end
 
 function showPlayerParalyzied ( bombHolder, player)
-	displayMessageForAll(PARALYZIED_PLAYER_TEXT_ID, "", bombHolder, getPlayerName(player).." is paralyzied for "..REPAIR_TIME.."s. (Marked on the map)", REPAIR_TIME*1000, 0.5, 0.3, 0, 0, 255 )
+	displayMessageForAll(PARALYZIED_PLAYER_TEXT_ID, "", bombHolder, getPlayerName(player).." is paralyzied for "..getConst().repairTime.."s. (Marked on the map)", getConst().repairTime*1000, 0.5, 0.3, 0, 0, 255 )
 	
 end
 

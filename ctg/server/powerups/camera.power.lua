@@ -6,6 +6,7 @@ local cinematicCamera = {
 	duration = function() return getPowerConst().cinematic.duration end,
 	initCooldown = function() return getPowerConst().cinematic.initCooldown end,
 	allowedGoldCarrier = function() return getPowerConst().cinematic.allowedGoldCarrier end,
+	charges = function() return getPowerConst().nitro.charges end,
 	rank = function() return getPowerConst().cinematic.rank end,
 	onEnable = function(player)
 		-- outputChatBox("superCar enabled "..getPlayerName(player))

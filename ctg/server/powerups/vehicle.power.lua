@@ -82,6 +82,7 @@ local superCarPowerUp = {
 	duration = function() return getPowerConst().superCar.duration end,
 	initCooldown = function() return getPowerConst().superCar.initCooldown end,
 	allowedGoldCarrier = function() return getPowerConst().superCar.allowedGoldCarrier end,
+	charges = function() return getPowerConst().nitro.charges end,
 	rank = function() return getPowerConst().superCar.rank end,
 	onEnable = function(player)
 		-- outputChatBox("superCar enabled "..getPlayerName(player))
@@ -107,6 +108,7 @@ local bussesForEveryone = {
 	duration = function() return getPowerConst().busses.duration end,
 	initCooldown = function() return getPowerConst().busses.initCooldown end,
 	allowedGoldCarrier = function() return getPowerConst().busses.allowedGoldCarrier end,
+	charges = function() return getPowerConst().nitro.charges end,
 	rank = function() return getPowerConst().busses.rank end,
 	onEnable = function(player)
 		-- outputChatBox("superCar enabled "..getPlayerName(player))

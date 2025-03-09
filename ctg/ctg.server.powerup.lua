@@ -70,6 +70,7 @@ end
 function resetPowerStatesOnDeliverd()
 	for i, player in ipairs(getElementsByType("player")) do
 		local config = getPlayerPowerConfig(player)
+		--outputServerLog("Setting completed rank "..inspect(config).." "..inspect(config.usedRank))
 		config.completedRank = config.usedRank
 		resetPowerStatesForPlayer(player)
 	end
@@ -99,7 +100,7 @@ function handlePowersForGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
 				pausePower(player, powerUp, powerUpState)
 			end
 		end)
-end
+	end
 end
 
 local stateEnum = {
@@ -122,6 +123,10 @@ function resetPowerState(player, powerUp)
 			killPowerTimer(powerUpState)
 			powerUpState.timer = nil
 		end
+	end
+
+	if powerUpState and powerUpState.state == stateEnum.PAUSED then
+		unpausePower(player, powerUp, powerUpState)
 	end
 
 	if powerUpState and (powerUpState.state == stateEnum.IN_USE or powerUpState.state == stateEnum.READY) then
@@ -256,9 +261,16 @@ end
 function setStateWithTimer(stateType, duration, state, player, powerUp, message)
 	setEndsTime(duration, state)
 	setState(powerUp, player, stateType, message, state, nil)
+	local seconds = timeLeft(state)
+
+	if seconds <= 0 then
+		timerDone(player, powerUp.key)
+		return
+	end
+
 	state.timer = setTimer(function()
 		timerDone(player, powerUp.key)
-	end, timeLeft(state) * 1000, 1)
+	end, seconds * 1000, 1)
 end
 
 function timeLeft(powerUpState)
@@ -457,6 +469,9 @@ addEventHandler("onPlayerJoin", getRootElement(), bindThePowerKeys)
   --unbind on quit
 function unbindThePowerKeys ( )
     unbindPowerKeysForPlayer(source)
+	loopOverPowersForPlayer(player, function(player, powerUp, powerUpState, powerConfig)
+		killPowerTimer(powerUpState)
+	end)
 end
 addEventHandler("onPlayerQuit", getRootElement(), unbindThePowerKeys)
 
