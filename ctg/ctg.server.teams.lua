@@ -41,6 +41,12 @@ function getCtgTeam(player)
     end
 end
 
+function getOpponents(player)
+    local team = getCtgTeam(player)
+    local otherTeam = team.otherTeam.team
+    return getPlayersInTeam(otherTeam)
+end
+
 function setupTeams()
     team1.otherTeam = team2
     team2.otherTeam = team1

@@ -121,7 +121,15 @@ local props = {
             allowedGoldCarrier = true,
             charges = nil,
             rank = 3,
-        }
+        },
+        hidemap = {
+            duration = 10,
+            cooldown = 20,
+            initCooldown = 1,
+            allowedGoldCarrier = true,
+            charges = 2,
+            rank = 4,
+        },
     }
 }
 

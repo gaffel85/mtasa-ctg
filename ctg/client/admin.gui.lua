@@ -76,7 +76,7 @@ function refreshPlayers()
         local playerName = getPlayerName(player)
         local score = getElementData(player, "score")
         local money = getElementData(player, "money")
-        local rank = getElementData(player, "rank")
+        local rank = getElementData(player, "completedRank")
 
         -- create ui elements for each player
         local playerName = guiCreateLabel(0.01, yPos, 0.10, 0.02, playerName, true, playerTab)
