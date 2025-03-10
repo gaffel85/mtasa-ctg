@@ -17,6 +17,7 @@ function showBooserAdded(player)
 end
 
 function showPresentGoldCarrier(bombHolder)
+	outputServerLog("showPresentGoldCarrier"..getPlayerName(bombHolder))
 	displayMessageForAll(PRESENTING_GOLD_CARRIER_TEXT_ID, getPlayerName(bombHolder).." now has the gold. Catch it!", bombHolder, "You have the gold. Deliver it!", 5000, 0.5, 0.3, 255, 0, 0 )
 end
 

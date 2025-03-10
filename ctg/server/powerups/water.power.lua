@@ -36,7 +36,7 @@ function raiseWaterEffect(player, duration)
     end
 
     if not water then
-        outputServerLog("Could not create water", southWest_X, southWest_Y, height, southEast_X, southEast_Y, height, northWest_X, northWest_Y, height, northEast_X, northEast_Y, height)
+      -- outputServerLog("Could not create water", southWest_X, southWest_Y, height, southEast_X, southEast_Y, height, northWest_X, northWest_Y, height, northEast_X, northEast_Y, height)
         return
     end
 

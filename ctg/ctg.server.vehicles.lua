@@ -191,7 +191,7 @@ function startVote()
     local vote2Model = getRandomVehicle()
     local vote3Model = getRandomVehicle()
 
-    outputChatBox("Stating poll "..inspect(startPoll))
+  -- outputChatBox("Stating poll "..inspect(startPoll))
     exports.votemanager:startPoll {
         --start settings (dictionary part)
         title="Vote for next vehicle",

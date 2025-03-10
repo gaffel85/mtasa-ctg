@@ -146,28 +146,28 @@ function switchToTeam2(player)
 end
 
 function bindTeamKeysForPlayer(player)
-    outputServerLog("bind "..inspect(player))
+  -- outputServerLog("bind "..inspect(player))
     bindKey ( player, "F1", "up", switchToTeam1, player )
     bindKey ( player, "F2", "up", switchToTeam2, player ) 
     textDisplayAddObserver ( teamsScoreDisplay, player )
 end
 
 function unbindTeamKeysForPlayer(player)
-    outputServerLog("unbind "..inspect(player))
+  -- outputServerLog("unbind "..inspect(player))
     unbindKey ( player, "F1" )
     unbindKey ( player, "F2" ) 
     textDisplayRemoveObserver ( teamsScoreDisplay, player )
 end
 
 function bindTheKeys ( )
-    outputServerLog("source bind "..inspect(source))
+  -- outputServerLog("source bind "..inspect(source))
     bindTeamKeysForPlayer(source)
 end
 addEventHandler("onPlayerJoin", getRootElement(), bindTheKeys)
 
   --unbind on quit
 function unbindTheKeys ( )
-    outputServerLog("source unbindTheKeys "..inspect(source))
+  -- outputServerLog("source unbindTheKeys "..inspect(source))
     unbindTeamKeysForPlayer(source)
 end
 addEventHandler("onPlayerQuit", getRootElement(), unbindTheKeys)

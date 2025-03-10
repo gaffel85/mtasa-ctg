@@ -52,7 +52,7 @@ function setPlayerPowerConfig(player, config)
     for i, powerUpKey in ipairs(newPowers) do
         local powerUp = findPowerUpWithKey(powerUpKey)
         resetPowerState(player, powerUp)
-        outputServerLog("setting userRand "..inspect(config).." "..inspect(powerUp.rank()))
+      -- outputServerLog("setting userRand "..inspect(config).." "..inspect(powerUp.rank()))
         config.usedRank = powerUp.rank()
     end
 end
@@ -68,14 +68,14 @@ addEventHandler("powerSelectedEvent", getResourceRootElement(getThisResource()),
 end)
 
 function powerSelected(player, powerUp, index)
-    outputServerLog("powerSelected "..inspect(#powerUp).." "..inspect(index))
+  -- outputServerLog("powerSelected "..inspect(#powerUp).." "..inspect(index))
     local powerUpConfig = getPlayerPowerConfig(player)
     table.insert(powerUpConfig.wanted, { key = powerUp.key, bindKey = bindableKeys[index] })
     openConfigPanel(player, index + 1)
 end
 
 function openConfigPanel(player, index)
-    outputServerLog("openConfigPanel "..inspect(#bindableKeys).." "..inspect(index))
+  -- outputServerLog("openConfigPanel "..inspect(#bindableKeys).." "..inspect(index))
     if index > #bindableKeys then
         return
     end

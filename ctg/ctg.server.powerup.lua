@@ -86,7 +86,7 @@ function resetPowerStatesForPlayer(player)
 end
 
 function handlePowersForGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
-	if oldGoldCarrier then
+	if oldGoldCarrier and newGoldCarrier then
 		loopOverPowersForPlayer(oldGoldCarrier, function(player, powerUp, powerUpState, powerConfig)
 			if not powerUp.allowedGoldCarrier() then
 				unpausePower(player, powerUp, powerUpState)
@@ -147,8 +147,10 @@ function resetPowerState(player, powerUp)
 		timer = nil
 	}
 	if powerUp.initCooldown() > 0 then
+-- outputServerLog("initCooldown "..inspect(powerUp.initCooldown()))
 		setStateWithTimer(stateEnum.COOLDOWN, powerUp.initCooldown(), powerUpState, player, powerUp)
 	else
+-- outputServerLog("initCooldown 0")
 		setState(powerUp, player, stateEnum.READY, "Ready", powerUpState, nil)
 	end
 	states[playerName] = powerUpState
@@ -156,6 +158,7 @@ function resetPowerState(player, powerUp)
 end
 
 function killPowerTimer(state)
+	outputServerLog("killPowerTimer "..inspect(state.name).." "..inspect(state.state))
 	if state.timer then
 		killTimer(state.timer)
 		state.timer = nil
@@ -264,11 +267,14 @@ function setStateWithTimer(stateType, duration, state, player, powerUp, message)
 	local seconds = timeLeft(state)
 
 	if seconds <= 0 then
+-- outputServerLog("Timer not needed for "..inspect(player).." "..inspect(powerUp.key))
 		timerDone(player, powerUp.key)
 		return
 	end
 
+	outputServerLog("Timer starting "..inspect(player).." "..inspect(powerUp.key))
 	state.timer = setTimer(function()
+-- outputServerLog("Timer done inside "..inspect(player).." "..inspect(powerUp.key))
 		timerDone(player, powerUp.key)
 	end, seconds * 1000, 1)
 end
@@ -304,7 +310,7 @@ function setState(powerUp, player, stateType, stateMessage, state, config)
 	end
 	
 	if not state then
-		outputServerLog("setState "..inspect(player))
+-- outputServerLog("setState "..inspect(player))
 		state = getPlayerState(player, powerUp)
 	end
 
@@ -361,11 +367,11 @@ function usePowerUp(player, key, keyState, powerUp)
 	local state = getPlayerState(player, powerUp)
 	outputServerLog("usePowerUp "..inspect(player)..inspect(state.state)..inspect(stateEnum.READY).." "..inspect(state.state == stateEnum.READY))
 	if not (state.state == stateEnum.READY) then
-		outputServerLog("returns")
-		outputChatBox("Power not ready yet: "..inspect(powerUp.name))
+-- outputServerLog("returns")
+-- outputChatBox("Power not ready yet: "..inspect(powerUp.name))
 		return
 	else
-		outputServerLog("continues")
+-- outputServerLog("continues")
 	end
 
 	setStateWithTimer(stateEnum.IN_USE, powerUp.duration(), state, player, powerUp, "In use")
@@ -394,13 +400,13 @@ function loopOverPowersForPlayer(player, callback)
 	for j, powerUpConfig in ipairs(powerConfig.active) do
 		local powerUp = findPowerUpWithKey(powerUpConfig.key)
 		if powerUp == nil then
-			outputServerLog("powerUp is nil "..inspect(powerUpConfig.key))
+	-- outputServerLog("powerUp is nil "..inspect(powerUpConfig.key))
 			break
 		end
-		outputServerLog("loopOverPowersForPlayer "..inspect(player))
+-- outputServerLog("loopOverPowersForPlayer "..inspect(player))
 		local powerUpState = getPlayerState(player, powerUp)
 		if not powerUpState then
-			outputServerLog("powerUpState is nil "..inspect(powerUpConfig.key))
+	-- outputServerLog("powerUpState is nil "..inspect(powerUpConfig.key))
 			break
 		end
 		callback(player, powerUp, powerUpState, powerConfig)
@@ -434,11 +440,11 @@ function powerButtonPressed(player, button)
 	if (powerForBoundKey) then
 		powerUp = findPowerUpWithKey(powerForBoundKey.key)
 		if (powerUp) then
-			outputServerLog("powerButtonPressed "..inspect(player))
+	-- outputServerLog("powerButtonPressed "..inspect(player))
 			powerUpState = getPlayerState(player, powerUp)
 		end
 	else 
-		outputChatBox("No power bound for button: "..button)
+-- outputChatBox("No power bound for button: "..button)
 	end
 
 	if powerUpState then

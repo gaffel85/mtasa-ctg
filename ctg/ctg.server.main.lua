@@ -142,7 +142,7 @@ end
 addEventHandler("onGamemodeMapStart", getRootElement(), startGameMap)
 
 function  plotPoints()
-    outputChatBox("Plotting points")
+  -- outputChatBox("Plotting points")
     for k, goldSpawn in ipairs(goldSpawnPoints) do
         local posX, posY, posZ = coordsFromEdl(goldSpawn)
         createBlip(posX, posY, posZ, 0, 2, 0, 255, 255, 255, 0)
@@ -156,7 +156,7 @@ end
 function joinHandler()
     spawn(source, false)
     startGameIfEnoughPlayers()
-    outputChatBox("Welcome to Capture the Gold!", source)
+  -- outputChatBox("Welcome to Capture the Gold!", source)
     refreshAllBlips()
     plotPoints()
 end
@@ -218,7 +218,7 @@ function playerDied(player)
     local posX, posY, posZ = getElementPosition(player)
     if player == getGoldCarrier() then
         clearGoldCarrier()
-        outputChatBox("had position"..inspect(posX))
+      -- outputChatBox("had position"..inspect(posX))
         spawnGoldAtTransform(posX, posY, posZ)
         refreshAllBlips()
     end
@@ -324,25 +324,25 @@ addCommandHandler("param", function(source, command, paramName, paramValue)
         local newValue = tonumber(paramValue)
         local oldValue = getConst().goldHandlingCoeff
         getConst().goldHandlingCoeff = newValue
-        outputChatBox("Gold handling coeff set to: "..getConst().goldHandlingCoeff.." (old was "..oldValue..")")
+      -- outputChatBox("Gold handling coeff set to: "..getConst().goldHandlingCoeff.." (old was "..oldValue..")")
     end
     if (paramName == "height") then
         local newValue = tonumber(paramValue)
         local oldValue = getConst().goldHeight
         getConst().goldHeight = newValue
-        outputChatBox("Gold height set to: "..getConst().goldHeight.." (old was "..oldValue..")")
+      -- outputChatBox("Gold height set to: "..getConst().goldHeight.." (old was "..oldValue..")")
     end
     if (paramName == "mass") then
         local newValue = tonumber(paramValue)
         local oldValue = getConst().goldMass
         getConst().goldMass = newValue
-        outputChatBox("Gold mass set to: "..getConst().goldMass.." (old was "..oldValue..")")
+      -- outputChatBox("Gold mass set to: "..getConst().goldMass.." (old was "..oldValue..")")
     end
     if (paramName == "damage") then
         local newValue = tonumber(paramValue)
         local oldValue = getConst().damageMultiplierWeight
         getConst().damageMultiplierWeight = newValue
-        outputChatBox("Damage multiplier set to: "..getConst().damageMultiplierWeight.." (old was "..oldValue..")")
+      -- outputChatBox("Damage multiplier set to: "..getConst().damageMultiplierWeight.." (old was "..oldValue..")")
     end
     local carrier = getGoldCarrier()
     if (carrier) then

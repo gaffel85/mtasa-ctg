@@ -31,7 +31,7 @@ function loadPowerConfig()
 end
 
 function onPowerupsConfigLoaded(config)
-    outputConsole("onPowerupsConfigLoadedClient: "..inspect(config))
+  -- outputConsole("onPowerupsConfigLoadedClient: "..inspect(config))
     powerConfig = config
     playerMoney = getPlayerMoney()
     populateBoxes()
@@ -52,7 +52,7 @@ addEvent("onPowerupsLoadedClient", true)
 addEventHandler("onPowerupsLoadedClient", resourceRoot, onPowerupsLoaded)
 
 function openWindowFromServer(config)
-    outputConsole("openWindowFromServer: "..inspect(config))
+  -- outputConsole("openWindowFromServer: "..inspect(config))
     powerConfig = config
     populateBoxes()
     openWindow()
@@ -62,7 +62,7 @@ addEventHandler("onOpenPowerConfigWindowClient", resourceRoot, openWindowFromSer
 
 function unlock(powerUp)
     local powerKey = powerUp.key
-    outputConsole("unlock "..powerKey)
+  -- outputConsole("unlock "..powerKey)
     setPlayerMoney(getPlayerMoney() - cost(powerUp))
     table.insert(powerConfig.owned, powerKey)
     savePowerConfig()
@@ -91,7 +91,7 @@ function bindWithKey(powerKey, bindKey)
 end
 
 function availableRank(powerUp)
-    outputConsole("completedRank: "..inspect(powerConfig))
+  -- outputConsole("completedRank: "..inspect(powerConfig))
     return powerConfig.completedRank + 1 >= powerUp.rank
 end
 
@@ -277,7 +277,7 @@ function openWindow()
 end
 
 function toggleWindow()
-    outputChatBox("toggleWindow")
+  -- outputChatBox("toggleWindow")
     if guiGetVisible(powerwindow) then
         guiSetInputEnabled(false)
         showCursor(false)
@@ -289,7 +289,7 @@ end
 
 addEventHandler("onClientResourceStart", resourceRoot,
     function()
-        outputConsole("----------------------------")
+      -- outputConsole("----------------------------")
 
         powerwindow = guiCreateWindow(0.01, 0.02, 0.98, 0.95, "Choose power-ups", true)
         guiWindowSetSizable(powerwindow, false)
@@ -310,7 +310,7 @@ addEventHandler("onClientResourceStart", resourceRoot,
 )
 
 function bindConfigPowerKeys(player)
-    outputChatBox("bindConfigPowerKeys")
+  -- outputChatBox("bindConfigPowerKeys")
     bindKey ( "F3", "up", toggleWindow )
 end
 
@@ -330,6 +330,6 @@ end
 addEventHandler("onPlayerQuit", getRootElement(), onQuitForPowerKeys)
 
 addEventHandler("onClientResourceStart", getResourceRootElement(getThisResource()), function()
-    outputChatBox("onClientResourceStart3333"..inspect(source))
+  -- outputChatBox("onClientResourceStart3333"..inspect(source))
     bindConfigPowerKeys(source)
 end)

@@ -85,7 +85,7 @@ function manualRepair()
 end
 
 function bindConfigResetKeys(player)
-    outputChatBox("bindConfigResetKeys")
+  -- outputChatBox("bindConfigResetKeys")
     bindKey ( "R", "up", manualRepair )
 end
 
