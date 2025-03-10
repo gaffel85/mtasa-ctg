@@ -38,6 +38,7 @@
 	<script src="client/powerconfig.window.lua" type="client" />
 	<script src="client/power.shielded.lua" type="client" />
 	<script src="client/shieldball.lua" type="client" />
+	<script src="client/admin.gui.lua" type="client" />
 
 	<script src="ctg.client.goldcarrier.lua" type="client" />
     <script src="ctg.client.collision.lua" type="client" />

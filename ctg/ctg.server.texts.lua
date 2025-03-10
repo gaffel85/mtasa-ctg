@@ -17,7 +17,7 @@ function showBooserAdded(player)
 end
 
 function showPresentGoldCarrier(bombHolder)
-	outputServerLog("showPresentGoldCarrier"..getPlayerName(bombHolder))
+	--outputServerLog("showPresentGoldCarrier"..getPlayerName(bombHolder))
 	displayMessageForAll(PRESENTING_GOLD_CARRIER_TEXT_ID, getPlayerName(bombHolder).." now has the gold. Catch it!", bombHolder, "You have the gold. Deliver it!", 5000, 0.5, 0.3, 255, 0, 0 )
 end
 
@@ -92,7 +92,7 @@ function displayMessageForPlayer ( player, ID, message, displayTime, posX, posY,
 	g = g or 127
 	b = b or 0
 	-- display message for everyone
-	outputConsole ( message, player )
+	--outputConsole ( message, player )
 	call ( easyTextResource, "displayMessageForPlayer", player, ID, message, displayTime, posX, posY, r, g, b, alpha, scale )
 end
 
