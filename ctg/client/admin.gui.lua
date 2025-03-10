@@ -7,6 +7,7 @@ local saveButton = nil
 local closeButton = nil
 
 local constRows = {}
+local powerRows = {}
 
 local localConsts = nil
 
@@ -58,6 +59,7 @@ end
 
 function refreshAll()
     refreshConstsTab()
+    refreshPowersTab()
 end
 
 function refreshConstsTab()
@@ -95,6 +97,40 @@ function refreshConstsTab()
     end
 end
 
+function refreshPowersTab()
+    local powers = getProps().powers
+    local index = 1
+    for key, value in pairs(powers) do
+        local yPos = 0.01 + (index * 0.03)
+        local keyLabel = guiCreateLabel(0.01, yPos, 0.14, 0.02, key, true, powersScrollpane)
+        guiLabelSetHorizontalAlign(keyLabel, "right", false)
+        guiLabelSetVerticalAlign(keyLabel, "center")
+
+        durationLabel = guiCreateLabel(0.09, yPos, 0.03, 0.02, "Duration", true, powersScrollpane)
+        guiLabelSetHorizontalAlign(durationLabel, "right", false)
+        guiLabelSetVerticalAlign(durationLabel, "center")
+        local durationInput = guiCreateEdit(0.15, yPos, 0.06, 0.02, value.duration, true, powersScrollpane)
+        addEventHandler("onClientGUIChanged", durationInput, function(element) 
+            local text = guiGetText(element)
+            local asNumber = tonumber(text)
+            localConsts.powers[key].duration = asNumber
+         end)
+
+        cooldownLabel = guiCreateLabel(0.15, yPos, 0.03, 0.02, "Cooldown", true, powersScrollpane)
+        guiLabelSetHorizontalAlign(cooldownLabel, "right", false)
+        guiLabelSetVerticalAlign(cooldownLabel, "center")
+        local cooldownInput = guiCreateEdit(0.22, yPos, 0.06, 0.02, value.cooldown, true, powersScrollpane)
+        addEventHandler("onClientGUIChanged", cooldownInput, function(element) 
+            local text = guiGetText(element)
+            local asNumber = tonumber(text)
+            localConsts.powers[key].cooldown = asNumber
+         end)
+
+        table.insert(powerRows, {key = keyLabel, duration = durationInput, cooldown = cooldownInput})
+        index = index + 1
+    end
+end
+
 function createWindow()
     adminWindow = guiCreateWindow(0.01, 0.01, 0.99, 0.96, "", true)
     guiWindowSetSizable(adminWindow, false)
@@ -102,22 +138,9 @@ function createWindow()
     tabs = guiCreateTabPanel(0.00, 0.02, 0.97, 0.97, true, adminWindow)
 
     constTab = guiCreateTab("Constants", tabs)
+    
     powerTab = guiCreateTab("Powers", tabs)
-
     powersScrollpane = guiCreateScrollPane(0.00, 0.01, 0.99, 0.98, true, powerTab)
-
-    powerKeyLabel = guiCreateLabel(0.00, 0.01, 0.08, 0.02, "power.key", true, powersScrollpane)
-    guiLabelSetHorizontalAlign(powerKeyLabel, "right", false)
-    guiLabelSetVerticalAlign(powerKeyLabel, "center")
-    durationLabel = guiCreateLabel(0.09, 0.01, 0.03, 0.02, "Duration", true, powersScrollpane)
-    guiLabelSetHorizontalAlign(durationLabel, "right", false)
-    guiLabelSetVerticalAlign(durationLabel, "center")
-    durationInput = guiCreateEdit(0.12, 0.01, 0.02, 0.02, "", true, powersScrollpane)
-    cooldownLabel = guiCreateLabel(0.15, 0.01, 0.03, 0.02, "Cooldown", true, powersScrollpane)
-    guiLabelSetHorizontalAlign(cooldownLabel, "right", false)
-    guiLabelSetVerticalAlign(cooldownLabel, "center")
-    cooldownInput = guiCreateEdit(0.18, 0.01, 0.02, 0.02, "", true, powersScrollpane)
-
 
     playerTab = guiCreateTab("Players", tabs)
 
