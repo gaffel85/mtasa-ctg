@@ -8,6 +8,7 @@ local closeButton = nil
 
 local constRows = {}
 local powerRows = {}
+local playerRows = {}
 
 local localConsts = nil
 
@@ -18,18 +19,24 @@ GUIEditor = {
     label = {}
 }
 
+function closeWindow() 
+    guiSetInputEnabled(false)
+    showCursor(false)
+    guiSetVisible(adminWindow, false)
+end
+
+function setRank(player, rank)
+    setElementData(player, "completedRank", rank)
+    setElementData(player, "completedRank", rank)
+end
+
 function toggleAdminWindow()
     if (adminWindow == nil) then
-        outputConsole("creating admin window")
         createWindow()
     end
     if guiGetVisible(adminWindow) then
-        outputConsole("adminWindow is open, closing it")
-        guiSetVisible(adminWindow, false)
-        guiSetInputEnabled(false)
-        showCursor(false)
+        closeWindow()
     else
-        outputConsole("adminWindow is closed, opening it")
         guiSetVisible(adminWindow, true)
         guiSetInputEnabled(true)
         showCursor(true)
@@ -43,7 +50,7 @@ function getProps()
 end
 
 function saveConsts()
-    outputConsole("saveConsts "..inspect(localConsts))
+    --outputConsole("saveConsts "..inspect(localConsts))
     setElementData(resourceRoot, "props", localConsts)
 
     --save to file based on timestamp
@@ -60,6 +67,55 @@ end
 function refreshAll()
     refreshConstsTab()
     refreshPowersTab()
+end
+
+function refreshPlayers()
+    local yPos = 0.02
+    --loop over all players and create a row for each player
+    for i, player in ipairs(getElementsByType("player")) do
+        local playerName = getPlayerName(player)
+        local score = getElementData(player, "score")
+        local money = getElementData(player, "money")
+        local rank = getElementData(player, "rank")
+
+        -- create ui elements for each player
+        local playerName = guiCreateLabel(0.01, yPos, 0.10, 0.02, playerName, true, playerTab)
+        guiLabelSetHorizontalAlign(playerName, "right", false)
+        guiLabelSetVerticalAlign(playerName, "center")
+        local scoreLabel = guiCreateLabel(0.11, yPos, 0.02, 0.02, "Score", true, playerTab)
+        guiLabelSetHorizontalAlign(scoreLabel, "right", false)
+        guiLabelSetVerticalAlign(scoreLabel, "center")
+        local scoreInput = guiCreateEdit(0.14, yPos, 0.04, 0.02, "", true, playerTab)
+        addEventHandler("onClientGUIChanged", scoreInput, function(element) 
+            local text = guiGetText(element)
+            local asNumber = tonumber(text)
+            setElementData(player, "score", asNumber)
+         end)
+        local moneyLabel = guiCreateLabel(0.18, yPos, 0.02, 0.02, "Money", true, playerTab)
+        guiLabelSetHorizontalAlign(moneyLabel, "right", false)
+        guiLabelSetVerticalAlign(moneyLabel, "center")
+        local moneyInput = guiCreateEdit(0.21, yPos, 0.04, 0.02, "", true, playerTab)
+        addEventHandler("onClientGUIChanged", moneyInput, function(element) 
+            local text = guiGetText(element)
+            local asNumber = tonumber(text)
+            setPlayerMoney(player, asNumber)
+         end)
+        local rankLabel = guiCreateLabel(0.25, yPos, 0.02, 0.02, "Rank", true, playerTab)
+        guiLabelSetHorizontalAlign(rankLabel, "right", false)
+        guiLabelSetVerticalAlign(rankLabel, "center")
+        local rankInput = guiCreateEdit(0.27, yPos, 0.02, 0.02, "", true, playerTab)
+        addEventHandler("onClientGUIChanged", rankInput, function(element) 
+            local text = guiGetText(element)
+            local asNumber = tonumber(text)
+            setRank(player, asNumber)
+         end)
+        killButton = guiCreateButton(0.30, yPos, 0.03, 0.02, "Kill", true, playerTab)
+        giveGoldButton = guiCreateButton(0.33, yPos, 0.03, 0.02, "Give gold", true, playerTab)
+
+        local row = {scoreInput = scoreInput, moneyInput = moneyInput, rankInput = rankInput, killButton = killButton, giveGoldButton = giveGoldButton, playerNameLabel = playerName, scoreLabel = scoreLabel, moneyLabel = moneyLabel, rankLabel = rankLabel}
+        table.insert(playerRows, row)
+        yPos = yPos + 0.03
+    end
 end
 
 function refreshConstsTab()
@@ -98,6 +154,21 @@ function refreshConstsTab()
 end
 
 function refreshPowersTab()
+    -- remove everything in the power rows
+    for i, row in ipairs(powerRows) do
+        if isElement(row.key) then
+            destroyElement(row.key)
+        end
+        for j, input in ipairs(row.inputs) do
+            if isElement(input.label) then
+                destroyElement(input.label)
+            end
+            if isElement(input.input) then
+                destroyElement(input.input)
+            end
+        end
+    end
+
     local powers = getProps().powers
     local index = 1
     for key, value in pairs(powers) do
@@ -106,27 +177,50 @@ function refreshPowersTab()
         guiLabelSetHorizontalAlign(keyLabel, "right", false)
         guiLabelSetVerticalAlign(keyLabel, "center")
 
-        durationLabel = guiCreateLabel(0.09, yPos, 0.03, 0.02, "Duration", true, powersScrollpane)
-        guiLabelSetHorizontalAlign(durationLabel, "right", false)
-        guiLabelSetVerticalAlign(durationLabel, "center")
-        local durationInput = guiCreateEdit(0.15, yPos, 0.06, 0.02, value.duration, true, powersScrollpane)
-        addEventHandler("onClientGUIChanged", durationInput, function(element) 
-            local text = guiGetText(element)
-            local asNumber = tonumber(text)
-            localConsts.powers[key].duration = asNumber
-         end)
+        local fixedPoperties = { "duration", "cooldown", "initCooldown", "allowedGoldCarrier", "charges", "rank" }
+        -- each power has some fixed properties but can also has more properties. Create loop over each attribute. Start with the fixed ones and add custom ones in the end. Each attribute should have the label, and input
+        local xPos = 0.09
+        local inputs = {}
+        for i, prop in ipairs(fixedPoperties) do
+            local label = guiCreateLabel(xPos, yPos, 0.03, 0.02, prop, true, powersScrollpane)
+            guiLabelSetHorizontalAlign(label, "right", false)
+            guiLabelSetVerticalAlign(label, "center")
+            local input = nil
+            if prop == "allowedGoldCarrier" then
+                input = guiCreateCheckBox(xPos + 0.7, yPos, 0.07, 0.02, "", value[prop], true, powersScrollpane)
+                addEventHandler("onClientGUIClick", input, function(element)
+                    localConsts.powers[key][prop] = guiCheckBoxGetSelected(element)
+                end)
+            else
+                input = guiCreateEdit(xPos + 0.7, yPos, 0.06, 0.02, value[prop], true, powersScrollpane)
+                addEventHandler("onClientGUIChanged", input, function(element) 
+                    local text = guiGetText(element)
+                    local asNumber = tonumber(text)
+                    localConsts.powers[key][prop] = asNumber
+                end)
+            end
+            table.insert(inputs, {label = label, input = input})
+            xPos + 0.1
+        end
 
-        cooldownLabel = guiCreateLabel(0.15, yPos, 0.03, 0.02, "Cooldown", true, powersScrollpane)
-        guiLabelSetHorizontalAlign(cooldownLabel, "right", false)
-        guiLabelSetVerticalAlign(cooldownLabel, "center")
-        local cooldownInput = guiCreateEdit(0.22, yPos, 0.06, 0.02, value.cooldown, true, powersScrollpane)
-        addEventHandler("onClientGUIChanged", cooldownInput, function(element) 
-            local text = guiGetText(element)
-            local asNumber = tonumber(text)
-            localConsts.powers[key].cooldown = asNumber
-         end)
+        -- loop for custom properties that's not the fixed ones
+        for customKey, customValue in pairs(value) do
+            if not table.find(fixedPoperties, customKey) then
+                local label = guiCreateLabel(xPos, yPos, 0.03, 0.02, customKey, true, powersScrollpane)
+                guiLabelSetHorizontalAlign(label, "right", false)
+                guiLabelSetVerticalAlign(label, "center")
+                local input = guiCreateEdit(xPos + 7, yPos, 0.06, 0.02, customValue, true, powersScrollpane)
+                addEventHandler("onClientGUIChanged", input, function(element) 
+                    local text = guiGetText(element)
+                    local asNumber = tonumber(text)
+                    localConsts.powers[key][customKey] = asNumber
+                end)
+                table.insert(inputs, {label = label, input = input})
+                xPos + 0.1
+            end
+        end
 
-        table.insert(powerRows, {key = keyLabel, duration = durationInput, cooldown = cooldownInput})
+        table.insert(powerRows, {key = keyLabel, inputs = inputs})
         index = index + 1
     end
 end
@@ -144,24 +238,6 @@ function createWindow()
 
     playerTab = guiCreateTab("Players", tabs)
 
-    GUIEditor.label[1] = guiCreateLabel(0.01, 0.02, 0.10, 0.02, "playerName", true, playerTab)
-    guiLabelSetHorizontalAlign(GUIEditor.label[1], "right", false)
-    guiLabelSetVerticalAlign(GUIEditor.label[1], "center")
-    scoreLabel = guiCreateLabel(0.11, 0.02, 0.02, 0.02, "Score", true, playerTab)
-    guiLabelSetHorizontalAlign(scoreLabel, "right", false)
-    guiLabelSetVerticalAlign(scoreLabel, "center")
-    scoreInput = guiCreateEdit(0.14, 0.02, 0.04, 0.02, "", true, playerTab)
-    moneyLabel = guiCreateLabel(0.18, 0.02, 0.02, 0.02, "Money", true, playerTab)
-    guiLabelSetHorizontalAlign(moneyLabel, "right", false)
-    guiLabelSetVerticalAlign(moneyLabel, "center")
-    moneyInput = guiCreateEdit(0.21, 0.02, 0.04, 0.02, "", true, playerTab)
-    GUIEditor.label[2] = guiCreateLabel(0.25, 0.02, 0.02, 0.02, "Rank", true, playerTab)
-    guiLabelSetHorizontalAlign(GUIEditor.label[2], "right", false)
-    guiLabelSetVerticalAlign(GUIEditor.label[2], "center")
-    GUIEditor.edit[1] = guiCreateEdit(0.27, 0.02, 0.02, 0.02, "", true, playerTab)
-    killButton = guiCreateButton(0.30, 0.02, 0.03, 0.02, "Kill", true, playerTab)
-    giveGoldButton = guiCreateButton(0.33, 0.02, 0.03, 0.02, "Give gold", true, playerTab)
-
     controlTab = guiCreateTab("Control", tabs)
 
     respawnGoldAtEdlButton = guiCreateButton(0.02, 0.02, 0.07, 0.03, "Respawn gold at edl", true, controlTab)
@@ -171,15 +247,13 @@ function createWindow()
 
     saveButton = guiCreateButton(0.87, 0.92, 0.06, 0.02, "Save", true, constTab)
     closeButton = guiCreateButton(0.93, 0.92, 0.06, 0.02, "Close", true, constTab)
-    
-    addEventHandler("onClientGUIClick", saveButton, function()
-        saveConsts()
-    end, false)
-    addEventHandler("onClientGUIClick", closeButton, function()
-        guiSetInputEnabled(false)
-        showCursor(false)
-        guiSetVisible(adminWindow, false)
-    end, false)
+    addEventHandler("onClientGUIClick", saveButton, function() saveConsts() end, false)
+    addEventHandler("onClientGUIClick", closeButton, function() closeWindow() end, false)
+
+    local saveButton2 = guiCreateButton(0.87, 0.92, 0.06, 0.02, "Save", true, powerTab)
+    local closeButton2 = guiCreateButton(0.93, 0.92, 0.06, 0.02, "Close", true, powerTab)
+    addEventHandler("onClientGUIClick", saveButton2, function() saveConsts() end, false)
+    addEventHandler("onClientGUIClick", closeButton2, function() closeWindow() end, false)
 
     guiSetVisible(adminWindow, false)
 end
