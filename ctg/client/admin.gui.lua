@@ -17,40 +17,55 @@ GUIEditor = {
     label = {}
 }
 
-function toggleWindow()
+function toggleAdminWindow()
     if (adminWindow == nil) then
+        outputConsole("creating admin window")
         createWindow()
     end
     if guiGetVisible(adminWindow) then
+        outputConsole("adminWindow is open, closing it")
         guiSetVisible(adminWindow, false)
         guiSetInputEnabled(false)
         showCursor(false)
     else
+        outputConsole("adminWindow is closed, opening it")
         guiSetVisible(adminWindow, true)
         guiSetInputEnabled(true)
         showCursor(true)
+        refreshAll()
     end
 end
 
-function getConst()
+function getProps()
     localConsts = getElementData(resourceRoot, "props")
     return localConsts
 end
 
 function saveConsts()
+    outputConsole("saveConsts "..inspect(localConsts))
     setElementData(resourceRoot, "props", localConsts)
+end
+
+function refreshAll()
+    refreshConstsTab()
 end
 
 function refreshConstsTab()
     -- remove everything in the const rows
     for i, row in ipairs(constRows) do
-        destroyElement(row.key)
-        destroyElement(row.input)
-        destroyElement(row.nilToggle)
-
+        if isElement(row.key) then
+            destroyElement(row.key)
+        end
+        if isElement(row.input) then
+            destroyElement(row.input)
+        end
+        if isElement(row.nilToggle) then
+            destroyElement(row.nilToggle)
+        end
     end
+    constRows = {}
 
-    local consts = getConst().consts
+    local consts = getProps().consts
     --loop over const keys and values and create inpuyts for each and store in const rows
     local index = 1
     for key, value in pairs(consts) do
@@ -78,9 +93,6 @@ function createWindow()
     tabs = guiCreateTabPanel(0.00, 0.02, 0.97, 0.97, true, adminWindow)
 
     constTab = guiCreateTab("Constants", tabs)
-
-    refreshConstsTab()
-
     powerTab = guiCreateTab("Powers", tabs)
 
     powersScrollpane = guiCreateScrollPane(0.00, 0.01, 0.99, 0.98, true, powerTab)
@@ -125,44 +137,42 @@ function createWindow()
     respawnAtNewLocationButton = guiCreateButton(0.02, 0.05, 0.07, 0.04, "Respawn gold at new location", true, controlTab)
     newRoundButton = guiCreateButton(0.16, 0.02, 0.07, 0.03, "New round", true, controlTab)
 
-    saveButton = guiCreateButton(0.87, 0.02, 0.06, 0.05, "Save", true, adminWindow)
-    closeButton = guiCreateButton(0.93, 0.02, 0.06, 0.05, "Close", true, adminWindow)
+    saveButton = guiCreateButton(0.87, 0.92, 0.06, 0.02, "Save", true, constTab)
+    closeButton = guiCreateButton(0.93, 0.92, 0.06, 0.02, "Close", true, constTab)
     
     addEventHandler("onClientGUIClick", saveButton, function()
+        saveConsts()
+    end, false)
+    addEventHandler("onClientGUIClick", closeButton, function()
         guiSetInputEnabled(false)
         showCursor(false)
         guiSetVisible(adminWindow, false)
-        saveConsts()
     end, false)
-    addEventHandler("onClientGUIClick", saveButton, function()
-        guiSetInputEnabled(false)
-        showCursor(false)
-        guiSetVisible(adminWindow, false)
-        saveConsts()
-    end, false)
+
+    guiSetVisible(adminWindow, false)
 end
 
-function bindConfigPowerKeys(player)
-    -- outputChatBox("bindConfigPowerKeys")
-      bindKey ( "F6", "up", toggleWindow )
+function bindConfigAdminKeys(player)
+    -- outputChatBox("bindConfigAdminKeys")
+      bindKey ( "F6", "up", toggleAdminWindow )
   end
   
-  function unbindConfigPowerKeys(player)
+  function unbindConfigAdminKeys(player)
       unbindKey ( "F6" )
   end
   
-  function onJoinForPowerKeys ( )
-      bindConfigPowerKeys(source)
+  function onJoinForAdminKeys ( )
+      bindConfigAdminKeys(source)
   end
-  addEventHandler("onPlayerJoin", getRootElement(), onJoinForPowerKeys)
+  addEventHandler("onPlayerJoin", getRootElement(), onJoinForAdminKeys)
   
     --unbind on quit
-  function onQuitForPowerKeys ( )
-      unbindConfigPowerKeys(source)
+  function onQuitForAdminKeys ( )
+      unbindConfigAdminKeys(source)
   end
-  addEventHandler("onPlayerQuit", getRootElement(), onQuitForPowerKeys)
+  addEventHandler("onPlayerQuit", getRootElement(), onQuitForAdminKeys)
   
   addEventHandler("onClientResourceStart", getResourceRootElement(getThisResource()), function()
     -- outputChatBox("onClientResourceStart3333"..inspect(source))
-      bindConfigPowerKeys(source)
+      bindConfigAdminKeys(source)
   end)
