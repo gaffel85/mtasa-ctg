@@ -1,3 +1,4 @@
+
 local props = {
     consts = {
         tillbakaKakatime = 5000,
@@ -8,6 +9,19 @@ local props = {
         goldHandlingCoeff = 0.8,
         damageMultiplierWeight = 1.0,
         moneyToOpponentsPercentage = 0.7,
+        airplaneQuota = 0.1,
+        helicopterQuota = 0.1,
+        door2Quota = 1,
+        door4Quota = 1,
+        civilQuota = 1,
+        govermentQuota = 1,
+        heavyQuota = 1,
+        vansQuota = 1,
+        suvQuota = 1,
+        lowRidersQuota = 1,
+        muscleQuota = 1,
+        streetRacersQuota = 1,
+        recreationalQuota = 1,
     },
     powers = {
         nitro = {

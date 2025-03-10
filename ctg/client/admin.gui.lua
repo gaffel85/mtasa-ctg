@@ -44,6 +44,16 @@ end
 function saveConsts()
     outputConsole("saveConsts "..inspect(localConsts))
     setElementData(resourceRoot, "props", localConsts)
+
+    --save to file based on timestamp
+    local timestamp = getRealTime().timestamp
+    local file = fileCreate("ctg_"..timestamp..".txt")
+    if not file then
+        outputConsole("Failed to create file")
+        return
+    end
+    fileWrite(file, inspect(localConsts))
+    fileClose(file)
 end
 
 function refreshAll()
@@ -66,7 +76,6 @@ function refreshConstsTab()
     constRows = {}
 
     local consts = getProps().consts
-    --loop over const keys and values and create inpuyts for each and store in const rows
     local index = 1
     for key, value in pairs(consts) do
         local yPos = 0.01 + (index * 0.03)

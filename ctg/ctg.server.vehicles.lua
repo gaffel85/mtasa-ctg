@@ -2,26 +2,28 @@ local currentVehicle = 526
 local CHANGE_VECHICLE_TEXT_ID = 963781
 local playersToKeepTheirVehicle = {}
 
-local quota = {
-    ["Airplanes"] = 0.1,
-    ["Helicopters"] = 0.1,
-    ["Boats"] = 0,
-    ["Bikes"] = 0,
-    ["2-Door & Compact cars"] = 1,
-    ["4-Door & Luxury cars"] = 1,
-    ["Civil service"] = 1,
-    ["Government vehicles"] = 1,
-    ["Heavy & Utility trucks"] = 1,
-    ["Light trucks & Vans"] = 1,
-    ["SUVs & Wagons"] = 1,
-    ["Lowriders"] = 1,
-    ["Muscle cars"] = 1,
-    ["Street racers"] = 1,
-    ["RC Vehicles"] = 1,
-    ["Trailers"] = 0,
-    ["Trains & Railroad cars"] = 0,
-    ["Recreational"] = 1,
-}
+function getQuota()
+    return {
+      ["Airplanes"] = getConst().airplaneQuota,
+      ["Helicopters"] = getConst().helicopterQuota,
+      ["Boats"] = 0,
+      ["Bikes"] = 0,
+      ["2-Door & Compact cars"] = getConst().2doorQuota,
+      ["4-Door & Luxury cars"] = getConst().4doorQuota,
+      ["Civil service"] = getConst().civilQuota,
+      ["Government vehicles"] = getConst().govermentQuota,
+      ["Heavy & Utility trucks"] = getConst().heavyQuota,
+      ["Light trucks & Vans"] = getConst().vansQuota,
+      ["SUVs & Wagons"] = getConst().suvQuota,
+      ["Lowriders"] = getConst().lowRidersQuota,
+      ["Muscle cars"] = getConst().muscleQuota,
+      ["Street racers"] = getConst().streetRacersQuota,  
+      ["RC Vehicles"] = 0,
+      ["Trailers"] = 0,
+      ["Trains & Railroad cars"] = 0,
+      ["Recreational"] = getConst().recreationalQuota,
+  }
+end
 
 local vehiclesByType = {
 	{
@@ -117,6 +119,7 @@ function findVehicleListByCategory(category)
 end
 
 function getRandomVehicle()
+    local quota = getQuota()
     local totalQuota = 0
     for k, v in pairs(quota) do
         totalQuota = totalQuota + v
