@@ -67,6 +67,7 @@ end
 function refreshAll()
     refreshConstsTab()
     refreshPowersTab()
+    refreshPlayers()
 end
 
 function refreshPlayers()
@@ -86,8 +87,8 @@ function refreshPlayers()
         guiLabelSetHorizontalAlign(scoreLabel, "right", false)
         guiLabelSetVerticalAlign(scoreLabel, "center")
         local scoreInput = guiCreateEdit(0.14, yPos, 0.04, 0.02, "", true, playerTab)
-        addEventHandler("onClientGUIChanged", scoreInput, function(element) 
-            local text = guiGetText(element)
+        addEventHandler("onClientGUIChanged", scoreInput, function() 
+            local text = guiGetText(source)
             local asNumber = tonumber(text)
             setElementData(player, "score", asNumber)
          end)
@@ -95,8 +96,8 @@ function refreshPlayers()
         guiLabelSetHorizontalAlign(moneyLabel, "right", false)
         guiLabelSetVerticalAlign(moneyLabel, "center")
         local moneyInput = guiCreateEdit(0.21, yPos, 0.04, 0.02, "", true, playerTab)
-        addEventHandler("onClientGUIChanged", moneyInput, function(element) 
-            local text = guiGetText(element)
+        addEventHandler("onClientGUIChanged", moneyInput, function() 
+            local text = guiGetText(source)
             local asNumber = tonumber(text)
             setPlayerMoney(player, asNumber)
          end)
@@ -104,8 +105,8 @@ function refreshPlayers()
         guiLabelSetHorizontalAlign(rankLabel, "right", false)
         guiLabelSetVerticalAlign(rankLabel, "center")
         local rankInput = guiCreateEdit(0.27, yPos, 0.02, 0.02, "", true, playerTab)
-        addEventHandler("onClientGUIChanged", rankInput, function(element) 
-            local text = guiGetText(element)
+        addEventHandler("onClientGUIChanged", rankInput, function() 
+            local text = guiGetText(source)
             local asNumber = tonumber(text)
             setRank(player, asNumber)
          end)
@@ -171,9 +172,10 @@ function refreshPowersTab()
 
     local powers = getProps().powers
     local index = 1
+    outputConsole("powers "..inspect(powers))
     for key, value in pairs(powers) do
-        local yPos = 0.01 + (index * 0.03)
-        local keyLabel = guiCreateLabel(0.01, yPos, 0.14, 0.02, key, true, powersScrollpane)
+        local yPos = 0.01 + (index * 0.05)
+        local keyLabel = guiCreateLabel(0.01, yPos, 0.07, 0.02, key, true, powerTab)
         guiLabelSetHorizontalAlign(keyLabel, "right", false)
         guiLabelSetVerticalAlign(keyLabel, "center")
 
@@ -182,47 +184,77 @@ function refreshPowersTab()
         local xPos = 0.09
         local inputs = {}
         for i, prop in ipairs(fixedPoperties) do
-            local label = guiCreateLabel(xPos, yPos, 0.03, 0.02, prop, true, powersScrollpane)
+            local label = guiCreateLabel(xPos, yPos, 0.05, 0.02, prop, true, powerTab)
             guiLabelSetHorizontalAlign(label, "right", false)
             guiLabelSetVerticalAlign(label, "center")
             local input = nil
             if prop == "allowedGoldCarrier" then
-                input = guiCreateCheckBox(xPos + 0.7, yPos, 0.07, 0.02, "", value[prop], true, powersScrollpane)
-                addEventHandler("onClientGUIClick", input, function(element)
-                    localConsts.powers[key][prop] = guiCheckBoxGetSelected(element)
+                input = guiCreateCheckBox(xPos + 0.06, yPos, 0.015, 0.02, "", value[prop], true, powerTab)
+                addEventHandler("onClientGUIClick", input, function()
+                    --localConsts.powers[key][prop] = guiCheckBoxGetSelected(source)
                 end)
             else
-                input = guiCreateEdit(xPos + 0.7, yPos, 0.06, 0.02, value[prop], true, powersScrollpane)
-                addEventHandler("onClientGUIChanged", input, function(element) 
-                    local text = guiGetText(element)
+                local propVal = value[prop]
+                if propVal == nil then
+                    propVal = 0
+                end
+                input = guiCreateEdit(xPos + 0.06, yPos, 0.015, 0.02, propVal, true, powerTab)
+                addEventHandler("onClientGUIChanged", input, function() 
+                    local text = guiGetText(source)
                     local asNumber = tonumber(text)
-                    localConsts.powers[key][prop] = asNumber
+                    if (asNumber == 0) then
+                         localConsts.powers[key][prop] = nil
+                    else
+                        localConsts.powers[key][customKey] = asNumber
+                    end
                 end)
             end
             table.insert(inputs, {label = label, input = input})
-            xPos + 0.1
+            xPos = xPos + 0.1
         end
 
         -- loop for custom properties that's not the fixed ones
-        for customKey, customValue in pairs(value) do
-            if not table.find(fixedPoperties, customKey) then
-                local label = guiCreateLabel(xPos, yPos, 0.03, 0.02, customKey, true, powersScrollpane)
-                guiLabelSetHorizontalAlign(label, "right", false)
-                guiLabelSetVerticalAlign(label, "center")
-                local input = guiCreateEdit(xPos + 7, yPos, 0.06, 0.02, customValue, true, powersScrollpane)
-                addEventHandler("onClientGUIChanged", input, function(element) 
-                    local text = guiGetText(element)
-                    local asNumber = tonumber(text)
-                    localConsts.powers[key][customKey] = asNumber
-                end)
-                table.insert(inputs, {label = label, input = input})
-                xPos + 0.1
-            end
-        end
+        --for customKey, customValue in pairs(value) do
+        --    if not contains(fixedPoperties, customKey) then
+        --        local label = guiCreateLabel(xPos, yPos, 0.03, 0.02, "2:"..customKey, true, powerTab)
+        --        guiLabelSetHorizontalAlign(label, "right", false)
+        --        guiLabelSetVerticalAlign(label, "center")
+        --        local input = guiCreateEdit(xPos + 7, yPos, 0.06, 0.02, customValue, true, powerTab)
+        --        addEventHandler("onClientGUIChanged", input, function() 
+         --           local text = guiGetText(source)
+        --            local asNumber = tonumber(text)
+        --            if (asNumber == 0) then
+        ----                localConsts.powers[key][customKey] = nil
+        --            else
+        --                localConsts.powers[key][customKey] = asNumber
+        --            end
+        --        end)
+        --        table.insert(inputs, {label = label, input = input})
+        --        xPos = xPos + 0.07
+        --    end
+        --end
 
         table.insert(powerRows, {key = keyLabel, inputs = inputs})
         index = index + 1
     end
+end
+
+function getIndex(tab, val)
+    local index = nil
+    for i, v in ipairs (tab) do 
+        if (v.id == val) then
+          index = i 
+        end
+    end
+    return index
+end
+
+function contains(tab, val)
+    local idx = getIndex(tab, val)
+    if idx then 
+        return true
+    end
+    return false
 end
 
 function createWindow()
@@ -234,7 +266,7 @@ function createWindow()
     constTab = guiCreateTab("Constants", tabs)
     
     powerTab = guiCreateTab("Powers", tabs)
-    powersScrollpane = guiCreateScrollPane(0.00, 0.01, 0.99, 0.98, true, powerTab)
+    --powersScrollpane = guiCreateScrollPane(0.00, 0.01, 0.99, 0.98, true, powerTab)
 
     playerTab = guiCreateTab("Players", tabs)
 
