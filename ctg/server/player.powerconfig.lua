@@ -15,7 +15,6 @@ function getDefaultConfig()
         },
         wanted = {},
         completedRank = 0,
-        usedRank = 1,
         owned = {
             "nitro",
             "teleport",
@@ -53,7 +52,7 @@ function setPlayerPowerConfig(player, config)
         local powerUp = findPowerUpWithKey(powerUpKey)
         resetPowerState(player, powerUp)
       -- outputServerLog("setting userRand "..inspect(config).." "..inspect(powerUp.rank()))
-        config.usedRank = powerUp.rank()
+        setUsedRang(powerUp.rank())
     end
 end
 
@@ -99,6 +98,22 @@ function openConfigPanel(player, index)
     end
 
     exports.votemanager:startPoll(baseSettings)
+end
+
+function getUsedRank(player)
+    return getElementData(player, "usedRank")
+end
+
+function setUsedRank(player, rank)
+    setElementData(player, "usedRank", rank)
+end
+
+function getCompletedRank(player)
+    return getElementData(player, "completedRank")
+end
+
+function setCompletedRank(player, rank)
+    setElementData(player, "completedRank", rank)
 end
 
 function onOpenConfigPanelPressed(player)

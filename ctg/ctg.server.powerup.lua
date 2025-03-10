@@ -71,7 +71,7 @@ function resetPowerStatesOnDeliverd()
 	for i, player in ipairs(getElementsByType("player")) do
 		local config = getPlayerPowerConfig(player)
 		--outputServerLog("Setting completed rank "..inspect(config).." "..inspect(config.usedRank))
-		config.completedRank = config.usedRank
+		setCompletedRank(getUsedRank(player))
 		resetPowerStatesForPlayer(player)
 	end
 end

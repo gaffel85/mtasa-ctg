@@ -18,6 +18,10 @@ function getPowerUp(key)
     return nil
 end
 
+function getCompletedRank(player)
+    return getElementData(player, "completedRank")
+end
+
 function savePowerConfig()
     triggerServerEvent("setConfigFromClient", resourceRoot, powerConfig)
 end
@@ -92,7 +96,7 @@ end
 
 function availableRank(powerUp)
   -- outputConsole("completedRank: "..inspect(powerConfig))
-    return powerConfig.completedRank + 1 >= powerUp.rank
+    return getCompletedRank(localPlayer) + 1 >= powerUp.rank
 end
 
 function isOwned(key)
@@ -217,7 +221,7 @@ function populateBoxes()
         end
     end
 
-    playerRankLabel = powerConfig.completedRank
+    playerRankLabel = getCompletedRank(localPlayer)
     playerMoneyLabel = getPlayerMoney()
 
     local row = 1
