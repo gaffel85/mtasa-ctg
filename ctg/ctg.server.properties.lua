@@ -1,6 +1,8 @@
 
 local props = {
     consts = {
+        goldSpawnDistance = 1000,
+        goldSpawnTime = 30,
         tillbakaKakatime = 5000,
         repairTime = 5,
         presentGoldDeliveredTime = 7,
@@ -25,77 +27,85 @@ local props = {
     },
     powers = {
         nitro = {
-            duration = 6,
+            duration = 8,
             cooldown = 20,
-            initCooldown = 5,
+            initCooldown = 10,
             allowedGoldCarrier = false,
-            charges = 5,
+            charges = nil,
             rank = 1,
         },
         teleport = {
             duration = 0,
             cooldown = 20,
-            initCooldown = 8,
+            initCooldown = 5,
             allowedGoldCarrier = false,
+<<<<<<< HEAD
             charges = 0,
+=======
+            charges = nil,
+>>>>>>> refs/remotes/origin/dev-admin-panel
             rank = 1,
             minDistance = 300,
         },
         waterLevel = {
             duration = 10,
-            cooldown = 30,
-            initCooldown = 1,
+            cooldown = 20,
+            initCooldown = 20,
             allowedGoldCarrier = false,
-            charges = nil,
+            charges = 2,
             rank = 5,
         },
         helicopter = {
-            duration = 8,
+            duration = 15,
             cooldown = 20,
-            initCooldown = 1,
+            initCooldown = 15,
             allowedGoldCarrier = false,
-            charges = nil,
+            charges = 2,
             rank = 3,
         },
         plane = {
+<<<<<<< HEAD
             duration = 15,
+=======
+            duration = 12,
+>>>>>>> refs/remotes/origin/dev-admin-panel
             cooldown = 20,
-            initCooldown = 1,
+            initCooldown = 15,
             allowedGoldCarrier = false,
-            charges = nil,
+            charges = 2,
             rank = 2,
         },
         offroad = {
-            duration = 8,
+            duration = 15,
             cooldown = 20,
-            initCooldown = 1,
-            allowedGoldCarrier = false,
+            initCooldown = 15,
+            allowedGoldCarrier = true,
             charges = nil,
             rank = 2,
         },
         superCar = {
-            duration = 20,
+            duration = 15,
             cooldown = 20,
             initCooldown = 10,
             allowedGoldCarrier = false,
-            charges = nil,
+            charges = 3,
             rank = 4,
             model = 541,
         },
         busses = {
-            duration = 20,
+            duration = 10,
             cooldown = 20,
-            initCooldown = 10,
+            initCooldown = 20,
             allowedGoldCarrier = false,
-            charges = nil,
+            charges = 2,
             rank = 3,
         },
         shield = {
-            duration = 6,
-            cooldown = 3,
-            initCooldown = 0,
+            duration = 2000,
+            cooldown = 10,
+            initCooldown = 10,
             allowedGoldCarrier = true,
-            charges = 3,
+            charges = 1,
             rank = 4,
         },
         chaos = {
@@ -108,10 +118,14 @@ local props = {
         },
         canon = {
             duration = 1,
-            cooldown = 5,
+            cooldown = 15,
             initCooldown = 1,
             allowedGoldCarrier = false,
+<<<<<<< HEAD
             charges = 3,
+=======
+            charges = 3
+>>>>>>> refs/remotes/origin/dev-admin-panel
             rank = 4,
         },
         cinematic = {

@@ -31,6 +31,7 @@
 	<script src="server/powerups/shield.power.lua" />
 	<script src="server/collision.lua" />
 	<script src="server/distance.meter.lua" />
+	<script src="server/admin.control.lua" />
 	
 
 	<script src="client/power.gui.lua" type="client" />
@@ -39,6 +40,7 @@
 	<script src="client/power.shielded.lua" type="client" />
 	<script src="client/shieldball.lua" type="client" />
 	<script src="client/admin.gui.lua" type="client" />
+	<script src="client/help.gui.lua" type="client" />
 
 	<script src="ctg.client.goldcarrier.lua" type="client" />
     <script src="ctg.client.collision.lua" type="client" />

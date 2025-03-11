@@ -19,6 +19,18 @@ GUIEditor = {
     label = {}
 }
 
+function setPlayerMoneyOnServer(player, money)
+    triggerServerEvent("fromClientSetPlayerMoney", getPlayerName(player), money)
+end
+
+function setPlayerScoreOnServer(player, score)
+    triggerServerEvent("fromClientSetPlayerScore", getPlayerName(player), score)
+end
+
+function setPlayerRankOnServer(player, rank)
+    triggerServerEvent("fromClientSetPlayerRank", getPlayerName(player), rank)
+end
+
 function closeWindow() 
     guiSetInputEnabled(false)
     showCursor(false)

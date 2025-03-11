@@ -6,7 +6,8 @@ local team1 = {
     textDisplay = nil,
     otherTeam = nil,
     hideOut = nil,
-    color = {100, 100, 255}
+    color = {100, 100, 255},
+    membersLabel = nil
 }
 local team2 = {
     members = {},
@@ -16,7 +17,8 @@ local team2 = {
     textDisplay = nil,
     otherTeam = nil,
     hideOut = nil,
-    color = {100, 255, 100}
+    color = {100, 255, 100},
+    membersLabel = nil
 }
 
 local teamsScoreDisplay
@@ -66,6 +68,11 @@ function setupTeams()
     textDisplayAddText ( teamsScoreDisplay, team1.scoreLabel )
     textDisplayAddText ( teamsScoreDisplay, team2.scoreLabel )
 
+    team1.membersLabel = textCreateTextItem ( "", 0.3, 0.25, "medium", r1, g1, b1, 255, 2, "right", "top", 128)
+    team2.membersLabel = textCreateTextItem ( "", 0.6, 0.25, "medium", r2, g2, b2, 255, 2, "left", "top", 128)
+    textDisplayAddText ( teamsScoreDisplay, team1.membersLabel )
+    textDisplayAddText ( teamsScoreDisplay, team2.membersLabel )
+
     team1.textDisplay = textCreateDisplay()
     local team1YourTeamText = textCreateTextItem ( "Your team", 0.3, 0.1, "medium", r1, g1, b1, 255, 1, "right", "top", 128) 
     local team1SwitchText = textCreateTextItem ( "Press [F2] to join", 0.6, 0.1, "medium", r2, g2, b2, 255, 0.8, "left", "top", 128) 
@@ -98,14 +105,43 @@ function updateTeamsActiviated()
     end
 end
 
-function switchToTeam(team, player)
+function switchToTeam(team, player, autoJoinRest)
     removeFromPreviousTeam(player)
     textDisplayRemoveObserver(team.otherTeam.textDisplay, player)
     table.insert(team.members, getPlayerName(player))
     setPlayerTeam(player, team.team)
     textDisplayAddObserver(team.textDisplay, player)
     updateTeamsActiviated()
+    updateMembersLabel(team)
+    updateMembersLabel(team.otherTeam)
+    if autoJoinRest then
+        automaticallyJoinTeamForNonTeamMembers()
+    end
     refreshAllBlips()
+end
+
+function updateMembersLabel(team)
+    local membersText = table.concat(team.members, "\n")
+    textItemSetText(team.membersLabel, membersText)
+end
+
+function automaticallyJoinTeamForNonTeamMembers()
+    for k, player in ipairs(getElementsByType("player")) do
+        if not getPlayerTeam(player) then
+            if #team1.members < #team2.members then
+                switchToTeam(team1, player, false)
+            else if #team2.members < #team1.members then
+                switchToTeam(team2, player, false)
+            else
+                -- random team
+                if math.random(0, 1) == 0 then
+                    switchToTeam(team1, player, false)
+                else
+                    switchToTeam(team2, player, false)
+                end
+            end
+        end
+    end
 end
 
 function giveTeamScore(player, score)
@@ -144,11 +180,11 @@ function updateScoreDisplay()
 end
 
 function switchToTeam1(player)
-    switchToTeam(team1, player)
+    switchToTeam(team1, player, true)
 end
 
 function switchToTeam2(player)
-    switchToTeam(team2, player)
+    switchToTeam(team2, player, true)
 end
 
 function bindTeamKeysForPlayer(player)

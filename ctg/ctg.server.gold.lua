@@ -15,7 +15,7 @@ function getLastGoldSpawn()
 end
 
 function spawnNewGold()
-    local spawnEdl = chooseRandomCloseTo(goldSpawns, meanPositionOfPlayers(), 1000)
+    local spawnEdl = chooseRandomCloseTo(goldSpawns, meanPositionOfPlayers(), getConst().goldSpawnDistance)
     local posX, posY, posZ = coordsFromEdl(spawnEdl)
     lastGoldSpawn = {
         edl = spawnEdl,
