@@ -52,7 +52,10 @@ function setPlayerPowerConfig(player, config)
         local powerUp = findPowerUpWithKey(powerUpKey)
         resetPowerState(player, powerUp)
       -- outputServerLog("setting userRand "..inspect(config).." "..inspect(powerUp.rank()))
-        setUsedRang(powerUp.rank())
+        if powerUp.rank() > getUsedRank(player) then
+            outputChatBox("Increased rank to "..powerUp.rank().."!", player)
+            setUsedRank(player, powerUp.rank())
+        end
     end
 end
 
@@ -104,7 +107,7 @@ function getUsedRank(player)
     local val = getElementData(player, "usedRank")
     if not val then
         setUsedRank(player, 1)
-        return 0
+        return 1
     else
         return val
     end
@@ -115,7 +118,13 @@ function setUsedRank(player, rank)
 end
 
 function getCompletedRank(player)
-    return getElementData(player, "completedRank")
+    local val = getElementData(player, "completedRank")
+    if not val then
+        setCompletedRank(player, 0)
+        return 0
+    else
+        return val
+    end
 end
 
 function setCompletedRank(player, rank)

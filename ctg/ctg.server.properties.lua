@@ -37,7 +37,7 @@ local props = {
             cooldown = 20,
             initCooldown = 8,
             allowedGoldCarrier = false,
-            charges = 1,
+            charges = 0,
             rank = 1,
             minDistance = 300,
         },
@@ -58,7 +58,7 @@ local props = {
             rank = 3,
         },
         plane = {
-            duration = 4,
+            duration = 15,
             cooldown = 20,
             initCooldown = 1,
             allowedGoldCarrier = false,
@@ -111,7 +111,7 @@ local props = {
             cooldown = 5,
             initCooldown = 1,
             allowedGoldCarrier = false,
-            charges = 1,
+            charges = 3,
             rank = 4,
         },
         cinematic = {
@@ -128,7 +128,7 @@ local props = {
             initCooldown = 1,
             allowedGoldCarrier = true,
             charges = 2,
-            rank = 4,
+            rank = 2,
         },
     }
 }
