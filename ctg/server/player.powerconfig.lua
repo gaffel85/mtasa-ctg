@@ -101,7 +101,13 @@ function openConfigPanel(player, index)
 end
 
 function getUsedRank(player)
-    return getElementData(player, "usedRank")
+    local val = getElementData(player, "usedRank")
+    if not val then
+        setUsedRank(player, 1)
+        return 0
+    else
+        return val
+    end
 end
 
 function setUsedRank(player, rank)
@@ -113,6 +119,7 @@ function getCompletedRank(player)
 end
 
 function setCompletedRank(player, rank)
+    -- outputServerLog("setting completedRank "..inspect(rank))
     setElementData(player, "completedRank", rank)
 end
 
