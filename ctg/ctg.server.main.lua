@@ -189,7 +189,7 @@ end
 function activeRoundFinished()
     nextVehicle()
     resetRoundVars()
-	setTimer(placeGold, 2000, 1, source)
+	setTimer(placeGold, getConst().goldSpawnTime, 1, source)
 end
 
 function resetGame()

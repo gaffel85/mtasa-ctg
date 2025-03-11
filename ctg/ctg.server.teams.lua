@@ -6,7 +6,8 @@ local team1 = {
     textDisplay = nil,
     otherTeam = nil,
     hideOut = nil,
-    color = {100, 100, 255}
+    color = {100, 100, 255},
+    membersLabel = nil
 }
 local team2 = {
     members = {},
@@ -16,7 +17,8 @@ local team2 = {
     textDisplay = nil,
     otherTeam = nil,
     hideOut = nil,
-    color = {100, 255, 100}
+    color = {100, 255, 100},
+    membersLabel = nil
 }
 
 local teamsScoreDisplay
@@ -66,6 +68,11 @@ function setupTeams()
     textDisplayAddText ( teamsScoreDisplay, team1.scoreLabel )
     textDisplayAddText ( teamsScoreDisplay, team2.scoreLabel )
 
+    team1.membersLabel = textCreateTextItem ( "", 0.3, 0.25, "medium", r1, g1, b1, 255, 2, "right", "top", 128)
+    team2.membersLabel = textCreateTextItem ( "", 0.6, 0.25, "medium", r2, g2, b2, 255, 2, "left", "top", 128)
+    textDisplayAddText ( teamsScoreDisplay, team1.membersLabel )
+    textDisplayAddText ( teamsScoreDisplay, team2.membersLabel )
+
     team1.textDisplay = textCreateDisplay()
     local team1YourTeamText = textCreateTextItem ( "Your team", 0.3, 0.1, "medium", r1, g1, b1, 255, 1, "right", "top", 128) 
     local team1SwitchText = textCreateTextItem ( "Press [F2] to join", 0.6, 0.1, "medium", r2, g2, b2, 255, 0.8, "left", "top", 128) 
@@ -105,10 +112,17 @@ function switchToTeam(team, player, autoJoinRest)
     setPlayerTeam(player, team.team)
     textDisplayAddObserver(team.textDisplay, player)
     updateTeamsActiviated()
+    updateMembersLabel(team)
+    updateMembersLabel(team.otherTeam)
     if autoJoinRest then
         automaticallyJoinTeamForNonTeamMembers()
     end
     refreshAllBlips()
+end
+
+function updateMembersLabel(team)
+    local membersText = table.concat(team.members, "\n")
+    textItemSetText(team.membersLabel, membersText)
 end
 
 function automaticallyJoinTeamForNonTeamMembers()
