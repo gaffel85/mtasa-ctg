@@ -98,14 +98,36 @@ function updateTeamsActiviated()
     end
 end
 
-function switchToTeam(team, player)
+function switchToTeam(team, player, autoJoinRest)
     removeFromPreviousTeam(player)
     textDisplayRemoveObserver(team.otherTeam.textDisplay, player)
     table.insert(team.members, getPlayerName(player))
     setPlayerTeam(player, team.team)
     textDisplayAddObserver(team.textDisplay, player)
     updateTeamsActiviated()
+    if autoJoinRest then
+        automaticallyJoinTeamForNonTeamMembers()
+    end
     refreshAllBlips()
+end
+
+function automaticallyJoinTeamForNonTeamMembers()
+    for k, player in ipairs(getElementsByType("player")) do
+        if not getPlayerTeam(player) then
+            if #team1.members < #team2.members then
+                switchToTeam(team1, player, false)
+            else if #team2.members < #team1.members then
+                switchToTeam(team2, player, false)
+            else
+                -- random team
+                if math.random(0, 1) == 0 then
+                    switchToTeam(team1, player, false)
+                else
+                    switchToTeam(team2, player, false)
+                end
+            end
+        end
+    end
 end
 
 function giveTeamScore(player, score)
@@ -144,11 +166,11 @@ function updateScoreDisplay()
 end
 
 function switchToTeam1(player)
-    switchToTeam(team1, player)
+    switchToTeam(team1, player, true)
 end
 
 function switchToTeam2(player)
-    switchToTeam(team2, player)
+    switchToTeam(team2, player, true)
 end
 
 function bindTeamKeysForPlayer(player)
