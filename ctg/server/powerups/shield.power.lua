@@ -14,12 +14,10 @@ local cinematicCamera = {
 	onDisable = function(player)
 	end,
 	onActivated = function(player, vehicle, state)
-		addShieldedPlayer(player)
-		triggerClientEvent(getRootElement(), "onShieldAddedFromServer", getRootElement(), player)
+		addShieldedPlayer(player, 1, 2)
 	end,
 	onDeactivated = function(player, vehicle, state)
-		removeShieldedPlayer(player)
-		triggerClientEvent(getRootElement(), "onShieldRemovedFromServer", resourceRoot, player)
+		removeShieldedPlayer(player, 1, 2)
 	end	
 }
 

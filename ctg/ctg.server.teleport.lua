@@ -89,14 +89,37 @@ function spawnCloseToLeader(player)
 		return
 	end
 
+	local leaderX, leaderY, leaderZ = getElementPosition(leader)
+	spawnCloseTo(player, {x=leaderX, y=leaderY, z=leaderZ})
+end
+
+function spawnCloseToMeanPositionOfAllPlayers(player)
+	local players = getElementsByType("player")
+	local x = 0
+	local y = 0
+	local z = 0
+	local count = 0
+	for k, player in ipairs(players) do
+		local px, py, pz = getElementPosition(player)
+		x = x + px
+		y = y + py
+		z = z + pz
+		count = count + 1
+	end
+	x = x / count
+	y = y / count
+	z = z / count
+	spawnCloseTo(player, {x=x, y=y, z=z})
+end
+
+function spawnCloseTo(player, pos)
 	local vehicle = getPedOccupiedVehicle(player)
 	if (not vehicle) then
 		return
 	end
 
-	local leaderX, leaderY, leaderZ = getElementPosition(leader)
 	local spwans = getSpawnPoints()
-	local spawn = positionCloseTo(spwans, {x = leaderX, y = leaderY, z = leaderZ}, 0)
+	local spawn = positionCloseTo(spwans, pos, 0)
 	local x, y, z = coordsFromEdl(spawn)
 	local rx, ry, rz = rotFromEdl(spawn)
 	
