@@ -32,7 +32,7 @@ function edlsWithDistance(edls, position, radius)
     for i, edl in ipairs(edls) do
         local x, y, z = coordsFromEdl(edl)
         local distance = getDistanceBetweenPoints3D(x, y, z, position.x, position.y, position.z)
-        local distanceFromRadius = math.abs(distance - radius)W
+        local distanceFromRadius = math.abs(distance - radius)
         table.insert(edlsWithDistances, {edl = edl, deviation = distanceFromRadius, distance = distance, x = x, y = y, z = z})
     end
     return edlsWithDistances
