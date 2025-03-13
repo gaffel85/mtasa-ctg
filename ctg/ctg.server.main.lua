@@ -134,13 +134,19 @@ function startGameMap(startedMap)
     currentSpawn = math.random(#spawnPoints)
     setGoldSpawns(goldSpawnPoints)
     setHideouts(hideouts)
-    plotPoints()
     resetGame()
 end
 addEventHandler("onGamemodeMapStart", getRootElement(), startGameMap)
 
-function  plotPoints()
-  -- outputChatBox("Plotting points")
+local hasPlotted = false
+addEvent("plotPointsFromClient", true)
+addEventHandler("plotPointsFromClient", resourceRoot, function()
+    if hasPlotted then
+        refreshAllBlips()
+        hasPlotted = false
+        return
+    end
+
     for k, goldSpawn in ipairs(goldSpawnPoints) do
         local posX, posY, posZ = coordsFromEdl(goldSpawn)
         createBlip(posX, posY, posZ, 0, 2, 0, 255, 255, 255, 0)
@@ -149,7 +155,8 @@ function  plotPoints()
         local posX, posY, posZ = coordsFromEdl(hideout)
         createBlip(posX, posY, posZ, 0, 2, 0, 0, 255, 255, 0)
     end
-end
+    hasPlotted = true
+end)
 
 function joinHandler()
     spawn(source, false)
