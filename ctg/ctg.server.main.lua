@@ -175,14 +175,10 @@ function goldDelivered(player)
     activeRoundFinished()
 end
 
-function placeGold()
-	spawnNewGold()
-end
-
 function activeRoundFinished()
     nextVehicle()
     resetRoundVars()
-	setTimer(placeGold, getConst().goldSpawnTime * 1000, 1, source)
+    scheduleNextGold(getConst().goldSpawnTime)
 end
 
 function resetRoundVars()
@@ -200,7 +196,7 @@ function resetGame()
     respawnAllPlayers()
 	repairAllCars()
     resetRoundVars()
-	setTimer(placeGold, 2000, 1, source)
+	scheduleNextGold(2)
 end
 
 function resetScore()

@@ -6,6 +6,11 @@ local goldSpawnBlip = nil
 local goldCarrierBlip = nil
 local lastGoldSpawn = nil
 
+local spawnTimer = nil
+local countDownTimer = nil
+local coundownTextKey = 3242554
+
+
 function setGoldSpawns(spawns)
     goldSpawns = spawns
 end
@@ -16,6 +21,17 @@ end
 
 function clearLastGoldSpawn()
     lastGoldSpawn = nil
+end
+
+function scheduleNextGold(countdown)
+    spawnTimer = setTimer(spawnNewGold, countdown * 1000, 1)
+    local currentCountDown = countdown
+    countDownTimer = setTimer(function()
+        currentCountDown = currentCountDown - 1
+        if (currentCountDown > 0) then
+            displayMessageForAll(coundownTextKey, "Next gold in "..currentCountDown.."s", nil, nil, 1000, 0.5, 0.4, 0, 180, 90, 255, 3)
+        end
+    end, 1000, countdown)
 end
 
 function spawnNewGold()
@@ -113,3 +129,13 @@ function onGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
     refreshAllBlips()
 end
 addEventHandler("goldCarrierChanged", root, onGoldCarrierChanged)
+
+-- onResourceStart clear timers
+addEventHandler("onResourceStart", getResourceRootElement(getThisResource()), function()
+    if (spawnTimer) then
+        killTimer(spawnTimer)
+    end
+    if (countDownTimer) then
+        killTimer(countDownTimer)
+    end
+end)
