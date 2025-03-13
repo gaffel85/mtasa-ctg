@@ -122,6 +122,7 @@ end
 
 function updateMembersLabel(team)
     local membersText = table.concat(team.members, "\n")
+    outputServerLog(membersText)
     textItemSetText(team.membersLabel, membersText)
 end
 
