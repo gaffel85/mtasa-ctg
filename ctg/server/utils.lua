@@ -1,5 +1,5 @@
 function chooseRandomCloseToByLimits(edls, position, wantedRadius, safeDeviation, minRadius)
-    local edlsWithDistances = edlsWithDistance(edls, position)
+    local edlsWithDistances = edlsWithDistance(edls, position, wantedRadius)
     local longestDistance = findLongestDistance(edlsWithDistances)
 
     local hardMinDist = wantedRadius - safeDeviation
@@ -27,13 +27,13 @@ function chooseRandomCloseToByLimits(edls, position, wantedRadius, safeDeviation
     return filteredEdls[math.random(1, #filteredEdls)].edl
 end
 
-function edlsWithDistance(edls, position)
+function edlsWithDistance(edls, position, radius)
     local edlsWithDistances = {}
     for i, edl in ipairs(edls) do
         local x, y, z = coordsFromEdl(edl)
         local distance = getDistanceBetweenPoints3D(x, y, z, position.x, position.y, position.z)
-        local distanceFromRadius = math.abs(distance - wantedRadius)
-        table.insert(edlsWithDistances, {edl = edl, distance = distanceFromRadius, x, y, z})
+        local distanceFromRadius = math.abs(distance - radius)W
+        table.insert(edlsWithDistances, {edl = edl, deviation = distanceFromRadius, distance = distance, x = x, y = y, z = z})
     end
     return edlsWithDistances
 end
@@ -52,11 +52,11 @@ end
 function chooseRandomCloseTo(edls, position, wantedRadius)
 
     -- create a new table with the edls and their distances to the position
-    local edlsWithDistances = edlsWithDistance(edls, position)
+    local edlsWithDistances = edlsWithDistance(edls, position, wantedRadius)
     local longestDistance = findLongestDistance(edlsWithDistances)
 
     for i, v in ipairs(edlsWithDistances) do
-        v.quota = longestDistance + 200 - v.distance
+        v.quota = longestDistance + 200 - v.deviation
     end
 
     -- sort the table by longest distance first
