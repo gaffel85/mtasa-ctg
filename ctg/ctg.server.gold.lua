@@ -14,6 +14,10 @@ function getLastGoldSpawn()
     return lastGoldSpawn
 end
 
+function clearLastGoldSpawn()
+    lastGoldSpawn = nil
+end
+
 function spawnNewGold()
     local spawnEdl = chooseRandomCloseTo(goldSpawns, meanPositionOfPlayers(), getConst().goldSpawnDistance)
     local posX, posY, posZ = coordsFromEdl(spawnEdl)
@@ -51,18 +55,11 @@ function createGold(posX, posY, posZ)
     return hitMarker
 end
 
-function showCarrierBlip(carrier)
-	destroyCarrierBlip()
-    refreshAllBlips()
-	-- goldCarrierBlip = createBlipAttachedTo ( carrier, 0 )
-	-- setElementVisibleTo(goldCarrierBlip, carrier, false)
-end
-
 function removeOldGold()
 	destroySpawnBlip()
-    destroyCarrierBlip()
     destroySpawnMarker()
     destroyCarrierMarker()
+    refreshAllBlips()
 end
 
 function destroySpawnMarker()
@@ -78,14 +75,6 @@ function destroySpawnBlip()
     --    destroyElement(goldSpawnBlip)
     -- end
     -- goldSpawnBlip = nil
-end
-
-function destroyCarrierBlip()
-    refreshAllBlips()
-    -- if (goldCarrierBlip) then
-    --     destroyElement(goldCarrierBlip)
-    -- end
-    -- goldCarrierBlip = nil
 end
 
 function destroyCarrierMarker()
@@ -106,9 +95,8 @@ function markerHit(markerHit, matchingDimension)
         destroySpawnMarker()
         destroySpawnBlip()
         goldCarrierMarker = createCarrierMarker(source)
-
-		showCarrierBlip(source)
 		goldPickedUp(source)
+        refreshAllBlips()
         return
     end
 end
@@ -116,13 +104,12 @@ addEventHandler("onPlayerMarkerHit", getRootElement(), markerHit)
 
 function onGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
    -- outputChatBox("gold.onGoldCarrierChanged("..inspect(newGoldCarrier)..", "..inspect(oldGoldCarrier)..")")
-    destroyCarrierBlip()
     destroyCarrierMarker()
     if (not newGoldCarrier) then
         return
     end
 
     goldCarrierMarker = createCarrierMarker(newGoldCarrier)
-    showCarrierBlip(newGoldCarrier)
+    refreshAllBlips()
 end
 addEventHandler("goldCarrierChanged", root, onGoldCarrierChanged)

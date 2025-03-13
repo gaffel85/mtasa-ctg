@@ -65,19 +65,11 @@ end
 
 function removeOldHideout()
     local teams = getTeams()
-    if not isTeamsActivated() then
-        local team = teams[1]
-        if team.hideout and team.hideout.marker then
-            destroyElement(team.hideout.marker)
-        end
-        team.hideout = nil
-        team.otherTeam.hideout = nil
-        return
-    end
-
     for i, team in ipairs(teams) do
         if team.hideout and team.hideout.marker then
-            destroyElement(team.hideout.marker)
+            if (isElement(team.hideout.marker)) then
+                destroyElement(team.hideout.marker)
+            end
         end
         team.hideout = nil
     end
