@@ -35,7 +35,7 @@ function scheduleNextGold(countdown)
 end
 
 function spawnNewGold()
-    local spawnEdl = chooseRandomCloseTo(goldSpawns, meanPositionOfPlayers(), getConst().goldSpawnDistance)
+    local spawnEdl = chooseRandomCloseToByLimits(goldSpawns, meanPositionOfPlayers(), getConst().goldSpawnDistance, getConst().goldSpawnSafeDistance, getConst().goldSpawnMinDistance)
     local posX, posY, posZ = coordsFromEdl(spawnEdl)
     lastGoldSpawn = {
         edl = spawnEdl,

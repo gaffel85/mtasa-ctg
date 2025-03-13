@@ -1,6 +1,33 @@
-function chooseRandomCloseTo(edls, position, wantedRadius)
+function chooseRandomCloseToByLimits(edls, position, wantedRadius, safeDeviation, minRadius)
+    local edlsWithDistances = edlsWithDistance(edls, position)
+    local longestDistance = findLongestDistance(edlsWithDistances)
 
-    -- create a new table with the edls and their distances to the position
+    local hardMinDist = wantedRadius - safeDeviation
+    -- random value between minRadius and hardMinDist
+    local choosenMinDist = math.random() * (hardMinDist - minRadius) + minRadius
+
+    local hardMaxDist = wantedRadius + safeDeviation
+    -- random value between wantedRadius and longestDistance
+    local choosenMaxDist = math.random() * (longestDistance - wantedRadius) + wantedRadius
+
+    -- filter out all edls that are not in the range
+    local filteredEdls = {}
+    for i, v in ipairs(edlsWithDistances) do
+        if v.distance >= choosenMinDist and v.distance <= choosenMaxDist then
+            table.insert(filteredEdls, v)
+        end
+    end
+
+    if #filteredEdls == 0 then
+        -- pick random of all edls
+        return edls[math.random(1, #edls)]
+    end
+
+    -- pick random of the filtered edls
+    return filteredEdls[math.random(1, #filteredEdls)].edl
+end
+
+function edlsWithDistance(edls, position)
     local edlsWithDistances = {}
     for i, edl in ipairs(edls) do
         local x, y, z = coordsFromEdl(edl)
@@ -8,13 +35,25 @@ function chooseRandomCloseTo(edls, position, wantedRadius)
         local distanceFromRadius = math.abs(distance - wantedRadius)
         table.insert(edlsWithDistances, {edl = edl, distance = distanceFromRadius, x, y, z})
     end
+    return edlsWithDistances
+end
 
+function findLongestDistance(edlsWithDistances)
     local longestDistance = 0
     for i, v in ipairs(edlsWithDistances) do
         if v.distance > longestDistance then
             longestDistance = v.distance
         end
     end
+    return longestDistance
+
+end
+
+function chooseRandomCloseTo(edls, position, wantedRadius)
+
+    -- create a new table with the edls and their distances to the position
+    local edlsWithDistances = edlsWithDistance(edls, position)
+    local longestDistance = findLongestDistance(edlsWithDistances)
 
     for i, v in ipairs(edlsWithDistances) do
         v.quota = longestDistance + 200 - v.distance

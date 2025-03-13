@@ -26,8 +26,8 @@ function spawnNewHideoutForTeam(team, otherTeamsHideout)
         local distanceFromMean = getDistanceBetweenPoints3D(x1, y1, z1, sourcePos.x, sourcePos.y, sourcePos.z)
         hideout = positionCloseTo(hideouts, sourcePos, distanceFromMean, otherTeamsHideout.pos, 300, 0.4)
     else
-        local distanceFromMean = 800
-        hideout = chooseRandomCloseTo(hideouts, sourcePos , distanceFromMean)
+        local distanceFromMean = getConst().hideoutSpawnDistance
+        hideout = chooseRandomCloseToByLimits(hideouts, sourcePos , distanceFromMean, getConst().goldSpawnSafeDistance, getConst().goldSpawnMinDistance)
     end
     local posX, posY, posZ = coordsFromEdl(hideout)
 

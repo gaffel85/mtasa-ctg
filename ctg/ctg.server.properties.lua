@@ -1,7 +1,9 @@
 
 local props = {
     consts = {
-        goldSpawnDistance = 1000,
+        goldSpawnDistance = 1200,
+        goldSpawnSafeDistance = 300,
+        goldSpawnMinDistance = 300,
         goldSpawnTime = 30,
         tillbakaKakatime = 5000,
         repairTime = 5,
