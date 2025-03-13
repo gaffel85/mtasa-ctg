@@ -1,26 +1,44 @@
 local shieldedPlayers = {}
-local shieldTimers = {}
 
 function isShielded(player)
-    return shieldedPlayers[player] == true
+    return shieldedPlayers[player] ~= nil
 end
 
-function addShieldedPlayer(player)
-    --outputChatBox('--Adding shield to player '..inspect(otherPlayer))
-    shieldedPlayers[player] = true
+function addShieldedPlayer(player, hits, duration)
+    local oldVal = shieldedPlayers[player]
+    if oldVal then
+        if oldVal.hits > hits then
+            return
+        end
+        local oldShieldTimer = oldVal.timer
+        if oldShieldTimer then
+            killTimer(oldShieldTimer)
+        end
+    end
+
+    shieldedPlayers[player] = { hits = hits, duration = duration }
+    triggerClientEvent(getRootElement(), "onShieldAddedFromServer", getRootElement(), player)
 end
 
 function removeShieldedPlayer(player)
-    shieldedPlayers[player] = nil
-    local oldShieldTimer = shieldTimers[player]
+    local oldShieldTimer = shieldedPlayers[player] and shieldedPlayers[player].timer
     if oldShieldTimer then
         killTimer(oldShieldTimer)
-        shieldTimers[player] = nil
     end
+    shieldedPlayers[player] = nil
+    triggerClientEvent(getRootElement(), "onShieldRemovedFromServer", resourceRoot, player)
+end
+
+function increaseHits(player)
+    if shieldedPlayers[player] then
+        local newVal = shieldedPlayers[player].hits + 1
+        shieldedPlayers[player].hits = newVal
+        return newVal
+    end
+    return 0
 end
 
 function collisisionWithPlayer(otherPlayer, damage)
-    --outputChatBox('Collision with player '..inspect(otherPlayer).. ' 1 '..inspect(client).. ' 2 '..inspect(source).. ' 3 '..inspect(sourceRoot))
     local goldCarrier = getGoldCarrier()
     local notGoldCarrier = nil
     if otherPlayer == goldCarrier then
@@ -34,17 +52,17 @@ function collisisionWithPlayer(otherPlayer, damage)
     end
 
     if isShielded(goldCarrier) then
-        --outputChatBox('Gold carrier was shielded player '..inspect(goldCarrier))
-        local oldShieldTimer = shieldTimers[goldCarrier]
-        if not oldShieldTimer then
-            shieldTimers[goldCarrier] = setTimer(function()
-                --outputChatBox('Remove shield by timer  for gold carrier '..inspect(goldCarrier))
-                removeShieldedPlayer(goldCarrier)
-                triggerClientEvent(getRootElement(), "onShieldRemovedFromServer", resourceRoot, goldCarrier)
-            end, 1000, 1)
+        local newHits = increaseHits(goldCarrier)
+        if newHits <= 0 then
+            local oldShieldTimer = shieldedPlayers[goldCarrier].timer
+            if not oldShieldTimer then
+                shieldedPlayers[goldCarrier].timer = setTimer(function()
+                    removeShieldedPlayer(goldCarrier)
+                    triggerClientEvent(getRootElement(), "onShieldRemovedFromServer", resourceRoot, goldCarrier)
+                end, shieldedPlayers[goldCarrier].duration * 1000, 1)
+            end
         end
     else 
-        --outputChatBox('No shield '..inspect(otherPlayer))
         changeGoldCarrier(notGoldCarrier)
     end
 end

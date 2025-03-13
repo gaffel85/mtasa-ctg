@@ -3,6 +3,9 @@ local oldGoldCarrier
 local previousGoldCarrier
 local previousGoldCarrierResetter
 
+local tillbakaKakaShield = false
+local shieldedPlayer = nil
+
 local vechicleHandlingLookup = {}
 
 function getGoldCarrier()
@@ -26,12 +29,30 @@ function setGoldCarrier(carrier)
     end
 end
 
+function shieldPlayer(player)
+    tillbakaKakaShield = true
+    shieldedPlayer = player
+    addShieldedPlayer(player, 10000, 2)
+end
+
+function clearShield()
+    if (shieldedPlayer) then
+        removeShieldedPlayer(shieldedPlayer)
+    end
+    tillbakaKakaShield = false
+    shieldedPlayer = nil
+end
+
+function isShielded(player)
+    return tillbakaKakaShield
+end
+
 function clearGoldCarrier()
     -- outputChatBox("Clear gold carrier!!!!")
     local tmpGoldCarrier = goldCarrier
     setGoldCarrier(nil)
     oldGoldCarrier = nil
-    tillbakaKakaShield = false
+    clearShield()
     -- triggerClientEvent("onGoldCarrierChanged", nil, nil)
 
     -- ALways togheter. Remove trigger?
@@ -49,19 +70,19 @@ function changeGoldCarrier(player)
         return
     end
 
-    if ( player == oldGoldCarrier and tillbakaKakaShield == true) then
+    if ( isShielded(goldCarrier) == true) then
 		-- outputChatBox("Did not change, tillbaka kaka")
 		return
 	end
 
-	tillbakaKakaShield = true
+	shieldPlayer(player)
 	setTimer(function() 
-		tillbakaKakaShield = false
-	end, 5000, 1)
+		clearShield()
+	end, getConst().tillbakaKakatime, 1)
 
 
     setGoldCarrier(player)
-    tillbakaKakaShield = true
+    --tillbakaKakaShield = true
 
 	givePointsToPlayer(goldCarrier, 50)
 
@@ -70,12 +91,7 @@ function changeGoldCarrier(player)
     onGoldCarrierChanged( goldCarrier, oldGoldCarrier)
     handlePowersForGoldCarrierChanged(goldCarrier, oldGoldCarrier)
 
-    triggerClientEvent("onGoldCarrierChanged", player, oldGoldCarrier)
-    
-	setTimer(function() 
-		tillbakaKakaShield = false
-	end, 5000, 1)
-    
+    triggerClientEvent("onGoldCarrierChanged", player, oldGoldCarrier)    
 end
 
 function removeVechicleHandling(oldCarrier)
@@ -115,11 +131,11 @@ function setVechicleHandling(carrier)
     }
     vechicleHandlingLookup[vehicleId] = currentHandling
 
-    local newMass = currentMass + GOLD_MASS
-    local newCenterOfMass = combineCenterOfMass(currentCenterOfMass, currentMass, GOLD_HEIGHT, 300)
-    local newMaxVelocity = currentMaxVelocity * GOLD_HANDLING_COEFF
-    local newEngineAcceleration = currentEngineAcceleration * GOLD_HANDLING_COEFF
-    local newBrakeDeceleration = currentBrakeDeceleration * GOLD_HANDLING_COEFF
+    local newMass = currentMass + getConst().goldMass
+    local newCenterOfMass = combineCenterOfMass(currentCenterOfMass, currentMass, getConst().goldHeight, 300)
+    local newMaxVelocity = currentMaxVelocity * getConst().goldHandlingCoeff
+    local newEngineAcceleration = currentEngineAcceleration * getConst().goldHandlingCoeff
+    local newBrakeDeceleration = currentBrakeDeceleration * getConst().goldHandlingCoeff
 
     setVehicleHandling(vehicle, "mass", newMass)
     setVehicleHandling(vehicle, "centerOfMass", newCenterOfMass)

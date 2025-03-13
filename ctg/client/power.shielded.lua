@@ -11,12 +11,12 @@ addEvent("onShieldRemovedFromServer", true)
 
 function onShieldAdded(player)
     shieldedPlayers[player] = true
-    outputChatBox('Shield added to player '..inspect(player))
+  -- outputChatBox('Shield added to player '..inspect(player))
 end
 addEventHandler("onShieldAddedFromServer", resourceRoot, onShieldAdded)
 
 function onShieldRemoved(player)
     shieldedPlayers[player] = nil
-    outputChatBox('Shield removed to player '..inspect(player))
+  -- outputChatBox('Shield removed to player '..inspect(player))
 end
 addEventHandler("onShieldRemovedFromServer", resourceRoot, onShieldRemoved)

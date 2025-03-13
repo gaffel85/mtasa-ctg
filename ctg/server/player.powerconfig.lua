@@ -3,10 +3,11 @@ local bindableKeys = {"X", "C"}
 
 function getDefaultConfig()
     return {
-        bindableKeys,
+        bindableKeys = bindableKeys,
         active = {
             { key = "nitro", bindKey = "lctrl" },
             { key = "teleport", bindKey = "Z" },
+            { key = "hidemap", bindKey = "C" },
             --{ key = "busses", bindKey = "C" },
             --{ key = "waterLevel", bindKey = "R" },
             --{ key = "canon", bindKey = "B" },
@@ -15,10 +16,10 @@ function getDefaultConfig()
         },
         wanted = {},
         completedRank = 0,
-        usedRank = 1,
         owned = {
             "nitro",
             "teleport",
+            "hidemap"
         },
     }
 end
@@ -52,7 +53,11 @@ function setPlayerPowerConfig(player, config)
     for i, powerUpKey in ipairs(newPowers) do
         local powerUp = findPowerUpWithKey(powerUpKey)
         resetPowerState(player, powerUp)
-        config.usedRank = powerUp.rank
+      -- outputServerLog("setting userRand "..inspect(config).." "..inspect(powerUp.rank()))
+        if powerUp.rank() > getUsedRank(player) then
+            outputChatBox("Increased rank to "..powerUp.rank().."!", player)
+            setUsedRank(player, powerUp.rank())
+        end
     end
 end
 
@@ -67,14 +72,14 @@ addEventHandler("powerSelectedEvent", getResourceRootElement(getThisResource()),
 end)
 
 function powerSelected(player, powerUp, index)
-    outputServerLog("powerSelected "..inspect(#powerUp).." "..inspect(index))
+  -- outputServerLog("powerSelected "..inspect(#powerUp).." "..inspect(index))
     local powerUpConfig = getPlayerPowerConfig(player)
     table.insert(powerUpConfig.wanted, { key = powerUp.key, bindKey = bindableKeys[index] })
     openConfigPanel(player, index + 1)
 end
 
 function openConfigPanel(player, index)
-    outputServerLog("openConfigPanel "..inspect(#bindableKeys).." "..inspect(index))
+  -- outputServerLog("openConfigPanel "..inspect(#bindableKeys).." "..inspect(index))
     if index > #bindableKeys then
         return
     end
@@ -98,6 +103,35 @@ function openConfigPanel(player, index)
     end
 
     exports.votemanager:startPoll(baseSettings)
+end
+
+function getUsedRank(player)
+    local val = getElementData(player, "usedRank")
+    if not val then
+        setUsedRank(player, 1)
+        return 1
+    else
+        return val
+    end
+end
+
+function setUsedRank(player, rank)
+    setElementData(player, "usedRank", rank)
+end
+
+function getCompletedRank(player)
+    local val = getElementData(player, "completedRank")
+    if not val then
+        setCompletedRank(player, 0)
+        return 0
+    else
+        return val
+    end
+end
+
+function setCompletedRank(player, rank)
+    -- outputServerLog("setting completedRank "..inspect(rank))
+    setElementData(player, "completedRank", rank)
 end
 
 function onOpenConfigPanelPressed(player)

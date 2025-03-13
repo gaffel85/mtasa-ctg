@@ -8,11 +8,6 @@
 	<script src="ctg.server.properties.lua" type="client" />
 	<script src="ctg.server.texts.lua" />
 
-	<script src="ctg.server.marker.lua" />
-	<script src="ctg.client.marker.lua" type="client" />
-
-	<script src="ctg.client.timer.lua" type="client" />
-	<script src="ctg.server.timer.lua" />
 	<script src="ctg.server.waterdetect.lua" />
 	<script src="ctg.server.teleport.lua" />
 	<script src="ctg.server.powerup.lua" />
@@ -34,8 +29,10 @@
 	<script src="server/powerups/canon.power.lua" />
 	<script src="server/powerups/chaos.power.lua" />
 	<script src="server/powerups/shield.power.lua" />
+	<script src="server/powerups/hidemap.power.lua" />
 	<script src="server/collision.lua" />
 	<script src="server/distance.meter.lua" />
+	<script src="server/admin.control.lua" />
 	
 
 	<script src="client/power.gui.lua" type="client" />
@@ -43,13 +40,13 @@
 	<script src="client/powerconfig.window.lua" type="client" />
 	<script src="client/power.shielded.lua" type="client" />
 	<script src="client/shieldball.lua" type="client" />
+	<script src="client/admin.gui.lua" type="client" />
+	<script src="client/help.gui.lua" type="client" />
 
 	<script src="ctg.client.goldcarrier.lua" type="client" />
     <script src="ctg.client.collision.lua" type="client" />
 	<script src="ctg.client.lastpositions.lua" type="client" />
 
-	<script src="ctg.server.nitro.lua" />
-	<script src="ctg.client.nitro.lua" type="client" />
 	<script src="ctg.client.powerup.lua" type="client" />
 
 	<script src="ctg.client.spectate.lua" type="client" />

@@ -18,6 +18,20 @@ function getPowerUp(key)
     return nil
 end
 
+function getCompletedRank(player)
+    local rank = getElementData(player, "completedRank")
+    if (not rank) then
+        outputConsole("completedRank not found")
+        rank = 0
+    end
+    return rank
+end
+
+function setRank(player, rank)
+    -- setElementData(player, "usedRank", rank)
+    -- setElementData(player, "completedRank", rank)
+end
+
 function savePowerConfig()
     triggerServerEvent("setConfigFromClient", resourceRoot, powerConfig)
 end
@@ -31,6 +45,7 @@ function loadPowerConfig()
 end
 
 function onPowerupsConfigLoaded(config)
+  -- outputConsole("onPowerupsConfigLoadedClient: "..inspect(config))
     powerConfig = config
     playerMoney = getPlayerMoney()
     populateBoxes()
@@ -51,6 +66,7 @@ addEvent("onPowerupsLoadedClient", true)
 addEventHandler("onPowerupsLoadedClient", resourceRoot, onPowerupsLoaded)
 
 function openWindowFromServer(config)
+  -- outputConsole("openWindowFromServer: "..inspect(config))
     powerConfig = config
     populateBoxes()
     openWindow()
@@ -60,7 +76,7 @@ addEventHandler("onOpenPowerConfigWindowClient", resourceRoot, openWindowFromSer
 
 function unlock(powerUp)
     local powerKey = powerUp.key
-    outputConsole("unlock "..powerKey)
+  -- outputConsole("unlock "..powerKey)
     setPlayerMoney(getPlayerMoney() - cost(powerUp))
     table.insert(powerConfig.owned, powerKey)
     savePowerConfig()
@@ -89,7 +105,8 @@ function bindWithKey(powerKey, bindKey)
 end
 
 function availableRank(powerUp)
-    return powerConfig.completedRank + 1 >= powerUp.rank
+  -- outputConsole("completedRank: "..inspect(powerConfig))
+    return getCompletedRank(localPlayer) + 1 >= powerUp.rank
 end
 
 function isOwned(key)
@@ -214,8 +231,8 @@ function populateBoxes()
         end
     end
 
-    playerRankLabel = powerConfig.completedRank
-    playerMoneyLabel = getPlayerMoney()
+    guiSetText (playerRankLabel, getCompletedRank(localPlayer))
+    guiSetText (playerMoneyLabel, getPlayerMoney())
 
     local row = 1
     local col = 1
@@ -274,7 +291,7 @@ function openWindow()
 end
 
 function toggleWindow()
-    outputChatBox("toggleWindow")
+  -- outputChatBox("toggleWindow")
     if guiGetVisible(powerwindow) then
         guiSetInputEnabled(false)
         showCursor(false)
@@ -286,7 +303,7 @@ end
 
 addEventHandler("onClientResourceStart", resourceRoot,
     function()
-        outputConsole("----------------------------")
+      -- outputConsole("----------------------------")
 
         powerwindow = guiCreateWindow(0.01, 0.02, 0.98, 0.95, "Choose power-ups", true)
         guiWindowSetSizable(powerwindow, false)
@@ -296,7 +313,7 @@ addEventHandler("onClientResourceStart", resourceRoot,
         playerRankLabel = guiCreateLabel(0.05, 0.02, 0.98, 0.05, "1", true, powerwindow)
 
         local playerMoneyTitle = guiCreateLabel(0.01, 0.05, 0.1, 0.05, "Money:", true, powerwindow)
-        playerMoneyLabel = guiCreateLabel(0.05, 0.02, 0.98, 0.05, "0", true, powerwindow)
+        playerMoneyLabel = guiCreateLabel(0.05, 0.05, 0.98, 0.05, "0", true, powerwindow)
 
         scrollpane = guiCreateScrollPane(0.01, 0.2, 0.99, 0.79, true, powerwindow)
 
@@ -307,7 +324,7 @@ addEventHandler("onClientResourceStart", resourceRoot,
 )
 
 function bindConfigPowerKeys(player)
-    outputChatBox("bindConfigPowerKeys")
+  -- outputChatBox("bindConfigPowerKeys")
     bindKey ( "F3", "up", toggleWindow )
 end
 
@@ -327,6 +344,6 @@ end
 addEventHandler("onPlayerQuit", getRootElement(), onQuitForPowerKeys)
 
 addEventHandler("onClientResourceStart", getResourceRootElement(getThisResource()), function()
-    outputChatBox("onClientResourceStart3333"..inspect(source))
+  -- outputChatBox("onClientResourceStart3333"..inspect(source))
     bindConfigPowerKeys(source)
 end)

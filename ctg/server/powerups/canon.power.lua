@@ -4,12 +4,12 @@ local canonPushPowerup = {
 	key = "canon",
 	name = "Canon ball",
     desc = "Instantly increase the speed of your vehicle with a factor of 3. The effect is instanst and will not affect your speed over time.",
-	cooldown = 5,
-	duration = 1,
-    charges = 1,
-	initCooldown = 1,
-	allowedGoldCarrier = false,
-	rank = 2,
+	cooldown = function() return getPowerConst().canon.cooldown end,
+	duration = function() return getPowerConst().canon.duration end,
+    charges = function() return getPowerConst().canon.charges end,
+	initCooldown = function() return getPowerConst().canon.initCooldown end,
+	allowedGoldCarrier = function() return getPowerConst().canon.allowedGoldCarrier end,
+	rank = function() return getPowerConst().canon.rank end,
 	onEnable = function(player)
 		return true
 	end,

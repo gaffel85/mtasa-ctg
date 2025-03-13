@@ -1,22 +1,172 @@
-BOMB_START_SECONDS = 40
-PREPARE_TIME = 15
-TILLBAKAKAKA_TIME = 6
-BOOST_COOLDOWN = 20
-NITRO_DURATION = 6
-TELEPORT_COOLDOWN = 20
-CLOAK_COOLDOWN = 20
-CLOAK_DURATION = 6
-SWITCH_EXTRA_TIME = 10
-REPAIR_TIME = 5
-PRESENT_WINNER_TIME = 7
-ALL_SEE_BOMB_HOLDER = true
-CLOAK_HIDES_CAR = false
-DISTANCE_FOR_STRESS_SOUND = 70
-DISTANCE_FOR_ACTIVATING_STRESS_CHECK = 100
-GOLD_MASS = 1000
-GOLD_HEIGHT = 2
-GOLD_HANDLING_COEFF = 0.8
-DAMAGE_MULTIPLIER_WEIGHT = 1.0
-TELEPORT_MIN_DISTANCE = 300
-SUPER_CAR_MODEL = 541
-MONEY_TO_OPPONENTS_PERCENTAGE = 0.7
+
+local props = {
+    consts = {
+        goldSpawnDistance = 1000,
+        goldSpawnTime = 30,
+        tillbakaKakatime = 5000,
+        repairTime = 5,
+        presentGoldDeliveredTime = 7,
+        goldMass = 1000,
+        goldHeight = 2,
+        goldHandlingCoeff = 0.8,
+        damageMultiplierWeight = 1.0,
+        moneyToOpponentsPercentage = 0.7,
+        airplaneQuota = 0.1,
+        helicopterQuota = 0.1,
+        door2Quota = 1,
+        door4Quota = 1,
+        civilQuota = 1,
+        govermentQuota = 1,
+        heavyQuota = 1,
+        vansQuota = 1,
+        suvQuota = 1,
+        lowRidersQuota = 1,
+        muscleQuota = 1,
+        streetRacersQuota = 1,
+        recreationalQuota = 1,
+    },
+    powers = {
+        nitro = {
+            duration = 8,
+            cooldown = 20,
+            initCooldown = 10,
+            allowedGoldCarrier = false,
+            charges = nil,
+            rank = 1,
+        },
+        teleport = {
+            duration = 0,
+            cooldown = 20,
+            initCooldown = 5,
+            allowedGoldCarrier = false,
+            charges = nil,
+            rank = 1,
+            minDistance = 300,
+        },
+        waterLevel = {
+            duration = 10,
+            cooldown = 20,
+            initCooldown = 20,
+            allowedGoldCarrier = false,
+            charges = 2,
+            rank = 5,
+        },
+        helicopter = {
+            duration = 15,
+            cooldown = 20,
+            initCooldown = 15,
+            allowedGoldCarrier = false,
+            charges = 2,
+            rank = 3,
+        },
+        plane = {
+            duration = 12,
+            cooldown = 20,
+            initCooldown = 15,
+            allowedGoldCarrier = false,
+            charges = 2,
+            rank = 2,
+        },
+        offroad = {
+            duration = 15,
+            cooldown = 20,
+            initCooldown = 15,
+            allowedGoldCarrier = true,
+            charges = nil,
+            rank = 2,
+        },
+        superCar = {
+            duration = 15,
+            cooldown = 20,
+            initCooldown = 10,
+            allowedGoldCarrier = false,
+            charges = 3,
+            rank = 4,
+            model = 541,
+        },
+        busses = {
+            duration = 10,
+            cooldown = 20,
+            initCooldown = 20,
+            allowedGoldCarrier = false,
+            charges = 2,
+            rank = 3,
+        },
+        shield = {
+            duration = 2000,
+            cooldown = 10,
+            initCooldown = 10,
+            allowedGoldCarrier = true,
+            charges = 1,
+            rank = 4,
+        },
+        chaos = {
+            duration = 16,
+            cooldown = 20,
+            initCooldown = 1,
+            allowedGoldCarrier = false,
+            charges = nil,
+            rank = 5,
+        },
+        canon = {
+            duration = 1,
+            cooldown = 15,
+            initCooldown = 1,
+            allowedGoldCarrier = false,
+            charges = 3,
+            rank = 4,
+        },
+        cinematic = {
+            duration = 3,
+            cooldown = 3,
+            initCooldown = 0,
+            allowedGoldCarrier = true,
+            charges = nil,
+            rank = 3,
+        },
+        hidemap = {
+            duration = 10,
+            cooldown = 20,
+            initCooldown = 1,
+            allowedGoldCarrier = true,
+            charges = 2,
+            rank = 2,
+        },
+    }
+}
+
+setElementData(resourceRoot, "props", props)
+
+function getConst()
+    return getElementData(resourceRoot, "props").consts
+end
+
+function getPowerConst()
+    return getElementData(resourceRoot, "props").powers
+end
+
+-- funtion to get props based on passed key. It should support nested keys like "powers.nitro.duration"
+function getProps(key)
+    local keys = split(key, ".")
+    local props = getElementData(resourceRoot, "props")
+    local current = props
+    for i, k in ipairs(keys) do
+        current = current[k]
+    end
+    return current
+end
+
+-- function to update props based on passed key and value. It should support nested keys like "powers.nitro.duration"
+function updateProps(key, value)
+    local keys = split(key, ".")
+    local props = getElementData(resourceRoot, "props")
+    local current = props
+    for i, k in ipairs(keys) do
+        if i == #keys then
+            current[k] = value
+        else
+            current = current[k]
+        end
+    end
+    setElementData(resourceRoot, "props", props)
+end

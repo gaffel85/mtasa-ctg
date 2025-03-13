@@ -17,6 +17,7 @@ function showBooserAdded(player)
 end
 
 function showPresentGoldCarrier(bombHolder)
+	--outputServerLog("showPresentGoldCarrier"..getPlayerName(bombHolder))
 	displayMessageForAll(PRESENTING_GOLD_CARRIER_TEXT_ID, getPlayerName(bombHolder).." now has the gold. Catch it!", bombHolder, "You have the gold. Deliver it!", 5000, 0.5, 0.3, 255, 0, 0 )
 end
 
@@ -38,7 +39,7 @@ end
 
 function showTextGoldDelivered(player)
 	local message = getPlayerName ( player ).." delivered the gold!"
-	displayMessageForAll(WINNER_TEXT_ID, message, nil, nil, PRESENT_WINNER_TIME * 1000, 0.5, 0.5, 0, 0, 255 )
+	displayMessageForAll(WINNER_TEXT_ID, message, nil, nil, getConst().presentGoldDeliveredTime * 1000, 0.5, 0.5, 0, 0, 255 )
 end
 
 function showPlayerReady(player)
@@ -51,11 +52,11 @@ function showWaitingForPlayersMessage(bombHolder)
 end
 
 function showRepairingCar(player)
-	displayMessageForAll(REPAIRING_CAR_TEXT_ID, "", player, "Car broken. Wait "..REPAIR_TIME.."s.", REPAIR_TIME*1000, 0.5, 0.3, 0, 0, 255 )
+	displayMessageForAll(REPAIRING_CAR_TEXT_ID, "", player, "Car broken. Wait "..getConst().repairTime.."s.", getConst().repairTime*1000, 0.5, 0.3, 0, 0, 255 )
 end
 
 function showPlayerParalyzied ( bombHolder, player)
-	displayMessageForAll(PARALYZIED_PLAYER_TEXT_ID, "", bombHolder, getPlayerName(player).." is paralyzied for "..REPAIR_TIME.."s. (Marked on the map)", REPAIR_TIME*1000, 0.5, 0.3, 0, 0, 255 )
+	displayMessageForAll(PARALYZIED_PLAYER_TEXT_ID, "", bombHolder, getPlayerName(player).." is paralyzied for "..getConst().repairTime.."s. (Marked on the map)", getConst().repairTime*1000, 0.5, 0.3, 0, 0, 255 )
 	
 end
 
@@ -91,7 +92,7 @@ function displayMessageForPlayer ( player, ID, message, displayTime, posX, posY,
 	g = g or 127
 	b = b or 0
 	-- display message for everyone
-	outputConsole ( message, player )
+	--outputConsole ( message, player )
 	call ( easyTextResource, "displayMessageForPlayer", player, ID, message, displayTime, posX, posY, r, g, b, alpha, scale )
 end
 

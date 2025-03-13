@@ -1,7 +1,5 @@
 local spawnPoints
 local currentSpawn = 1
-
-local tillbakaKakaShield = false
 local participants = {}
 local blowingPlayer = nil
 
@@ -97,7 +95,7 @@ end
 function getIndex(tab, val)
     local index = nil
     for i, v in ipairs (tab) do 
-        if (v.id == val) then
+        if (v == val) then
           index = i 
         end
     end
@@ -142,7 +140,7 @@ end
 addEventHandler("onGamemodeMapStart", getRootElement(), startGameMap)
 
 function  plotPoints()
-    outputChatBox("Plotting points")
+  -- outputChatBox("Plotting points")
     for k, goldSpawn in ipairs(goldSpawnPoints) do
         local posX, posY, posZ = coordsFromEdl(goldSpawn)
         createBlip(posX, posY, posZ, 0, 2, 0, 255, 255, 255, 0)
@@ -156,7 +154,7 @@ end
 function joinHandler()
     spawn(source, false)
     startGameIfEnoughPlayers()
-    outputChatBox("Welcome to Capture the Gold!", source)
+  -- outputChatBox("Welcome to Capture the Gold!", source)
     refreshAllBlips()
     plotPoints()
 end
@@ -189,7 +187,7 @@ end
 function activeRoundFinished()
     nextVehicle()
     resetRoundVars()
-	setTimer(placeGold, 2000, 1, source)
+	setTimer(placeGold, getConst().goldSpawnTime, 1, source)
 end
 
 function resetGame()
@@ -218,7 +216,7 @@ function playerDied(player)
     local posX, posY, posZ = getElementPosition(player)
     if player == getGoldCarrier() then
         clearGoldCarrier()
-        outputChatBox("had position"..inspect(posX))
+      -- outputChatBox("had position"..inspect(posX))
         spawnGoldAtTransform(posX, posY, posZ)
         refreshAllBlips()
     end
@@ -322,25 +320,27 @@ end)
 addCommandHandler("param", function(source, command, paramName, paramValue)
     if (paramName == "coeff") then
         local newValue = tonumber(paramValue)
-        local oldValue = GOLD_HANDLING_COEFF
-        GOLD_HANDLING_COEFF = newValue
-        outputChatBox("Gold handling coeff set to: "..GOLD_HANDLING_COEFF.." (old was "..oldValue..")")
+        local oldValue = getConst().goldHandlingCoeff
+        getConst().goldHandlingCoeff = newValue
+      -- outputChatBox("Gold handling coeff set to: "..getConst().goldHandlingCoeff.." (old was "..oldValue..")")
     end
     if (paramName == "height") then
         local newValue = tonumber(paramValue)
-        local oldValue = GOLD_HEIGHT
-        GOLD_HEIGHT = newValue
-        outputChatBox("Gold height set to: "..GOLD_HEIGHT.." (old was "..oldValue..")")
+        local oldValue = getConst().goldHeight
+        getConst().goldHeight = newValue
+      -- outputChatBox("Gold height set to: "..getConst().goldHeight.." (old was "..oldValue..")")
     end
     if (paramName == "mass") then
         local newValue = tonumber(paramValue)
-        local oldValue = GOLD_MASS
-        GOLD_MASS = newValue
-        outputChatBox("Gold mass set to: "..GOLD_MASS.." (old was "..oldValue..")")
+        local oldValue = getConst().goldMass
+        getConst().goldMass = newValue
+      -- outputChatBox("Gold mass set to: "..getConst().goldMass.." (old was "..oldValue..")")
     end
     if (paramName == "damage") then
         local newValue = tonumber(paramValue)
-        triggerClientEvent("onPropertyChanged", getRootElement(), "DAMAGE_MULTIPLIER_WEIGHT", newValue)
+        local oldValue = getConst().damageMultiplierWeight
+        getConst().damageMultiplierWeight = newValue
+      -- outputChatBox("Damage multiplier set to: "..getConst().damageMultiplierWeight.." (old was "..oldValue..")")
     end
     local carrier = getGoldCarrier()
     if (carrier) then

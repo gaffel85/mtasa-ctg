@@ -15,7 +15,7 @@ function getLastGoldSpawn()
 end
 
 function spawnNewGold()
-    local spawnEdl = chooseRandomCloseTo(goldSpawns, meanPositionOfPlayers(), 1000)
+    local spawnEdl = chooseRandomCloseTo(goldSpawns, meanPositionOfPlayers(), getConst().goldSpawnDistance)
     local posX, posY, posZ = coordsFromEdl(spawnEdl)
     lastGoldSpawn = {
         edl = spawnEdl,
@@ -115,7 +115,7 @@ end
 addEventHandler("onPlayerMarkerHit", getRootElement(), markerHit)
 
 function onGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
-    outputChatBox("gold.onGoldCarrierChanged("..inspect(newGoldCarrier)..", "..inspect(oldGoldCarrier)..")")
+   -- outputChatBox("gold.onGoldCarrierChanged("..inspect(newGoldCarrier)..", "..inspect(oldGoldCarrier)..")")
     destroyCarrierBlip()
     destroyCarrierMarker()
     if (not newGoldCarrier) then

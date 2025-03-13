@@ -3,12 +3,12 @@ local nitroPowerUp = {
 	name = "Nitro",
 	desc = "Nitro is a powerup that gives you a speed boost for a short period of time. It can be activated by pressing the left control key.",
 	bindKey = "lctrl",
-	cooldown = BOOST_COOLDOWN,
-	duration = NITRO_DURATION,
-	initCooldown = 5,
-	allowedGoldCarrier = false,
-	charges = 5, -- optional field for charges
-	rank = 1,
+	cooldown = function() return getPowerConst().nitro.cooldown end,
+	duration = function() return getPowerConst().nitro.duration end,
+	initCooldown = function() return getPowerConst().nitro.initCooldown end,
+	allowedGoldCarrier = function() return getPowerConst().nitro.allowedGoldCarrier end,
+	charges = function() return getPowerConst().nitro.charges end,
+	rank = function() return getPowerConst().nitro.rank end,
 	onEnable = function(player, vehicle)
 		-- outputChatBox("Nitro enabled "..getPlayerName(player))
 		addVehicleUpgrade(vehicle, 1009)
@@ -32,12 +32,12 @@ local teleportPowerUp = {
 	name = "Catch up",
 	desc = "Teleports you to a better location to catch up with the leader. Useful when you are about to give up. Can only be used when you are far enough from the leader.",
 	bindKey = "x",
-	cooldown = TELEPORT_COOLDOWN,
-	duration = 0,
-	initCooldown = 8,
-	allowedGoldCarrier = false,
-	charges = 1, -- optional field for charges
-	rank = 1,
+	cooldown = function() return getPowerConst().teleport.cooldown end,
+	duration = function() return getPowerConst().teleport.duration end,
+	initCooldown = function() return getPowerConst().teleport.initCooldown end,
+	allowedGoldCarrier = function() return getPowerConst().teleport.allowedGoldCarrier end,
+	charges = function() return getPowerConst().teleport.charges end,
+	rank = function() return getPowerConst().teleport.rank end,
 	onEnable = function(player, vehicle)
 		-- outputChatBox("teleport enabled "..getPlayerName(player))
 		if isFarEnoughFromLeader(player) then
@@ -53,7 +53,7 @@ local teleportPowerUp = {
 	end,
 	onActivated = function(player, vehicle)
 		-- askForTeleport(player)
-		spawnCloseToLeader(player)
+		spawnCloseToMeanPositionOfAllPlayers(player)
 	end,
 	onDeactivated = function(player, vehicle)
 	end	
@@ -70,7 +70,8 @@ end
 function resetPowerStatesOnDeliverd()
 	for i, player in ipairs(getElementsByType("player")) do
 		local config = getPlayerPowerConfig(player)
-		config.completedRank = config.usedRank
+		--outputServerLog("Setting completed rank "..inspect(config).." "..inspect(config.usedRank))
+		setCompletedRank(player, getUsedRank(player))
 		resetPowerStatesForPlayer(player)
 	end
 end
@@ -85,9 +86,9 @@ function resetPowerStatesForPlayer(player)
 end
 
 function handlePowersForGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
-	if oldGoldCarrier then
+	if oldGoldCarrier and newGoldCarrier then
 		loopOverPowersForPlayer(oldGoldCarrier, function(player, powerUp, powerUpState, powerConfig)
-			if not powerUp.allowedGoldCarrier then
+			if not powerUp.allowedGoldCarrier() then
 				unpausePower(player, powerUp, powerUpState)
 			end
 		end)
@@ -95,11 +96,11 @@ function handlePowersForGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
 
 	if newGoldCarrier then
 	loopOverPowersForPlayer(newGoldCarrier, function(player, powerUp, powerUpState, powerConfig)
-			if not powerUp.allowedGoldCarrier then
+			if not powerUp.allowedGoldCarrier() then
 				pausePower(player, powerUp, powerUpState)
 			end
 		end)
-end
+	end
 end
 
 local stateEnum = {
@@ -124,6 +125,10 @@ function resetPowerState(player, powerUp)
 		end
 	end
 
+	if powerUpState and powerUpState.state == stateEnum.PAUSED then
+		unpausePower(player, powerUp, powerUpState)
+	end
+
 	if powerUpState and (powerUpState.state == stateEnum.IN_USE or powerUpState.state == stateEnum.READY) then
 		local vehicle = getPedOccupiedVehicle (player)
 		if vehicle then
@@ -137,13 +142,15 @@ function resetPowerState(player, powerUp)
 		timeLeftOnPause = nil,
 		stateMessage = nil,
 		stateBeforePause = nil,
-		charges = powerUp.charges,
+		charges = powerUp.charges(),
 		name = powerUp.name,
 		timer = nil
 	}
-	if powerUp.initCooldown > 0 then
-		setStateWithTimer(stateEnum.COOLDOWN, powerUp.initCooldown, powerUpState, player, powerUp)
+	if powerUp.initCooldown() > 0 then
+-- outputServerLog("initCooldown "..inspect(powerUp.initCooldown()))
+		setStateWithTimer(stateEnum.COOLDOWN, powerUp.initCooldown(), powerUpState, player, powerUp)
 	else
+-- outputServerLog("initCooldown 0")
 		setState(powerUp, player, stateEnum.READY, "Ready", powerUpState, nil)
 	end
 	states[playerName] = powerUpState
@@ -151,6 +158,7 @@ function resetPowerState(player, powerUp)
 end
 
 function killPowerTimer(state)
+	--outputServerLog("killPowerTimer "..inspect(state.name).." "..inspect(state.state))
 	if state.timer then
 		killTimer(state.timer)
 		state.timer = nil
@@ -235,13 +243,13 @@ function tryDeactivatePower(powerUp, powerUpState, player)
 	if powerUpState.charges and powerUpState.charges <= 0 then
 		setState(powerUp, player, stateEnum.OUT_OF_CHARGES, "Out of charges", state, nil)
 	else
-		setStateWithTimer(stateEnum.COOLDOWN, powerUp.cooldown, powerUpState, player, powerUp)
+		setStateWithTimer(stateEnum.COOLDOWN, powerUp.cooldown(), powerUpState, player, powerUp)
 	end
 end
 
 function timerDone(player, powerUpKey)
 	local powerUp = findPowerUpWithKey(powerUpKey)
-	outputServerLog("timerDone "..inspect(player))
+	--outputServerLog("timerDone "..inspect(player))
 	local powerUpState = getPlayerState(player, powerUp)
 	killPowerTimer(powerUpState)
 	if powerUpState.state == stateEnum.COOLDOWN then
@@ -256,9 +264,19 @@ end
 function setStateWithTimer(stateType, duration, state, player, powerUp, message)
 	setEndsTime(duration, state)
 	setState(powerUp, player, stateType, message, state, nil)
-	state.timer = setTimer(function()
+	local seconds = timeLeft(state)
+
+	if seconds <= 0 then
+-- outputServerLog("Timer not needed for "..inspect(player).." "..inspect(powerUp.key))
 		timerDone(player, powerUp.key)
-	end, timeLeft(state) * 1000, 1)
+		return
+	end
+
+	--outputServerLog("Timer starting "..inspect(player).." "..inspect(powerUp.key))
+	state.timer = setTimer(function()
+-- outputServerLog("Timer done inside "..inspect(player).." "..inspect(powerUp.key))
+		timerDone(player, powerUp.key)
+	end, seconds * 1000, 1)
 end
 
 function timeLeft(powerUpState)
@@ -292,7 +310,7 @@ function setState(powerUp, player, stateType, stateMessage, state, config)
 	end
 	
 	if not state then
-		outputServerLog("setState "..inspect(player))
+-- outputServerLog("setState "..inspect(player))
 		state = getPlayerState(player, powerUp)
 	end
 
@@ -300,8 +318,8 @@ function setState(powerUp, player, stateType, stateMessage, state, config)
 	state.state = stateType
 	state.stateMessage = stateMessage
 	local totalCharges = 0
-	if powerUp.charges and powerUp.charges > 0 then
-		totalCharges = powerUp.charges
+	if powerUp.charges() and powerUp.charges() > 0 then
+		totalCharges = powerUp.charges()
 	end
 	triggerClientEvent(player, "powerupStateChangedClient", player, stateType, oldState, powerUp.name, stateMessage, config.bindKey, state.charges, totalCharges, timeLeft(state))
 end
@@ -322,17 +340,21 @@ end
 function getPowerUpsData()
 	local data = {}
 	for i, powerUp in ipairs(powerUps) do
+		local charges = nil
+		if powerUp.charges then
+			charges = powerUp.charges()
+		end
 		table.insert(data, {
 			key = powerUp.key,
 			name = powerUp.name,
 			desc = powerUp.desc,
 			bindKey = powerUp.bindKey,
-			cooldown = powerUp.cooldown,
-			duration = powerUp.duration,
-			charges = powerUp.charges,
-			initCooldown = powerUp.initCooldown,
-			allowedGoldCarrier = powerUp.allowedGoldCarrier,
-			rank = powerUp.rank
+			cooldown = powerUp.cooldown(),
+			duration = powerUp.duration(),
+			charges = charges,
+			initCooldown = powerUp.initCooldown(),
+			allowedGoldCarrier = powerUp.allowedGoldCarrier(),
+			rank = powerUp.rank()
 		})
 	end
 	return data
@@ -343,16 +365,16 @@ function usePowerUp(player, key, keyState, powerUp)
 	-- outputChatBox("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
 	
 	local state = getPlayerState(player, powerUp)
-	outputServerLog("usePowerUp "..inspect(player)..inspect(state.state)..inspect(stateEnum.READY).." "..inspect(state.state == stateEnum.READY))
+	--outputServerLog("usePowerUp "..inspect(player)..inspect(state.state)..inspect(stateEnum.READY).." "..inspect(state.state == stateEnum.READY))
 	if not (state.state == stateEnum.READY) then
-		outputServerLog("returns")
-		outputChatBox("Power not ready yet: "..inspect(powerUp.name))
+-- outputServerLog("returns")
+-- outputChatBox("Power not ready yet: "..inspect(powerUp.name))
 		return
 	else
-		outputServerLog("continues")
+-- outputServerLog("continues")
 	end
 
-	setStateWithTimer(stateEnum.IN_USE, powerUp.duration, state, player, powerUp, "In use")
+	setStateWithTimer(stateEnum.IN_USE, powerUp.duration(), state, player, powerUp, "In use")
 	if state.charges and state.charges > 0 then
 		state.charges = state.charges - 1
 	end
@@ -378,13 +400,13 @@ function loopOverPowersForPlayer(player, callback)
 	for j, powerUpConfig in ipairs(powerConfig.active) do
 		local powerUp = findPowerUpWithKey(powerUpConfig.key)
 		if powerUp == nil then
-			outputServerLog("powerUp is nil "..inspect(powerUpConfig.key))
+	-- outputServerLog("powerUp is nil "..inspect(powerUpConfig.key))
 			break
 		end
-		outputServerLog("loopOverPowersForPlayer "..inspect(player))
+-- outputServerLog("loopOverPowersForPlayer "..inspect(player))
 		local powerUpState = getPlayerState(player, powerUp)
 		if not powerUpState then
-			outputServerLog("powerUpState is nil "..inspect(powerUpConfig.key))
+	-- outputServerLog("powerUpState is nil "..inspect(powerUpConfig.key))
 			break
 		end
 		callback(player, powerUp, powerUpState, powerConfig)
@@ -418,11 +440,11 @@ function powerButtonPressed(player, button)
 	if (powerForBoundKey) then
 		powerUp = findPowerUpWithKey(powerForBoundKey.key)
 		if (powerUp) then
-			outputServerLog("powerButtonPressed "..inspect(player))
+	-- outputServerLog("powerButtonPressed "..inspect(player))
 			powerUpState = getPlayerState(player, powerUp)
 		end
 	else 
-		outputChatBox("No power bound for button: "..button)
+-- outputChatBox("No power bound for button: "..button)
 	end
 
 	if powerUpState then
@@ -453,6 +475,9 @@ addEventHandler("onPlayerJoin", getRootElement(), bindThePowerKeys)
   --unbind on quit
 function unbindThePowerKeys ( )
     unbindPowerKeysForPlayer(source)
+	loopOverPowersForPlayer(player, function(player, powerUp, powerUpState, powerConfig)
+		killPowerTimer(powerUpState)
+	end)
 end
 addEventHandler("onPlayerQuit", getRootElement(), unbindThePowerKeys)
 

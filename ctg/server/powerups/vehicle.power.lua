@@ -2,12 +2,12 @@ local helicopterPowerup = {
 	key = "helicopter",
 	name = "Helicopter",
     desc = "Changes your vehicle to a helicopter for a short period of time.",
-	cooldown = 20,
-	duration = 8,
-    charges = -1,
-	initCooldown = 1,
-	allowedGoldCarrier = false,
-	rank = 5,
+	cooldown = function() return getPowerConst().helicopter.cooldown end,
+	duration = function() return getPowerConst().helicopter.duration end,
+    charges = function() return getPowerConst().helicopter.charges end,
+	initCooldown = function() return getPowerConst().helicopter.initCooldown end,
+	allowedGoldCarrier = function() return getPowerConst().helicopter.allowedGoldCarrier end,
+	rank = function() return getPowerConst().helicopter.rank end,
 	onEnable = function(player)
 		return true
 	end,
@@ -15,11 +15,11 @@ local helicopterPowerup = {
 	end,
 	onActivated = function(player, vehicle, state)
 		preventChangeFor(player)
-		setElementModel(vehicle, 488)
+		setVehicleForPlayer(player, 488)
 	end,
 	onDeactivated = function(player, vehicle, state)
 		unpreventChangeFor(player)
-		setElementModel(vehicle, getCurrentVehicle())
+		setVehicleForPlayer(player, getCurrentVehicle())
 	end	
 }
 
@@ -28,12 +28,12 @@ local planePowerup = {
 	key = "plane",
 	name = "Plane",
     desc = "Changes your vehicle to a plane for a short period of time.",
-	cooldown = 20,
-	duration = 4,
-    charges = 1,
-	initCooldown = 1,
-	allowedGoldCarrier = false,
-	rank = 4,
+	cooldown = function() return getPowerConst().plane.cooldown end,
+	duration = function() return getPowerConst().plane.duration end,
+    charges = function() return getPowerConst().plane.charges end,
+	initCooldown = function() return getPowerConst().plane.initCooldown end,
+	allowedGoldCarrier = function() return getPowerConst().plane.allowedGoldCarrier end,
+	rank = function() return getPowerConst().plane.rank end,
 	onEnable = function(player)
 		return true
 	end,
@@ -41,11 +41,11 @@ local planePowerup = {
 	end,
 	onActivated = function(player, vehicle, state)
 		preventChangeFor(player)
-		setElementModel(vehicle, 593)
+		setVehicleForPlayer(player, 593)
 	end,
 	onDeactivated = function(player, vehicle, state)
 		unpreventChangeFor(player)
-		setElementModel(vehicle, getCurrentVehicle())
+		setVehicleForPlayer(player, getCurrentVehicle())
 	end	
 }
 
@@ -53,12 +53,12 @@ local offoadPowerUp = {
 	key = "offroad",
 	name = "Offroad",
     desc = "Changes your vehicle to an offroad vehicle for a short period of time. Usable when climbing a hill or when you need more grip.",
-	cooldown = 20,
-	duration = 8,
-    charges = -1,
-	initCooldown = 1,
-	allowedGoldCarrier = false,
-	rank = 3,
+	cooldown = function() return getPowerConst().offroad.cooldown end,
+	duration = function() return getPowerConst().offroad.duration end,
+    charges = function() return getPowerConst().offroad.charges end,
+	initCooldown = function() return getPowerConst().offroad.initCooldown end,
+	allowedGoldCarrier = function() return getPowerConst().offroad.allowedGoldCarrier end,
+	rank = function() return getPowerConst().offroad.rank end,
 	onEnable = function(player)
 		return true
 	end,
@@ -66,11 +66,11 @@ local offoadPowerUp = {
 	end,
 	onActivated = function(player, vehicle, state)
 		preventChangeFor(player)
-		setElementModel(vehicle, 495)
+		setVehicleForPlayer(player, 495)
 	end,
 	onDeactivated = function(player, vehicle, state)
 		unpreventChangeFor(player)
-		setElementModel(vehicle, getCurrentVehicle())
+		setVehicleForPlayer(player, getCurrentVehicle())
 	end	
 }
 
@@ -78,11 +78,12 @@ local superCarPowerUp = {
 	key = "superCar",
 	name = "Super car",
     desc = "Changes your vehicle to a super car for a short period of time.",
-	cooldown = 20,
-	duration = 20,
-	initCooldown = 10,
-	allowedGoldCarrier = false,
-	rank = 5,
+	cooldown = function() return getPowerConst().superCar.cooldown end,
+	duration = function() return getPowerConst().superCar.duration end,
+	initCooldown = function() return getPowerConst().superCar.initCooldown end,
+	allowedGoldCarrier = function() return getPowerConst().superCar.allowedGoldCarrier end,
+	charges = function() return getPowerConst().nitro.charges end,
+	rank = function() return getPowerConst().superCar.rank end,
 	onEnable = function(player)
 		-- outputChatBox("superCar enabled "..getPlayerName(player))
 		return true
@@ -91,11 +92,11 @@ local superCarPowerUp = {
 	end,
 	onActivated = function(player, vehicle, state)
 		preventChangeFor(player)
-		setElementModel(vehicle, SUPER_CAR_MODEL)
+		setVehicleForPlayer(player, getPowerConst().superCar.model)
 	end,
 	onDeactivated = function(player, vehicle, state)
 		unpreventChangeFor(player)
-		setElementModel(vehicle, getCurrentVehicle())
+		setVehicleForPlayer(player, getCurrentVehicle())
 	end	
 }
 
@@ -103,11 +104,12 @@ local bussesForEveryone = {
 	key = "busses",
 	name = "Bustrip",
     desc = "Changes all opponent's vehicles to busses for a short period of time.",
-	cooldown = 20,
-	duration = 20,
-	initCooldown = 10,
-	allowedGoldCarrier = false,
-	rank = 4,
+	cooldown = function() return getPowerConst().busses.cooldown end,
+	duration = function() return getPowerConst().busses.duration end,
+	initCooldown = function() return getPowerConst().busses.initCooldown end,
+	allowedGoldCarrier = function() return getPowerConst().busses.allowedGoldCarrier end,
+	charges = function() return getPowerConst().nitro.charges end,
+	rank = function() return getPowerConst().busses.rank end,
 	onEnable = function(player)
 		-- outputChatBox("superCar enabled "..getPlayerName(player))
 		return true
@@ -122,7 +124,7 @@ local bussesForEveryone = {
             -- if the player is in a vehicle
             if otherVehicle and otherPlayer ~= player then
                 preventChangeFor(otherPlayer)
-		        setElementModel(otherVehicle, 431)
+		        setVehicleForPlayer(otherPlayer, 431)
             end
         end
 	end,
@@ -134,7 +136,7 @@ local bussesForEveryone = {
             -- if the player is in a vehicle
             if otherVehicle and otherPlayer ~= player then
                 unpreventChangeFor(otherPlayer)
-		        setElementModel(otherVehicle, getCurrentVehicle())
+		        setVehicleForPlayer(otherPlayer, getCurrentVehicle())
             end
         end
 	end	
