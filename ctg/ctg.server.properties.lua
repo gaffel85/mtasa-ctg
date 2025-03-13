@@ -39,7 +39,7 @@ local props = {
             cooldown = 20,
             initCooldown = 5,
             allowedGoldCarrier = false,
-            charges = 2,
+            charges = nil,
             rank = 1,
             minDistance = 300,
         },
@@ -130,7 +130,7 @@ local props = {
             initCooldown = 1,
             allowedGoldCarrier = true,
             charges = 2,
-            rank = 4,
+            rank = 2,
         },
     }
 }

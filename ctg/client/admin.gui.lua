@@ -37,11 +37,6 @@ function closeWindow()
     guiSetVisible(adminWindow, false)
 end
 
-function setRank(player, rank)
-    setElementData(player, "completedRank", rank)
-    setElementData(player, "completedRank", rank)
-end
-
 function toggleAdminWindow()
     if (adminWindow == nil) then
         createWindow()
@@ -61,15 +56,21 @@ function getProps()
     return localConsts
 end
 
+function getScore()
+    return getElementData(player, "Score")
+end
+
 function saveConsts()
+    outputConsole("saveConsts")
     --outputConsole("saveConsts "..inspect(localConsts))
     setElementData(resourceRoot, "props", localConsts)
 
     --save to file based on timestamp
     local timestamp = getRealTime().timestamp
-    local file = fileCreate("ctg_"..timestamp..".txt")
+    local filename = "ctg_"..timestamp..".txt"
+    local file = fileCreate(filename)
     if not file then
-        outputConsole("Failed to create file")
+        outputConsole("Failed to create file "..filename)
         return
     end
     fileWrite(file, inspect(localConsts))
@@ -88,8 +89,8 @@ function refreshPlayers()
     for i, player in ipairs(getElementsByType("player")) do
         local playerName = getPlayerName(player)
         local score = getElementData(player, "score")
-        local money = getElementData(player, "money")
-        local rank = getElementData(player, "completedRank")
+        local money = getPlayerMoney(player)
+        local rank = getCompletedRank(player)
 
         -- create ui elements for each player
         local playerName = guiCreateLabel(0.01, yPos, 0.10, 0.02, playerName, true, playerTab)
@@ -98,28 +99,29 @@ function refreshPlayers()
         local scoreLabel = guiCreateLabel(0.11, yPos, 0.02, 0.02, "Score", true, playerTab)
         guiLabelSetHorizontalAlign(scoreLabel, "right", false)
         guiLabelSetVerticalAlign(scoreLabel, "center")
-        local scoreInput = guiCreateEdit(0.14, yPos, 0.04, 0.02, "", true, playerTab)
-        addEventHandler("onClientGUIChanged", scoreInput, function() 
+        local scoreInput = guiCreateEdit(0.14, yPos, 0.04, 0.02, score, true, playerTab)
+        addEventHandler("onClientGUIBlur", scoreInput, function() 
             local text = guiGetText(source)
             local asNumber = tonumber(text)
-            setElementData(player, "score", asNumber)
+            setElementData(player, "Score", asNumber)
          end)
         local moneyLabel = guiCreateLabel(0.18, yPos, 0.02, 0.02, "Money", true, playerTab)
         guiLabelSetHorizontalAlign(moneyLabel, "right", false)
         guiLabelSetVerticalAlign(moneyLabel, "center")
-        local moneyInput = guiCreateEdit(0.21, yPos, 0.04, 0.02, "", true, playerTab)
-        addEventHandler("onClientGUIChanged", moneyInput, function() 
+        local moneyInput = guiCreateEdit(0.21, yPos, 0.04, 0.02, money, true, playerTab)
+        addEventHandler("onClientGUIBlur", moneyInput, function() 
             local text = guiGetText(source)
             local asNumber = tonumber(text)
-            setPlayerMoney(player, asNumber)
+            setPlayerMoney(asNumber)
          end)
         local rankLabel = guiCreateLabel(0.25, yPos, 0.02, 0.02, "Rank", true, playerTab)
         guiLabelSetHorizontalAlign(rankLabel, "right", false)
         guiLabelSetVerticalAlign(rankLabel, "center")
-        local rankInput = guiCreateEdit(0.27, yPos, 0.02, 0.02, "", true, playerTab)
-        addEventHandler("onClientGUIChanged", rankInput, function() 
+        local rankInput = guiCreateEdit(0.27, yPos, 0.02, 0.02, rank, true, playerTab)
+        addEventHandler("onClientGUIBlur", rankInput, function() 
             local text = guiGetText(source)
             local asNumber = tonumber(text)
+            outputChatBox("setting rank "..inspect(asNumber))
             setRank(player, asNumber)
          end)
         killButton = guiCreateButton(0.30, yPos, 0.03, 0.02, "Kill", true, playerTab)
@@ -217,7 +219,7 @@ function refreshPowersTab()
                     if (asNumber == 0) then
                          localConsts.powers[key][prop] = nil
                     else
-                        localConsts.powers[key][customKey] = asNumber
+                        localConsts.powers[key][prop] = asNumber
                     end
                 end)
             end

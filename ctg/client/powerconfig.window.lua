@@ -19,7 +19,17 @@ function getPowerUp(key)
 end
 
 function getCompletedRank(player)
-    return getElementData(player, "completedRank")
+    local rank = getElementData(player, "completedRank")
+    if (not rank) then
+        outputConsole("completedRank not found")
+        rank = 0
+    end
+    return rank
+end
+
+function setRank(player, rank)
+    -- setElementData(player, "usedRank", rank)
+    -- setElementData(player, "completedRank", rank)
 end
 
 function savePowerConfig()
@@ -221,8 +231,8 @@ function populateBoxes()
         end
     end
 
-    playerRankLabel = getCompletedRank(localPlayer)
-    playerMoneyLabel = getPlayerMoney()
+    guiSetText (playerRankLabel, getCompletedRank(localPlayer))
+    guiSetText (playerMoneyLabel, getPlayerMoney())
 
     local row = 1
     local col = 1
@@ -303,7 +313,7 @@ addEventHandler("onClientResourceStart", resourceRoot,
         playerRankLabel = guiCreateLabel(0.05, 0.02, 0.98, 0.05, "1", true, powerwindow)
 
         local playerMoneyTitle = guiCreateLabel(0.01, 0.05, 0.1, 0.05, "Money:", true, powerwindow)
-        playerMoneyLabel = guiCreateLabel(0.05, 0.02, 0.98, 0.05, "0", true, powerwindow)
+        playerMoneyLabel = guiCreateLabel(0.05, 0.05, 0.98, 0.05, "0", true, powerwindow)
 
         scrollpane = guiCreateScrollPane(0.01, 0.2, 0.99, 0.79, true, powerwindow)
 
