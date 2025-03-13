@@ -15,11 +15,11 @@ local helicopterPowerup = {
 	end,
 	onActivated = function(player, vehicle, state)
 		preventChangeFor(player)
-		setElementModel(vehicle, 488)
+		setVehicleForPlayer(player, 488)
 	end,
 	onDeactivated = function(player, vehicle, state)
 		unpreventChangeFor(player)
-		setElementModel(vehicle, getCurrentVehicle())
+		setVehicleForPlayer(player, getCurrentVehicle())
 	end	
 }
 
@@ -41,11 +41,11 @@ local planePowerup = {
 	end,
 	onActivated = function(player, vehicle, state)
 		preventChangeFor(player)
-		setElementModel(vehicle, 593)
+		setVehicleForPlayer(player, 593)
 	end,
 	onDeactivated = function(player, vehicle, state)
 		unpreventChangeFor(player)
-		setElementModel(vehicle, getCurrentVehicle())
+		setVehicleForPlayer(player, getCurrentVehicle())
 	end	
 }
 
@@ -66,11 +66,11 @@ local offoadPowerUp = {
 	end,
 	onActivated = function(player, vehicle, state)
 		preventChangeFor(player)
-		setElementModel(vehicle, 495)
+		setVehicleForPlayer(player, 495)
 	end,
 	onDeactivated = function(player, vehicle, state)
 		unpreventChangeFor(player)
-		setElementModel(vehicle, getCurrentVehicle())
+		setVehicleForPlayer(player, getCurrentVehicle())
 	end	
 }
 
@@ -92,11 +92,11 @@ local superCarPowerUp = {
 	end,
 	onActivated = function(player, vehicle, state)
 		preventChangeFor(player)
-		setElementModel(vehicle, getPowerConst().superCar.model)
+		setVehicleForPlayer(player, getPowerConst().superCar.model)
 	end,
 	onDeactivated = function(player, vehicle, state)
 		unpreventChangeFor(player)
-		setElementModel(vehicle, getCurrentVehicle())
+		setVehicleForPlayer(player, getCurrentVehicle())
 	end	
 }
 
@@ -124,7 +124,7 @@ local bussesForEveryone = {
             -- if the player is in a vehicle
             if otherVehicle and otherPlayer ~= player then
                 preventChangeFor(otherPlayer)
-		        setElementModel(otherVehicle, 431)
+		        setVehicleForPlayer(otherPlayer, 431)
             end
         end
 	end,
@@ -136,7 +136,7 @@ local bussesForEveryone = {
             -- if the player is in a vehicle
             if otherVehicle and otherPlayer ~= player then
                 unpreventChangeFor(otherPlayer)
-		        setElementModel(otherVehicle, getCurrentVehicle())
+		        setVehicleForPlayer(otherPlayer, getCurrentVehicle())
             end
         end
 	end	

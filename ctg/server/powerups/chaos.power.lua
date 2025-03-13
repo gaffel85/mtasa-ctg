@@ -26,10 +26,10 @@ local trafficChaos = {
 					if index + 1 >= times then
 				-- outputChatBox("Disabling chaos for "..getPlayerName(otherPlayer))
 						unpreventChangeFor(otherPlayer)
-						setElementModel(otherVehicle, getCurrentVehicle())
+						setVehicleForPlayer(otherPlayer, getCurrentVehicle())
 					else
 						preventChangeFor(otherPlayer)
-						setElementModel(otherVehicle, getRandomVehicle())
+						setVehicleForPlayer(otherPlayer, getRandomVehicle())
 					end
 				end
 			end

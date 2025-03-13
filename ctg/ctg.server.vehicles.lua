@@ -155,8 +155,10 @@ end
 function setVehicleForPlayer(player, model)
   local theVehicle = getPedOccupiedVehicle(player)
   if theVehicle then
+    local r, g, b = getTeamColorForPlayer(player)
     local upgrades = getVehicleUpgrades ( theVehicle )
     setElementModel(theVehicle, model)
+    setVehicleColor(theVehicle, r, g, b)
     for _, upgrade in ipairs ( upgrades ) do
       addVehicleUpgrade(theVehicle,  upgrade )
     end

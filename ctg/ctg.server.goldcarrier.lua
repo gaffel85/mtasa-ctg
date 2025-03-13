@@ -36,9 +36,11 @@ function shieldPlayer(player)
 end
 
 function clearShield()
+    if (shieldedPlayer) then
+        removeShieldedPlayer(shieldedPlayer)
+    end
     tillbakaKakaShield = false
     shieldedPlayer = nil
-    removeShieldedPlayer(player)
 end
 
 function isShielded(player)
@@ -73,7 +75,7 @@ function changeGoldCarrier(player)
 		return
 	end
 
-	setShieldedPlayer(player)
+	shieldPlayer(player)
 	setTimer(function() 
 		clearShield()
 	end, getConst().tillbakaKakatime, 1)

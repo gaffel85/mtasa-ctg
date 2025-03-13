@@ -34,6 +34,11 @@ function isTeamsActivated()
     return team1.members and team2.members and #team1.members > 0 and #team2.members > 0
 end
 
+function getTeamColorForPlayer(player)
+    local nativeTeam = getPlayerTeam(player)
+    return getTeamColor(nativeTeam)
+end
+
 function getCtgTeam(player)
     local team = getPlayerTeam(player)
 	if team1.team == team then
@@ -113,6 +118,13 @@ function removeFromTeam(player)
     refreshAllBlips()
 end
 
+function setCorrectVehicleColor(player)
+    local currentVehicle = getPedOccupiedVehicle(player)
+    if currentVehicle then
+        setVehicleForPlayer(player, getElementModel(currentVehicle))
+    end
+end
+
 function switchToTeam(team, player, autoJoinRest)
     removeFromPreviousTeam(player)
     textDisplayRemoveObserver(team.otherTeam.textDisplay, player)
@@ -120,6 +132,9 @@ function switchToTeam(team, player, autoJoinRest)
     setPlayerTeam(player, team.team)
     textDisplayAddObserver(team.textDisplay, player)
     updateTeamsActiviated()
+
+    setCorrectVehicleColor(player)
+
     updateMembersLabel(team)
     updateMembersLabel(team.otherTeam)
     if autoJoinRest then
@@ -130,7 +145,7 @@ end
 
 function updateMembersLabel(team)
     local membersText = table.concat(team.members, "\n")
-    outputServerLog(membersText)
+    outputServerLog(inspect(team.members))
     textItemSetText(team.membersLabel, membersText)
 end
 
