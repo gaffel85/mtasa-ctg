@@ -182,6 +182,14 @@ function goldDelivered(player)
     activeRoundFinished()
 end
 
+function forceNextRound()
+    removeOldHideout()
+    resetRoundVars()
+    scheduleNextGold(1)
+end
+addEvent("forceNextRoundFromClient", true)
+addEventHandler("forceNextRoundFromClient", resourceRoot, forceNextRound)
+
 function activeRoundFinished()
     nextVehicle()
     resetRoundVars()
