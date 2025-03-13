@@ -58,32 +58,32 @@ function setupTeams()
     teamsScoreDisplay = textCreateDisplay ()
     local r1,g1,b1 = getTeamColor(team1.team)
     local r2,g2,b2 = getTeamColor(team2.team)
-    team1HeaderText = textCreateTextItem ( "Team1", 0.3, 0.05, "medium", r1, g1, b1, 255, 2, "right", "top", 128) 
+    team1HeaderText = textCreateTextItem ( "Team1 [F1]", 0.3, 0.05, "medium", r1, g1, b1, 255, 2, "right", "top", 128) 
     textDisplayAddText ( teamsScoreDisplay, team1HeaderText )
-    team2HeaderText = textCreateTextItem ( "Team1", 0.6, 0.05, "medium", r2, g2, b2, 255, 2, "left", "top", 128) 
+    team2HeaderText = textCreateTextItem ( "Team1 [F2]", 0.6, 0.05, "medium", r2, g2, b2, 255, 2, "left", "top", 128) 
     textDisplayAddText ( teamsScoreDisplay, team2HeaderText )
 
-    team1.scoreLabel = textCreateTextItem ( "0", 0.3, 0.15, "medium", r1, g1, b1, 255, 2, "right", "top", 128)
-    team2.scoreLabel = textCreateTextItem ( "0", 0.6, 0.15, "medium", r2, g2, b2, 255, 2, "left", "top", 128)
+    team1.scoreLabel = textCreateTextItem ( "0", 0.3, 0.015, "medium", r1, g1, b1, 255, 2, "right", "top", 128)
+    team2.scoreLabel = textCreateTextItem ( "0", 0.6, 0.015, "medium", r2, g2, b2, 255, 2, "left", "top", 128)
     textDisplayAddText ( teamsScoreDisplay, team1.scoreLabel )
     textDisplayAddText ( teamsScoreDisplay, team2.scoreLabel )
 
-    team1.membersLabel = textCreateTextItem ( "", 0.3, 0.25, "medium", r1, g1, b1, 255, 2, "right", "top", 128)
-    team2.membersLabel = textCreateTextItem ( "", 0.6, 0.25, "medium", r2, g2, b2, 255, 2, "left", "top", 128)
+    team1.membersLabel = textCreateTextItem ( "", 0.3, 0.08, "medium", r1, g1, b1, 255, 1, "right", "top", 128)
+    team2.membersLabel = textCreateTextItem ( "", 0.6, 0.08, "medium", r2, g2, b2, 255, 1, "left", "top", 128)
     textDisplayAddText ( teamsScoreDisplay, team1.membersLabel )
     textDisplayAddText ( teamsScoreDisplay, team2.membersLabel )
 
     team1.textDisplay = textCreateDisplay()
-    local team1YourTeamText = textCreateTextItem ( "Your team", 0.3, 0.1, "medium", r1, g1, b1, 255, 1, "right", "top", 128) 
+    local team1YourTeamText = textCreateTextItem ( "Your team", 0.26, 0.08, "medium", 235, 146, 52, 255, 1, "right", "top", 128) 
     local team1SwitchText = textCreateTextItem ( "Press [F2] to join", 0.6, 0.1, "medium", r2, g2, b2, 255, 0.8, "left", "top", 128) 
     textDisplayAddText ( team1.textDisplay, team1YourTeamText )
-    textDisplayAddText ( team1.textDisplay, team1SwitchText )
+    --textDisplayAddText ( team1.textDisplay, team1SwitchText )
 
     team2.textDisplay = textCreateDisplay()
-    local team2YourTeamText = textCreateTextItem ( "Your team", 0.6, 0.1, "medium", r2, g2, b2, 255, 1, "left", "top", 128) 
+    local team2YourTeamText = textCreateTextItem ( "Your team", 0.64, 0.08, "medium", 235, 146, 52, 255, 1, "left", "top", 128) 
     local team2SwitchText = textCreateTextItem ( "Press [F1] to join", 0.3, 0.1, "medium", r1, g1, b1, 255, 0.8, "right", "top", 128) 
     textDisplayAddText ( team2.textDisplay, team2YourTeamText )
-    textDisplayAddText ( team2.textDisplay, team2SwitchText )
+    --textDisplayAddText ( team2.textDisplay, team2SwitchText )
 
     for k, player in ipairs(getElementsByType("player")) do
         bindTeamKeysForPlayer(player)
@@ -103,6 +103,14 @@ function updateTeamsActiviated()
     else 
         teamsAcitvated = true
     end
+end
+
+function removeFromTeam(player)
+    removeFromPreviousTeam(player)
+    updateTeamsActiviated()
+    updateMembersLabel(team)
+    updateMembersLabel(team.otherTeam)
+    refreshAllBlips()
 end
 
 function switchToTeam(team, player, autoJoinRest)
@@ -130,7 +138,7 @@ function automaticallyJoinTeamForNonTeamMembers()
         if not getPlayerTeam(player) then
             if #team1.members < #team2.members then
                 switchToTeam(team1, player, false)
-            else if #team2.members < #team1.members then
+            elseif #team2.members < #team1.members then
                 switchToTeam(team2, player, false)
             else
                 -- random team

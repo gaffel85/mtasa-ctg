@@ -39,11 +39,7 @@ local props = {
             cooldown = 20,
             initCooldown = 5,
             allowedGoldCarrier = false,
-<<<<<<< HEAD
-            charges = 0,
-=======
             charges = nil,
->>>>>>> refs/remotes/origin/dev-admin-panel
             rank = 1,
             minDistance = 300,
         },
@@ -64,11 +60,7 @@ local props = {
             rank = 3,
         },
         plane = {
-<<<<<<< HEAD
-            duration = 15,
-=======
             duration = 12,
->>>>>>> refs/remotes/origin/dev-admin-panel
             cooldown = 20,
             initCooldown = 15,
             allowedGoldCarrier = false,
@@ -121,11 +113,7 @@ local props = {
             cooldown = 15,
             initCooldown = 1,
             allowedGoldCarrier = false,
-<<<<<<< HEAD
             charges = 3,
-=======
-            charges = 3
->>>>>>> refs/remotes/origin/dev-admin-panel
             rank = 4,
         },
         cinematic = {
