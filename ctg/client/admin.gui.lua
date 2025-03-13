@@ -256,7 +256,7 @@ end
 function getIndex(tab, val)
     local index = nil
     for i, v in ipairs (tab) do 
-        if (v.id == val) then
+        if (v == val) then
           index = i 
         end
     end
