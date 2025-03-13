@@ -179,24 +179,27 @@ function placeGold()
 	spawnNewGold()
 end
 
-function startActiveRound()
-    repairAllCars()
-    resetRoundVars()
-end
-
 function activeRoundFinished()
     nextVehicle()
     resetRoundVars()
-	setTimer(placeGold, getConst().goldSpawnTime, 1, source)
+	setTimer(placeGold, getConst().goldSpawnTime * 1000, 1, source)
+end
+
+function resetRoundVars()
+    resetPowerStatesOnDeliverd()
+    clearGoldCarrier()
 end
 
 function resetGame()
     removeOldHideout()
     removeOldGold()
     resetScore()
+    resetTeamScore()
+    resetPlayerMoney()
     repairAllCars()
     respawnAllPlayers()
-	startActiveRound()
+	repairAllCars()
+    resetRoundVars()
 	setTimer(placeGold, 2000, 1, source)
 end
 
@@ -207,10 +210,7 @@ function resetScore()
     end
 end
 
-function resetRoundVars()
-    resetPowerStatesOnDeliverd()
-    clearGoldCarrier()
-end
+
 
 function playerDied(player)
     local posX, posY, posZ = getElementPosition(player)

@@ -24,6 +24,12 @@ function getDefaultConfig()
     }
 end
 
+function resetPlayerMoney()
+    for i, player in ipairs(getElementsByType("player")) do
+        setPlayerMoney(player, 0)
+    end
+end
+
 function getPlayerPowerConfig(player)
 	local playerName = getPlayerName(player)
 	local powerupConfig = configs[playerName]

@@ -168,6 +168,12 @@ function automaticallyJoinTeamForNonTeamMembers()
     end
 end
 
+function resetTeamScore()
+    team1.score = 0
+    team2.score = 0
+    updateScoreDisplay()
+end
+
 function giveTeamScore(player, score)
     if isTeamsActivated() then
         local carrierTeam = getCtgTeam(player)
