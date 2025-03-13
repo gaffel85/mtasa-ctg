@@ -1,7 +1,5 @@
 local spawnPoints
 local currentSpawn = 1
-
-local tillbakaKakaShield = false
 local participants = {}
 local blowingPlayer = nil
 

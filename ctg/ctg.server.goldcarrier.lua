@@ -3,6 +3,9 @@ local oldGoldCarrier
 local previousGoldCarrier
 local previousGoldCarrierResetter
 
+local tillbakaKakaShield = false
+local shieldedPlayer = nil
+
 local vechicleHandlingLookup = {}
 
 function getGoldCarrier()
@@ -26,12 +29,28 @@ function setGoldCarrier(carrier)
     end
 end
 
+function shieldPlayer(player)
+    tillbakaKakaShield = true
+    shieldedPlayer = player
+    addShieldedPlayer(player, 10000, 2)
+end
+
+function clearShield()
+    tillbakaKakaShield = false
+    shieldedPlayer = nil
+    removeShieldedPlayer(player)
+end
+
+function isShielded(player)
+    return tillbakaKakaShield
+end
+
 function clearGoldCarrier()
     -- outputChatBox("Clear gold carrier!!!!")
     local tmpGoldCarrier = goldCarrier
     setGoldCarrier(nil)
     oldGoldCarrier = nil
-    tillbakaKakaShield = false
+    clearShield()
     -- triggerClientEvent("onGoldCarrierChanged", nil, nil)
 
     -- ALways togheter. Remove trigger?
@@ -49,19 +68,19 @@ function changeGoldCarrier(player)
         return
     end
 
-    if ( player == oldGoldCarrier and tillbakaKakaShield == true) then
+    if ( isShielded(goldCarrier) == true) then
 		-- outputChatBox("Did not change, tillbaka kaka")
 		return
 	end
 
-	tillbakaKakaShield = true
+	setShieldedPlayer(player)
 	setTimer(function() 
-		tillbakaKakaShield = false
-	end, 5000, 1)
+		clearShield()
+	end, getConst().tillbakaKakatime, 1)
 
 
     setGoldCarrier(player)
-    tillbakaKakaShield = true
+    --tillbakaKakaShield = true
 
 	givePointsToPlayer(goldCarrier, 50)
 
@@ -70,12 +89,7 @@ function changeGoldCarrier(player)
     onGoldCarrierChanged( goldCarrier, oldGoldCarrier)
     handlePowersForGoldCarrierChanged(goldCarrier, oldGoldCarrier)
 
-    triggerClientEvent("onGoldCarrierChanged", player, oldGoldCarrier)
-    
-	setTimer(function() 
-		tillbakaKakaShield = false
-	end, getConst().tillbakaKakatime, 1)
-    
+    triggerClientEvent("onGoldCarrierChanged", player, oldGoldCarrier)    
 end
 
 function removeVechicleHandling(oldCarrier)

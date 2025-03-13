@@ -53,7 +53,7 @@ local teleportPowerUp = {
 	end,
 	onActivated = function(player, vehicle)
 		-- askForTeleport(player)
-		spawnCloseToLeader(player)
+		spawnCloseToMeanPositionOfAllPlayers(player)
 	end,
 	onDeactivated = function(player, vehicle)
 	end	
