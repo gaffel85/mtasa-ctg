@@ -6,6 +6,11 @@ local goldSpawnBlip = nil
 local goldCarrierBlip = nil
 local lastGoldSpawn = nil
 
+local spawnTimer = nil
+local countDownTimer = nil
+local coundownTextKey = 3242554
+
+
 function setGoldSpawns(spawns)
     goldSpawns = spawns
 end
@@ -14,8 +19,23 @@ function getLastGoldSpawn()
     return lastGoldSpawn
 end
 
+function clearLastGoldSpawn()
+    lastGoldSpawn = nil
+end
+
+function scheduleNextGold(countdown)
+    spawnTimer = setTimer(spawnNewGold, countdown * 1000, 1)
+    local currentCountDown = countdown
+    countDownTimer = setTimer(function()
+        currentCountDown = currentCountDown - 1
+        if (currentCountDown > 0) then
+            displayMessageForAll(coundownTextKey, "Next gold in "..currentCountDown.."s", nil, nil, 1000, 0.5, 0.4, 0, 180, 90, 255, 3)
+        end
+    end, 1000, countdown)
+end
+
 function spawnNewGold()
-    local spawnEdl = chooseRandomCloseTo(goldSpawns, meanPositionOfPlayers(), getConst().goldSpawnDistance)
+    local spawnEdl = chooseRandomCloseToByLimits(goldSpawns, meanPositionOfPlayers(), getConst().goldSpawnDistance, getConst().goldSpawnSafeDistance, getConst().goldSpawnMinDistance)
     local posX, posY, posZ = coordsFromEdl(spawnEdl)
     lastGoldSpawn = {
         edl = spawnEdl,
@@ -51,18 +71,11 @@ function createGold(posX, posY, posZ)
     return hitMarker
 end
 
-function showCarrierBlip(carrier)
-	destroyCarrierBlip()
-    refreshAllBlips()
-	-- goldCarrierBlip = createBlipAttachedTo ( carrier, 0 )
-	-- setElementVisibleTo(goldCarrierBlip, carrier, false)
-end
-
 function removeOldGold()
 	destroySpawnBlip()
-    destroyCarrierBlip()
     destroySpawnMarker()
     destroyCarrierMarker()
+    refreshAllBlips()
 end
 
 function destroySpawnMarker()
@@ -78,14 +91,6 @@ function destroySpawnBlip()
     --    destroyElement(goldSpawnBlip)
     -- end
     -- goldSpawnBlip = nil
-end
-
-function destroyCarrierBlip()
-    refreshAllBlips()
-    -- if (goldCarrierBlip) then
-    --     destroyElement(goldCarrierBlip)
-    -- end
-    -- goldCarrierBlip = nil
 end
 
 function destroyCarrierMarker()
@@ -106,9 +111,8 @@ function markerHit(markerHit, matchingDimension)
         destroySpawnMarker()
         destroySpawnBlip()
         goldCarrierMarker = createCarrierMarker(source)
-
-		showCarrierBlip(source)
 		goldPickedUp(source)
+        refreshAllBlips()
         return
     end
 end
@@ -116,13 +120,22 @@ addEventHandler("onPlayerMarkerHit", getRootElement(), markerHit)
 
 function onGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
    -- outputChatBox("gold.onGoldCarrierChanged("..inspect(newGoldCarrier)..", "..inspect(oldGoldCarrier)..")")
-    destroyCarrierBlip()
     destroyCarrierMarker()
     if (not newGoldCarrier) then
         return
     end
 
     goldCarrierMarker = createCarrierMarker(newGoldCarrier)
-    showCarrierBlip(newGoldCarrier)
+    refreshAllBlips()
 end
 addEventHandler("goldCarrierChanged", root, onGoldCarrierChanged)
+
+-- onResourceStart clear timers
+addEventHandler("onResourceStart", getResourceRootElement(getThisResource()), function()
+    if (spawnTimer) then
+        killTimer(spawnTimer)
+    end
+    if (countDownTimer) then
+        killTimer(countDownTimer)
+    end
+end)

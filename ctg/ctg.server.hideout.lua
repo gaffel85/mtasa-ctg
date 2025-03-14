@@ -26,8 +26,8 @@ function spawnNewHideoutForTeam(team, otherTeamsHideout)
         local distanceFromMean = getDistanceBetweenPoints3D(x1, y1, z1, sourcePos.x, sourcePos.y, sourcePos.z)
         hideout = positionCloseTo(hideouts, sourcePos, distanceFromMean, otherTeamsHideout.pos, 300, 0.4)
     else
-        local distanceFromMean = 800
-        hideout = chooseRandomCloseTo(hideouts, sourcePos , distanceFromMean)
+        local distanceFromMean = getConst().hideoutSpawnDistance
+        hideout = chooseRandomCloseToByLimits(hideouts, sourcePos , distanceFromMean, getConst().goldSpawnSafeDistance, getConst().goldSpawnMinDistance)
     end
     local posX, posY, posZ = coordsFromEdl(hideout)
 
@@ -65,19 +65,11 @@ end
 
 function removeOldHideout()
     local teams = getTeams()
-    if not isTeamsActivated() then
-        local team = teams[1]
-        if team.hideout and team.hideout.marker then
-            destroyElement(team.hideout.marker)
-        end
-        team.hideout = nil
-        team.otherTeam.hideout = nil
-        return
-    end
-
     for i, team in ipairs(teams) do
         if team.hideout and team.hideout.marker then
-            destroyElement(team.hideout.marker)
+            if (isElement(team.hideout.marker)) then
+                destroyElement(team.hideout.marker)
+            end
         end
         team.hideout = nil
     end

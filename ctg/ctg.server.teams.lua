@@ -145,7 +145,6 @@ end
 
 function updateMembersLabel(team)
     local membersText = table.concat(team.members, "\n")
-    outputServerLog(inspect(team.members))
     textItemSetText(team.membersLabel, membersText)
 end
 
@@ -166,6 +165,12 @@ function automaticallyJoinTeamForNonTeamMembers()
             end
         end
     end
+end
+
+function resetTeamScore()
+    team1.score = 0
+    team2.score = 0
+    updateScoreDisplay()
 end
 
 function giveTeamScore(player, score)

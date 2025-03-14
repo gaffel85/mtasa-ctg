@@ -80,7 +80,7 @@ end
 function refreshAll()
     refreshConstsTab()
     refreshPowersTab()
-    refreshPlayers()
+    -- refreshPlayers()
 end
 
 function refreshPlayers()
@@ -256,7 +256,7 @@ end
 function getIndex(tab, val)
     local index = nil
     for i, v in ipairs (tab) do 
-        if (v.id == val) then
+        if (v == val) then
           index = i 
         end
     end
@@ -289,7 +289,13 @@ function createWindow()
     respawnGoldAtEdlButton = guiCreateButton(0.02, 0.02, 0.07, 0.03, "Respawn gold at edl", true, controlTab)
     newRoundButton = guiCreateButton(0.09, 0.02, 0.07, 0.03, "New round", true, controlTab)
     respawnAtNewLocationButton = guiCreateButton(0.02, 0.05, 0.07, 0.04, "Respawn gold at new location", true, controlTab)
-    newRoundButton = guiCreateButton(0.16, 0.02, 0.07, 0.03, "New round", true, controlTab)
+    local plotButton = guiCreateButton(0.16, 0.02, 0.07, 0.03, "Plot", true, controlTab)
+    addEventHandler("onClientGUIClick", newRoundButton, function() 
+        triggerServerEvent("forceNextRoundFromClient", resourceRoot)
+    end, false)
+    addEventHandler("onClientGUIClick", plotButton, function() 
+        triggerServerEvent("plotPointsFromClient", resourceRoot)
+    end, false)
 
     saveButton = guiCreateButton(0.87, 0.92, 0.06, 0.02, "Save", true, constTab)
     closeButton = guiCreateButton(0.93, 0.92, 0.06, 0.02, "Close", true, constTab)

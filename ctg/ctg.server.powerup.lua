@@ -112,12 +112,7 @@ local stateEnum = {
 	WAITING = 6
 }
 
-function resetPowerState(player, powerUp)
-	local playerName = getPlayerName(player)
-	local states = powerUpStates[powerUp.key]
-
-	-- get old state and kill timer
-	local powerUpState = states[playerName]
+function endActivePowers(player, powerUp, powerUpState)
 	if powerUpState then
 		if powerUpState.timer then
 			killPowerTimer(powerUpState)
@@ -135,6 +130,15 @@ function resetPowerState(player, powerUp)
 			powerUp.onDeactivated(player, vehicle)
 		end
 	end
+end
+
+function resetPowerState(player, powerUp)
+	local playerName = getPlayerName(player)
+	local states = powerUpStates[powerUp.key]
+
+	-- get old state and kill timer
+	local powerUpState = states[playerName]
+	endActivePowers(player, powerUp, powerUpState)
 
 	powerUpState = {
 		state = stateEnum.READY,
@@ -475,8 +479,8 @@ addEventHandler("onPlayerJoin", getRootElement(), bindThePowerKeys)
   --unbind on quit
 function unbindThePowerKeys ( )
     unbindPowerKeysForPlayer(source)
-	loopOverPowersForPlayer(player, function(player, powerUp, powerUpState, powerConfig)
-		killPowerTimer(powerUpState)
+	loopOverPowersForPlayer(source, function(player, powerUp, powerUpState, powerConfig)
+		endActivePowers(player, powerUp, powerUpState)
 	end)
 end
 addEventHandler("onPlayerQuit", getRootElement(), unbindThePowerKeys)

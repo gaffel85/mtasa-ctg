@@ -134,13 +134,19 @@ function startGameMap(startedMap)
     currentSpawn = math.random(#spawnPoints)
     setGoldSpawns(goldSpawnPoints)
     setHideouts(hideouts)
-    plotPoints()
     resetGame()
 end
 addEventHandler("onGamemodeMapStart", getRootElement(), startGameMap)
 
-function  plotPoints()
-  -- outputChatBox("Plotting points")
+local hasPlotted = false
+addEvent("plotPointsFromClient", true)
+addEventHandler("plotPointsFromClient", resourceRoot, function()
+    if hasPlotted then
+        refreshAllBlips()
+        hasPlotted = false
+        return
+    end
+
     for k, goldSpawn in ipairs(goldSpawnPoints) do
         local posX, posY, posZ = coordsFromEdl(goldSpawn)
         createBlip(posX, posY, posZ, 0, 2, 0, 255, 255, 255, 0)
@@ -149,7 +155,8 @@ function  plotPoints()
         local posX, posY, posZ = coordsFromEdl(hideout)
         createBlip(posX, posY, posZ, 0, 2, 0, 0, 255, 255, 0)
     end
-end
+    hasPlotted = true
+end)
 
 function joinHandler()
     spawn(source, false)
@@ -175,29 +182,36 @@ function goldDelivered(player)
     activeRoundFinished()
 end
 
-function placeGold()
-	spawnNewGold()
-end
-
-function startActiveRound()
-    repairAllCars()
+function forceNextRound()
+    removeOldHideout()
     resetRoundVars()
+    scheduleNextGold(1)
 end
+addEvent("forceNextRoundFromClient", true)
+addEventHandler("forceNextRoundFromClient", resourceRoot, forceNextRound)
 
 function activeRoundFinished()
     nextVehicle()
     resetRoundVars()
-	setTimer(placeGold, getConst().goldSpawnTime, 1, source)
+    scheduleNextGold(getConst().goldSpawnTime)
+end
+
+function resetRoundVars()
+    resetPowerStatesOnDeliverd()
+    clearGoldCarrier()
 end
 
 function resetGame()
     removeOldHideout()
     removeOldGold()
     resetScore()
+    resetTeamScore()
+    resetPlayerMoney()
     repairAllCars()
     respawnAllPlayers()
-	startActiveRound()
-	setTimer(placeGold, 2000, 1, source)
+	repairAllCars()
+    resetRoundVars()
+	scheduleNextGold(2)
 end
 
 function resetScore()
@@ -207,10 +221,7 @@ function resetScore()
     end
 end
 
-function resetRoundVars()
-    resetPowerStatesOnDeliverd()
-    clearGoldCarrier()
-end
+
 
 function playerDied(player)
     local posX, posY, posZ = getElementPosition(player)
