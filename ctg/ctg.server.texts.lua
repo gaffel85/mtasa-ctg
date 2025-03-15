@@ -91,6 +91,16 @@ function clearMessageForAll ( textID , exceptPlayer)
 	end
 end
 
+function countDownTextForPlayer(countStart, player, textId, text, posX, posY, r, g, b, alpha, scale)
+	local currentCountDown = countStart
+    countDownTimer = setTimer(function()
+        currentCountDown = currentCountDown - 1
+        if (currentCountDown > 0) then
+            displayMessageForPlayer(player, textId, text.." "..currentCountDown.."s", 1000, powX, posY, r, g, b, alpha, scale)
+        end
+    end, 1000, countStart)
+end
+
 function displayMessageForPlayer ( player, ID, message, displayTime, posX, posY, r, g, b, alpha, scale )
 	assert ( player and ID and message )
 	local easyTextResource = getResourceFromName ( "easytext" )
