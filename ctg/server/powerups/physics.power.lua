@@ -13,9 +13,7 @@ function applyPhysics(player, who)
         end
     else
         for i, otherPlayer in ipairs(getElementsByType("player")) do
-            if otherPlayer ~= player then
-                applyPhysicsToOpponent(otherPlayer)
-            end
+            applyPhysicsToOpponent(otherPlayer)
         end
     end
 end
@@ -33,6 +31,7 @@ function applyPhysicsToOpponent(opponent)
 end
 
 function applyDirectionPhysics(opponent)
+    outputChatBox("Applying direction physics to opponent")
     local vehicle = getPedOccupiedVehicle(opponent)
     if vehicle then
         local rx, ry, rz = getElementRotation(vehicle)
@@ -41,21 +40,25 @@ function applyDirectionPhysics(opponent)
 end
 
 function applyNegativeVelocityPhysics(opponent)
+    outputChatBox("Applying negative velocity physics to opponent")
+    local factor = -1
     local vehicle = getPedOccupiedVehicle(opponent)
     if vehicle then
         local vx, vy, vz = getElementVelocity(vehicle)
-        setElementVelocity(vehicle, vx * -0.3, vy * -0.3, vz * -0.3)
+        setElementVelocity(vehicle, vx * factor, vy * factor, vz * factor)
     end
 end
 
 function applyJumpAndRotatePhysics(opponent)
+    outputChatBox("Applying jump and rotate physics to opponent")
+    local factor = 0.7
     local vehicle = getPedOccupiedVehicle(opponent)
     if vehicle then
         local vx, vy, vz = getElementVelocity(vehicle)
-        local newVelocityVector = { x = vx, y = vy, z = vz + 0.2 }
+        local newVelocityVector = { x = vx, y = vy, z = vz + 0.1 }
         setElementVelocity(vehicle, newVelocityVector.x, newVelocityVector.y, newVelocityVector.z)
         local vrx, vry, vrz = getElementAngularVelocity(vehicle)
-        setElementAngularVelocity(vehicle, vrx + math.random(-10, 10), vry + math.random(-10, 10), vrz + math.random(-10, 10))
+        setElementAngularVelocity(vehicle, vrx + math.random(-factor, factor), vry + math.random(-factor, factor), vrz)-- + math.random(-factor, factor))
 
     end
 end
@@ -82,24 +85,24 @@ local physicsPower = {
         local msg = getPlayerName(player).." will give you some physics in"
         if random <= 50 then
             for i, otherPlayer in ipairs(getOpponents(player)) do
-                countDownTextForPlayer(3, otherPlayer, msg, 0.5 0.3, 255, 255, 255, 255, 3)
+                countDownTextForPlayer(3, otherPlayer, PHYSICS_WARNING_TEXT_ID, msg, 0.5, 0.3, 255, 255, 255, 255, 3)
             end
             who = 0
         elseif random <= 80 then
             who = 1
             for i, otherPlayer in ipairs(getElementsByType("player")) do
                 if otherPlayer ~= player then
-                    countDownTextForPlayer(3, otherPlayer, msg, 0.5 0.3, 255, 255, 255, 255, 3)
+                    countDownTextForPlayer(3, otherPlayer, PHYSICS_WARNING_TEXT_ID, msg, 0.5, 0.3, 255, 255, 255, 255, 3)
                 end
             end
         else
             who = 2
             for i, otherPlayer in ipairs(getElementsByType("player")) do
                 if otherPlayer ~= player then
-                    countDownTextForPlayer(3, otherPlayer, msg, 0.5 0.3, 255, 255, 255, 255, 3)
+                    countDownTextForPlayer(3, otherPlayer, PHYSICS_WARNING_TEXT_ID, msg, 0.5, 0.3, 255, 255, 255, 255, 3)
                 end
             end
-            countDownTextForPlayer(3, player, "It backfired! Prepare for physics!", 0.5 0.3, 255, 255, 255, 255, 3)
+            countDownTextForPlayer(3, player, PHYSICS_WARNING_TEXT_ID, "It backfired! Prepare for physics!", 0.5, 0.3, 255, 255, 255, 255, 3)
         end
 
         
@@ -111,4 +114,4 @@ local physicsPower = {
 	end	
 }
 
---addPowerUp(physicsPower)
+addPowerUp(physicsPower)

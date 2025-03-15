@@ -32,6 +32,7 @@
 	<script src="server/powerups/hidemap.power.lua" />
 	<script src="server/powerups/jump.power.lua" />
 	<script src="server/powerups/gravity.power.lua" />
+	<script src="server/powerups/physics.power.lua" />
 	<script src="server/collision.lua" />
 	<script src="server/distance.meter.lua" />
 	<script src="server/admin.control.lua" />

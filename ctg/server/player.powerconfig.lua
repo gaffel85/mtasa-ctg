@@ -7,7 +7,7 @@ function getDefaultConfig()
         active = {
             { key = "nitro", bindKey = "lctrl" },
             { key = "teleport", bindKey = "Z" },
-            --{ key = "physics", bindKey = "C" },
+            { key = "physics", bindKey = "C" },
             --{ key = "worldgravity", bindKey = "X" },
             --{ key = "jump", bindKey = "C" },
             --{ key = "busses", bindKey = "C" },
@@ -21,7 +21,7 @@ function getDefaultConfig()
         owned = {
             "nitro",
             "teleport",
-            --"physics",
+            "physics",
             --"worldgravity",
         },
     }
