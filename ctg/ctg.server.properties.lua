@@ -139,10 +139,11 @@ local props = {
         jump = {
             duration = 1,
             cooldown = 20,
-            initCooldown = 10,
+            initCooldown = 1,
             allowedGoldCarrier = false,
             charges = 2,
             rank = 5,
+            height = 0.3
         },
     }
 }

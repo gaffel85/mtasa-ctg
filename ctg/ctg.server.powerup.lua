@@ -67,7 +67,7 @@ function addPowerUp(powerUp)
 	powerUpStates[powerUp.key] = {}
 end
 
-local NOTIFY_POWER_ACTIVATED_KEY = nextTextKey()
+local NOTIFY_POWER_ACTIVATED_KEY = 8914555
 function notifyPowerActivated(player, powerUpName)
 	displayMessageForAll(NOTIFY_POWER_ACTIVATED_KEY, getPlayerName(player).." activated "..powerUpName, player, "", 3000, 0.5, 0.3, 255, 100, 0, 2 )
 end
@@ -86,7 +86,11 @@ function resetPowerStatesForPlayer(player)
 	for j, powerUpConfig in ipairs(powerConfig.active) do
 		local powerUp = findPowerUpWithKey(powerUpConfig.key)
 		--outputServerLog("resetPowerStatesForPlayer "..inspect(player).." "..inspect(powerUp).." "..inspect(powerUpConfig))
-		resetPowerState(player, powerUp)
+		if powerUp then
+			resetPowerState(player, powerUp)
+		else
+			outputServerLog("PowerUp not found "..inspect(powerUpConfig.key))
+		end
 	end
 end
 

@@ -64,9 +64,9 @@ function countDownTextForAll(countStart, textId, text, specialPlayer, specialTex
     countDownTimer = setTimer(function()
         currentCountDown = currentCountDown - 1
         if (currentCountDown > 0) then
-            displayMessageForAll(coundownTextKey, text.." "..currentCountDown.."s", specialPlayer, specialText, 1000, powX, posY, r, g, b, alpha, scale)
+            displayMessageForAll(textId, text.." "..currentCountDown.."s", specialPlayer, specialText, 1000, powX, posY, r, g, b, alpha, scale)
         end
-    end, 1000, countdown)
+    end, 1000, countStart)
 end
 
 function displayMessageForAll(textId, text, specialPlayer, specialText, displayTime, posX, posY, r, g, b, alpha, scale)
