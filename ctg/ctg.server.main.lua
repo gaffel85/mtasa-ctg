@@ -2,6 +2,7 @@ local spawnPoints
 local currentSpawn = 1
 local participants = {}
 local blowingPlayer = nil
+local currentTextKey = 65321
 
 local SCORE_KEY = "Score"
 
@@ -9,6 +10,11 @@ local SCORE_KEY = "Score"
 --addEvent("goldCarrierChanged")
 
 scoreboardRes = getResourceFromName("scoreboard")
+
+function nextTextKey()
+    currentTextKey = currentTextKey + 1
+    return currentTextKey
+end
 
 function goldPickedUp(player)
     changeGoldCarrier(player)

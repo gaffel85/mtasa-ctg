@@ -57,7 +57,16 @@ end
 
 function showPlayerParalyzied ( bombHolder, player)
 	displayMessageForAll(PARALYZIED_PLAYER_TEXT_ID, "", bombHolder, getPlayerName(player).." is paralyzied for "..getConst().repairTime.."s. (Marked on the map)", getConst().repairTime*1000, 0.5, 0.3, 0, 0, 255 )
-	
+end
+
+function countDownTextForAll(countStart, textId, text, specialPlayer, specialText, posX, posY, r, g, b, alpha, scale)
+	local currentCountDown = countStart
+    countDownTimer = setTimer(function()
+        currentCountDown = currentCountDown - 1
+        if (currentCountDown > 0) then
+            displayMessageForAll(coundownTextKey, text.." "..currentCountDown.."s", specialPlayer, specialText, 1000, powX, posY, r, g, b, alpha, scale)
+        end
+    end, 1000, countdown)
 end
 
 function displayMessageForAll(textId, text, specialPlayer, specialText, displayTime, posX, posY, r, g, b, alpha, scale)

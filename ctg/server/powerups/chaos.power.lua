@@ -6,7 +6,7 @@ local trafficChaos = {
 	duration = function() return getPowerConst().chaos.duration end,
 	initCooldown = function() return getPowerConst().chaos.initCooldown end,
 	allowedGoldCarrier = function() return getPowerConst().chaos.allowedGoldCarrier end,
-	charges = function() return getPowerConst().nitro.charges end,
+	charges = function() return getPowerConst().chaos.charges end,
 	rank = function() return getPowerConst().chaos.rank end,
 	onEnable = function(player)
 		return true
@@ -14,11 +14,12 @@ local trafficChaos = {
 	onDisable = function(player)
 	end,
 	onActivated = function(player, vehicle, state)
+		notifyPowerActivated(player, state.name)
         -- loop over all players
 		local times = getPowerConst().chaos.duration / 2
 		local index = 0
 		setTimer(function()
-			for i, otherPlayer in ipairs(getElementsByType("player")) do
+			for i, otherPlayer in ipairs(getOpponents(player)) do
 				-- get the vehicle of the player
 				local otherVehicle = getPedOccupiedVehicle(otherPlayer)
 				-- if the player is in a vehicle

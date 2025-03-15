@@ -15,6 +15,7 @@ local hideMapPower = {
 	onDisable = function(player)
 	end,
 	onActivated = function(player, vehicle, state)
+		notifyPowerActivated(player, state.name)
         for i, otherPlayer in ipairs(getOpponents(player)) do
             setPlayerHudComponentVisible ( otherPlayer, "radar", false )
         end

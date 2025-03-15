@@ -78,7 +78,7 @@ local waterLevelPowerUp = {
 	duration = function() return getPowerConst().waterLevel.duration end,
 	initCooldown = function() return getPowerConst().waterLevel.initCooldown end,
 	allowedGoldCarrier = function() return getPowerConst().waterLevel.allowedGoldCarrier end,
-    charges = function() return getPowerConst().nitro.charges end,
+    charges = function() return getPowerConst().superCar.charges end,
 	rank = function() return getPowerConst().waterLevel.rank end,
 	onEnable = function(player)
 		return true
@@ -86,6 +86,7 @@ local waterLevelPowerUp = {
 	onDisable = function(player)
 	end,
 	onActivated = function(player, vehicle, state)
+        notifyPowerActivated(player, state.name)
 		raiseWaterEffect(player, getPowerConst().waterLevel.duration)
 	end,
 	onDeactivated = function(player, vehicle, state)

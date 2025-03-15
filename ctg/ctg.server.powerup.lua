@@ -67,6 +67,11 @@ function addPowerUp(powerUp)
 	powerUpStates[powerUp.key] = {}
 end
 
+local NOTIFY_POWER_ACTIVATED_KEY = nextTextKey()
+function notifyPowerActivated(player, powerUpName)
+	displayMessageForAll(NOTIFY_POWER_ACTIVATED_KEY, getPlayerName(player).." activated "..powerUpName, player, "", 3000, 0.5, 0.3, 255, 100, 0, 2 )
+end
+
 function resetPowerStatesOnDeliverd()
 	for i, player in ipairs(getElementsByType("player")) do
 		local config = getPlayerPowerConfig(player)

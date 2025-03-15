@@ -25,13 +25,7 @@ end
 
 function scheduleNextGold(countdown)
     spawnTimer = setTimer(spawnNewGold, countdown * 1000, 1)
-    local currentCountDown = countdown
-    countDownTimer = setTimer(function()
-        currentCountDown = currentCountDown - 1
-        if (currentCountDown > 0) then
-            displayMessageForAll(coundownTextKey, "Next gold in "..currentCountDown.."s", nil, nil, 1000, 0.5, 0.4, 0, 180, 90, 255, 3)
-        end
-    end, 1000, countdown)
+    countDownTextForAll(countdown, coundownTextKey, "Gold will spawn in", nil, nil, 0.5, 0.4, 88, 255, 120, 255, 3)
 end
 
 function spawnNewGold()
