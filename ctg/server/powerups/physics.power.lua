@@ -1,7 +1,7 @@
 local PHYSICS_WARNING_TEXT_ID = 32590191
 
 function applyPhysics(player, who)
-    if who == 0
+    if who == 0 then
         for i, otherPlayer in ipairs(getOpponents(player)) do
             applyPhysicsToOpponent(otherPlayer)
         end
@@ -111,4 +111,4 @@ local physicsPower = {
 	end	
 }
 
-addPowerUp(physicsPower)
+--addPowerUp(physicsPower)
