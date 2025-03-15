@@ -1,15 +1,13 @@
-local factor = 3
-
 local jumpPushPowerup = {
-	key = "canon",
-	name = "Canon ball",
-    desc = "Instantly increase the speed of your vehicle with a factor of 3. The effect is instanst and will not affect your speed over time.",
-	cooldown = function() return getPowerConst().canon.cooldown end,
-	duration = function() return getPowerConst().canon.duration end,
-    charges = function() return getPowerConst().canon.charges end,
-	initCooldown = function() return getPowerConst().canon.initCooldown end,
-	allowedGoldCarrier = function() return getPowerConst().canon.allowedGoldCarrier end,
-	rank = function() return getPowerConst().canon.rank end,
+	key = "jump",
+	name = "K.I.T.T. Jump",
+    desc = "Your car will jump like K.I.T.T. from Knight Rider, but you will never look as cool as David Hasselhoff.",
+	cooldown = function() return getPowerConst().jump.cooldown end,
+	duration = function() return getPowerConst().jump.duration end,
+    charges = function() return getPowerConst().jump.charges end,
+	initCooldown = function() return getPowerConst().jump.initCooldown end,
+	allowedGoldCarrier = function() return getPowerConst().jump.allowedGoldCarrier end,
+	rank = function() return getPowerConst().jump.rank end,
 	onEnable = function(player)
 		return true
 	end,
@@ -18,7 +16,7 @@ local jumpPushPowerup = {
 	onActivated = function(player, vehicle, state)
 		local vx, vy, vz = getElementVelocity(vehicle)
         local velocityVector = { x = vx, y = vy, z = vz }
-        local newVelocityVector = { x = vx * factor, y = vy * factor, z = vz * factor }
+        local newVelocityVector = { x = vx, y = vy, z = vz + getPowerConst().jump.height }
         setElementVelocity(vehicle, newVelocityVector.x, newVelocityVector.y, newVelocityVector.z)
 	end,
 	onDeactivated = function(player, vehicle, state)
@@ -26,4 +24,4 @@ local jumpPushPowerup = {
 	end	
 }
 
---addPowerUp(canonPushPowerup)
+addPowerUp(jumpPushPowerup)

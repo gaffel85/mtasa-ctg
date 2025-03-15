@@ -7,7 +7,7 @@ function getDefaultConfig()
         active = {
             { key = "nitro", bindKey = "lctrl" },
             { key = "teleport", bindKey = "Z" },
-            { key = "hidemap", bindKey = "C" },
+            { key = "jump", bindKey = "C" },
             --{ key = "busses", bindKey = "C" },
             --{ key = "waterLevel", bindKey = "R" },
             --{ key = "canon", bindKey = "B" },
@@ -19,7 +19,7 @@ function getDefaultConfig()
         owned = {
             "nitro",
             "teleport",
-            "hidemap"
+            "jump"
         },
     }
 end

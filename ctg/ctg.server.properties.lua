@@ -136,6 +136,14 @@ local props = {
             charges = 1,
             rank = 2,
         },
+        jump = {
+            duration = 1,
+            cooldown = 20,
+            initCooldown = 10,
+            allowedGoldCarrier = false,
+            charges = 2,
+            rank = 5,
+        },
     }
 }
 
