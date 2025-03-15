@@ -154,6 +154,14 @@ local props = {
             rank = 5,
             gravity = 0.002
         },
+        physics = {
+            duration = 1,
+            cooldown = 30,
+            initCooldown = 30,
+            allowedGoldCarrier = false,
+            charges = 1,
+            rank = 6,
+        }
     }
 }
 
