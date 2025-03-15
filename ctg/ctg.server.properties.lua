@@ -91,7 +91,7 @@ local props = {
             duration = 10,
             cooldown = 35,
             initCooldown = 20,
-            allowedGoldCarrier = false,
+            allowedGoldCarrier = true,
             charges = 2,
             rank = 3,
         },
@@ -140,10 +140,19 @@ local props = {
             duration = 1,
             cooldown = 20,
             initCooldown = 1,
-            allowedGoldCarrier = false,
+            allowedGoldCarrier = true,
             charges = 2,
             rank = 5,
             height = 0.3
+        },
+        worldgravity = {
+            duration = 10,
+            cooldown = 30,
+            initCooldown = 15,
+            allowedGoldCarrier = true,
+            charges = 2,
+            rank = 5,
+            gravity = 0.002
         },
     }
 }
