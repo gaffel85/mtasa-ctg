@@ -1,16 +1,25 @@
 local ghosts = {}
+local defaultAlpha = 150
 
-function setPlayerAsGhost(player, isGhost)
-    ghosts[player] = isGhost
+function setPlayerAsGhost(player, isGhost, invisible)
+    if isGhost then
+        ghosts[player] = { invisible = invisible }
+    else
+        ghosts[player] = nil
+    end
 end
 
 function isPlayerGhost(player)
-    return ghosts[player]
+    return ghosts[player] ~= nil
 end
 
-function makeMeGhostForMyself(player, vehicle, invisible)
-    setElementAlpha( vehicle, 150 )
-    setElementAlpha( player, 150 )
+function isInvisibleGhost(player)
+    return ghosts[player] and ghosts[player].invisible
+end
+
+function makeMeGhostForMyself(player, vehicle)
+    setElementAlpha( vehicle, defaultAlpha )
+    setElementAlpha( player, defaultAlpha )
     
     for i, otherPlayer in ipairs(getElementsByType("player")) do
         if otherPlayer ~= player then
@@ -19,8 +28,8 @@ function makeMeGhostForMyself(player, vehicle, invisible)
     end
 end
 
-function makeOtherPlayerGhostForMe(player, vehicle)
-    local alpha = 150
+function makeOtherPlayerGhostForMe(player, vehicle, invisible)
+    local alpha = defaultAlpha
     if (invisible) then
         alpha = 0
     end
@@ -34,18 +43,17 @@ function makeOtherPlayerGhostForMe(player, vehicle)
     setElementCollidableWith( vehicle, getPedOccupiedVehicle ( getLocalPlayer() ) , false)
 end
 
-function onMakeGhostFromServer()
-	local player = source
+function onMakeGhostFromServer(player, invisible)
     if isPlayerGhost(player) then
         return
     end
 
-    setPlayerAsGhost(player, true)
+    setPlayerAsGhost(player, true, invisible)
     local vehicle = getPedOccupiedVehicle( player )
     if ( getLocalPlayer() == player ) then
         makeMeGhostForMyself(player, vehicle)
     else 
-        makeOtherPlayerGhostForMe(player, vehicle)
+        makeOtherPlayerGhostForMe(player, vehicle, invisible)
     end	
 end
 addEvent("makeGhostFromServer", true)
@@ -71,13 +79,12 @@ function unmakeOtherPlayerGhostForMe(player, vehicle)
     setElementCollidableWith( vehicle, getPedOccupiedVehicle ( getLocalPlayer() ) , true)
 end
 
-function onUnmakeGhostFromServer()
-	local player = source
+function onUnmakeGhostFromServer(player)
     if not isPlayerGhost(player) then
         return
     end
 
-    setPlayerAsGhost(player, false)
+    setPlayerAsGhost(player, false, false)
     local vehicle = getPedOccupiedVehicle( player )
     if ( getLocalPlayer() == player ) then
         unmakeMeGhostForMyself(player, vehicle)
@@ -94,13 +101,13 @@ addEventHandler("onClientVehicleEnter", getRootElement(),
         if thePlayer == getLocalPlayer() then
             outputChatBox("You entered the vehicle")
             if isPlayerGhost(thePlayer) then
-                makeMeGhostForMyself(thePlayer, source, false)
+                makeMeGhostForMyself(thePlayer, source)
             end
         else 
             outputChatBox("Someone else entered the vehicle")
             -- loop over all ghosts and apply
             if (isPlayerGhost(thePlayer)) then
-                makeOtherPlayerGhostForMe(ghostPlayer, source)
+                makeOtherPlayerGhostForMe(ghostPlayer, source, isInvisibleGhost(thePlayer))
             end
         end 
     end

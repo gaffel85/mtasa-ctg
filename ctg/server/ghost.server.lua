@@ -64,18 +64,19 @@ function unmakePlayerGhost(player)
     end
 end
 
-function makePlayerGhost(player, seconds, safeCheck)
+function makePlayerGhost(player, seconds, safeCheck, invisible)
     if isGhost(player) then
         unmakePlayerGhost(player)
     else
         ghosts[player] = {
             seconds = seconds,
             safeCheck = safeCheck,
+            invisible = invisible,
             timer = setTimer(function()
                 unmakePlayerGhost(player)
             end, seconds * 1000, 1)
         }
-        triggerClientEvent("makeGhostFromServer", getRootElement(), player)
+        triggerClientEvent("makeGhostFromServer", getRootElement(), player, invisible)
     end
 end
 
