@@ -36,8 +36,9 @@
 	<script src="server/collision.lua" />
 	<script src="server/distance.meter.lua" />
 	<script src="server/admin.control.lua" />
-	<script src="server/ghost.server.lua" />
 	<script src="server/bind.lua" />
+	<script src="server/ghost.server.lua" />
+	
 
 	<script src="client/power.gui.lua" type="client" />
 	<script src="client/power.cameraangle.lua" type="client" />
