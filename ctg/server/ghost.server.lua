@@ -81,7 +81,7 @@ function makePlayerGhost(player, seconds, safeCheck, invisible)
 end
 
 registerBindFunctions(function(player)
-    bindKey(player, "g", "down", makePlayerGhost, player, 5, true)
+    bindKey(player, "g", "down", makePlayerGhost, player, 5, true, false)
 end, function(player)
     unbindKey(player, "g", "down", makePlayerGhost, player)
 end)
