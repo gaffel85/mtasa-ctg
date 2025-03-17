@@ -32,7 +32,7 @@ end
 function shieldPlayer(player)
     tillbakaKakaShield = true
     shieldedPlayer = player
-    addShieldedPlayer(player, 10000, 2)
+    addShieldedPlayer(player, 0, 5)
 end
 
 function clearShield()

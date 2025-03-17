@@ -9,8 +9,8 @@ end
 addEvent("onShieldAddedFromServer", true)
 addEvent("onShieldRemovedFromServer", true)
 
-function onShieldAdded(player)
-    shieldedPlayers[player] = true
+function onShieldAdded(player, duration)
+    shieldedPlayers[player] = duration
   -- outputChatBox('Shield added to player '..inspect(player))
 end
 addEventHandler("onShieldAddedFromServer", resourceRoot, onShieldAdded)

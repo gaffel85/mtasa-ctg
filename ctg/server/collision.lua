@@ -17,7 +17,10 @@ function addShieldedPlayer(player, hits, duration)
     end
 
     shieldedPlayers[player] = { hits = hits, duration = duration }
-    triggerClientEvent(getRootElement(), "onShieldAddedFromServer", getRootElement(), player)
+    triggerClientEvent(getRootElement(), "onShieldAddedFromServer", getRootElement(), player, 100000)
+    if (hits <= 0) then
+       descreaseShield(player)
+    end
 end
 
 function removeShieldedPlayer(player)
@@ -31,11 +34,26 @@ end
 
 function increaseHits(player)
     if shieldedPlayers[player] then
-        local newVal = shieldedPlayers[player].hits + 1
+        local newVal = shieldedPlayers[player].hits - 1
         shieldedPlayers[player].hits = newVal
         return newVal
     end
     return 0
+end
+
+function descreaseShield(player)
+    local newHits = increaseHits(player)
+    if newHits <= 0 then
+        local oldShieldTimer = shieldedPlayers[player].timer
+        if not oldShieldTimer then
+            local duration = shieldedPlayers[player].duration
+            triggerClientEvent(getRootElement(), "onShieldAddedFromServer", getRootElement(), player, duration)
+            shieldedPlayers[player].timer = setTimer(function()
+                removeShieldedPlayer(player)
+                triggerClientEvent(getRootElement(), "onShieldRemovedFromServer", resourceRoot, player)
+            end, duration * 1000, 1)
+        end
+    end
 end
 
 function collisisionWithPlayer(otherPlayer, damage)
@@ -52,16 +70,7 @@ function collisisionWithPlayer(otherPlayer, damage)
     end
 
     if isShielded(goldCarrier) then
-        local newHits = increaseHits(goldCarrier)
-        if newHits <= 0 then
-            local oldShieldTimer = shieldedPlayers[goldCarrier].timer
-            if not oldShieldTimer then
-                shieldedPlayers[goldCarrier].timer = setTimer(function()
-                    removeShieldedPlayer(goldCarrier)
-                    triggerClientEvent(getRootElement(), "onShieldRemovedFromServer", resourceRoot, goldCarrier)
-                end, shieldedPlayers[goldCarrier].duration * 1000, 1)
-            end
-        end
+        descreaseShield(goldCarrier)
     else 
         changeGoldCarrier(notGoldCarrier)
     end
