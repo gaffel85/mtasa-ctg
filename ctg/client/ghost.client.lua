@@ -8,7 +8,18 @@ function isPlayerGhost(player)
     return ghosts[player]
 end
 
-function makeSelfGhost(player, vehicle, invisible)
+function makeMeGhostForMyself(player, vehicle, invisible)
+    setElementAlpha( vehicle, 150 )
+    setElementAlpha( player, 150 )
+    
+    for i, otherPlayer in ipairs(getElementsByType("player")) do
+        if otherPlayer ~= player then
+            setElementCollidableWith( vehicle, getPedOccupiedVehicle ( otherPlayer ) , false)
+        end
+    end
+end
+
+function makeOtherPlayerGhostForMe(player, vehicle)
     local alpha = 150
     if (invisible) then
         alpha = 0
@@ -19,17 +30,6 @@ function makeSelfGhost(player, vehicle, invisible)
         setVehicleOverrideLights ( vehicle, 1 ) 
 	    setPlayerNametagShowing ( player, false )
     end
-    
-    for i, otherPlayer in ipairs(getElementsByType("player")) do
-        if otherPlayer ~= player then
-            setElementCollidableWith( vehicle, getPedOccupiedVehicle ( otherPlayer ) , false)
-        end
-    end
-end
-
-function makePlayerGhostForOthers(player, vehicle)
-    setElementAlpha( vehicle, 150 )
-    setElementAlpha( player, 0 )
 
     setElementCollidableWith( vehicle, getPedOccupiedVehicle ( getLocalPlayer() ) , false)
 end
@@ -43,15 +43,15 @@ function onMakeGhostFromServer()
     setPlayerAsGhost(player, true)
     local vehicle = getPedOccupiedVehicle( player )
     if ( getLocalPlayer() == player ) then
-        makeSelfGhost(player, vehicle)
+        makeMeGhostForMyself(player, vehicle)
     else 
-        makePlayerGhostForOthers(player, vehicle)
+        makeOtherPlayerGhostForMe(player, vehicle)
     end	
 end
 addEvent("makeGhostFromServer", true)
 addEventHandler("makeGhostFromServer", getRootElement(), onMakeGhostFromServer)
 
-function unmakeSelfGhost(player, vehicle)
+function unmakeMeGhostForMyself(player, vehicle)
     setElementAlpha( vehicle, 255 )
     setElementAlpha( player, 255 )
     setVehicleOverrideLights ( vehicle, 0 ) 
@@ -64,7 +64,7 @@ function unmakeSelfGhost(player, vehicle)
     end
 end
 
-function unmakePlayerGhostForOthers(player, vehicle)
+function unmakeOtherPlayerGhostForMe(player, vehicle)
     setElementAlpha( vehicle, 255 )
     setElementAlpha( player, 255 )
 
@@ -80,10 +80,28 @@ function onUnmakeGhostFromServer()
     setPlayerAsGhost(player, false)
     local vehicle = getPedOccupiedVehicle( player )
     if ( getLocalPlayer() == player ) then
-        unmakeSelfGhost(player, vehicle)
+        unmakeMeGhostForMyself(player, vehicle)
     else 
-        unmakePlayerGhostForOthers(player, vehicle)
+        unmakeOtherPlayerGhostForMe(player, vehicle)
     end	
 end
 addEvent("unmakeGhostFromServer", true)
 addEventHandler("unmakeGhostFromServer", getRootElement(), onUnmakeGhostFromServer)
+
+addEventHandler("onClientVehicleEnter", getRootElement(),
+    function(thePlayer, seat)
+        outputChatBox("Someone entered the vehicle")
+        if thePlayer == getLocalPlayer() then
+            outputChatBox("You entered the vehicle")
+            if isPlayerGhost(thePlayer) then
+                makeMeGhostForMyself(thePlayer, source, false)
+            end
+        else 
+            outputChatBox("Someone else entered the vehicle")
+            -- loop over all ghosts and apply
+            if (isPlayerGhost(thePlayer)) then
+                makeOtherPlayerGhostForMe(ghostPlayer, source)
+            end
+        end 
+    end
+)
