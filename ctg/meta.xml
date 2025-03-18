@@ -38,6 +38,7 @@
 	<script src="server/admin.control.lua" />
 	<script src="server/bind.lua" />
 	<script src="server/ghost.server.lua" />
+	<script src="server/location.db.lua" />
 	
 
 	<script src="client/power.gui.lua" type="client" />
