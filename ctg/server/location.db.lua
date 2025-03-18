@@ -72,11 +72,15 @@ function readLocationsFromJsonFile()
         fileClose(file)
         local locationsAsArray = fromJSON(content)
         for i, locationAsArray in ipairs(locationsAsArray) do
+            if locationAsArray[4] then
+                outputServerLog("///// Read roation "..inspect(locationAsArray[4]))
+            end
+            local rotZ = locationAsArray[4]
             local location = {
                 x = locationAsArray[1],
                 y = locationAsArray[2],
                 z = locationAsArray[3],
-                rz = locationAsArray[4] or 0,
+                rz = rotZ or 0,
                 ry = 0,
                 rx = 0,
                 vx = 0,
@@ -84,7 +88,8 @@ function readLocationsFromJsonFile()
                 vz = 0,
                 avx = 0,
                 avy = 0,
-                avz = 0
+                avz = 0,
+                prz = rotZ
             }
             table.insert(locations, location)
             plotPosition(location.x, location.y, location.z)
@@ -100,7 +105,7 @@ function calculateZRotation(vx, vy)
         return nil
     end
 
-    local angle = math.deg(math.acos(vx/speed))
+    local angle = math.deg(math.acos(vx/speed)) - 90
     if vy < 0 then
         angle = 360 - angle
     end
@@ -116,11 +121,18 @@ function saveWholeFileAsJson()
 
     locationsAsArray = {}
     for i, location in ipairs(locations) do
+        local rotZ = location.prz
+        if not rotZ then
+            rotZ = calculateZRotation(location.vx, location.vy)
+        end
+        if rotZ then
+            outputServerLog("¤### Saved rotation "..inspect(rotZ))
+        end
         table.insert(locationsAsArray, {
             location.x,
             location.y,
             location.z,
-            calculateZRotation(location.vx, location.vy),
+            rotZ
         })
     end
 
@@ -128,6 +140,19 @@ function saveWholeFileAsJson()
     fileWrite(file, json)
     fileFlush(file)
     fileClose(file)
+end
+
+function getPosAndRot()
+    -- return pos that has a non 0 rotation
+    for i, location in ipairs(locations) do
+        if location.rz ~= 0 then
+            return location.x, location.y, location.z, location.rx, location.ry, location.rz
+        end
+    end
+
+    outputServerLog("Failed to find rotated pos")
+    local location = locations[1]
+    return location.x, location.y, location.z, location.rx, location.ry, location.rz
 end
 
 function appendToFile()

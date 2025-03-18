@@ -37,8 +37,10 @@ function spawn(thePlayer, random)
 end
 
 function spawnAtSpawnpoint(thePlayer, spawnPoint)
-    local posX, posY, posZ = coordsFromEdl(spawnPoint)
-    local rotX, rotY, rotZ = rotFromEdl(spawnPoint)
+    local posX, posY, posZ, rotX, rotY, rotZ = getPosAndRot()
+
+    --local posX, posY, posZ = coordsFromEdl(spawnPoint)
+    --local rotX, rotY, rotZ = rotFromEdl(spawnPoint)
     spawnAt(thePlayer, posX, posY, posZ, rotX, rotY, rotZ)
 end
 

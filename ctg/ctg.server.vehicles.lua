@@ -119,7 +119,8 @@ function findVehicleListByCategory(category)
 end
 
 function getRandomVehicle()
-    local quota = getQuota()
+  return 515
+    --[[local quota = getQuota()
     local totalQuota = 0
     for k, v in pairs(quota) do
         totalQuota = totalQuota + v
@@ -137,7 +138,7 @@ function getRandomVehicle()
 			-- outputChatBox("Random: "..inspect(result).." "..inspect(k))
 			return result
         end
-    end
+    end]]--
 end
 
 function setVehicleForAll()
