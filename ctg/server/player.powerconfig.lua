@@ -7,12 +7,12 @@ function getDefaultConfig()
         active = {
             { key = "nitro", bindKey = "lctrl" },
             { key = "teleport", bindKey = "Z" },
-            { key = "physics", bindKey = "C" },
+            --{ key = "physics", bindKey = "C" },
             --{ key = "worldgravity", bindKey = "X" },
             --{ key = "jump", bindKey = "C" },
             --{ key = "busses", bindKey = "C" },
             --{ key = "waterLevel", bindKey = "R" },
-            --{ key = "canon", bindKey = "B" },
+            { key = "canon", bindKey = "C" },
             --{ key = "plane", bindKey = "P" },
             --{ key = "cinematic", bindKey = "N" },
         },
@@ -21,7 +21,7 @@ function getDefaultConfig()
         owned = {
             "nitro",
             "teleport",
-            "physics",
+            "canon",
             --"worldgravity",
         },
     }

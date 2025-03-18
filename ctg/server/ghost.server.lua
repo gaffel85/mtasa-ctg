@@ -64,7 +64,7 @@ function unmakePlayerGhost(player)
     end
 end
 
-function makePlayerGhost(player, seconds, safeCheck, invisible)
+function makePlayerGhost(player, key, state, seconds, safeCheck, invisible)
     if isGhost(player) then
         -- extend timer
         local record = ghosts[player]
@@ -99,8 +99,8 @@ function togglePlayerGhost(player)
 end
 
 registerBindFunctions(function(player)
-    bindKey(player, "g", "down", makePlayerGhost, player, 5, true, false)
+    bindKey(player, "g", "down", makePlayerGhost, 5, true, false)
 end, function(player)
-    unbindKey(player, "g", "down", makePlayerGhost, player)
+    unbindKey(player, "g", "down", makePlayerGhost)
 end)
 
