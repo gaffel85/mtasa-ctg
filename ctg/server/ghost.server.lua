@@ -66,7 +66,17 @@ end
 
 function makePlayerGhost(player, seconds, safeCheck, invisible)
     if isGhost(player) then
-        unmakePlayerGhost(player)
+        -- extend timer
+        local record = ghosts[player]
+        if record.timer then
+            killTimer(record.timer)
+        end
+        record.seconds = seconds
+        record.safeCheck = safeCheck
+        record.invisible = invisible
+        record.timer = setTimer(function()
+            timerOutGhost(player)
+        end, seconds * 1000, 1)
     else
         ghosts[player] = {
             seconds = seconds,
@@ -77,6 +87,14 @@ function makePlayerGhost(player, seconds, safeCheck, invisible)
             end, seconds * 1000, 1)
         }
         triggerClientEvent("makeGhostFromServer", getRootElement(), player, invisible)
+    end
+end
+
+function togglePlayerGhost(player)
+    if isGhost(player) then
+        unmakePlayerGhost(player)
+    else
+        makePlayerGhost(player, 5, true, false)
     end
 end
 
