@@ -14,14 +14,23 @@ end
 
 function saveLocationForPlayer(player)
     -- save location, rotation, velocity and angular velocity for player
-    local x, y, z = getElementPosition(player)
+    local vehicle = getPedOccupiedVehicle(player)
+    if not vehicle then
+        return
+    end
+
+    if  not isVehicleOnGround(vehicle) then
+        return
+    end
+
+    local x, y, z = getElementPosition(vehicle)
     if hasLocationCloseTo(x, y, z) then
         return
     end
 
-    local rx, ry, rz = getElementRotation(player)
-    local vx, vy, vz = getElementVelocity(player)
-    local avx, avy, avz = getElementAngularVelocity(player)
+    local rx, ry, rz = getElementRotation(vehicle)
+    local vx, vy, vz = getElementVelocity(vehicle)
+    local avx, avy, avz = getElementAngularVelocity(vehicle)
     table.insert(locations, {
         x = x,
         y = y,
@@ -73,7 +82,6 @@ function readLocationsFromJsonFile()
                 avy = locationAsArray[11],
                 avz = locationAsArray[12]
             }
-            outputServerLog("location: "..inspect(location))
             table.insert(locations, location)
             plotPosition(location.x, location.y, location.z)
         end
