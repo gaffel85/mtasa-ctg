@@ -49,6 +49,7 @@
 	<script src="client/admin.gui.lua" type="client" />
 	<script src="client/help.gui.lua" type="client" />
 	<script src="client/ghost.client.lua" type="client" />
+	<script src="client/location.client.lua" type="client" />
 
 	<script src="shared/ghost.shared.lua" type="client" />
 	<script src="shared/ghost.shared.lua" />

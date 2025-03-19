@@ -1,7 +1,10 @@
 local locations = {}
+local locationsFromClient = {}
 local minDistance = 5
 local minSpeedForRotation = 50
 local filePath = "locations.json"
+
+--[[
 
 function hasLocationCloseToForPlayer(x, y, z, player)
     -- check if there is a location close to x, y, z
@@ -52,6 +55,28 @@ function saveLocationForPlayer(player)
     plotPosition(x, y, z)
 end
 
+function calculateZRotation(vx, vy)
+    -- calculate the rotation around Z-axis from velocity vector
+    local speed = math.sqrt(vx*vx + vy*vy)
+    local speedInKmh = speed * 180
+    if speedInKmh < minSpeedForRotation then
+        return nil
+    end
+
+    local angle = math.deg(math.acos(vx/speed)) - 90
+    if vy < 0 then
+        angle = 360 - angle
+    end
+    return angle
+end
+
+function saveLocationsForAllPlayers()
+    for i, player in ipairs(getElementsByType("player")) do
+        saveLocationForPlayer(player)
+    end
+end
+]]--
+
 function plotPosition(x, y, z)
     -- plot a position in the world
     createBlip(x, y, z, 0, 2, 0, 255, 255, 255, 0)
@@ -72,44 +97,19 @@ function readLocationsFromJsonFile()
         fileClose(file)
         local locationsAsArray = fromJSON(content)
         for i, locationAsArray in ipairs(locationsAsArray) do
-            if locationAsArray[4] then
-                outputServerLog("///// Read roation "..inspect(locationAsArray[4]))
-            end
-            local rotZ = locationAsArray[4]
             local location = {
                 x = locationAsArray[1],
                 y = locationAsArray[2],
                 z = locationAsArray[3],
-                rz = rotZ or 0,
-                ry = 0,
-                rx = 0,
-                vx = 0,
-                vy = 0,
-                vz = 0,
-                avx = 0,
-                avy = 0,
-                avz = 0,
-                prz = rotZ
+                ry = locationAsArray[4] or 0,
+                rx = locationAsArray[5] or 0,
+                rz = locationAsArray[6] or 0,
+                speedMet = locationAsArray[7] or false,
             }
             table.insert(locations, location)
             plotPosition(location.x, location.y, location.z)
         end
     end
-end
-
-function calculateZRotation(vx, vy)
-    -- calculate the rotation around Z-axis from velocity vector
-    local speed = math.sqrt(vx*vx + vy*vy)
-    local speedInKmh = speed * 180
-    if speedInKmh < minSpeedForRotation then
-        return nil
-    end
-
-    local angle = math.deg(math.acos(vx/speed)) - 90
-    if vy < 0 then
-        angle = 360 - angle
-    end
-    return angle
 end
 
 function saveWholeFileAsJson()
@@ -121,18 +121,14 @@ function saveWholeFileAsJson()
 
     locationsAsArray = {}
     for i, location in ipairs(locations) do
-        local rotZ = location.prz
-        if not rotZ then
-            rotZ = calculateZRotation(location.vx, location.vy)
-        end
-        if rotZ then
-            outputServerLog("¤### Saved rotation "..inspect(rotZ))
-        end
         table.insert(locationsAsArray, {
             location.x,
             location.y,
             location.z,
-            rotZ
+            location.rx,
+            location.ry,
+            location.rz,
+            location.speedMet,
         })
     end
 
@@ -155,6 +151,7 @@ function getPosAndRot()
     return location.x, location.y, location.z, location.rx, location.ry, location.rz
 end
 
+--[[
 function appendToFile()
     local file = nil
     if fileExists(filePath) then
@@ -208,18 +205,25 @@ function closeFile()
         fileClose(file)                           -- close the file once we're done with it
     end
 end
+]]--
 
-function saveLocationsForAllPlayers()
-    for i, player in ipairs(getElementsByType("player")) do
-        saveLocationForPlayer(player)
+addEvent("locationFromClient", true)
+addEventHandler("locationFromClient", resourceRoot,
+    function(locations)
+        outputServerLog("Location from client"..inspect(locations))
+        for i, location in ipairs(locations) do
+            table.insert(locations, location)
+            plotPosition(location.x, location.y, location.z)
+        end
+        --saveLocationForPlayer(client)
     end
-end
+)
 
 --onclientresourcestart
 addEventHandler("onResourceStart", resourceRoot,
     function()
         readLocationsFromJsonFile()
-        setTimer(saveLocationsForAllPlayers, 2000, 100000000)
+        --setTimer(saveLocationsForAllPlayers, 2000, 100000000)
         setTimer(plotAllPositions, 5000, 1)
         --setTimer(appendToFile, 10000, 100000000)
     end
