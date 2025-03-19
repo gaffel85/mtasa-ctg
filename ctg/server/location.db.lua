@@ -10,11 +10,17 @@ function plotPosition(x, y, z)
     table.insert(blips, blip)
 end
 
-function plotAllPositions()
+function destroyOldBlips()
     for i, blip in ipairs(blips) do
-        destroyElement(blip)
+        if isElement(blip) then
+            destroyElement(blip)
+        end
     end
     blips = {}
+end
+
+function plotAllPositions()
+    destroyOldBlips()
     -- plot all positions in the world
     for i, location in ipairs(pointsToPlot) do
         plotPosition(location.x, location.y, location.z)
@@ -134,6 +140,8 @@ addEventHandler("locationFromClient", resourceRoot,
 --onclientresourcestart
 addEventHandler("onResourceStart", resourceRoot,
     function()
+        locations = {}
+        blips = {}
         readLocationsFromJsonFile()
         --setTimer(saveLocationsForAllPlayers, 2000, 100000000)
         setTimer(plotAllPositions, 5000, 1)
@@ -143,6 +151,7 @@ addEventHandler("onResourceStart", resourceRoot,
 
 addEventHandler("onResourceStop", resourceRoot,
     function()
+        destroyOldBlips()
         saveWholeFileAsJson()
     end
 )

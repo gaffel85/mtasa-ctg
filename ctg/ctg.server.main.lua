@@ -54,7 +54,7 @@ function spawnAt(player, posX, posY, posZ, rotX, rotY, rotZ)
         warpPedIntoVehicle(player, vehicle)
         fadeCamera(player, true)
         setCameraTarget(player, player)
-        makePlayerGhost(player, 0.1, true, false)
+        makePlayerGhost(player, 2, true, false)
     end, 50, 1)
 end
 

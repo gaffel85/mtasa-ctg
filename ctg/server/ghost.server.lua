@@ -15,6 +15,7 @@ end
 function checkSafeFromCollision(player)
     local vehicle = getPedOccupiedVehicle(player)
     if not vehicle then
+        outputServerLog("3")
         return true
     end
 
@@ -22,12 +23,16 @@ function checkSafeFromCollision(player)
     local x, y, z = getElementPosition(vehicle)
     local safe = true
     for i, otherPlayer in ipairs(getElementsByType("player")) do
+        outputServerLog("4")
         if otherPlayer ~= player and not isGhost(otherPlayer) then
+            outputServerLog("5")
             local otherVehicle = getPedOccupiedVehicle(otherPlayer)
             if otherVehicle then
+                outputServerLog("6")
                 local ox, oy, oz = getElementPosition(otherVehicle)
                 local otherRadius = getVechicleSafeRadius(otherVehicle)
                 if getDistanceBetweenPoints3D(x, y, z, ox, oy, oz) < (myRadius + otherRadius) then
+                    outputServerLog("7")
                     safe = false
                     break
                 end
@@ -38,17 +43,21 @@ function checkSafeFromCollision(player)
 end
 
 function timerOutGhost(player)
+    outputServerLog("1")
     local record = ghosts[player]
     if record and record.safeCheck then
         if checkSafeFromCollision(player) then
+            outputServerLog("Was safe from collision "..getPlayerName(player))
             unmakePlayerGhost(player)
         else
+            outputServerLog("Had collision, polling..."..getPlayerName(player))
             record.seconds = math.random(8, 12) / 10
             record.timer = setTimer(function()
                 timerOutGhost(player)
             end, record.seconds * 1000, 1)
         end
     else
+        outputServerLog("2")
         unmakePlayerGhost(player) 
     end
 end
@@ -64,7 +73,7 @@ function unmakePlayerGhost(player)
     end
 end
 
-function makePlayerGhost(player, key, state, seconds, safeCheck, invisible)
+function makePlayerGhost(player, seconds, safeCheck, invisible)
     if isGhost(player) then
         -- extend timer
         local record = ghosts[player]
@@ -83,7 +92,7 @@ function makePlayerGhost(player, key, state, seconds, safeCheck, invisible)
             safeCheck = safeCheck,
             invisible = invisible,
             timer = setTimer(function()
-                unmakePlayerGhost(player)
+                timerOutGhost(player)
             end, seconds * 1000, 1)
         }
         triggerClientEvent("makeGhostFromServer", getRootElement(), player, invisible)
@@ -99,8 +108,8 @@ function togglePlayerGhost(player)
 end
 
 registerBindFunctions(function(player)
-    bindKey(player, "g", "down", makePlayerGhost, 5, true, false)
+    bindKey(player, "g", "down", togglePlayerGhost)
 end, function(player)
-    unbindKey(player, "g", "down", makePlayerGhost)
+    unbindKey(player, "g", "down", togglePlayerGhost)
 end)
 
