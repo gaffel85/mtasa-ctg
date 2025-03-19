@@ -1,5 +1,7 @@
 local locations = {}
 local locationsToSend = {}
+local lastBlips = {}
+local maxBlips = 5
 local minDistance = 5
 local minSpeedForRotation = 50
 local serverPackageSize = 3
@@ -92,7 +94,13 @@ end
 
 function plotPosition(x, y, z)
     -- plot a position in the world
-    createBlip(x, y, z, 0, 2, 120, 90, 255, 255, 0)
+    local blip = createBlip(x, y, z, 0, 2, 120, 90, 255, 255, 0)
+    -- remove oldest blip if more than maxBlips
+    if #lastBlips > maxBlips then
+        local oldestBlip = table.remove(lastBlips, 1)
+        destroyElement(oldestBlip)
+    end
+    table.insert(lastBlips, blip)
 end
 
 function plotAllPositions()
