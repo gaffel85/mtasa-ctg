@@ -39,8 +39,8 @@
 	<script src="server/bind.lua" />
 	<script src="server/ghost.server.lua" />
 	<script src="server/location.db.lua" />
+	<script src="server/location.db.lua" />
 	
-
 	<script src="client/power.gui.lua" type="client" />
 	<script src="client/power.cameraangle.lua" type="client" />
 	<script src="client/powerconfig.window.lua" type="client" />
@@ -53,6 +53,8 @@
 
 	<script src="shared/ghost.shared.lua" type="client" />
 	<script src="shared/ghost.shared.lua" />
+	<script src="shared/quad.tree.lua" type="client" />
+	<script src="shared/quad.tree.lua" />
 
 	<script src="ctg.client.goldcarrier.lua" type="client" />
     <script src="ctg.client.collision.lua" type="client" />
