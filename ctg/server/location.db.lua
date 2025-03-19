@@ -15,7 +15,7 @@ function plotAllPositions()
         destroyElement(blip)
     end
     -- plot all positions in the world
-    for i, location in ipairs(locations) do
+    for i, location in ipairs(pointsToPlot) do
         plotPosition(location.x, location.y, location.z)
     end
 end
@@ -27,6 +27,7 @@ function addPlotPoint(newLocation)
     local found = false
     for j, point in ipairs(pointsToPlot) do
         if getDistanceBetweenPoints3D(x, y, z, point.x, point.y, point.z) < plotDistance then
+            --outputServerLog("To close, skipping")
             found = true
         end
     end
@@ -121,7 +122,7 @@ addEventHandler("locationFromClient", resourceRoot,
                 speedMet = locationAsArray[7] or false,
             }
             table.insert(locations, location)
-            addPlotPoint(location.x, location.y, location.z)
+            addPlotPoint(location)
             --createMarker(location.x, location.y, location.z, "corona")
         end
         plotAllPositions()
