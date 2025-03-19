@@ -121,3 +121,9 @@ addEventHandler( "onClientResourceStart", getRootElement( ),
         outputChatBox( "Resource started: " .. getResourceName( startedRes ) );
     end
 );
+
+addEventHandler( "onClientResourceStop", getRootElement( ),
+    function ( startedRes )
+        outputChatBox( "Resource stopped: " .. getResourceName( startedRes ) );
+    end
+);

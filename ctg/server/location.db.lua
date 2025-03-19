@@ -213,7 +213,6 @@ end
 addEvent("locationFromClient", true)
 addEventHandler("locationFromClient", resourceRoot,
     function(newLocations)
-        outputServerLog("Location from client"..inspect(#locations))
         for i, locationAsArray in ipairs(newLocations) do
             local location = {
                 x = locationAsArray[1],
