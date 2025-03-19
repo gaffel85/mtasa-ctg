@@ -125,9 +125,9 @@ function saveWholeFileAsJson()
             location.x,
             location.y,
             location.z,
-            location.rx,
-            location.ry,
-            location.rz,
+            math.floor(location.rx + 0.5),
+            math.floor(location.ry + 0.5),
+            math.floor(location.rz + 0.5),
             location.speedMet,
         })
     end
@@ -148,6 +148,9 @@ function getPosAndRot()
 
     outputServerLog("Failed to find rotated pos")
     local location = locations[1]
+    if not location then
+        return 0,0,0,0,0,0
+    end
     return location.x, location.y, location.z, location.rx, location.ry, location.rz
 end
 
@@ -209,11 +212,21 @@ end
 
 addEvent("locationFromClient", true)
 addEventHandler("locationFromClient", resourceRoot,
-    function(locations)
-        outputServerLog("Location from client"..inspect(locations))
-        for i, location in ipairs(locations) do
+    function(newLocations)
+        outputServerLog("Location from client"..inspect(#locations))
+        for i, locationAsArray in ipairs(newLocations) do
+            local location = {
+                x = locationAsArray[1],
+                y = locationAsArray[2],
+                z = locationAsArray[3],
+                ry = locationAsArray[4] or 0,
+                rx = locationAsArray[5] or 0,
+                rz = locationAsArray[6] or 0,
+                speedMet = locationAsArray[7] or false,
+            }
             table.insert(locations, location)
             plotPosition(location.x, location.y, location.z)
+            createMarker(location.x, location.y, location.z, "corona")
         end
         --saveLocationForPlayer(client)
     end

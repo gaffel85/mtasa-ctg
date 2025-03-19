@@ -2,7 +2,7 @@ local locations = {}
 local locationsToSend = {}
 local minDistance = 5
 local minSpeedForRotation = 50
-local serverPackageSize = 10
+local serverPackageSize = 3
 
 function hasLocationCloseToForPlayer(x, y, z)
     -- check if there is a location close to x, y, z
@@ -18,6 +18,12 @@ function isAllWheelsOnGround(vehicle)
     return isVehicleWheelOnGround(vehicle, 0) and isVehicleWheelOnGround(vehicle, 1) and isVehicleWheelOnGround(vehicle, 2) and isVehicleWheelOnGround(vehicle, 3)
 end
 
+function  getVehicleGroundPos(vehicle)
+    local x, y, z = getElementPosition(vehicle)
+    local ground = getGroundPosition (x,y,z)
+    return x, y, ground
+end
+
 function saveLocationForPlayer()
     local player = localPlayer
     -- save location, rotation, velocity and angular velocity for player
@@ -30,7 +36,7 @@ function saveLocationForPlayer()
         return
     end
 
-    local x, y, z = getElementPosition(vehicle)
+    local x, y, z = getVehicleGroundPos(vehicle)
     if hasLocationCloseToForPlayer(x, y, z) then
         return
     end
@@ -42,7 +48,7 @@ function saveLocationForPlayer()
     local speedInKmh = speed * 180
     local rotZ = calculateZRotation(vx, vy)
 
-    outputChatBox(""..rz.." "..rotZ.." "..speedInKmh)
+    --outputChatBox(""..rz.." "..inspect(rotZ).." "..speedInKmh)
 
     local avx, avy, avz = getElementAngularVelocity(vehicle)
     local newLocation = {
@@ -86,7 +92,7 @@ end
 
 function plotPosition(x, y, z)
     -- plot a position in the world
-    createBlip(x, y, z, 0, 2, 0, 255, 255, 255, 0)
+    createBlip(x, y, z, 0, 2, 120, 90, 255, 255, 0)
 end
 
 function plotAllPositions()
@@ -99,10 +105,6 @@ end
 function calculateZRotation(vx, vy)
     -- calculate the rotation around Z-axis from velocity vector
     local speed = math.sqrt(vx*vx + vy*vy)
-    local speedInKmh = speed * 180
-    if speedInKmh < minSpeedForRotation then
-        return nil
-    end
 
     local angle = math.deg(math.acos(vx/speed)) - 90
     if vy < 0 then
@@ -111,4 +113,11 @@ function calculateZRotation(vx, vy)
     return angle
 end
 
-setTimer(saveLocationForPlayer, 2000, 100000000)
+setTimer(saveLocationForPlayer, 500, 100000000)
+outputChatBox("Main file")
+
+addEventHandler( "onClientResourceStart", getRootElement( ),
+    function ( startedRes )
+        outputChatBox( "Resource started: " .. getResourceName( startedRes ) );
+    end
+);

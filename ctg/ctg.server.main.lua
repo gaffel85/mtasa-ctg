@@ -39,14 +39,16 @@ end
 function spawnAtSpawnpoint(thePlayer, spawnPoint)
     local posX, posY, posZ, rotX, rotY, rotZ = getPosAndRot()
 
-    --local posX, posY, posZ = coordsFromEdl(spawnPoint)
-    --local rotX, rotY, rotZ = rotFromEdl(spawnPoint)
+    if posX == 0 then
+        posX, posY, posZ = coordsFromEdl(spawnPoint)
+        rotX, rotY, rotZ = rotFromEdl(spawnPoint)
+    end
     spawnAt(thePlayer, posX, posY, posZ, rotX, rotY, rotZ)
 end
 
 function spawnAt(player, posX, posY, posZ, rotX, rotY, rotZ)
     -- posX="" posY="" posZ=""
-    local vehicle = createVehicle(getCurrentVehicle(), posX, posY, posZ, rotX, rotY, rotZ, "Hunter")
+    local vehicle = createVehicle(getCurrentVehicle(), posX, posY, posZ + 2, rotX, rotY, rotZ, "Hunter")
     spawnPlayer(player, 0, 0, 0, 0, 285)
     setTimer(function()
         warpPedIntoVehicle(player, vehicle)

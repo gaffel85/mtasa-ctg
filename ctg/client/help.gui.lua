@@ -9,17 +9,23 @@ function logDistanceToGround()
     outputChatBox(""..distance.."      "..groundDistance)
 end
 
-addEventHandler("onPlayerJoin", getRootElement(), function()
-    outputChatBox("Starting timer")
-    -- create small window to he left with for labels, one on each row.
-    --[[local helpWindow = guiCreateWindow(0.01, 0.7, 0.1, 0.1, "Help", true)
+function showHelp()
+    local helpWindow = guiCreateWindow(0.01, 0.7, 0.1, 0.1, "Help", true)
     local helpLabel = guiCreateLabel(0.01, 0.1, 0.98, 0.9, "F1 = Join team 1\nF2 = Join team 2\nF3 = Choose power ups\nF4 = Vote for next vehicle", true, helpWindow)
     guiLabelSetHorizontalAlign(helpLabel, "center", true)
     guiLabelSetVerticalAlign(helpLabel, "center")
-    guiSetVisible(helpWindow, true)]]--
+    guiSetVisible(helpWindow, true)
+end
 
-    setTimer(logDistanceToGround, 2000, 1000000)
+addEventHandler("onPlayerJoin", getRootElement(), function()
+    outputChatBox("Starting timer")
+    -- create small window to he left with for labels, one on each row.
+    --[[]]--
+
+    --setTimer(logDistanceToGround, 2000, 1000000)
 end)
 
-outputChatBox("Loading help")
-setTimer(logDistanceToGround, 2000, 1000000)
+showHelp()
+
+--outputChatBox("Loading help")
+--setTimer(logDistanceToGround, 2000, 1000000)
