@@ -14,6 +14,7 @@ function plotAllPositions()
     for i, blip in ipairs(blips) do
         destroyElement(blip)
     end
+    blips = {}
     -- plot all positions in the world
     for i, location in ipairs(pointsToPlot) do
         plotPosition(location.x, location.y, location.z)
