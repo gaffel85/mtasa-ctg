@@ -66,7 +66,7 @@ function unmakeMeGhostForMyself(player, vehicle)
 	setPlayerNametagShowing ( player, true )
     
     for i, otherPlayer in ipairs(getElementsByType("player")) do
-        if not isGhost(otherPlayer) then
+        if not isPlayerGhost(otherPlayer) then
             setElementCollidableWith( vehicle, getPedOccupiedVehicle ( otherPlayer ) , true)
         end
     end

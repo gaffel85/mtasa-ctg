@@ -31,21 +31,26 @@ end)
 showHelp()
 
 --outputChatBox("Loading help")
-setTimer(logDistanceToGround, 2000, 3)
+--setTimer(logDistanceToGround, 2000, 3)
 
 local currentVehicleId = 300
 local vehicleSizeData = {}
 function changeToNextVehicleAndGetBoundingBoxAndRadius()
+    outputChatBox("======================")
+    outputConsole("======================")
     currentVehicleId = currentVehicleId + 1
-    if currentVehicleId < 700 then
+    if currentVehicleId > 700 then
         outputChatBox("Done")
         outputConsole(inspect(vehicleSizeData))
         return
     end
 
+    outputConsole("===========2==========")
     local player = localPlayer
     local vehicle = getPedOccupiedVehicle(player)
-    if vehicle then 
+    if vehicle then
+        outputConsole("===========4==========")
+        outputChatBox("Found vehicle")
         if setElementModel(vehicle, currentVehicleId) then
             local x, y, z, x2, y2, z2 = getElementBoundingBox(vehicle)
             local radius = getElementRadius(vehicle)
@@ -58,7 +63,12 @@ function changeToNextVehicleAndGetBoundingBoxAndRadius()
             changeToNextVehicleAndGetBoundingBoxAndRadius()
             return
         end
+    else
+        outputChatBox("No vehicle")
+        setTimer(changeToNextVehicleAndGetBoundingBoxAndRadius, 2000, 1)
+        resetRoundVars
     end
+    outputConsole("===========5==========")
     changeToNextVehicleAndGetBoundingBoxAndRadius()
     --local x, y, z = getElementPosition(vehicle)
     --local distance = getElementDistanceFromCentreOfMassToBaseOfModel(vehicle)
