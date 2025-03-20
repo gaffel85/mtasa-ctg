@@ -1,8 +1,5 @@
 QuadTree = {}
 QuadTree.__index = QuadTree
-
-outputServerLog("Quad tree here!!")
-
 -- Create a new QuadTree
 function QuadTree.new(xMin, xMax, yMin, yMax, capacity)
     local self = setmetatable({}, QuadTree)

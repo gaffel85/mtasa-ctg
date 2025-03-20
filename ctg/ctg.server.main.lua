@@ -39,7 +39,15 @@ end
 function spawnAtSpawnpoint(thePlayer, spawnPoint)
     local posX, posY, posZ = coordsFromEdl(spawnPoint)
 
-    local posX, posY, posZ, rotX, rotY, rotZ = getPosAndRot()
+    local radius = 20
+    local locations = {}
+    while #locations == 0 do
+        locations = getLocations(posX, posY, posZ, radius)
+        radius = radius + 10
+    end
+
+    local location = locations[math.random(#locations)]
+    local posX, posY, posZ, rotX, rotY, rotZ = location.x, location.y, location.z, location.rx, location.ry, location.rz
 
     if posX == 0 then
         posX, posY, posZ = coordsFromEdl(spawnPoint)

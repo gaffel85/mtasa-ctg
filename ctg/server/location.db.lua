@@ -24,7 +24,7 @@ function clearLocations()
 end
 
 function getLocations(x, y, z, radius)
-    return quadTree:queryRadius(x, y, radius)
+    return quadTree:queryRadius({ x = x, y = y }, radius)
 end
 
 function plotPosition(x, y, z)
