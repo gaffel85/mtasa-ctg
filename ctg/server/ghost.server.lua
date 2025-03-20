@@ -5,7 +5,7 @@ function isGhost(player)
 end
 
 function getVechicleSafeRadius(vehicle)
-    local minx, miny, minz, maxx, maxy, maxz = getElementBoundingBox(vehicle)
+    local minx, miny, minz, maxx, maxy, maxz = getVehicleBoundingBoxData(vehicle)
     local distanceFromCenterToMax = getDistanceBetweenPoints3D(0, 0, 0, maxx, maxy, maxz)
     local distanceFromCenterToMin = getDistanceBetweenPoints3D(0, 0, 0, minx, miny, minz)
     local radius = math.max(distanceFromCenterToMax, distanceFromCenterToMin)
@@ -111,5 +111,14 @@ registerBindFunctions(function(player)
     bindKey(player, "g", "down", togglePlayerGhost)
 end, function(player)
     unbindKey(player, "g", "down", togglePlayerGhost)
+end)
+
+addEventHandler("onPlayerJoin", getRootElement(), function ()
+    for i, player in ipairs(getElementsByType("player")) do
+        if isGhost(player) then
+            local record = ghosts[player]
+            triggerClientEvent("makeGhostFromServer", getRootElement(), player, record.invisible)
+        end
+    end
 end)
 

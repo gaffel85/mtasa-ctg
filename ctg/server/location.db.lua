@@ -1,7 +1,7 @@
 local locations = {}
 local pointsToPlot = {}
 local blips = {}
-local plotDistance = 30
+local plotDistance = 60
 local filePath = "locations.json"
 
 function plotPosition(x, y, z)
@@ -21,9 +21,14 @@ end
 
 function plotAllPositions()
     destroyOldBlips()
+    local players = getElementsByType("player")
+    local firstPlayer = players[1]
+    local x, y, z = getElementPosition(firstPlayer)
     -- plot all positions in the world
     for i, location in ipairs(pointsToPlot) do
-        plotPosition(location.x, location.y, location.z)
+        if getDistanceBetweenPoints3D(x, y, z, location.x, location.y, location.z) < 500 then
+            plotPosition(location.x, location.y, location.z)
+        end
     end
 end
 
@@ -101,10 +106,21 @@ end
 
 function getPosAndRot()
     -- return pos that has a non 0 rotation
+    local locationsWithRot = {}
     for i, location in ipairs(locations) do
-        if location.rz ~= 0 then
-            return location.x, location.y, location.z, location.rx, location.ry, location.rz
+        if location.speedMet then
+            table.insert(locationsWithRot, location)
         end
+    end
+
+    local location = locationsWithRot[1]
+    if location then
+        return location.x, location.y, location.z, location.rx, location.ry, location.rz 
+    end
+
+    local randomLoc = locationsWithRot[math.random(1, #locationsWithRot)]
+    if randomLoc then
+        return randomLoc.x, randomLoc.y, randomLoc.z, randomLoc.rx, randomLoc.ry, randomLoc.rz
     end
 
     outputServerLog("Failed to find rotated pos")
