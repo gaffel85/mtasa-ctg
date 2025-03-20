@@ -5,7 +5,7 @@ function isGhost(player)
 end
 
 function getVechicleSafeRadius(vehicle)
-    local radius, minx, miny, minz, maxx, maxy, maxz = getVehicleBoundingBoxData(vehicle)
+    local radius = getVehicleSizeData(vehicle)
     -- outputServerLog("Radius: "..radius)
     --local distanceFromCenterToMax = getDistanceBetweenPoints3D(0, 0, 0, maxx, maxy, maxz)
     --local distanceFromCenterToMin = getDistanceBetweenPoints3D(0, 0, 0, minx, miny, minz)

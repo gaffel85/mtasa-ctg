@@ -25,6 +25,22 @@ function getQuota()
   }
 end
 
+local vehicleSizeData = {
+  [431] = {x = 1.5, y = 1.5, z = 1.5, x2 = 1.5, y2 = 1.5, z2 = 1.5, radius = 1.5},
+  [437] = {x = 1.5, y = 1.5, z = 1.5, x2 = 1.5, y2 = 1.5, z2 = 1.5, radius = 1.5},
+  [433] = {x = 1.5, y = 1.5, z = 1.5, x2 = 1.5, y2 = 1.5, z2 = 1.5, radius = 1.5},
+  [427] = {x = 1.5, y = 1.5, z = 1.5, x2 = 1.5, y2 = 1.5, z2 = 1.5, radius = 1.5},
+  [428] = {x = 1.5, y = 1.5, z = 1.5, x2 = 1.5, y2 = 1.5, z2 = 1.5, radius = 1.5},
+  [426] = {x = 1.5, y = 1.5, z = 1.5, x2 = 1.5, y2 = 1.5, z2 = 1.5, radius = 1.5},
+  [432] = {x = 1.5, y = 1.5, z = 1.5, x2 = 1.5, y2 = 1.5, z2 = 1.5, radius = 1.5},
+  [437] = {x = 1.5, y = 1.5, z = 1.5, x2 = 1.5, y2 = 1.5, z2 = 1.5, radius = 1.5},
+}
+
+function getVehicleSizeData(vehicleId)
+    local data = vehicleSizeData[vehicleId]
+    return data.radius, data.x, data.y, data.z, data.x2, data.y2, data.z2
+end
+
 local vehiclesByType = {
 	{
 	  category = "Airplanes",
