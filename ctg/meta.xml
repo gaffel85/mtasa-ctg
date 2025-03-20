@@ -42,6 +42,7 @@
 	<script src="server/bind.lua" />
 	<script src="server/ghost.server.lua" />
 	<script src="server/location.db.lua" />
+	<script src="server/gather.players.lua" />
 	
 	<script src="client/power.gui.lua" type="client" />
 	<script src="client/power.cameraangle.lua" type="client" />

@@ -178,11 +178,14 @@ function startGameIfEnoughPlayers()
 end
 
 function goldDelivered(player)
+    local oldHideout = getCtgTeam(getGoldCarrier()).hideout
     removeOldHideout()
 	givePointsToPlayer(getGoldCarrier(), 500)
     -- triggerEvent("goldDelivered", root, getGoldCarrier(), 500)
 	showTextGoldDelivered(getGoldCarrier())
-    activeRoundFinished()
+
+    local newGoldEdl = prepareNextGold()
+    activeRoundFinished(oldHideout, newGoldEdl)
 end
 
 function forceNextRound()
@@ -193,9 +196,14 @@ end
 addEvent("forceNextRoundFromClient", true)
 addEventHandler("forceNextRoundFromClient", resourceRoot, forceNextRound)
 
-function activeRoundFinished()
+function activeRoundFinished(oldHideout, newGoldEdl)
     nextVehicle()
     resetRoundVars()
+
+    local x, y, z = coordsFromEdl(oldHideout)
+    local gatherTime = math.min(getConst().goldSpawnTime, getConst().gatherTime)
+    gatherPlayersAt(x, y, z, 100, gatherTime)
+
     scheduleNextGold(getConst().goldSpawnTime)
 end
 

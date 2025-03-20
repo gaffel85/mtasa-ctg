@@ -23,10 +23,14 @@ function clearLocations()
     quadTree:clear()
 end
 
+function getLocations(x, y, z, radius)
+    return quadTree:queryRadius(x, y, radius)
+end
+
 function plotPosition(x, y, z)
     -- plot a position in the world
-    local blip = createBlip(x, y, z, 0, 2, 0, 255, 255, 255, 0)
-    table.insert(blips, blip)
+    --local blip = createBlip(x, y, z, 0, 2, 0, 255, 255, 255, 0)
+    --table.insert(blips, blip)
 end
 
 function destroyOldBlips()

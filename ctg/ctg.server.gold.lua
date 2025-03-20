@@ -5,6 +5,7 @@ local goldCarrierMarker = nil
 local goldSpawnBlip = nil
 local goldCarrierBlip = nil
 local lastGoldSpawn = nil
+local nextGoldEdl = nil
 
 local spawnTimer = nil
 local countDownTimer = nil
@@ -23,13 +24,22 @@ function clearLastGoldSpawn()
     lastGoldSpawn = nil
 end
 
+function prepareNextGold()
+    nextGoldEdl = chooseRandomCloseToByLimits(goldSpawns, meanPositionOfPlayers(), getConst().goldSpawnDistance, getConst().goldSpawnSafeDistance, getConst().goldSpawnMinDistance)
+end
+
 function scheduleNextGold(countdown)
     spawnTimer = setTimer(spawnNewGold, countdown * 1000, 1)
     countDownTextForAll(countdown, coundownTextKey, "Gold will spawn in", nil, nil, 0.5, 0.4, 88, 255, 120, 255, 3)
 end
 
 function spawnNewGold()
-    local spawnEdl = chooseRandomCloseToByLimits(goldSpawns, meanPositionOfPlayers(), getConst().goldSpawnDistance, getConst().goldSpawnSafeDistance, getConst().goldSpawnMinDistance)
+    local spawnEdl = nextGoldEdl
+    if not spawnEdl then
+        spawnEdl = chooseRandomCloseToByLimits(goldSpawns, meanPositionOfPlayers(), getConst().goldSpawnDistance, getConst().goldSpawnSafeDistance, getConst().goldSpawnMinDistance)
+    end
+    nextGoldEdl = nil
+    
     local posX, posY, posZ = coordsFromEdl(spawnEdl)
     lastGoldSpawn = {
         edl = spawnEdl,
