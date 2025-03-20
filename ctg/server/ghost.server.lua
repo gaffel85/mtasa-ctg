@@ -5,17 +5,18 @@ function isGhost(player)
 end
 
 function getVechicleSafeRadius(vehicle)
-    local minx, miny, minz, maxx, maxy, maxz = getVehicleBoundingBoxData(vehicle)
-    local distanceFromCenterToMax = getDistanceBetweenPoints3D(0, 0, 0, maxx, maxy, maxz)
-    local distanceFromCenterToMin = getDistanceBetweenPoints3D(0, 0, 0, minx, miny, minz)
-    local radius = math.max(distanceFromCenterToMax, distanceFromCenterToMin)
+    local radius, minx, miny, minz, maxx, maxy, maxz = getVehicleBoundingBoxData(vehicle)
+    -- outputServerLog("Radius: "..radius)
+    --local distanceFromCenterToMax = getDistanceBetweenPoints3D(0, 0, 0, maxx, maxy, maxz)
+    --local distanceFromCenterToMin = getDistanceBetweenPoints3D(0, 0, 0, minx, miny, minz)
+    --local radius = math.max(distanceFromCenterToMax, distanceFromCenterToMin)
     return radius
 end
 
 function checkSafeFromCollision(player)
     local vehicle = getPedOccupiedVehicle(player)
     if not vehicle then
-        outputServerLog("3")
+        outputConsole("No vehicle for "..getPlayerName(player), player)
         return true
     end
 
@@ -23,16 +24,16 @@ function checkSafeFromCollision(player)
     local x, y, z = getElementPosition(vehicle)
     local safe = true
     for i, otherPlayer in ipairs(getElementsByType("player")) do
-        outputServerLog("4")
-        if otherPlayer ~= player and not isGhost(otherPlayer) then
-            outputServerLog("5")
+        outputConsole("Loop all players, now "..getPlayerName(otherPlayer).." "..getPlayerName(player), player)
+        if otherPlayer ~= player then --and not isGhost(otherPlayer) then
+            outputConsole(getPlayerName(otherPlayer).." is not ghost "..getPlayerName(player), player)
             local otherVehicle = getPedOccupiedVehicle(otherPlayer)
             if otherVehicle then
-                outputServerLog("6")
+                outputConsole("Other vehicle for "..getPlayerName(otherPlayer).." "..getPlayerName(player), player)
                 local ox, oy, oz = getElementPosition(otherVehicle)
                 local otherRadius = getVechicleSafeRadius(otherVehicle)
                 if getDistanceBetweenPoints3D(x, y, z, ox, oy, oz) < (myRadius + otherRadius) then
-                    outputServerLog("7")
+                    outputConsole("Collision detected for "..getPlayerName(otherPlayer).." "..getPlayerName(player), player)
                     safe = false
                     break
                 end
@@ -43,21 +44,21 @@ function checkSafeFromCollision(player)
 end
 
 function timerOutGhost(player)
-    outputServerLog("1")
+    outputConsole("1 "..getPlayerName(player), player)
     local record = ghosts[player]
     if record and record.safeCheck then
         if checkSafeFromCollision(player) then
-            outputServerLog("Was safe from collision "..getPlayerName(player))
+            outputConsole("Was safe from collision "..getPlayerName(player), player)
             unmakePlayerGhost(player)
         else
-            outputServerLog("Had collision, polling..."..getPlayerName(player))
+            outputConsole("Had collision, polling..."..getPlayerName(player), player)
             record.seconds = math.random(8, 12) / 10
             record.timer = setTimer(function()
                 timerOutGhost(player)
             end, record.seconds * 1000, 1)
         end
     else
-        outputServerLog("2")
+        outputConsole("2 "..getPlayerName(player), player)
         unmakePlayerGhost(player) 
     end
 end

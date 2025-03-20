@@ -22,6 +22,9 @@ end
 function plotAllPositions()
     destroyOldBlips()
     local players = getElementsByType("player")
+    if #players == 0 then
+        return
+    end
     local firstPlayer = players[1]
     local x, y, z = getElementPosition(firstPlayer)
     -- plot all positions in the world

@@ -46,5 +46,23 @@ function updateCamera ()
             dxDrawWiredSphere(x, y, z, radius, color, 0.5, 2)
         end
     end
+
+    -- draw sphere for all players
+    for k, player in ipairs(getElementsByType("player")) do
+        local vehicle = getPedOccupiedVehicle(player)
+        if not vehicle then
+            return
+        end
+        local x, y, z = getElementPosition(vehicle)
+        local minx, miny, minz, maxx, maxy, maxz = getVehicleBoundingBoxData(vehicle)
+        --local color = tocolor(math.random(0, 255), math.random(0, 255), math.random(0, 255), math.random(0, 255))
+        local color = tocolor(255, 255, 255, 255)
+        --outputChatBox('Hello, world!'..inpect(getElementPosition(localPlayer)))
+        
+        --find raduis that inclueds all bounding box
+        local radius = math.max(maxx - minx, maxy - miny, maxz - minz) / 2
+    
+        dxDrawWiredSphere(x, y, z, radius, color, 0.5, 2)
+    end
 end
 addEventHandler ( "onClientRender", root, updateCamera )

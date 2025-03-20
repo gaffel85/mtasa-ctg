@@ -1,8 +1,9 @@
 function logDistanceToGround()
     local player = localPlayer
     local vehicle = getPedOccupiedVehicle(player)
-    local x, y, z = getElementBoundingBox(vehicle)
-    outputChatBox("Hej "..inspect(x).." "..inspect(y).." "..inspect(z))
+    local x, y, z, x2, y2, z2 = getElementBoundingBox(vehicle)
+    local radius = getElementRadius(vehicle)
+    outputConsole("Hej "..inspect(radius).." "..inspect(x).." "..inspect(y).." "..inspect(z).." "..inspect(x2).." "..inspect(y2).." "..inspect(z2))
     --local x, y, z = getElementPosition(vehicle)
     --local distance = getElementDistanceFromCentreOfMassToBaseOfModel(vehicle)
     --local str = getVehicleName(vehicle).." : "..distance.."\n" 
@@ -30,4 +31,4 @@ end)
 showHelp()
 
 --outputChatBox("Loading help")
-setTimer(logDistanceToGround, 2000, 1000000)
+setTimer(logDistanceToGround, 2000, 3)
