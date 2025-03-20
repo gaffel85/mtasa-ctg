@@ -111,6 +111,37 @@ function QuadTree:queryRange(range, found)
     return found
 end
 
+function QuadTree:queryRadius(center, radius, found)
+    found = found or {}
+
+    -- Check if the circle overlaps with this QuadTree node
+    local xClosest = math.max(self.xMin, math.min(center.x, self.xMax))
+    local yClosest = math.max(self.yMin, math.min(center.y, self.yMax))
+    local distanceSquared = (xClosest - center.x)^2 + (yClosest - center.y)^2
+
+    if distanceSquared > radius^2 then
+        return found -- No overlap
+    end
+
+    -- Check points in this node
+    for _, point in ipairs(self.points) do
+        local distanceSquared = (point.x - center.x)^2 + (point.y - center.y)^2
+        if distanceSquared <= radius^2 then
+            table.insert(found, point)
+        end
+    end
+
+    -- Check child nodes if subdivided
+    if self.divided then
+        self.northwest:queryRadius(center, radius, found)
+        self.northeast:queryRadius(center, radius, found)
+        self.southwest:queryRadius(center, radius, found)
+        self.southeast:queryRadius(center, radius, found)
+    end
+
+    return found
+end
+
 -- Example usage
 local quadTree = QuadTree.new(-4000, 4000, -4000, 4000)
 
