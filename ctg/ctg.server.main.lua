@@ -37,6 +37,8 @@ function spawn(thePlayer, random)
 end
 
 function spawnAtSpawnpoint(thePlayer, spawnPoint)
+    local posX, posY, posZ = coordsFromEdl(spawnPoint)
+
     local posX, posY, posZ, rotX, rotY, rotZ = getPosAndRot()
 
     if posX == 0 then
