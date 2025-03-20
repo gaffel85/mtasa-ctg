@@ -32,3 +32,40 @@ showHelp()
 
 --outputChatBox("Loading help")
 setTimer(logDistanceToGround, 2000, 3)
+
+local currentVehicleId = 300
+local vehicleSizeData = {}
+function changeToNextVehicleAndGetBoundingBoxAndRadius()
+    currentVehicleId = currentVehicleId + 1
+    if currentVehicleId < 700 then
+        outputChatBox("Done")
+        outputConsole(inspect(vehicleSizeData))
+        return
+    end
+
+    local player = localPlayer
+    local vehicle = getPedOccupiedVehicle(player)
+    if vehicle then 
+        if setElementModel(vehicle, currentVehicleId) then
+            local x, y, z, x2, y2, z2 = getElementBoundingBox(vehicle)
+            local radius = getElementRadius(vehicle)
+            vehicleSizeData[currentVehicleId] = {x = x, y = y, z = z, x2 = x2, y2 = y2, z2 = z2, radius = radius}
+            outputConsole("Model for "..inspect(currentVehicleId).." "..inspect(radius).." "..inspect(x))
+            setTimer(changeToNextVehicleAndGetBoundingBoxAndRadius, 2000, 1)
+            return
+        else
+            outputChatBox("No model for"..currentVehicleId)
+            changeToNextVehicleAndGetBoundingBoxAndRadius()
+            return
+        end
+    end
+    changeToNextVehicleAndGetBoundingBoxAndRadius()
+    --local x, y, z = getElementPosition(vehicle)
+    --local distance = getElementDistanceFromCentreOfMassToBaseOfModel(vehicle)
+    --local str = getVehicleName(vehicle).." : "..distance.."\n" 
+    --local ground = getGroundPosition (x,y,z)
+    --local groundDistance = z - ground
+    --outputChatBox(""..distance.."      "..groundDistance)
+end
+
+changeToNextVehicleAndGetBoundingBoxAndRadius()
