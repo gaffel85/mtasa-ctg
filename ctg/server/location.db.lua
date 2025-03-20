@@ -3,18 +3,18 @@ local pointsToPlot = {}
 local blips = {}
 local plotDistance = 60
 local filePath = "locations.json"
-local quadTree = QuadTree.new(-3500, 3500, -3500, 3500)
+--local quadTree = QuadTree.new(-3500, 3500, -3500, 3500)
 
 function addLocation(location)
     table.insert(locations, location)
-    quadTree:add(location)
+    --quadTree:add(location)
 end
 
 function getAllLocations()
-    local quadLocations = quadTree:getAll()
-    if #quadLocations ~= #locations then
-        outputServerLog("QuadTree and locations are out of sync")
-    end
+    --local quadLocations = quadTree:getAll()
+    --if #quadLocations ~= #locations then
+   --     outputServerLog("QuadTree and locations are out of sync")
+    --end
     return locations
 end
 
@@ -128,7 +128,7 @@ end
 function getPosAndRot()
     -- return pos that has a non 0 rotation
     local locationsWithRot = {}
-    for i, location in ipairs(getAllLocations) do
+    for i, location in ipairs(getAllLocations()) do
         if location.speedMet then
             table.insert(locationsWithRot, location)
         end

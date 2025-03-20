@@ -16,7 +16,6 @@ end
 function checkSafeFromCollision(player)
     local vehicle = getPedOccupiedVehicle(player)
     if not vehicle then
-        outputConsole("No vehicle for "..getPlayerName(player), player)
         return true
     end
 
@@ -24,16 +23,12 @@ function checkSafeFromCollision(player)
     local x, y, z = getElementPosition(vehicle)
     local safe = true
     for i, otherPlayer in ipairs(getElementsByType("player")) do
-        outputConsole("Loop all players, now "..getPlayerName(otherPlayer).." "..getPlayerName(player), player)
         if otherPlayer ~= player then --and not isGhost(otherPlayer) then
-            outputConsole(getPlayerName(otherPlayer).." is not ghost "..getPlayerName(player), player)
             local otherVehicle = getPedOccupiedVehicle(otherPlayer)
             if otherVehicle then
-                outputConsole("Other vehicle for "..getPlayerName(otherPlayer).." "..getPlayerName(player), player)
                 local ox, oy, oz = getElementPosition(otherVehicle)
                 local otherRadius = getVechicleSafeRadius(otherVehicle)
                 if getDistanceBetweenPoints3D(x, y, z, ox, oy, oz) < (myRadius + otherRadius) then
-                    outputConsole("Collision detected for "..getPlayerName(otherPlayer).." "..getPlayerName(player), player)
                     safe = false
                     break
                 end
@@ -44,21 +39,17 @@ function checkSafeFromCollision(player)
 end
 
 function timerOutGhost(player)
-    outputConsole("1 "..getPlayerName(player), player)
     local record = ghosts[player]
     if record and record.safeCheck then
         if checkSafeFromCollision(player) then
-            outputConsole("Was safe from collision "..getPlayerName(player), player)
             unmakePlayerGhost(player)
         else
-            outputConsole("Had collision, polling..."..getPlayerName(player), player)
             record.seconds = math.random(8, 12) / 10
             record.timer = setTimer(function()
                 timerOutGhost(player)
             end, record.seconds * 1000, 1)
         end
     else
-        outputConsole("2 "..getPlayerName(player), player)
         unmakePlayerGhost(player) 
     end
 end

@@ -2,22 +2,12 @@ local lastTargetPosKey = "lastTargetPosKey"
 local screenX, screenY = guiGetScreenSize() -- get the screen resolution (width and height)
 local shadowColor = tocolor(0, 0, 0, 255) -- define shadow color outside render scope and use it afterwards (for performance reasons)
 local textColor = tocolor(90, 123, 199, 255) -- define color outside render scope and use it afterwards (for performance reasons)
+local debugSphere = false
 
 local xLeft = screenX/2 - 100
 local yTop = 30
 local xRight = screenX/2 + 100
 local yBottom = screenY
-
-local vehicleSizeData = {
-    [431] = {x = 1.5, y = 1.5, z = 1.5, x2 = 1.5, y2 = 1.5, z2 = 1.5, radius = 1.5},
-    [437] = {x = 1.5, y = 1.5, z = 1.5, x2 = 1.5, y2 = 1.5, z2 = 1.5, radius = 1.5},
-    [433] = {x = 1.5, y = 1.5, z = 1.5, x2 = 1.5, y2 = 1.5, z2 = 1.5, radius = 1.5},
-    [427] = {x = 1.5, y = 1.5, z = 1.5, x2 = 1.5, y2 = 1.5, z2 = 1.5, radius = 1.5},
-    [428] = {x = 1.5, y = 1.5, z = 1.5, x2 = 1.5, y2 = 1.5, z2 = 1.5, radius = 1.5},
-    [426] = {x = 1.5, y = 1.5, z = 1.5, x2 = 1.5, y2 = 1.5, z2 = 1.5, radius = 1.5},
-    [432] = {x = 1.5, y = 1.5, z = 1.5, x2 = 1.5, y2 = 1.5, z2 = 1.5, radius = 1.5},
-    [437] = {x = 1.5, y = 1.5, z = 1.5, x2 = 1.5, y2 = 1.5, z2 = 1.5, radius = 1.5},
-  }
   
 function getVehicleSizeData(vehicleId)
     local data = vehicleSizeData[vehicleId]
@@ -64,16 +54,18 @@ function updateCamera ()
     end
 
     -- draw sphere for all players
-    for k, player in ipairs(getElementsByType("player")) do
-        local vehicle = getPedOccupiedVehicle(player)
-        if not vehicle then
-            return
+    if debugSphere then
+        for k, player in ipairs(getElementsByType("player")) do
+            local vehicle = getPedOccupiedVehicle(player)
+            if not vehicle then
+                return
+            end
+            local x, y, z = getElementPosition(vehicle)
+            local radius = getVehicleSizeData(vehicle)
+            local minx, miny, minz, maxx, maxy, maxz = getVehicleBoundingBoxData(vehicle)
+            local color = tocolor(255, 128, 255, 255)
+            dxDrawWiredSphere(x, y, z, radius, color, 0.5, 2)
         end
-        local x, y, z = getElementPosition(vehicle)
-        local radius = getVehicleSizeData(getElementModel(vehicle))
-        local minx, miny, minz, maxx, maxy, maxz = getVehicleBoundingBoxData(vehicle)
-        local color = tocolor(255, 128, 255, 255)
-        dxDrawWiredSphere(x, y, z, radius, color, 0.5, 2)
     end
 end
 addEventHandler ( "onClientRender", root, updateCamera )

@@ -15,19 +15,10 @@ end
 function showHelp()
     local helpWindow = guiCreateWindow(0.01, 0.7, 0.1, 0.1, "Help", true)
     local helpLabel = guiCreateLabel(0.01, 0.1, 0.98, 0.9, "F1 = Join team 1\nF2 = Join team 2\nF3 = Choose power ups\nF4 = Vote for next vehicle", true, helpWindow)
-    guiLabelSetHorizontalAlign(helpLabel, "center", true)
+    guiLabelSetHorizontalAlign(helpLabel, "left", true)
     guiLabelSetVerticalAlign(helpLabel, "center")
     guiSetVisible(helpWindow, true)
 end
-
-addEventHandler("onPlayerJoin", getRootElement(), function()
-    outputChatBox("Starting timer")
-    -- create small window to he left with for labels, one on each row.
-    --[[]]--
-
-    --setTimer(logDistanceToGround, 2000, 1000000)
-end)
-
 showHelp()
 
 --outputChatBox("Loading help")
@@ -41,7 +32,6 @@ function changeToNextVehicleAndGetBoundingBoxAndRadius()
     currentVehicleId = currentVehicleId + 1
     if currentVehicleId > 700 then
         outputChatBox("Done")
-        outputConsole(inspect(vehicleSizeData))
         return
     end
 
@@ -51,12 +41,24 @@ function changeToNextVehicleAndGetBoundingBoxAndRadius()
     if vehicle then
         outputConsole("===========4==========")
         outputChatBox("Found vehicle")
+        fixVehicle(vehicle)
         if setElementModel(vehicle, currentVehicleId) then
             local x, y, z, x2, y2, z2 = getElementBoundingBox(vehicle)
             local radius = getElementRadius(vehicle)
             vehicleSizeData[currentVehicleId] = {x = x, y = y, z = z, x2 = x2, y2 = y2, z2 = z2, radius = radius}
             outputConsole("Model for "..inspect(currentVehicleId).." "..inspect(radius).." "..inspect(x))
             setTimer(changeToNextVehicleAndGetBoundingBoxAndRadius, 2000, 1)
+
+            local timestamp = getRealTime().timestamp
+            local filename = "data_"..timestamp..".txt"
+            local file = fileCreate(filename)
+            if not file then
+                outputConsole("Failed to create file "..filename)
+                return
+            end
+            fileWrite(file, inspect(vehicleSizeData))
+            fileFlush(file)
+            fileClose(file)
             return
         else
             outputChatBox("No model for"..currentVehicleId)
@@ -66,7 +68,7 @@ function changeToNextVehicleAndGetBoundingBoxAndRadius()
     else
         outputChatBox("No vehicle")
         setTimer(changeToNextVehicleAndGetBoundingBoxAndRadius, 2000, 1)
-        resetRoundVars
+        return
     end
     outputConsole("===========5==========")
     changeToNextVehicleAndGetBoundingBoxAndRadius()
@@ -78,4 +80,4 @@ function changeToNextVehicleAndGetBoundingBoxAndRadius()
     --outputChatBox(""..distance.."      "..groundDistance)
 end
 
-changeToNextVehicleAndGetBoundingBoxAndRadius()
+--changeToNextVehicleAndGetBoundingBoxAndRadius()
