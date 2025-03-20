@@ -48,6 +48,44 @@ function QuadTree:add(pos)
     end
 end
 
+function QuadTree:getAll(found)
+    found = found or {}
+
+    -- Add all points in the current node
+    for _, point in ipairs(self.points) do
+        table.insert(found, point)
+    end
+
+    -- Recursively get points from child nodes if subdivided
+    if self.divided then
+        self.northwest:getAll(found)
+        self.northeast:getAll(found)
+        self.southwest:getAll(found)
+        self.southeast:getAll(found)
+    end
+
+    return found
+end
+
+function QuadTree:getAll(found)
+    found = found or {}
+
+    -- Add all points in the current node
+    for _, point in ipairs(self.points) do
+        table.insert(found, point)
+    end
+
+    -- Recursively get points from child nodes if subdivided
+    if self.divided then
+        self.northwest:getAll(found)
+        self.northeast:getAll(found)
+        self.southwest:getAll(found)
+        self.southeast:getAll(found)
+    end
+
+    return found
+end
+
 -- Remove a position from the QuadTree
 function QuadTree:remove(pos)
     for i, point in ipairs(self.points) do
