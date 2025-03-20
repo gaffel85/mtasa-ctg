@@ -3,23 +3,24 @@ local pointsToPlot = {}
 local blips = {}
 local plotDistance = 60
 local filePath = "locations.json"
---local quadTree = QuadTree.new(-3500, 3500, -3500, 3500)
+local quadTree = QuadTree.new(-3500, 3500, -3500, 3500)
 
 function addLocation(location)
     table.insert(locations, location)
-    --quadTree:add(location)
+    quadTree:add(location)
 end
 
 function getAllLocations()
-    --local quadLocations = quadTree:getAll()
-    --if #quadLocations ~= #locations then
-   --     outputServerLog("QuadTree and locations are out of sync")
-    --end
-    return locations
+    local quadLocations = quadTree:getAll()
+    if #quadLocations ~= #locations then
+        outputServerLog("QuadTree and locations are out of sync")
+    end
+    return quadLocations
 end
 
 function clearLocations()
     locations = {}
+    quadTree:clear()
 end
 
 function plotPosition(x, y, z)

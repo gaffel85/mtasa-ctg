@@ -8,6 +8,9 @@
 	<script src="ctg.server.properties.lua" type="client" />
 	<script src="ctg.server.texts.lua" />
 
+	<script src="shared/quad.tree.lua" type="client" />
+	<script src="shared/quad.tree.lua" />
+
 	<script src="ctg.server.waterdetect.lua" />
 	<script src="ctg.server.teleport.lua" />
 	<script src="ctg.server.powerup.lua" />
@@ -52,8 +55,6 @@
 
 	<script src="shared/ghost.shared.lua" type="client" />
 	<script src="shared/ghost.shared.lua" />
-	<script src="shared/quad.tree.lua" type="client" />
-	<script src="shared/quad.tree.lua" />
 	<script src="shared/vehicle.data.lua" type="client" />
 	<script src="shared/vehicle.data.lua" />
 
