@@ -162,18 +162,19 @@ function parseMapArea(mapRoot)
     if mapAreaElements == nil or #mapAreaElements == 0 then
         outputServerLog("No map area elements found")
         mapArea = { xMin = -3500, xMax = 3500, yMin = -3500, yMax = 3500 }
+        return
     end
     local mapAreaEdl = mapAreaElements[1]
-    local xMin = getElementData(mapAreaEdl, "xMin")
-    local xMax = getElementData(mapAreaEdl, "xMax")
-    local yMin = getElementData(mapAreaEdl, "yMin")
-    local yMax = getElementData(mapAreaEdl, "yMax")
+    local xMin = tonumber(getElementData(mapAreaEdl, "xMin"))
+    local xMax = tonumber(getElementData(mapAreaEdl, "xMax"))
+    local yMin = tonumber(getElementData(mapAreaEdl, "yMin"))
+    local yMax = tonumber(getElementData(mapAreaEdl, "yMax"))
     mapArea = { xMin = xMin, xMax = xMax, yMin = yMin, yMax = yMax }
 end
 
 function startGameMap(startedMap)
-    outputServerLog("Starging map "..inspect(getElementID(startedMap)))
     local mapRoot = getResourceRootElement(startedMap)
+    outputServerLog("Starging map "..inspect(getElementID(mapRoot)))
     spawnPoints = getElementsByType("playerSpawnPoint", mapRoot)
     goldSpawnPoints = getElementsByType("goldSpawnPoint", mapRoot)
     hideouts = getElementsByType("hideout", mapRoot)
@@ -223,13 +224,14 @@ function startGameIfEnoughPlayers()
 end
 
 function goldDelivered(player)
-    local oldHideout = getCtgTeam(getGoldCarrier()).hideout
+    local oldHideout = getTeamHideout().edl
     removeOldHideout()
 	givePointsToPlayer(getGoldCarrier(), 500)
     -- triggerEvent("goldDelivered", root, getGoldCarrier(), 500)
 	showTextGoldDelivered(getGoldCarrier())
 
     local newGoldEdl = prepareNextGold()
+    outputServerLog("1 "..inspect(oldHideout))
     activeRoundFinished(oldHideout, newGoldEdl)
 end
 
@@ -246,8 +248,9 @@ function activeRoundFinished(oldHideout, newGoldEdl)
     resetRoundVars()
 
     local x, y, z = coordsFromEdl(oldHideout)
+    outputServerLog("1 "..inspect(oldHideout).." "..inspect(x).." "..inspect(y).." "..inspect(z))
     local gatherTime = math.min(getConst().goldSpawnTime, getConst().gatherTime)
-    gatherPlayersAt(x, y, z, 100, gatherTime)
+    gatherPlayersAt(x, y, z, 70, gatherTime)
 
     scheduleNextGold(getConst().goldSpawnTime)
 end

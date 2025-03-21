@@ -6,6 +6,7 @@ local filePath = "locations.json"
 local quadTree = QuadTree.new(-3500, 3500, -3500, 3500)
 
 function addLocation(location)
+    --outputServerLog("Adding location "..inspect(location))
     quadTree:add(location)
 end
 
@@ -99,7 +100,7 @@ function readLocationsFromJsonFile()
                 speedMet = locationAsArray[7] or false,
             }
 
-            if isInsideMapArea(x, y, z) then
+            if isInsideMapArea(location.x, location.y, location.z) then
                 addLocation(location)
                 addPlotPoint(location)
             end
@@ -155,7 +156,7 @@ function getRandomRotatedLocationOrOther(locations, minNumbers)
     while #locationsWithRot < minNumbers do
         local otherLoc = locationsWithoutRot[math.random(1, #locationsWithoutRot)]
         --remove that from the list
-        table.remove(locationsWithoutRot, otherLoc)
+        removeFromTable(locationsWithoutRot, otherLoc)
         table.insert(locationsWithRot, otherLoc)
     end
     

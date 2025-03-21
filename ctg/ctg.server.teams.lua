@@ -36,6 +36,10 @@ end
 
 function getTeamColorForPlayer(player)
     local nativeTeam = getPlayerTeam(player)
+    if not nativeTeam then
+        return 50, 79, 158
+    end
+    
     return getTeamColor(nativeTeam)
 end
 

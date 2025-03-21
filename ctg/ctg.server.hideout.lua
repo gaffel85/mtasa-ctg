@@ -5,9 +5,13 @@ function setHideouts(spawns)
 end
 
 function getTeamHideout(player)
-    local team = getCtgTeam(player)
-    if (team) then
-        return team.hideout
+    if isTeamsActivated() then
+        local team = getCtgTeam(player)
+        if (team) then
+            return team.hideout
+        end
+    else
+        return getTeams()[1].hideout
     end
 end
 
@@ -88,7 +92,7 @@ function markerHit(markerHit, matchingDimension)
     if player == getGoldCarrier() then
         local team = getCtgTeam(player)
         if team and team.hideout and markerHit == team.hideout.marker then
-            removeOldHideout()
+            --removeOldHideout()
             goldDelivered(player)
         end
     end
