@@ -140,10 +140,18 @@ function destroyElementsByType(elementType)
 end
 
 function startGameMap(startedMap)
+    outputServerLog("Starging map "..inspect(getElementID(startedMap)))
     local mapRoot = getResourceRootElement(startedMap)
     spawnPoints = getElementsByType("playerSpawnPoint", mapRoot)
     goldSpawnPoints = getElementsByType("goldSpawnPoint", mapRoot)
     hideouts = getElementsByType("hideout", mapRoot)
+    local mapIdElements = getElementsByType("mapid", mapRoot)
+    if mapIdElements == nil or #mapIdElements == 0 then
+        mapId = "ctg-global"
+    else 
+        mapId = getElementID(mapIdElement[1])
+    end
+    
     currentSpawn = math.random(#spawnPoints)
     setGoldSpawns(goldSpawnPoints)
     setHideouts(hideouts)
