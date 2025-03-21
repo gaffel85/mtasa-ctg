@@ -1,4 +1,4 @@
-local locations = {}
+--local locations = {}
 local pointsToPlot = {}
 local blips = {}
 local plotDistance = 60
@@ -6,20 +6,15 @@ local filePath = "locations.json"
 local quadTree = QuadTree.new(-3500, 3500, -3500, 3500)
 
 function addLocation(location)
-    table.insert(locations, location)
     quadTree:add(location)
 end
 
 function getAllLocations()
     local quadLocations = quadTree:getAll()
-    if #quadLocations ~= #locations then
-        outputServerLog("QuadTree and locations are out of sync")
-    end
     return quadLocations
 end
 
 function clearLocations()
-    locations = {}
     quadTree:clear()
 end
 
@@ -80,7 +75,25 @@ function findPointsToPlot(newPoints)
     end
 end
 
-function readLocationsFromJsonFile()
+function mapChanged(mapSpawns)
+    outputServerLog("Map changed "..inspect(#mapSpawns))
+    saveWholeFileAsJson()
+    outputServerLog("1")
+    clearLocations()
+    outputServerLog("2")
+    readLocationsFromJsonFile(mapSpawns)
+    outputServerLog("3")
+end
+
+function readLocationsFromJsonFile(mapSpawns)
+    if #mapSpawns == 0 then
+        outputServerLog("No map spawns found")
+        return
+    end
+
+    local mapSpawnEdl = mapSpawns[1]
+    local x, y, z = coordsFromEdl(mapSpawnEdl)
+
     if fileExists(filePath) then
         local file = fileOpen(filePath)
         local size = fileGetSize(file)
@@ -97,14 +110,22 @@ function readLocationsFromJsonFile()
                 rz = locationAsArray[6] or 0,
                 speedMet = locationAsArray[7] or false,
             }
-            addLocation(location)
-            addPlotPoint(location)
+
+            if getDistanceBetweenPoints3D(x, y, z, location.x, location.y, location.z) < 3000 then
+                addLocation(location)
+                addPlotPoint(location)
+            end
         end
         plotAllPositions()
     end
 end
 
 function saveWholeFileAsJson()
+    if #getAllLocations() then
+        outputServerLog("No location to save")
+        return
+    end
+
     if fileExists(filePath) then
         fileDelete(filePath)
     end
@@ -130,26 +151,31 @@ function saveWholeFileAsJson()
     fileClose(file)
 end
 
-function getPosAndRot()
-    -- return pos that has a non 0 rotation
+function getRandomRotatedLocationOrOther(locations, minNumbers)
+-- return pos that has a non 0 rotation
     local locationsWithRot = {}
-    for i, location in ipairs(getAllLocations()) do
+    local locationsWithoutRot = {}
+    for i, location in ipairs(locations) do
         if location.speedMet then
             table.insert(locationsWithRot, location)
+        else
+            table.insert(locationsWithoutRot, location)
         end
     end
 
-    local location = locationsWithRot[1]
-    if location then
-        return location.x, location.y, location.z, location.rx, location.ry, location.rz 
+    -- fill out with other locations if below minNumbers
+    while #locationsWithRot < minNumbers do
+        local otherLoc = locationsWithoutRot[math.random(1, #locationsWithoutRot)]
+        --remove that from the list
+        table.remove(locationsWithoutRot, otherLoc)
+        table.insert(locationsWithRot, otherLoc)
     end
-
+    
     local randomLoc = locationsWithRot[math.random(1, #locationsWithRot)]
     if randomLoc then
         return randomLoc.x, randomLoc.y, randomLoc.z, randomLoc.rx, randomLoc.ry, randomLoc.rz
     end
 
-    outputServerLog("Failed to find rotated pos")
     local location = getAllLocations()[1]
     if not location then
         return 0,0,0,0,0,0
@@ -184,7 +210,6 @@ addEventHandler("onResourceStart", resourceRoot,
     function()
         clearLocations()
         blips = {}
-        readLocationsFromJsonFile()
         --setTimer(saveLocationsForAllPlayers, 2000, 100000000)
         setTimer(plotAllPositions, 5000, 1)
         --setTimer(appendToFile, 10000, 100000000)

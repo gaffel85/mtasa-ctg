@@ -39,6 +39,15 @@ end
 function spawnAtSpawnpoint(thePlayer, spawnPoint)
     local posX, posY, posZ = coordsFromEdl(spawnPoint)
 
+    local allLocations = getAllLocations()
+    if #allLocations == 0 then
+        local posX, posY, posZ = coordsFromEdl(spawnPoint)
+        local rotX, rotY, rotZ = rotFromEdl(spawnPoint)
+        spawnAt(thePlayer, posX, posY, posZ, rotX, rotY, rotZ)
+        return
+    end
+    
+
     local radius = 20
     local locations = {}
     while #locations == 0 do
@@ -46,8 +55,7 @@ function spawnAtSpawnpoint(thePlayer, spawnPoint)
         radius = radius + 10
     end
 
-    local location = locations[math.random(#locations)]
-    local posX, posY, posZ, rotX, rotY, rotZ = location.x, location.y, location.z, location.rx, location.ry, location.rz
+    local posX, posY, posZ, rotX, rotY, rotZ = getRandomRotatedLocationOrOther(locations, 1)
 
     if posX == 0 then
         posX, posY, posZ = coordsFromEdl(spawnPoint)
@@ -71,7 +79,7 @@ end
 function respawnAllPlayers()
     local players = getElementsByType("player")
     for k, v in ipairs(players) do
-        spawn(v)
+        spawn(v, true)
     end
 end
 
@@ -153,6 +161,7 @@ function startGameMap(startedMap)
     end
     
     currentSpawn = math.random(#spawnPoints)
+    mapChanged(spawnPoints)
     setGoldSpawns(goldSpawnPoints)
     setHideouts(hideouts)
     resetGame()
