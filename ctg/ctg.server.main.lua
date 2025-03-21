@@ -46,8 +46,7 @@ function spawnAtSpawnpoint(thePlayer, spawnPoint)
         radius = radius + 10
     end
 
-    local location = locations[math.random(#locations)]
-    local posX, posY, posZ, rotX, rotY, rotZ = location.x, location.y, location.z, location.rx, location.ry, location.rz
+    local posX, posY, posZ, rotX, rotY, rotZ = getRandomRotatedLocationOrOther(locations, 1)
 
     if posX == 0 then
         posX, posY, posZ = coordsFromEdl(spawnPoint)
