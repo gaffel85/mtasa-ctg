@@ -31,6 +31,7 @@ end
 
 function preparePlayersForGathering(players, countdownSeconds)
     for i, player in ipairs(players) do
+        fadeCamera(player, false, 0.5)
         countDownTextForPlayer(player, GATHER_WARNING_TEXT_ID, "Telepor to starting area in", 0.5, 0.4, 88, 255, 120, 255, 4)
     end
 end
@@ -57,6 +58,7 @@ function teleportPlayers(players, meanPosition, meanRotation, position)
         if location then
             setElementPosition(player, location.x, location.y, location.z)
             setElementRotation(player, location.rx, location.ry, location.rz)
+            fadeCamera(player, true, 0.5)
         end
     end
 end
