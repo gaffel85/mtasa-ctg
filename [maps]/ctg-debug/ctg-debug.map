@@ -1,5 +1,6 @@
 <map>
   <mapid id="ctg-debug" />
+  <maparea xMin="0" xMax="3500" yMin="-3500" yMax="0" />
   <playerSpawnPoint id="playerSpawnPoint (1)" interior="0" posX="2257.3999" posY="-1426.6" posZ="24.1" rotX="0" rotY="0" rotZ="0"></playerSpawnPoint>
   <playerSpawnPoint id="playerSpawnPoint (2)" interior="0" posX="2253.7" posY="-1426.9" posZ="24.1" rotX="0" rotY="0" rotZ="0"></playerSpawnPoint>
   <playerSpawnPoint id="playerSpawnPoint (3)" interior="0" posX="2250.5" posY="-1427.4" posZ="24" rotX="0" rotY="0" rotZ="0"></playerSpawnPoint>

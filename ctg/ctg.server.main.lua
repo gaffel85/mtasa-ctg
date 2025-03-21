@@ -2,6 +2,7 @@ local spawnPoints
 local currentSpawn = 1
 local participants = {}
 local blowingPlayer = nil
+local mapArea = nil
 
 local SCORE_KEY = "Score"
 
@@ -19,6 +20,15 @@ end
 
 function getSpawnPoints()
     return spawnPoints
+end
+
+function getMapArea()
+    return mapArea
+end
+
+function isInsideMapArea(x, y, z)
+    local area = getMapArea()
+    return x >= area.xMin and x <= area.xMax and y >= area.yMin and y <= area.yMax
 end
 
 -- Stop player from exiting vehicle
@@ -147,19 +157,27 @@ function destroyElementsByType(elementType)
     end
 end
 
+function parseMapArea(mapRoot)
+    local mapAreaElements = getElementsByType("maparea", mapRoot)
+    if mapAreaElements == nil or #mapAreaElements == 0 then
+        outputServerLog("No map area elements found")
+        mapArea = { xMin = -3500, xMax = 3500, yMin = -3500, yMax = 3500 }
+    end
+    local mapAreaEdl = mapAreaElements[1]
+    local xMin = getElementData(mapAreaEdl, "xMin")
+    local xMax = getElementData(mapAreaEdl, "xMax")
+    local yMin = getElementData(mapAreaEdl, "yMin")
+    local yMax = getElementData(mapAreaEdl, "yMax")
+    mapArea = { xMin = xMin, xMax = xMax, yMin = yMin, yMax = yMax }
+end
+
 function startGameMap(startedMap)
     outputServerLog("Starging map "..inspect(getElementID(startedMap)))
     local mapRoot = getResourceRootElement(startedMap)
     spawnPoints = getElementsByType("playerSpawnPoint", mapRoot)
     goldSpawnPoints = getElementsByType("goldSpawnPoint", mapRoot)
     hideouts = getElementsByType("hideout", mapRoot)
-    local mapIdElements = getElementsByType("mapid", mapRoot)
-    if mapIdElements == nil or #mapIdElements == 0 then
-        mapId = "ctg-global"
-    else 
-        mapId = getElementID(mapIdElement[1])
-    end
-    
+    parseMapArea(mapRoot)
     currentSpawn = math.random(#spawnPoints)
     mapChanged(spawnPoints)
     setGoldSpawns(goldSpawnPoints)

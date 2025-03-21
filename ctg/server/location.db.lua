@@ -75,25 +75,13 @@ function findPointsToPlot(newPoints)
     end
 end
 
-function mapChanged(mapSpawns)
-    outputServerLog("Map changed "..inspect(#mapSpawns))
+function mapChanged()
     saveWholeFileAsJson()
-    outputServerLog("1")
     clearLocations()
-    outputServerLog("2")
-    readLocationsFromJsonFile(mapSpawns)
-    outputServerLog("3")
+    readLocationsFromJsonFile()
 end
 
-function readLocationsFromJsonFile(mapSpawns)
-    if #mapSpawns == 0 then
-        outputServerLog("No map spawns found")
-        return
-    end
-
-    local mapSpawnEdl = mapSpawns[1]
-    local x, y, z = coordsFromEdl(mapSpawnEdl)
-
+function readLocationsFromJsonFile()
     if fileExists(filePath) then
         local file = fileOpen(filePath)
         local size = fileGetSize(file)
@@ -111,7 +99,7 @@ function readLocationsFromJsonFile(mapSpawns)
                 speedMet = locationAsArray[7] or false,
             }
 
-            if getDistanceBetweenPoints3D(x, y, z, location.x, location.y, location.z) < 3000 then
+            if isInsideMapArea(x, y, z) then
                 addLocation(location)
                 addPlotPoint(location)
             end
