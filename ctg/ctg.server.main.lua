@@ -56,7 +56,6 @@ function spawnAtSpawnpoint(thePlayer, spawnPoint)
         spawnAt(thePlayer, posX, posY, posZ, rotX, rotY, rotZ)
         return
     end
-    
 
     local radius = 20
     local locations = {}
@@ -170,6 +169,13 @@ function parseMapArea(mapRoot)
     local yMin = tonumber(getElementData(mapAreaEdl, "yMin"))
     local yMax = tonumber(getElementData(mapAreaEdl, "yMax"))
     mapArea = { xMin = xMin, xMax = xMax, yMin = yMin, yMax = yMax }
+end
+
+function testGather()
+    local spawn = spawnPoints[1]
+    local x, y, z = coordsFromEdl(spawn)
+    outputServerLog("Spawn location "..inspect(spawn).." "..inspect(x).." "..inspect(y).." "..inspect(z))
+    gatherPlayersAt(x, y, z, 10, 2)
 end
 
 function startGameMap(startedMap)
@@ -385,6 +391,10 @@ addCommandHandler("fixit", function(thePlayer, command, newModel)
     if theVehicle then
         fixVehicle(theVehicle)
     end
+end)
+
+addCommandHandler("gather", function(thePlayer, command)
+    testGather()
 end)
 
 addCommandHandler("param", function(source, command, paramName, paramValue)
