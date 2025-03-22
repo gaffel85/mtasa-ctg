@@ -140,8 +140,8 @@ function saveWholeFileAsJson()
     fileClose(file)
 end
 
-function getRandomRotatedLocationOrOther(locations, minNumbers)
--- return pos that has a non 0 rotation
+function getRotatedLocationsOrOther(locations, minNumbers, randomOrder)
+    local randomize = randomOrder or false
     local locationsWithRot = {}
     local locationsWithoutRot = {}
     for i, location in ipairs(locations) do
@@ -152,24 +152,41 @@ function getRandomRotatedLocationOrOther(locations, minNumbers)
         end
     end
 
-    -- fill out with other locations if below minNumbers
-    while #locationsWithRot < minNumbers do
-        local otherLoc = locationsWithoutRot[math.random(1, #locationsWithoutRot)]
-        --remove that from the list
-        removeFromTable(locationsWithoutRot, otherLoc)
-        table.insert(locationsWithRot, otherLoc)
+    if randomize then
+        shuffle(locationsWithRot)
+        shuffle(locationsWithoutRot)
     end
+
+    -- if locationWithRot is fewere than minNumbers, add locationsWithoutRot to meat minNumbers. Handle the case where locationsWithoutRot is too few
+    while #locationsWithRot < minNumbers do
+        if #locationsWithoutRot == 0 then
+            break
+        end
+        table.insert(locationsWithRot, table.remove(locationsWithoutRot, 1))
+    end
+
+
+    return locationsWithRot
+end
+
+function elementWisePos(location)
+    return location.x, location.y, location.z, location.rx, location.ry, location.rz
+end
+
+function getRandomRotatedLocationOrOther(locations, minNumbers)
+-- return pos that has a non 0 rotation
+    local locationsWithRot = getRotatedLocationsOrOther(locations, minNumbers)
     
-    local randomLoc = locationsWithRot[math.random(1, #locationsWithRot)]
+    local randomLoc = locationsWithRot[1]
     if randomLoc then
-        return randomLoc.x, randomLoc.y, randomLoc.z, randomLoc.rx, randomLoc.ry, randomLoc.rz
+        return elementWisePos(randomLoc)
     end
 
     local location = getAllLocations()[1]
     if not location then
         return 0,0,0,0,0,0
     end
-    return location.x, location.y, location.z, location.rx, location.ry, location.rz
+    return elementWisePos(location)
 end
 
 addEvent("locationFromClient", true)

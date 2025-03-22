@@ -110,10 +110,3 @@ local function plotAllPositions2(locations)
         plotPosition2(location.x, location.y, location.z)
     end
 end
-
-function shuffle(tbl)
-    for i = #tbl, 1, -1 do
-        local rand = math.random(i)
-        tbl[i], tbl[rand] = tbl[rand], tbl[i]
-    end
-end
