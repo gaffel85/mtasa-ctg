@@ -1,6 +1,6 @@
 local periodicTimer = nil
 local highestScore = 10
-local maxDiffDistance = 100
+local maxDiffDistance = 200
 local coeff = -highestScore / maxDiffDistance
 
 function distributePointsByDistanceToGold(players)
@@ -11,7 +11,7 @@ function distributePointsByDistanceToGold(players)
         local record = {player = player, distance = distance}
         table.insert(playersWithDistance, record)
         
-        if distance < leader.distance then
+        if not leader or distance < leader.distance then
             leader = record
         end
     end
@@ -20,11 +20,16 @@ function distributePointsByDistanceToGold(players)
         return
     end
 
+    --outputChatBox("Leader "..getPlayerName(leader.player))
     for i, record in ipairs(playersWithDistance) do
-        local diff = leader.distance - record.distance
+        local diff = record.distance - leader.distance
+        if diff < 0 then
+            outputServerLog("Better than leader? "..getPlayerName(record.player).." "..inspect(record.distance))
+        end
         local score = highestScore + coeff * diff
+        --outputChatBox("Score "..getPlayerName(record.player).." "..inspect(score))
         if score > 0 then
-            givePointsToPlayer(record.player, score)
+            givePointsToPlayer(record.player, math.floor(score))
         end
     end
 end
@@ -42,7 +47,7 @@ function distributePointsByDistanceToGoldCarrier(players, goldCarrier)
     for i, record in ipairs(playersWithDistance) do
         local score = highestScore + coeff * record.distance
         if score > 0 then
-            givePointsToPlayer(record.player, score)
+            givePointsToPlayer(record.player, math.floor(score))
         end
     end
 end

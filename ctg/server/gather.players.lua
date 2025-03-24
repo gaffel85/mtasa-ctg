@@ -26,7 +26,7 @@ function gatherPlayersAt(x, y, z, radius, countdownSeconds)
 
     local playersToGather = playersToGatherAndNot(x, y, z, radius)
     preparePlayersForGathering(playersToGather, countdownSeconds)
-    setTimer(teleportPlayers, countdownSeconds * 1000, 1, playersToGather, { x = x, y = y, z = z })
+    setTimer(teleportPlayers, countdownSeconds * 1000, 1, playersToGather, { x = x, y = y, z = z }, radius)
 end
 
 function preparePlayersForGathering(players, countdownSeconds)
@@ -36,10 +36,20 @@ function preparePlayersForGathering(players, countdownSeconds)
     end
 end
 
+function notifyNewPlayersToGather(players)
+    for i, player in ipairs(players) do
+        fadeCamera(player, false, 0.2)
+        displayMessageForPlayer(player, GATHER_WARNING_TEXT_ID, "You were telported to starting area", 0.5, 0.5, 88, 255, 120, 255, 4)
+        setTimer(function()
+            fadeCamera(player, true, 0.5)
+        end, 500, 1)
+    end
+end
+
 function teleportPlayers(players, position, radius)
     local playersToGather, playersNotToGather = playersToGatherAndNot(position.x, position.y, position.z, radius)
     --local meanPosition, meanRotation = meanPositionAndRotationOfElements(playersNotToGather)
-    outputServerLog("Teleporting players "..inspect(playersToGather))
+    --outputServerLog("Teleporting players "..inspect(playersToGather))
 
     -- diff between players and playersToGather
     local newPlayersToGather = {}
@@ -48,19 +58,20 @@ function teleportPlayers(players, position, radius)
             table.insert(newPlayersToGather, player)
         end
     end
+    notifyNewPlayersToGather(newPlayersToGather)
     outputServerLog("Found "..#newPlayersToGather.." players to gather. "..inspect(newPlayersToGather))
     --outputServerLog("All locations "..inspect( getAllLocations()))
     
     local allLocations = getLocations(position.x, position.y, position.z, 100)
     --plotAllPositions2(allLocations)
-    outputServerLog("Possible locations"..inspect(#allLocations))
+    --outputServerLog("Possible locations"..inspect(#allLocations))
     local locationsToUse = getRotatedLocationsOrOther(allLocations, #playersToGather, true)
-    outputServerLog("Shuffled locations"..inspect(#locationsToUse))
+    --outputServerLog("Shuffled locations"..inspect(#locationsToUse))
     plotAllPositions2(locationsToUse)
     -- move each player to one of the locations
     for i, player in ipairs(playersToGather) do
         local location = locationsToUse[i%#locationsToUse + 1]
-        outputServerLog("Using for player "..getPlayerName(player)..": "..inspect(location))
+        --outputServerLog("Using for player "..getPlayerName(player)..": "..inspect(location))
         if location then
             local vehicle = getPedOccupiedVehicle(player)
             if vehicle then
