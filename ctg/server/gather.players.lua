@@ -38,6 +38,7 @@ end
 
 function notifyNewPlayersToGather(players)
     for i, player in ipairs(players) do
+        outputChatBox("Ghert pklayer "..getPlayerName(player))
         fadeCamera(player, false, 0.2)
         displayMessageForPlayer(player, GATHER_WARNING_TEXT_ID, "You were telported to starting area", 0.5, 0.5, 88, 255, 120, 255, 4)
         setTimer(function()
