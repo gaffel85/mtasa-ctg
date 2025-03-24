@@ -1,5 +1,21 @@
 local GATHER_WARNING_TEXT_ID = 5823941
 
+function playersToGatherAndNot(x, y, z, radius)
+    local players = getElementsByType("player")
+    local playersToGather = {}
+    local playersNotToGather = {}
+    for i, player in ipairs(players) do
+        local px, py, pz = getElementPosition(player)
+        local distanceFromPos = getDistanceBetweenPoints3D(x, y, z, px, py, pz)
+        if distanceFromPos > radius then
+            table.insert(playersToGather, player)
+        else
+            table.insert(playersNotToGather, player)
+        end
+    end
+    return playersToGather, playersNotToGather
+end
+
 function gatherPlayersAt(x, y, z, radius, countdownSeconds)
 
     outputServerLog("3 "..inspect(radius).." "..inspect(x).." "..inspect(y).." "..inspect(z))
@@ -8,37 +24,9 @@ function gatherPlayersAt(x, y, z, radius, countdownSeconds)
         return
     end
 
-    local playersToGather = {}
-    local playersNotToGather = {}
-    local meanPosition = { x = 0, y = 0, z = 0 }
-    local meanRotation = 0
-    for i, player in ipairs(getElementsByType("player")) do
-        local px, py, pz = getElementPosition(player)
-        local distanceFromPos = getDistanceBetweenPoints3D(x, y, z, px, py, pz)
-        outputChatBox("You are "..distanceFromPos.." from the position")
-        if distanceFromPos > radius then
-            outputChatBox("To far away")
-            table.insert(playersToGather, player)
-        else
-            meanPosition.x = meanPosition.x + px
-            meanPosition.y = meanPosition.y + py
-            meanPosition.z = meanPosition.z + pz
-            local rx, ry, rz = getElementRotation(player)
-            meanRotation = meanRotation + rz
-            table.insert(playersNotToGather, player)
-        end
-    end
-
-    if #playersNotToGather == 0 then
-        meanPosition = { x = x, y = y, z = z }
-        meanRotation = 0
-    else
-        meanPosition = { x = meanPosition.x / #players, y = meanPosition.y / #players, z = meanPosition.z / #players }
-        meanRotation = meanRotation / #players
-    end
-    
+    local playersToGather = playersToGatherAndNot(x, y, z, radius)
     preparePlayersForGathering(playersToGather, countdownSeconds)
-    setTimer(teleportPlayers, countdownSeconds * 1000, 1, playersToGather, meanPosition, meanRotation, { x = x, y = y, z = z })
+    setTimer(teleportPlayers, countdownSeconds * 1000, 1, playersToGather, { x = x, y = y, z = z })
 end
 
 function preparePlayersForGathering(players, countdownSeconds)
@@ -48,33 +36,29 @@ function preparePlayersForGathering(players, countdownSeconds)
     end
 end
 
-function teleportPlayers(players, meanPosition, meanRotation, position)
-    outputServerLog("Teleporting players "..inspect(players))
+function teleportPlayers(players, position, radius)
+    local playersToGather, playersNotToGather = playersToGatherAndNot(position.x, position.y, position.z, radius)
+    --local meanPosition, meanRotation = meanPositionAndRotationOfElements(playersNotToGather)
+    outputServerLog("Teleporting players "..inspect(playersToGather))
+
+    -- diff between players and playersToGather
+    local newPlayersToGather = {}
+    for i, player in ipairs(playersToGather) do
+        if not contains(players, player) then
+            table.insert(newPlayersToGather, player)
+        end
+    end
+    outputServerLog("Found "..#newPlayersToGather.." players to gather. "..inspect(newPlayersToGather))
     --outputServerLog("All locations "..inspect( getAllLocations()))
     
     local allLocations = getLocations(position.x, position.y, position.z, 100)
     --plotAllPositions2(allLocations)
     outputServerLog("Possible locations"..inspect(#allLocations))
-    local locationsWithRot = {}
-    for i, location in ipairs(allLocations) do
-        if location.speedMet then
-            table.insert(locationsWithRot, location)
-        end
-    end
-    --plotAllPositions2(locationsWithRot)
-    outputServerLog("Rot locations"..inspect(#locationsWithRot))
-
-    local locationsToUse = locationsWithRot
-    if #locationsWithRot == 0 then
-        locationsToUse = allLocations
-    end
-  
-    --random location
-    shuffle(locationsToUse)
+    local locationsToUse = getRotatedLocationsOrOther(allLocations, #playersToGather, true)
     outputServerLog("Shuffled locations"..inspect(#locationsToUse))
     plotAllPositions2(locationsToUse)
     -- move each player to one of the locations
-    for i, player in ipairs(players) do
+    for i, player in ipairs(playersToGather) do
         local location = locationsToUse[i%#locationsToUse + 1]
         outputServerLog("Using for player "..getPlayerName(player)..": "..inspect(location))
         if location then
