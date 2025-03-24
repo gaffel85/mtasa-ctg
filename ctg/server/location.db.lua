@@ -1,4 +1,6 @@
 --local locations = {}
+local locationsNotUsed = {}
+local totalRead = 0
 local pointsToPlot = {}
 local blips = {}
 local plotDistance = 60
@@ -18,6 +20,11 @@ end
 function clearLocations()
     quadTree:clear()
 end
+
+function containsLocation(location)
+    return quadTree:contains(location)
+end
+
 
 function getLocations(x, y, z, radius)
     return quadTree:queryRadius({ x = x, y = y }, radius)
@@ -87,6 +94,7 @@ function readLocationsFromJsonFile()
         local file = fileOpen(filePath)
         local size = fileGetSize(file)
         local content = fileRead(file, size)
+        totalRead = 0
         fileClose(file)
         local locationsAsArray = fromJSON(content)
         for i, locationAsArray in ipairs(locationsAsArray) do
@@ -99,20 +107,44 @@ function readLocationsFromJsonFile()
                 rz = locationAsArray[6] or 0,
                 speedMet = locationAsArray[7] or false,
             }
-
-            if isInsideMapArea(location.x, location.y, location.z) then
-                addLocation(location)
-                addPlotPoint(location)
-            end
+            if containsLocation(location) then
+                outputServerLog("Read duplicated point, skipping "..inspect(location.x)..", "..inspect(location.y)..", "..inspect(location.z))
+            else
+                totalRead = totalRead + 1
+                if isInsideMapArea(location.x, location.y, location.z) then
+                    addLocation(location)
+                    addPlotPoint(location)
+                else
+                    table.insert(locationsNotUsed, location)
+                end
+            end 
         end
+        outputServerLog("Read " .. totalRead .. " locations")
         plotAllPositions()
     end
 end
 
+function convertLocationToSaveFormat(location)
+    return {
+        location.x,
+        location.y,
+        location.z,
+        math.floor(location.rx + 0.5),
+        math.floor(location.ry + 0.5),
+        math.floor(location.rz + 0.5),
+        location.speedMet,
+    }
+end
+
 function saveWholeFileAsJson()
-    if #getAllLocations() then
+    local allUsedLocatsion = getAllLocations()
+    local totalToSave = #allUsedLocatsion + #locationsNotUsed
+    if totalToSave == 0 then
         outputServerLog("No location to save")
         return
+    else
+        local newCnt = totalToSave - totalRead
+        outputServerLog("Saving " .. newCnt .. " locations (total: " .. totalToSave .. ")")
     end
 
     if fileExists(filePath) then
@@ -122,16 +154,11 @@ function saveWholeFileAsJson()
     local file = fileCreate(filePath)
 
     locationsAsArray = {}
-    for i, location in ipairs(getAllLocations()) do
-        table.insert(locationsAsArray, {
-            location.x,
-            location.y,
-            location.z,
-            math.floor(location.rx + 0.5),
-            math.floor(location.ry + 0.5),
-            math.floor(location.rz + 0.5),
-            location.speedMet,
-        })
+    for i, location in ipairs(allUsedLocatsion) do
+        table.insert(locationsAsArray, convertLocationToSaveFormat(location))
+    end
+    for i, location in ipairs(locationsNotUsed) do
+        table.insert(locationsAsArray, convertLocationToSaveFormat(location))
     end
 
     local json = toJSON(locationsAsArray)

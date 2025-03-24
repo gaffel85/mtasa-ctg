@@ -95,6 +95,28 @@ function QuadTree:remove(pos)
     return false
 end
 
+function QuadTree:contains(pos)
+    if pos.x < self.xMin or pos.x > self.xMax or pos.y < self.yMin or pos.y > self.yMax then
+        return false -- Position is out of bounds
+    end
+    
+    for _, point in ipairs(self.points) do
+        if point.x == pos.x and point.y == pos.y then
+            return true
+        end
+    end
+
+    if self.divided then
+        if self.northwest:contains(pos) then return true end
+        if self.northeast:contains(pos) then return true end
+        if self.southwest:contains(pos) then return true end
+        if self.southeast:contains(pos) then return true end
+    end
+
+    return false
+end
+
+
 -- Search for the closest position to a given position
 function QuadTree:searchClosest(pos, bestPoint, bestDistance)
     for _, point in ipairs(self.points) do

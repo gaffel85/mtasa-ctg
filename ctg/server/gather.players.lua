@@ -53,7 +53,7 @@ function teleportPlayers(players, meanPosition, meanRotation, position)
     --outputServerLog("All locations "..inspect( getAllLocations()))
     
     local allLocations = getLocations(position.x, position.y, position.z, 100)
-    plotAllPositions2(allLocations)
+    --plotAllPositions2(allLocations)
     outputServerLog("Possible locations"..inspect(#allLocations))
     local locationsWithRot = {}
     for i, location in ipairs(allLocations) do
@@ -72,16 +72,20 @@ function teleportPlayers(players, meanPosition, meanRotation, position)
     --random location
     shuffle(locationsToUse)
     outputServerLog("Shuffled locations"..inspect(#locationsToUse))
-    --plotAllPositions2(locationsToUse)
+    plotAllPositions2(locationsToUse)
     -- move each player to one of the locations
     for i, player in ipairs(players) do
         local location = locationsToUse[i%#locationsToUse + 1]
+        outputServerLog("Using for player "..getPlayerName(player)..": "..inspect(location))
         if location then
-            if not setElementPosition(player, location.x, location.y, location.z) then
-                outputServerLog("Failed to teleport player "..getPlayerName(player).. " to "..location.x..", "..location.y..", "..location.z)
-            end
-            if not setElementRotation(player, location.rx, location.ry, location.rz) then
-                outputServerLog("Failed to rotate player "..getPlayerName(player).." to "..location.rx..", "..location.ry..", "..location.rz)
+            local vehicle = getPedOccupiedVehicle(player)
+            if vehicle then
+                if not setElementPosition(vehicle, location.x, location.y, location.z + 2) then
+                    outputServerLog("Failed to teleport player "..getPlayerName(player).. " to "..location.x..", "..location.y..", "..location.z)
+                end
+                if not setElementRotation(vehicle, location.rx, location.ry, location.rz) then
+                    outputServerLog("Failed to rotate player "..getPlayerName(player).." to "..location.rx..", "..location.ry..", "..location.rz)
+                end
             end
             fadeCamera(player, true, 0.5)
         end
@@ -89,13 +93,13 @@ function teleportPlayers(players, meanPosition, meanRotation, position)
 end
 
 local blips = {}
-local function plotPosition2(x, y, z)
+function plotPosition2(x, y, z)
     -- plot a position in the world
     local blip = createBlip(x, y, z, 0, 2, 0, 255, 255, 255, 0)
     table.insert(blips, blip)
 end
 
-local function destroyOldBlips2()
+function destroyOldBlips2()
     for i, blip in ipairs(blips) do
         if isElement(blip) then
             destroyElement(blip)
@@ -104,7 +108,7 @@ local function destroyOldBlips2()
     blips = {}
 end
 
-local function plotAllPositions2(locations)
+function plotAllPositions2(locations)
     destroyOldBlips2()
     for i, location in ipairs(locations) do
         plotPosition2(location.x, location.y, location.z)
