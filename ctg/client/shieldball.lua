@@ -8,6 +8,11 @@ local xLeft = screenX/2 - 100
 local yTop = 30
 local xRight = screenX/2 + 100
 local yBottom = screenY
+
+local xLeft2 = screenX/2 - 100
+local yTop2 = 70
+local xRight2 = screenX/2 + 100
+local yBottom2 = screenY
   
 function getVehicleSizeData(vehicleId)
     local data = vehicleSizeData[vehicleId]
@@ -30,8 +35,19 @@ function distanceMeter()
     end
 end
 
+function showCoords()
+    local x, y, z = getElementPosition(localPlayer)
+    x = math.floor(x)
+    y = math.floor(y)
+    z = math.floor(z)
+    
+    dxDrawText("("..x..", "..y..", "..z..")", xLeft2 + 3, yTop2 + 3, xRight2, yBottom2, shadowColor, 2.06, "arial", "center")
+    dxDrawText("("..x..", "..y..", "..z..")", xLeft2, yTop2, xRight2, yBottom2, textColor, 2, "arial", "center")
+end
+
 function updateCamera ()
     distanceMeter()
+    showCoords()
     --outputChatBox('Hello, world!'..inspect(getElementPosition(localPlayer)))
     for player, active in pairs(getShieldedPlayers()) do
         if active then

@@ -12,7 +12,7 @@ function getDefaultConfig()
             --{ key = "jump", bindKey = "C" },
             --{ key = "busses", bindKey = "C" },
             --{ key = "waterLevel", bindKey = "R" },
-            { key = "canon", bindKey = "C" },
+            --{ key = "canon", bindKey = "C" },
             --{ key = "plane", bindKey = "P" },
             --{ key = "cinematic", bindKey = "N" },
         },
@@ -21,7 +21,7 @@ function getDefaultConfig()
         owned = {
             "nitro",
             "teleport",
-            "canon",
+            --"canon",
             --"worldgravity",
         },
     }
