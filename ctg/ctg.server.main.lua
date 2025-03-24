@@ -103,7 +103,6 @@ function repairAllCars()
 end
 
 function givePointsToPlayer(player, points)
-    giveTeamScore(player, points)
     local score = getElementData(player, SCORE_KEY)
     if (score == false) then
         score = 0
@@ -240,6 +239,7 @@ function goldDelivered(player)
     local oldHideout = getTeamHideout().edl
     removeOldHideout()
 	givePointsToPlayer(getGoldCarrier(), 500)
+    giveTeamScore(player, 500)
     -- triggerEvent("goldDelivered", root, getGoldCarrier(), 500)
 	showTextGoldDelivered(getGoldCarrier())
 
