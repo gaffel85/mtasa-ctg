@@ -326,13 +326,13 @@ addEventHandler("onPlayerWasted", getRootElement(), playerWastedMain)
 --addEvent("reportLastTransform", true)
 addEvent("reportTransform", true)
 addEventHandler("reportTransform", resourceRoot, function(transform, param1, param2, param3)
-    outputChatBox("reportTransform "..inspect(transform)..' '..inspect(param1)..' '..inspect(param2)..' '..inspect(param3))
+    outputChatBox("reportTransform in main "..inspect(transform)..' '..inspect(param1)..' '..inspect(param2)..' '..inspect(param3))
     if param1 and param1 == "replaceGold" then
         spawnGoldAtTransform(transform.x, transform.y, transform.z)
         refreshAllBlips()
     end
     if param1 and param1 == "telportTo" then
-        -- outputChatBox(inspect(param2).." "..inspect(param3))
+        outputChatBox(inspect(param2))
         teleportTo(param2, transform)
     end
 end)

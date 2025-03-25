@@ -67,13 +67,13 @@ function saveLocationForPlayer()
         avx = avx,
         avy = avy,
         avz = avz,
-        timestamp = getRealTime(),
+        timestamp = getRealTime().timestamp,
         speedMet = speedInKmh >= minSpeedForRotation,
     }
     table.insert(locations, newLocation)
     plotPosition(x, y, z)
 
-    local serverLocation = convertToServerFormat(newLocation)
+    local serverLocation = convertToCompactServerFormat(newLocation)
     table.insert(locationsToSend, serverLocation)
 
     if (#locationsToSend > serverPackageSize) then
@@ -86,7 +86,7 @@ function saveLocationForPlayer()
 	end
 end
 
-function convertToServerFormat(location)
+function convertToCompactServerFormat(location)
     return {
         location.x,
         location.y,
@@ -95,6 +95,23 @@ function convertToServerFormat(location)
         location.ry,
         location.rz,
         location.speedMet
+    }
+end
+
+function convertToServerFormat(location)
+    return {
+        x = location.x,
+        y = location.y,
+        z = location.z,
+        rx = location.rx,
+        ry = location.ry,
+        rz = location.rz,
+        vx = location.vx,
+        vy = location.vy,
+        vz = location.vz,
+        avx = location.avx,
+        avy = location.avy,
+        avz = location.avz,
     }
 end
 
@@ -128,13 +145,18 @@ function calculateZRotation(vx, vy)
 end
 
 function findLocationClosestToTimeAgo(timeAgo)
+    outputConsole("findLocationClosestToTimeAgo "..timeAgo)
+
     if (#locations == 0) then
         return nil
     end
-    local closestLocation = locations[1]
-    local closestTime = math.abs(getRealTime() - closestLocation.timestamp - timeAgo)
-    for i, location in ipairs(locations) do
-        local time = getRealTime() - location.timestamp
+    local closestLocation = locations[#locations]
+    outputConsole("closestLocation "..inspect(closestLocation.timestamp))
+    local closestTime = math.abs(getRealTime().timestamp - closestLocation.timestamp - timeAgo)
+    -- iterate backwards from the last location
+    for i = #locations, 1, -1 do
+        local location = locations[i]
+        local time = getRealTime().timestamp - location.timestamp
         local locationTimeAgo = math.abs(time - timeAgo)
         if locationTimeAgo < closestTime then
             closestTime = locationTimeAgo
@@ -158,9 +180,13 @@ addEventHandler("reportLastTransform", resourceRoot, function(index, param1, par
 	end
     outputChatBox("3")
 	local transform = locations[#locations - index]
-    outputChatBox("4")
-    outputChatBox("reportLastTransform2 "..inspect(transform))
-	triggerServerEvent("reportTransform", resourceRoot, transform, param1, param2, param3, param4, param5, param6)
+    if not transform then
+        outputChatBox("Could not find location at index "..index)
+        return
+    end
+    local serverTransform = convertToServerFormat(transform)
+    outputChatBox("Transform to send  "..inspect(serverTransform))
+	triggerServerEvent("reportTransform", resourceRoot, serverTransform, param1, param2, param3, param4, param5, param6)
 end)
 
 addEvent("reportLastTransformTimeAgo", true)
@@ -170,8 +196,14 @@ addEventHandler("reportLastTransformTimeAgo", resourceRoot, function(timeAgo, pa
         outputChatBox("Too few locations "..#locations)
 		return
 	end
-	local transform = locations[#locations - timeAgo]
-	triggerServerEvent("reportTransform", resourceRoot, transform, param1, param2, param3, param4, param5, param6)
+	local transform = findLocationClosestToTimeAgo(timeAgo)
+	if not transform then
+		outputChatBox("No location found close to time ago "..timeAgo)
+		return
+	end
+    local serverTransform = convertToServerFormat(transform)
+    outputConsole("Transform to send "..inspect(serverTransform))
+	triggerServerEvent("reportTransform", resourceRoot, serverTransform, param1, param2, param3, param4, param5, param6)
 end)
 
 addEventHandler( "onClientResourceStart", getRootElement( ),
