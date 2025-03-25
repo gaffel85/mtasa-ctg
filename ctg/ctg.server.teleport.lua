@@ -22,11 +22,11 @@ function teleportTo(player, transform)
 		return
 	end
 	local radius, x1, y1, z1, x2, y2, z2 = getVehicleSizeData(vehicle)
-	local distanceToGround = z1
-	--calculate distance to ground after apllying rotation around x and y axis
-	local distanceToGroundAfterRotation = distanceToGround * math.max(1, math.abs(math.sin(transform.rx)) + math.abs(math.sin(transform.ry)))
+	local distanceToGroundVector = { x = 0, y = 0, z = z1 }
+	local rotated_vector = rotate_euler(distanceToGroundVector, transform.rx, transform.ry, transform.rz)
+	local intersection_z = z_axis_intersection(rotated_vector, rotated_vector)
 
-	setElementPosition(vehicle, transform.x, transform.y, transform.z + distanceToGroundAfterRotation)
+	setElementPosition(vehicle, transform.x, transform.y, transform.z + intersection_z)
 	setElementRotation(vehicle, transform.rx, transform.ry, transform.rz)
 	setElementVelocity(vehicle, transform.vx, transform.vy, transform.vz)
 	setElementAngularVelocity(vehicle, transform.vrx, transform.vry, transform.vrz)
