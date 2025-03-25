@@ -5,7 +5,15 @@ function askForTeleport(player, locationsAgo)
 		return
 	end
 	-- outputChatBox("Leader is "..getPlayerName(leader))
-	triggerClientEvent(leader, "reportLastTransform", resourceRoot, locationsAgo, "telportTo", player)
+	askForLocationNbr(player, leader, locationsAgo, "telportTo")
+end
+
+function askForLocationNbr(asker, targetPlayer, locationsAgo, targetFunction, param4, param5, param6)
+	triggerClientEvent(targetPlayer, "reportLastTransform", resourceRoot, locationsAgo, targetFunction, asker, param4, param5, param6)
+end
+
+function askForLocationBackInTime(asker, targetPlayer, timeAgo, targetFunction, param4, param5, param6)
+	triggerClientEvent(targetPlayer, "reportLastTransformTimeAgo", resourceRoot, timeAgo, targetFunction, asker, param4, param5, param6)
 end
 
 function teleportTo(player, transform)
@@ -130,3 +138,15 @@ function spawnCloseTo(player, pos)
 	setElementVelocity(vehicle, 0, 0, 0)
 	setElementAngularVelocity(vehicle, 0, 0, 0)
 end
+
+addCommandHandler("teleportAgo", function(thePlayer, command, timeAgo)
+	local timeAgoNbr = tonumber(timeAgo)
+	outputChatBox("Teleporting to location time ago "..timeAgoNbr)
+    askForLocationBackInTime(thePlayer, thePlayer, timeAgoNbr, "teleportTo")
+end)
+
+addCommandHandler("teleportIndex", function(thePlayer, command, locationNbr)
+	local locationNbrNbr = tonumber(locationNbr)
+	outputChatBox("Teleporting to location index "..locationNbrNbr)
+    askForLocationNbr(thePlayer, thePlayer, locationNbrNbr, "teleportTo")
+end)

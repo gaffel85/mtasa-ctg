@@ -29,7 +29,7 @@ function storeTransform()
 		table.remove(transforms, 1)
 	end
 end
-setTimer(storeTransform, 3000, 0)
+--setTimer(storeTransform, 3000, 0)
 
 -- listen for the report last transform event called reportLastTransform
 

@@ -323,9 +323,10 @@ end
 addEventHandler("onPlayerWasted", getRootElement(), playerWastedMain)
 
 -- listen for event from client called "reportTransform"
-addEvent("reportLastTransform", true)
+--addEvent("reportLastTransform", true)
 addEvent("reportTransform", true)
 addEventHandler("reportTransform", resourceRoot, function(transform, param1, param2, param3)
+    outputChatBox("reportTransform "..inspect(transform)..' '..inspect(param1)..' '..inspect(param2)..' '..inspect(param3))
     if param1 and param1 == "replaceGold" then
         spawnGoldAtTransform(transform.x, transform.y, transform.z)
         refreshAllBlips()

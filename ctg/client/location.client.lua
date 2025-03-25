@@ -81,8 +81,8 @@ function saveLocationForPlayer()
         locationsToSend = {}
     end
 
-    if (#transforms > maxLocactions) then
-		table.remove(transforms, 1)
+    if (#locations > maxLocactions) then
+		table.remove(locations, 1)
 	end
 end
 
@@ -127,17 +127,51 @@ function calculateZRotation(vx, vy)
     return angle
 end
 
+function findLocationClosestToTimeAgo(timeAgo)
+    if (#locations == 0) then
+        return nil
+    end
+    local closestLocation = locations[1]
+    local closestTime = math.abs(getRealTime() - closestLocation.timestamp - timeAgo)
+    for i, location in ipairs(locations) do
+        local time = getRealTime() - location.timestamp
+        local locationTimeAgo = math.abs(time - timeAgo)
+        if locationTimeAgo < closestTime then
+            closestTime = locationTimeAgo
+            closestLocation = location
+        end
+    end
+    return closestLocation
+end
+
 setTimer(saveLocationForPlayer, 500, 100000000)
 outputChatBox("Main file")
 
 addEvent("reportLastTransform", true)
-addEventHandler("reportLastTransform", resourceRoot, function(index, param1, param2, param3)
-	-- outputChatBox("in client"..inspect(param1).." "..inspect(param2).." "..inspect(param3))
-	if (#locations == 0) then
+addEventHandler("reportLastTransform", resourceRoot, function(index, param1, param2, param3, param4, param5, param6)
+	outputChatBox("reportLastTransform "..inspect(index).." "..inspect(param1).." "..inspect(param2).." "..inspect(param3))
+    outputChatBox("1")
+	if (#locations == 0 or #locations < index) then
+        outputChatBox("2")
+        outputChatBox("Too few locations "..#locations.." "..index)
 		return
 	end
-	local transform = transforms[#transforms - index]
-	triggerServerEvent("reportTransform", resourceRoot, transform, param1, param2, param3)
+    outputChatBox("3")
+	local transform = locations[#locations - index]
+    outputChatBox("4")
+    outputChatBox("reportLastTransform2 "..inspect(transform))
+	triggerServerEvent("reportTransform", resourceRoot, transform, param1, param2, param3, param4, param5, param6)
+end)
+
+addEvent("reportLastTransformTimeAgo", true)
+addEventHandler("reportLastTransformTimeAgo", resourceRoot, function(timeAgo, param1, param2, param3, param4, param5, param6)
+	outputChatBox("reportLastTransformTimeAgo "..inspect(timeAgo).." "..inspect(param1)..' '..inspect(param2)..' '..inspect(param3)..' '..inspect(param4)..' '..inspect(param5)..' '..inspect(param6))
+	if (#locations == 0) then
+        outputChatBox("Too few locations "..#locations)
+		return
+	end
+	local transform = locations[#locations - timeAgo]
+	triggerServerEvent("reportTransform", resourceRoot, transform, param1, param2, param3, param4, param5, param6)
 end)
 
 addEventHandler( "onClientResourceStart", getRootElement( ),
