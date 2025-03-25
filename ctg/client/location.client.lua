@@ -5,6 +5,7 @@ local maxBlips = 5
 local minDistance = 5
 local minSpeedForRotation = 50
 local serverPackageSize = 3
+local maxLocactions = 500
 
 function hasLocationCloseToForPlayer(x, y, z)
     -- check if there is a location close to x, y, z
@@ -66,6 +67,7 @@ function saveLocationForPlayer()
         avx = avx,
         avy = avy,
         avz = avz,
+        timestamp = getRealTime(),
         speedMet = speedInKmh >= minSpeedForRotation,
     }
     table.insert(locations, newLocation)
@@ -78,6 +80,10 @@ function saveLocationForPlayer()
         triggerServerEvent("locationFromClient", resourceRoot, locationsToSend)
         locationsToSend = {}
     end
+
+    if (#transforms > maxLocactions) then
+		table.remove(transforms, 1)
+	end
 end
 
 function convertToServerFormat(location)
@@ -123,6 +129,16 @@ end
 
 setTimer(saveLocationForPlayer, 500, 100000000)
 outputChatBox("Main file")
+
+addEvent("reportLastTransform", true)
+addEventHandler("reportLastTransform", resourceRoot, function(index, param1, param2, param3)
+	-- outputChatBox("in client"..inspect(param1).." "..inspect(param2).." "..inspect(param3))
+	if (#locations == 0) then
+		return
+	end
+	local transform = transforms[#transforms - index]
+	triggerServerEvent("reportTransform", resourceRoot, transform, param1, param2, param3)
+end)
 
 addEventHandler( "onClientResourceStart", getRootElement( ),
     function ( startedRes )

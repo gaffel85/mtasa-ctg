@@ -1,11 +1,11 @@
-function askForTeleport(player, secondParam)
+function askForTeleport(player, locationsAgo)
 	local leader = findLeader(player)
 	if (not leader or leader == player) then
 		-- outputChatBox("No leader found")
 		return
 	end
 	-- outputChatBox("Leader is "..getPlayerName(leader))
-	triggerClientEvent(leader, "reportLastTransform", resourceRoot, 2, "telportTo", player)
+	triggerClientEvent(leader, "reportLastTransform", resourceRoot, locationsAgo, "telportTo", player)
 end
 
 function teleportTo(player, transform)
