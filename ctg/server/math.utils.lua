@@ -40,7 +40,7 @@ local function rotate_z(v, angle)
 end
   
   -- Funktion för att rotera en vektor med Euler-vinklar (yaw, pitch, roll)
-local function rotate_euler(v, pitch, yaw, roll)
+function rotate_euler(v, pitch, yaw, roll)
     local rotated = v
     rotated = rotate_y(rotated, yaw)
     rotated = rotate_x(rotated, pitch)
@@ -49,7 +49,7 @@ local function rotate_euler(v, pitch, yaw, roll)
 end
   
   -- Funktion för att beräkna skärningspunkten med z-axeln
-local function z_axis_intersection(normal_vector, point)
+function z_axis_intersection(normal_vector, point)
     -- Ekvationen för planet är: Ax + By + Cz = D
     -- normal_vector är (A, B, C)
     -- point är en punkt på planet (i detta fall, spetsen av den roterade vektorn)

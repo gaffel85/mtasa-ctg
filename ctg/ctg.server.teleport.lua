@@ -16,6 +16,8 @@ function askForLocationBackInTime(asker, targetPlayer, timeAgo, targetFunction, 
 	triggerClientEvent(targetPlayer, "reportLastTransformTimeAgo", resourceRoot, timeAgo, targetFunction, asker, param4, param5, param6)
 end
 
+-- 0, 0, -0.85
+-- 24, 358, 247
 function teleportTo(player, transform)
 	local vehicle = getPedOccupiedVehicle(player)
 	if (not vehicle) then
@@ -26,7 +28,10 @@ function teleportTo(player, transform)
 	local rotated_vector = rotate_euler(distanceToGroundVector, transform.rx, transform.ry, transform.rz)
 	local intersection_z = z_axis_intersection(rotated_vector, rotated_vector)
 
-	setElementPosition(vehicle, transform.x, transform.y, transform.z + intersection_z)
+	outputChatBox("Original z: "..z1.." Intersection z: "..intersection_z)
+	outputChatBox("Rotation vector "..inspect(transform.rx.." "..transform.ry.." "..transform.rz))
+
+	setElementPosition(vehicle, transform.x, transform.y, transform.z + 2)
 	setElementRotation(vehicle, transform.rx, transform.ry, transform.rz)
 	setElementVelocity(vehicle, transform.vx, transform.vy, transform.vz)
 	setElementAngularVelocity(vehicle, transform.vrx, transform.vry, transform.vrz)
