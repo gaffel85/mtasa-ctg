@@ -21,7 +21,12 @@ function teleportTo(player, transform)
 	if (not vehicle) then
 		return
 	end
-	setElementPosition(vehicle, transform.x, transform.y, transform.z)
+	local radius, x1, y1, z1, x2, y2, z2 = getVehicleSizeData(vehicle)
+	local distanceToGround = z1
+	--calculate distance to ground after apllying rotation around x and y axis
+	local distanceToGroundAfterRotation = distanceToGround * math.max(1, math.abs(math.sin(transform.rx)) + math.abs(math.sin(transform.ry)))
+
+	setElementPosition(vehicle, transform.x, transform.y, transform.z + distanceToGroundAfterRotation)
 	setElementRotation(vehicle, transform.rx, transform.ry, transform.rz)
 	setElementVelocity(vehicle, transform.vx, transform.vy, transform.vz)
 	setElementAngularVelocity(vehicle, transform.vrx, transform.vry, transform.vrz)

@@ -109,9 +109,9 @@ function convertToServerFormat(location)
         vx = location.vx,
         vy = location.vy,
         vz = location.vz,
-        avx = location.avx,
-        avy = location.avy,
-        avz = location.avz,
+        vrx = location.avx,
+        vry = location.avy,
+        vrz = location.avz,
     }
 end
 

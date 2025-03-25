@@ -330,10 +330,11 @@ addEventHandler("reportTransform", resourceRoot, function(transform, param1, par
     if param1 and param1 == "replaceGold" then
         spawnGoldAtTransform(transform.x, transform.y, transform.z)
         refreshAllBlips()
-    end
-    if param1 and param1 == "telportTo" then
+    elseif param1 and param1 == "teleportTo" then
         outputChatBox(inspect(param2))
         teleportTo(param2, transform)
+    else
+        outputConsole("Unknown param1 in reportTransform: ["..param1.."]")
     end
 end)
 
