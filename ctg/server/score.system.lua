@@ -3,6 +3,8 @@ local highestScore = 10
 local maxDiffDistance = 200
 local coeff = -highestScore / maxDiffDistance
 
+function 
+
 function distributePointsByDistanceToGold(players)
     local leader = nil
     local playersWithDistance = {}

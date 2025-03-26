@@ -8,6 +8,7 @@ local props = {
         goldSpawnTime = 5,
         gatherTime = 20,
         tillbakaKakatime = 5000,
+        handicapHandlingExtraPercentage = 0.15,
         repairTime = 5,
         presentGoldDeliveredTime = 7,
         goldMass = 1000,

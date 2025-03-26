@@ -1,6 +1,19 @@
 local checkScoresTimer
 local catchUpPowerDisplay = nil
 
+function changeHandlingForPlayer(player, percentage)
+    local cappedPercentage = math.max(percentage, 0.7)
+    local percentageWithExtra = cappedPercentage + getConst().handicapHandlingExtraPercentage
+    local vehicle = getPedOccupiedVehicle(player)
+    if not vehicle then
+        return
+    end
+    local originalHandling = getOriginalHandling(vehicle)
+    outputChatBox("Changing handling for "..getPlayerName(player).." to "..percentageWithExtra)
+    setVehicleHandling(vechicle, "maxVelocity", originalHandling.maxVelocity * percentageWithExtra)
+    setVehicleHandling(vechicle, "engineAcceleration", originalHandling.engineAcceleration * percentageWithExtra)
+end
+
 function scorePercentageForPlayers(players)
     if #players == 0 then return {} end
 
@@ -49,6 +62,20 @@ local function compareScores()
             notfiyToUseCatchupPower(player.player)
         else 
             stopNotifyingCatchupPower(player.player)
+        end
+    end
+
+    local lowestPercentage = 1
+    for _, player in ipairs(playersWithScore) do
+        if player.percentage < lowestPercentage then
+            lowestPercentage = player.percentage
+        end
+    end
+
+    for _, player in ipairs(playersWithScore) do
+        local handlingPercentage = 1 - (player.percentage - lowestPercentage)
+        if player.percentage == lowestPercentage then
+            changeHandlingForPlayer(player.player, handlingPercentage)
         end
     end
 end
