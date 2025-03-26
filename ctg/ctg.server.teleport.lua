@@ -38,7 +38,28 @@ function teleportTo(player, transform)
 end
 
 function teleportToOr(player, transform, targetPos, optionalPos)
+	local vehicle = getPedOccupiedVehicle(player)
+	if (not vehicle) then
+		return
+	end
 
+	outputServerLog("Transform: "..inspect(transform))
+	outputServerLog("Target pos: "..inspect(targetPos))
+	outputServerLog("Optional pos: "..inspect(optionalPos))
+
+	local transformDistanceToTarget = getDistanceBetweenPoints3D(transform.x, transform.y, transform.z, targetPos.x, targetPos.y, targetPos.z)
+	local optionalPosDistanceToTarget = getDistanceBetweenPoints3D(optionalPos.x, optionalPos.y, optionalPos.z, targetPos.x, targetPos.y, targetPos.z)
+
+
+	outputServerLog("Transform distance to target: "..transformDistanceToTarget)
+	outputServerLog("Optional pos distance to target: "..optionalPosDistanceToTarget)
+	if transformDistanceToTarget < optionalPosDistanceToTarget then
+		outputServerLog("Teleporting to transform")
+		teleportTo(player, transform)
+	else
+		outputServerLog("Teleporting to optional pos")
+		setElementPosition(vehicle, optionalPos.x, optionalPos.y, optionalPos.z + 2)
+	end
 end
 
 -- function that finds the leader by first taking the goldCarrier, if there is one, and then the player that is closest to the gold

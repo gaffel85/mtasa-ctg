@@ -145,19 +145,20 @@ function calculateZRotation(vx, vy)
 end
 
 function findLocationClosestToTimeAgo(timeAgo)
-    outputConsole("findLocationClosestToTimeAgo "..timeAgo)
+    --outputConsole("findLocationClosestToTimeAgo "..timeAgo)
 
     if (#locations == 0) then
         return nil
     end
-    local closestLocation = locations[#locations]
-    outputConsole("closestLocation "..inspect(closestLocation.timestamp))
+    local closestLocation = locations[1]
+    --outputConsole("closestLocation "..inspect(closestLocation.timestamp))
     local closestTime = math.abs(getRealTime().timestamp - closestLocation.timestamp - timeAgo)
-    -- iterate backwards from the last location
-    for i = #locations, 1, -1 do
-        local location = locations[i]
+    outputConsole("Closest initial time: "..closestTime)
+    
+    for i, location in ipairs(locations) do
         local time = getRealTime().timestamp - location.timestamp
         local locationTimeAgo = math.abs(time - timeAgo)
+        outputConsole("Location time ago: "..locationTimeAgo)
         if locationTimeAgo < closestTime then
             closestTime = locationTimeAgo
             closestLocation = location
@@ -191,18 +192,18 @@ end)
 
 addEvent("reportLastTransformTimeAgo", true)
 addEventHandler("reportLastTransformTimeAgo", resourceRoot, function(timeAgo, param1, param2, param3, param4, param5, param6)
-	outputChatBox("reportLastTransformTimeAgo "..inspect(timeAgo).." "..inspect(param1)..' '..inspect(param2)..' '..inspect(param3)..' '..inspect(param4)..' '..inspect(param5)..' '..inspect(param6))
+	--outputChatBox("reportLastTransformTimeAgo "..inspect(timeAgo).." "..inspect(param1)..' '..inspect(param2)..' '..inspect(param3)..' '..inspect(param4)..' '..inspect(param5)..' '..inspect(param6))
 	if (#locations == 0) then
-        outputChatBox("Too few locations "..#locations)
+        --outputChatBox("Too few locations "..#locations)
 		return
 	end
 	local transform = findLocationClosestToTimeAgo(timeAgo)
 	if not transform then
-		outputChatBox("No location found close to time ago "..timeAgo)
+		--outputChatBox("No location found close to time ago "..timeAgo)
 		return
 	end
     local serverTransform = convertToServerFormat(transform)
-    outputConsole("Transform to send "..inspect(serverTransform).." ["..inspect(param1)..", "..inspect(param2)..", "..inspect(param3)..", "..inspect(param4)..", "..inspect(param5)..", "..inspect(param6).."]")
+    --outputConsole("Transform to send "..inspect(serverTransform).." ["..inspect(param1)..", "..inspect(param2)..", "..inspect(param3)..", "..inspect(param4)..", "..inspect(param5)..", "..inspect(param6).."]")
 	triggerServerEvent("reportTransform", resourceRoot, serverTransform, param1, param2, param3, param4, param5, param6)
 end)
 

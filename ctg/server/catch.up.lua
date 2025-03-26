@@ -77,6 +77,10 @@ end
 
 function meanPositionOrMyOwn(player, targetPos, meanPositionOfAllPlayersExceptMe)
     local x, y, z = getElementPosition(player)
+    if #meanPositionOfAllPlayersExceptMe <= 1 then
+        return { x = x, y = y, z = z }, true
+    end
+
     --outputServerLog("Player pos "..getPlayerName(player) ..": "..inspect({x, y, z}))
     local distanceToTargetPos = getDistanceBetweenPoints3D(x, y, z, targetPos.x, targetPos.y, targetPos.z)
     --outputServerLog("Distance to target pos: "..distanceToTargetPos)
