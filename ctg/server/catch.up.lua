@@ -29,7 +29,8 @@ function shouldShowCatchupPower(player)
     end
 
     local targetX, targetY, targetZ = findTargetPos()
-    local meanPositionOfAllPlayers = meanPositionAndRotationOfElements(playersExceptMe())
+    outputChatBox("Target pos: "..inspect({targetX, targetY, targetZ}))
+    local meanPositionOfAllPlayers = meanPositionAndRotationOfElements(playersExceptMe(player.player))
 
     local alternativePos, useOwnPos = meanPositionOrMyOwn(player.player, {x = targetX, y = targetY, z = targetZ}, meanPositionOfAllPlayers)
 
@@ -116,7 +117,7 @@ function useCatchUp(player)
 
         local targetX, targetY, targetZ = findTargetPos()
         local targetPos = {x = targetX, y = targetY, z = targetZ}
-        local meanPositionOfAllPlayers = meanPositionAndRotationOfElements(playersExceptMe())
+        local meanPositionOfAllPlayers = meanPositionAndRotationOfElements(playersExceptMe(player))
         local alternativePos, useOwnPos = meanPositionOrMyOwn(player, targetPos, meanPositionOfAllPlayers)
 
         if myPercentage < 0.7 then
