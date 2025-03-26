@@ -136,3 +136,14 @@ function meanPositionAndRotationOfElements(elements)
     end
     return {x = x / #elements, y = y / #elements, z = z / #elements, rotationZ = meanRotationZ / #elements}
 end
+
+function playersExceptMe(me)
+    local players = getElementsByType("player")
+    local playersExceptMe = {}
+    for i, player in ipairs(players) do
+        if player ~= me then
+            table.insert(playersExceptMe, player)
+        end
+    end
+    return playersExceptMe
+end

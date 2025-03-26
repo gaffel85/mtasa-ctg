@@ -37,6 +37,10 @@ function teleportTo(player, transform)
 	setElementAngularVelocity(vehicle, transform.vrx, transform.vry, transform.vrz)
 end
 
+function teleportToOr(player, transform, targetPos, optionalPos)
+
+end
+
 -- function that finds the leader by first taking the goldCarrier, if there is one, and then the player that is closest to the gold
 function findLeader(me)
 	local goldCarrier = getGoldCarrier()
@@ -58,6 +62,20 @@ function findLeader(me)
 		end
 	end
 	return closestPlayer
+end
+
+function findTargetPos()
+	local goldCarrier = getGoldCarrier()
+	if goldCarrier then
+		-- outputChatBox("Found gold carrier as leader")
+		return getElementPosition(goldCarrier)
+	end
+
+	local gold = getLastGoldSpawn()
+	if not gold then
+		return nil
+	end
+	return gold.x, gold.y, gold.z
 end
 
 function getDistanceToGold(player)

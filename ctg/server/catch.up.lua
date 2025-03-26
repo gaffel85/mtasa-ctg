@@ -67,14 +67,34 @@ function useCatchUp(player)
                 break
             end
         end
+        local leader = findLeader(player)
+	    if (not leader or leader == player) then
+		    outputServerLog("No leader found for useCatchUp")
+		    return
+	    end
+
+        local targetPos = findTargetPos()
+        local meanPositionOfAllPlayers = meanPositionAndRotationOfElements(playersExceptMe())
+
+        local x, y, z = getElementPosition(player)
+        local distanceToTargetPos = getDistanceBetweenPoints3D(x, y, z, targetPos.x, targetPos.y, targetPos.z)
+        local distanceFromMeanPosition = getDistanceBetweenPoints3D(targetPos.x, targetPos.y, targetPos.z, meanPositionOfAllPlayers.x, meanPositionOfAllPlayers.y, meanPositionOfAllPlayers.z)
+        local alternativePos = distanceFromMeanPosition
+        if distanceToTargetPos < distanceFromMeanPosition then
+            alternativePos = { x = x, y = y, z = z }
+        end
+
         if myPercentage < 0.7 then
-            askForTeleport(player, 1)
+            askForLocationBackInTime(player, leader, 3000, "teleportOr", targetPos, alternativePos)
         elseif myPercentage < 0.8 then
-            askForTeleport(player, 3)
+            askForLocationBackInTime(player, leader, 6000, "teleportOr", targetPos, alternativePos)
         elseif myPercentage < 0.9 then
-            askForTeleport(player, 7)
+            askForLocationBackInTime(player, leader, 10000, "teleportOr", targetPos, alternativePos)
         else
-            spawnCloseToMeanPositionOfAllPlayers(player)
+            if distanceToTargetPos > distanceFromMeanPosition then
+                spawnCloseTo(player, meanPositionOfAllPlayers)
+            end
+            
         end
     end
 end

@@ -325,7 +325,7 @@ addEventHandler("onPlayerWasted", getRootElement(), playerWastedMain)
 -- listen for event from client called "reportTransform"
 --addEvent("reportLastTransform", true)
 addEvent("reportTransform", true)
-addEventHandler("reportTransform", resourceRoot, function(transform, param1, param2, param3)
+addEventHandler("reportTransform", resourceRoot, function(transform, param1, param2, param3, param4)
     outputChatBox("reportTransform in main "..inspect(transform)..' '..inspect(param1)..' '..inspect(param2)..' '..inspect(param3))
     if param1 and param1 == "replaceGold" then
         spawnGoldAtTransform(transform.x, transform.y, transform.z)
@@ -333,6 +333,12 @@ addEventHandler("reportTransform", resourceRoot, function(transform, param1, par
     elseif param1 and param1 == "teleportTo" then
         outputChatBox(inspect(param2))
         teleportTo(param2, transform)
+    elseif param1 and param1 == "teleportOr" then
+        if not param2 or not param3 or not param4 then
+            outputServerLog("Missing params in teleportOr: ["..param2..", "..param3..", "..param4.."]")
+            return
+        end
+        teleportToOr(param2, transform, param3, param4)
     else
         outputConsole("Unknown param1 in reportTransform: ["..param1.."]")
     end
