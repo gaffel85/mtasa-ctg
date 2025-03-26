@@ -1,4 +1,5 @@
 local checkScoresTimer
+local catchUpPowerDisplay = nil
 
 function scorePercentageForPlayers(players)
     if #players == 0 then return {} end
@@ -24,21 +25,18 @@ end
 
 function shouldShowCatchupPower(player)
     if not isFarEnoughFromLeader(player.player) then
-        outputChatBox("Not far enough from leader")
         return false
     end
 
     local targetX, targetY, targetZ = findTargetPos()
-    outputChatBox("Target pos: "..inspect({targetX, targetY, targetZ}))
     local meanPositionOfAllPlayers = meanPositionAndRotationOfElements(playersExceptMe(player.player))
 
     local alternativePos, useOwnPos = meanPositionOrMyOwn(player.player, {x = targetX, y = targetY, z = targetZ}, meanPositionOfAllPlayers)
 
     if player.percentage < 0.9 then
-        outputChatBox("Below 90% of the best score")
+        outputChatBox("Below 90% of the best score "..inspect(player.percentage))
         return true
     else
-        outputChatBox("Above 90% of the best score. Better to use own pos? "..inspect(useOwnPos))
         return not useOwnPos
     end
 end
@@ -48,9 +46,9 @@ local function compareScores()
     local playersWithScore = scorePercentageForPlayers(getElementsByType("player"))
     for _, player in ipairs(playersWithScore) do
         if shouldShowCatchupPower(player) then 
-            notfiyToUseCatchupPower(player)
+            notfiyToUseCatchupPower(player.player)
         else 
-            stopNotifyingCatchupPower(player)
+            stopNotifyingCatchupPower(player.player)
         end
     end
 end
@@ -62,14 +60,13 @@ function stopNotifyingCatchupPower(player)
 end
 
 function notfiyToUseCatchupPower(player)
-    outputChatBox("Should show catchup power for "..getPlayerName(player.player))
+    outputChatBox("Should show catchup power for "..getPlayerName(player))
     if not catchUpPowerDisplay then
         createMessageDisplay()
     end
     textDisplayAddObserver ( catchUpPowerDisplay, player )
 end
 
-local catchUpPowerDisplay = nil
 function createMessageDisplay()
     catchUpPowerDisplay = textCreateDisplay ()
     local howToEnableItem = textCreateTextItem ( "Press Z to catch up", 0.5, 0.07, "medium", 255, 255, 255, 255, 3, "center", "top", 200) 
@@ -80,15 +77,15 @@ end
 
 function meanPositionOrMyOwn(player, targetPos, meanPositionOfAllPlayersExceptMe)
     local x, y, z = getElementPosition(player)
-    outputServerLog("Player pos "..getPlayerName(player) ..": "..inspect({x, y, z}))
+    --outputServerLog("Player pos "..getPlayerName(player) ..": "..inspect({x, y, z}))
     local distanceToTargetPos = getDistanceBetweenPoints3D(x, y, z, targetPos.x, targetPos.y, targetPos.z)
-    outputServerLog("Distance to target pos: "..distanceToTargetPos)
+    --outputServerLog("Distance to target pos: "..distanceToTargetPos)
     local distanceFromMeanPosition = getDistanceBetweenPoints3D(targetPos.x, targetPos.y, targetPos.z, meanPositionOfAllPlayersExceptMe.x, meanPositionOfAllPlayersExceptMe.y, meanPositionOfAllPlayersExceptMe.z)
-    outputServerLog("Distance from mean pos: "..distanceFromMeanPosition)
+    --outputServerLog("Distance from mean pos: "..distanceFromMeanPosition)
     local alternativePos = meanPositionOfAllPlayersExceptMe
     local useOwnPos = false
     if distanceToTargetPos < distanceFromMeanPosition then
-        outputServerLog("Using own pos")
+        --outputServerLog("Using own pos")
         alternativePos = { x = x, y = y, z = z }
         useOwnPos = true
     end
@@ -121,12 +118,16 @@ function useCatchUp(player)
         local alternativePos, useOwnPos = meanPositionOrMyOwn(player, targetPos, meanPositionOfAllPlayers)
 
         if myPercentage < 0.7 then
+            outputChatBox("Below 70% of the best score "..inspect(myPercentage))
             askForLocationBackInTime(player, leader, 3000, "teleportOr", targetPos, alternativePos)
         elseif myPercentage < 0.8 then
+            outputChatBox("Below 80% of the best score "..inspect(myPercentage))
             askForLocationBackInTime(player, leader, 6000, "teleportOr", targetPos, alternativePos)
         elseif myPercentage < 0.9 then
+            outputChatBox("Below 90% of the best score "..inspect(myPercentage))
             askForLocationBackInTime(player, leader, 10000, "teleportOr", targetPos, alternativePos)
         else
+            outputChatBox("Above 90% of the best score. "..inspect(myPercentage).." Using useOwnPos? "..inspect(useOwnPos))
             if not useOwnPos then
                 spawnCloseTo(player, meanPositionOfAllPlayers)
             end
