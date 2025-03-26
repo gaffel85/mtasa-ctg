@@ -34,7 +34,7 @@ function shouldShowCatchupPower(player)
     local alternativePos, useOwnPos = meanPositionOrMyOwn(player.player, {x = targetX, y = targetY, z = targetZ}, meanPositionOfAllPlayers)
 
     if player.percentage < 0.9 then
-        outputChatBox("Below 90% of the best score "..inspect(player.percentage))
+        --outputChatBox("Below 90% of the best score "..inspect(player.percentage))
         return true
     else
         return not useOwnPos
@@ -60,7 +60,7 @@ function stopNotifyingCatchupPower(player)
 end
 
 function notfiyToUseCatchupPower(player)
-    outputChatBox("Should show catchup power for "..getPlayerName(player))
+    --outputChatBox("Should show catchup power for "..getPlayerName(player))
     if not catchUpPowerDisplay then
         createMessageDisplay()
     end

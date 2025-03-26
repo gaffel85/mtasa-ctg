@@ -185,7 +185,7 @@ addEventHandler("reportLastTransform", resourceRoot, function(index, param1, par
         return
     end
     local serverTransform = convertToServerFormat(transform)
-    outputChatBox("Transform to send  "..inspect(serverTransform))
+    outputConsole("Transform to send  "..inspect(serverTransform))
 	triggerServerEvent("reportTransform", resourceRoot, serverTransform, param1, param2, param3, param4, param5, param6)
 end)
 
@@ -202,7 +202,7 @@ addEventHandler("reportLastTransformTimeAgo", resourceRoot, function(timeAgo, pa
 		return
 	end
     local serverTransform = convertToServerFormat(transform)
-    outputConsole("Transform to send "..inspect(serverTransform))
+    outputConsole("Transform to send "..inspect(serverTransform).." ["..inspect(param1)..", "..inspect(param2)..", "..inspect(param3)..", "..inspect(param4)..", "..inspect(param5)..", "..inspect(param6).."]")
 	triggerServerEvent("reportTransform", resourceRoot, serverTransform, param1, param2, param3, param4, param5, param6)
 end)
 
