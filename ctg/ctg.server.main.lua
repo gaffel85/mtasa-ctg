@@ -115,6 +115,10 @@ function setScore(player, score)
     setElementData(player, SCORE_KEY, score)
 end
 
+function getPlayerScore(player)
+    return getElementData(player, SCORE_KEY)
+end
+
 function arrayExists(tab, val)
     for index, value in ipairs(tab) do
         if value == val then

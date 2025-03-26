@@ -7,7 +7,7 @@ function scorePercentageForPlayers(players)
     -- Find the best score
     local bestScore = 0
     for _, player in ipairs(players) do
-        local score = getPlayerScore(player) or 0
+        local score = getScoreForCatchup(player) or 0
         if score > bestScore then
             bestScore = score
         end
@@ -16,7 +16,7 @@ function scorePercentageForPlayers(players)
     -- Notify players below 70% of the best score
     local playesWithScore = {}
     for _, player in ipairs(players) do
-        local score = getPlayerScore(player) or 0
+        local score = getScoreForCatchup(player) or 0
         local percentage = score / bestScore
         table.insert(playesWithScore, {player = player, score = score, percentage = percentage})
     end
@@ -100,9 +100,9 @@ function useCatchUp(player)
             return
         end
         local myPercentage = 1
-        for _, player in ipairs(playersWithScore) do
-            if player.player == player then
-                myPercentage = player.percentage
+        for _, playerWithScore in ipairs(playersWithScore) do
+            if playerWithScore.player == player then
+                myPercentage = playerWithScore.percentage
                 break
             end
         end
@@ -118,16 +118,16 @@ function useCatchUp(player)
         local alternativePos, useOwnPos = meanPositionOrMyOwn(player, targetPos, meanPositionOfAllPlayers)
 
         if myPercentage < 0.7 then
-            outputChatBox("Below 70% of the best score "..inspect(myPercentage))
+            outputChatBox("Use Below 70% of the best score "..inspect(myPercentage))
             askForLocationBackInTime(player, leader, 3000, "teleportOr", targetPos, alternativePos)
         elseif myPercentage < 0.8 then
-            outputChatBox("Below 80% of the best score "..inspect(myPercentage))
+            outputChatBox("Use Below 80% of the best score "..inspect(myPercentage))
             askForLocationBackInTime(player, leader, 6000, "teleportOr", targetPos, alternativePos)
         elseif myPercentage < 0.9 then
-            outputChatBox("Below 90% of the best score "..inspect(myPercentage))
+            outputChatBox("Use Below 90% of the best score "..inspect(myPercentage))
             askForLocationBackInTime(player, leader, 10000, "teleportOr", targetPos, alternativePos)
         else
-            outputChatBox("Above 90% of the best score. "..inspect(myPercentage).." Using useOwnPos? "..inspect(useOwnPos))
+            outputChatBox("Use above 90% of the best score. "..inspect(myPercentage).." Using useOwnPos? "..inspect(useOwnPos))
             if not useOwnPos then
                 spawnCloseTo(player, meanPositionOfAllPlayers)
             end
@@ -149,8 +149,8 @@ addEventHandler("onResourceStop", resourceRoot, function()
 end)
 
 -- Helper function to get a player's score (replace with your actual scoring logic)
-function getPlayerScore(player)
-    return getElementData(player, "score") -- Assuming scores are stored as element data
+function getScoreForCatchup(player)
+    return getPlayerScore(player)
 end
 
 registerBindFunctions(function(player)
