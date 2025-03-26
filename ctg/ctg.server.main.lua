@@ -111,6 +111,10 @@ function givePointsToPlayer(player, points)
     setElementData(player, SCORE_KEY, score)
 end
 
+function setScore(player, score)
+    setElementData(player, SCORE_KEY, score)
+end
+
 function arrayExists(tab, val)
     for index, value in ipairs(tab) do
         if value == val then
@@ -410,6 +414,13 @@ end)
 
 addCommandHandler("gather", function(thePlayer, command)
     testGather()
+end)
+
+addCommandHandler("score", function(thePlayer, command, scoreStr)
+    local newScore = tonumber(scoreStr)
+    if newScore then
+        setScore(thePlayer, newScore)
+    end
 end)
 
 addCommandHandler("param", function(source, command, paramName, paramValue)

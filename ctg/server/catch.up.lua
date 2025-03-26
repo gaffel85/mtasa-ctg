@@ -5,7 +5,7 @@ function scorePercentageForPlayers(players)
 
     -- Find the best score
     local bestScore = 0
-    for _, player in players do
+    for _, player in ipairs(players) do
         local score = getPlayerScore(player) or 0
         if score > bestScore then
             bestScore = score
@@ -19,12 +19,34 @@ function scorePercentageForPlayers(players)
         local percentage = score / bestScore
         table.insert(playesWithScore, {player = player, score = score, percentage = percentage})
     end
+    return playesWithScore
+end
+
+function shouldShowCatchupPower(player)
+    if not isFarEnoughFromLeader(player.player) then
+        outputChatBox("Not far enough from leader")
+        return false
+    end
+
+    local targetX, targetY, targetZ = findTargetPos()
+    local meanPositionOfAllPlayers = meanPositionAndRotationOfElements(playersExceptMe())
+
+    local alternativePos, useOwnPos = meanPositionOrMyOwn(player.player, {x = targetX, y = targetY, z = targetZ}, meanPositionOfAllPlayers)
+
+    if player.percentage < 0.9 then
+        outputChatBox("Below 90% of the best score")
+        return true
+    else
+        outputChatBox("Above 90% of the best score. Better to use own pos? "..inspect(useOwnPos))
+        return not useOwnPos
+    end
 end
 
 -- Function to compare scores and notify players
 local function compareScores()
-    for _, player in ipairs(getElementsByType("player")) do
-        if isFarEnoughFromLeader(player) then
+    local playersWithScore = scorePercentageForPlayers(getElementsByType("player"))
+    for _, player in ipairs(playersWithScore) do
+        if shouldShowCatchupPower(player) then 
             notfiyToUseCatchupPower(player)
         else 
             stopNotifyingCatchupPower(player)
@@ -39,6 +61,7 @@ function stopNotifyingCatchupPower(player)
 end
 
 function notfiyToUseCatchupPower(player)
+    outputChatBox("Should show catchup power for "..getPlayerName(player.player))
     if not catchUpPowerDisplay then
         createMessageDisplay()
     end
@@ -52,6 +75,24 @@ function createMessageDisplay()
     local messageItem = textCreateTextItem ( "You are far away from other players, that's ntot fun!", 0.5, 0.74, "medium", 200, 200, 255, 255, 1.5, "center", "top", 200) 
     textDisplayAddText ( catchUpPowerDisplay, messageItem )
     textDisplayAddText ( catchUpPowerDisplay, howToEnableItem )
+end
+
+function meanPositionOrMyOwn(player, targetPos, meanPositionOfAllPlayersExceptMe)
+    local x, y, z = getElementPosition(player)
+    outputServerLog("Player pos "..getPlayerName(player) ..": "..inspect({x, y, z}))
+    local distanceToTargetPos = getDistanceBetweenPoints3D(x, y, z, targetPos.x, targetPos.y, targetPos.z)
+    outputServerLog("Distance to target pos: "..distanceToTargetPos)
+    local distanceFromMeanPosition = getDistanceBetweenPoints3D(targetPos.x, targetPos.y, targetPos.z, meanPositionOfAllPlayersExceptMe.x, meanPositionOfAllPlayersExceptMe.y, meanPositionOfAllPlayersExceptMe.z)
+    outputServerLog("Distance from mean pos: "..distanceFromMeanPosition)
+    local alternativePos = meanPositionOfAllPlayersExceptMe
+    local useOwnPos = false
+    if distanceToTargetPos < distanceFromMeanPosition then
+        outputServerLog("Using own pos")
+        alternativePos = { x = x, y = y, z = z }
+        useOwnPos = true
+    end
+
+    return alternativePos, useOwnPos
 end
 
 function useCatchUp(player)
@@ -73,16 +114,10 @@ function useCatchUp(player)
 		    return
 	    end
 
-        local targetPos = findTargetPos()
+        local targetX, targetY, targetZ = findTargetPos()
+        local targetPos = {x = targetX, y = targetY, z = targetZ}
         local meanPositionOfAllPlayers = meanPositionAndRotationOfElements(playersExceptMe())
-
-        local x, y, z = getElementPosition(player)
-        local distanceToTargetPos = getDistanceBetweenPoints3D(x, y, z, targetPos.x, targetPos.y, targetPos.z)
-        local distanceFromMeanPosition = getDistanceBetweenPoints3D(targetPos.x, targetPos.y, targetPos.z, meanPositionOfAllPlayers.x, meanPositionOfAllPlayers.y, meanPositionOfAllPlayers.z)
-        local alternativePos = distanceFromMeanPosition
-        if distanceToTargetPos < distanceFromMeanPosition then
-            alternativePos = { x = x, y = y, z = z }
-        end
+        local alternativePos, useOwnPos = meanPositionOrMyOwn(player, targetPos, meanPositionOfAllPlayers)
 
         if myPercentage < 0.7 then
             askForLocationBackInTime(player, leader, 3000, "teleportOr", targetPos, alternativePos)
@@ -91,7 +126,7 @@ function useCatchUp(player)
         elseif myPercentage < 0.9 then
             askForLocationBackInTime(player, leader, 10000, "teleportOr", targetPos, alternativePos)
         else
-            if distanceToTargetPos > distanceFromMeanPosition then
+            if not useOwnPos then
                 spawnCloseTo(player, meanPositionOfAllPlayers)
             end
             
