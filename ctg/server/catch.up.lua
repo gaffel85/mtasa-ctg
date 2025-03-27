@@ -7,7 +7,7 @@ function changeHandlingForPlayer(player, percentage, maxPercentage)
         return
     end
 
-    local originalHandling = getOriginalHandling(vehicle)
+    local originalHandling = getOriginalHandling(getElementModel(vehicle))
     if player == getGoldCarrier() then
         percentage = getConst().goldHandlingCoeff * percentage
         local newMass = originalHandling["mass"] + getConst().goldMass
@@ -20,8 +20,8 @@ function changeHandlingForPlayer(player, percentage, maxPercentage)
     local totalPercentage = cappedPercentage * maxPercentage
     
     outputChatBox("Changing handling for "..getPlayerName(player).." to "..totalPercentage)
-    setVehicleHandling(vechicle, "maxVelocity", originalHandling["maxVelocity"] * totalPercentage)
-    setVehicleHandling(vechicle, "engineAcceleration", originalHandling["engineAcceleration"] * totalPercentage)
+    setVehicleHandling(vehicle, "maxVelocity", originalHandling["maxVelocity"] * totalPercentage)
+    setVehicleHandling(vehicle, "engineAcceleration", originalHandling["engineAcceleration"] * totalPercentage)
 end
 
 function handicapHandling(playersWithScore)
@@ -35,7 +35,7 @@ function handicapHandling(playersWithScore)
     local maxPercentage = 1 + getConst().handicapHandlingExtraPercentage
     for _, player in ipairs(playersWithScore) do
         local handlingPercentage = 1 - (player.percentage - lowestPercentage)
-        changeHandlingForPlayer(player.player, percentage, maxPercentage)
+        changeHandlingForPlayer(player.player, handlingPercentage, maxPercentage)
     end
 end
 
