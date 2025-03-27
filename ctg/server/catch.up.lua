@@ -1,15 +1,27 @@
 local checkScoresTimer
 local catchUpPowerDisplay = nil
 
-function changeHandlingForPlayer(player, percentage)
+function changeHandlingForPlayer(player, percentage, maxPercentage)
     local vehicle = getPedOccupiedVehicle(player)
     if not vehicle then
         return
     end
+
     local originalHandling = getOriginalHandling(vehicle)
-    outputChatBox("Changing handling for "..getPlayerName(player).." to "..percentage)
-    setVehicleHandling(vechicle, "maxVelocity", originalHandling["maxVelocity"] * percentage)
-    setVehicleHandling(vechicle, "engineAcceleration", originalHandling["engineAcceleration"] * percentage)
+    if player == getGoldCarrier() then
+        percentage = getConst().goldHandlingCoeff * percentage
+        local newMass = originalHandling["mass"] + getConst().goldMass
+        setVehicleHandling(vehicle, "mass", newMass)
+    else
+        setVehicleHandling(vehicle, "mass", originalHandling["mass"])
+    end
+
+    local cappedPercentage = math.max(percentage, 0.7)
+    local totalPercentage = cappedPercentage * maxPercentage
+    
+    outputChatBox("Changing handling for "..getPlayerName(player).." to "..totalPercentage)
+    setVehicleHandling(vechicle, "maxVelocity", originalHandling["maxVelocity"] * totalPercentage)
+    setVehicleHandling(vechicle, "engineAcceleration", originalHandling["engineAcceleration"] * totalPercentage)
 end
 
 function handicapHandling(playersWithScore)
@@ -23,8 +35,7 @@ function handicapHandling(playersWithScore)
     local maxPercentage = 1 + getConst().handicapHandlingExtraPercentage
     for _, player in ipairs(playersWithScore) do
         local handlingPercentage = 1 - (player.percentage - lowestPercentage)
-        local cappedPercentage = math.max(handlingPercentage, 0.7)
-        changeHandlingForPlayer(player.player, cappedPercentage * maxPercentage)
+        changeHandlingForPlayer(player.player, percentage, maxPercentage)
     end
 end
 
