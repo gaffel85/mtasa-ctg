@@ -108,7 +108,7 @@ end
 
 function createMessageDisplay()
     catchUpPowerDisplay = textCreateDisplay ()
-    local howToEnableItem = textCreateTextItem ( "Press Z to catch up", 0.5, 0.07, "medium", 255, 255, 255, 255, 3, "center", "top", 200) 
+    local howToEnableItem = textCreateTextItem ( "Press Z to catch up", 0.5, 0.7, "medium", 255, 255, 255, 255, 3, "center", "top", 200) 
     local messageItem = textCreateTextItem ( "You are far away from other players, that's ntot fun!", 0.5, 0.74, "medium", 200, 200, 255, 255, 1.5, "center", "top", 200) 
     textDisplayAddText ( catchUpPowerDisplay, messageItem )
     textDisplayAddText ( catchUpPowerDisplay, howToEnableItem )
@@ -162,13 +162,13 @@ function useCatchUp(player)
 
         if myPercentage < 0.7 then
             outputChatBox("Use Below 70% of the best score "..inspect(myPercentage))
-            askForLocationBackInTime(player, leader, 3000, "teleportOr", targetPos, alternativePos)
+            askForLocationNbr(player, leader, 1, "teleportOr", targetPos, alternativePos)
         elseif myPercentage < 0.8 then
             outputChatBox("Use Below 80% of the best score "..inspect(myPercentage))
-            askForLocationBackInTime(player, leader, 6000, "teleportOr", targetPos, alternativePos)
+            askForLocationNbr(player, leader, 3, "teleportOr", targetPos, alternativePos)
         elseif myPercentage < 0.9 then
             outputChatBox("Use Below 90% of the best score "..inspect(myPercentage))
-            askForLocationBackInTime(player, leader, 10000, "teleportOr", targetPos, alternativePos)
+            askForLocationNbr(player, leader, 5, "teleportOr", targetPos, alternativePos)
         else
             outputChatBox("Use above 90% of the best score. "..inspect(myPercentage).." Using useOwnPos? "..inspect(useOwnPos))
             if not useOwnPos then
