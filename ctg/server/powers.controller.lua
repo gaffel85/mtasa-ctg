@@ -33,7 +33,7 @@ local powers = {}
 local powerStates = {}
 
 function addPowerUp(powerUp)
-	outputServerLog("Adding powerup "..inspect(powerUp))
+	--outputServerLog("Adding powerup "..inspect(powerUp))
 	--table.insert(powerUps, powerUp)
 	--powerUpStates[powerUp.key] = {}
 end
@@ -41,6 +41,8 @@ end
 function addResourcePower(powerUp)
     table.insert(powers, powerUp)
 end
+
+addResourcePower(nitroPowerUp)
 
 function getPlayerPowerConfig2(player)
     return {
@@ -123,6 +125,10 @@ end
 
 function resetPowerState2(player, powerUp)
     local playerState = powerStates[player]
+	if not playerState then
+		playerState = {}
+		powerStates[player] = playerState
+	end
 
 	-- get old state and kill timer
 	local powerUpState = playerState[powerUp.key]
@@ -257,7 +263,7 @@ end
 
 function timeForFullResourceBurn(player, powerUp)
     local resourceState = getResourceState(powerUp.resourceKey)
-    local maxSeconds = resourceState.amount / resourceState.burnRate
+    local maxSeconds = resourceState.amount / powerUp.burnRate
     return maxSeconds
 end
 
@@ -273,7 +279,7 @@ function setStateWithTimer2(stateType, duration, state, player, powerUp, message
 	end
 
 	--outputServerLog("Timer starting "..inspect(player).." "..inspect(powerUp.key))
-	state.timer = setTimer2(function()
+	state.timer = setTimer(function()
 -- outputServerLog("Timer done inside "..inspect(player).." "..inspect(powerUp.key))
 		timerDone2(player, powerUp.key)
 	end, seconds * 1000, 1)
@@ -323,7 +329,7 @@ function setState2(powerUp, player, stateType, stateMessage, state)
 	if powerUp.charges() and powerUp.charges() > 0 then
 		totalCharges = powerUp.charges()
 	end
-	triggerClientEvent(player, "powerupStateChangedClient", player, stateType, oldState, powerUp.name, stateMessage, config.bindKey, state.charges, totalCharges, timeLeft(state))
+	triggerClientEvent(player, "powerupStateChangedClient", player, stateType, oldState, powerUp.name, stateMessage, config.bindKey, state.charges, totalCharges, timeLeft2(state))
 end
 
 function findPowerUpWithKey2(key)
@@ -376,7 +382,7 @@ function usePowerUp2(player, key, keyState, powerUp)
 -- outputServerLog("continues")
 	end
 
-    local calculateMaxDuration = timeForFullResourceBurn(powerUp)
+    local calculateMaxDuration = timeForFullResourceBurn(player, powerUp)
 
 	setStateWithTimer2(stateEnum.IN_USE, calculateMaxDuration, state, player, powerUp, "In use")
 	if state.charges and state.charges > 0 then
@@ -457,9 +463,7 @@ function powerButtonPressed(player, button)
 end
 
 function powerKeyDown(player, key, keyState)
-    for i, powerUp in ipairs(powers) do
-        --powerUp(player)
-    end
+    powerButtonPressed(player, key)
 end
 
 function powerKeyUp(player, key, keyState)

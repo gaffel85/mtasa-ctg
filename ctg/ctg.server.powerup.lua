@@ -29,7 +29,6 @@ local nitroPowerUp = {
 	end	
 }
 
-addResourcePower(nitroPowerUp)
 
 local teleportPowerUp = {
 	key = "teleport",

@@ -25,6 +25,8 @@ end
 function getResourceState(player, key)
     local playerState = resourceState[player]
     if not playerState then
+        playerState = {}
+        resourceState[player] = playerState
         return
     end
     local resourceState = playerState[key]
@@ -36,12 +38,18 @@ function getResourceState(player, key)
 end
 
 function addAmount(player, key, amount)
+    local resource = getResource(key)
     local resourceState = getResourceState(player, key)
     if not resourceState then
-        outputServerLog("Could not get resource state in addAmount")
+        outputServerLog("Could not get resource state in addAmount"..inspect(player).." "..key)
         return
     end
-    resourceState.amount = resourceState.amount + amount
+    local newAmount = resourceState.amount + amount
+    if newAmount > resource.capacity then
+        resourceState.amount = resource.capacity
+    else
+        resourceState.amount = newAmount
+    end
 end
 
 function resetResouceAmount(player, key)
@@ -81,7 +89,7 @@ setTimer(function()
     for i, player in ipairs(getElementsByType("player")) do
         loopOverPowersForPlayer2(player, function(player, powerUp, powerUpState, powerConfig)
             if powerUp.state ~= getStateEnum().IN_USE then
-                addAmount(player, resource.key, 30)
+                addAmount(player, powerUp.resourceKey, 30)
             end
         end)
     end

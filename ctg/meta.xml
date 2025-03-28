@@ -22,6 +22,7 @@
 	<script src="ctg.server.hideout.lua" />
 	<script src="ctg.server.main.lua" />
 	<script src="ctg.server.vehicles.lua" />
+	<script src="server/bind.lua" />
 
 	<script src="server/utils.lua" />
 
@@ -40,7 +41,6 @@
 	<script src="server/collision.lua" />
 	<script src="server/distance.meter.lua" />
 	<script src="server/admin.control.lua" />
-	<script src="server/bind.lua" />
 	<script src="server/ghost.server.lua" />
 	<script src="server/location.db.lua" />
 	<script src="server/gather.players.lua" />
