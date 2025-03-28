@@ -50,7 +50,7 @@ addResourcePower(nitroPowerUp)
 function getPlayerPowerConfig2(player)
     return {
         active = {
-            { key = "nitro", bindKey = "C" },
+            { key = "nitro", bindKey = "C", toggle = true },
         }
     }
 end
@@ -257,9 +257,7 @@ function timerDone2(player, powerUpKey)
 	if powerUpState.state == stateEnum.COOLDOWN then
 		tryEnablePower2(powerUp, powerUpState, player)
 	elseif powerUpState.state == stateEnum.IN_USE then
-        resetResouceAmount(player, powerUp.resourceKey)
-		tryDeactivatePower2(powerUp, powerUpState, player)
-		tryEnablePower2(powerUp, powerUpState, player)
+		endUsePower(player, powerUp, powerUpState)
 	elseif powerUpState.state == stateEnum.WAITING then
 		tryEnablePower2(powerUp, powerUpState, player, vehicle)
 	end
@@ -372,6 +370,15 @@ function getPowerUpsData2()
 	return data
 end
 
+function endUsePower(player, powerUp, powerUpState)
+	if powerUpState.state ~= stateEnum.IN_USE then
+		return
+	end
+	resetResouceAmount(player, powerUp.resourceKey)
+	tryDeactivatePower2(powerUp, powerUpState, player)
+	tryEnablePower2(powerUp, powerUpState, player)
+end
+
 function usePowerUp2(player, key, keyState, powerUp)
 	--outputServerLog("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
 	-- outputChatBox("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
@@ -442,7 +449,32 @@ end)
 --addPowerUp(nitroPowerUp)
 --addPowerUp(teleportPowerUp)
 
-function powerButtonPressed(player, button)
+function powerForButton(player, button)
+	local powerConfig = getPlayerPowerConfig2(player)
+	local powerForBoundKey = nil
+	for i, powerUpConfig in ipairs(powerConfig.active) do
+		-- compare both with lower and upper case
+		if (string.lower(powerUpConfig.bindKey) == string.lower(button)) then
+			powerForBoundKey = powerUpConfig
+			break
+		end
+	end
+
+	local powerUpState = nil
+	local powerUp = nil
+	if (powerForBoundKey) then
+		powerUp = findPowerUpWithKey2(powerForBoundKey.key)
+		if (powerUp) then
+	-- outputServerLog("powerButtonPressed "..inspect(player))
+			powerUpState = getPlayerState2(player, powerUp)
+		end
+	else 
+-- outputChatBox("No power bound for button: "..button)
+	end
+	return powerUp, powerUpState
+end
+
+function powerButtonPressed(player, button, buttonState)
 	local powerConfig = getPlayerPowerConfig2(player)
 	local powerForBoundKey = nil
 	for i, powerUpConfig in ipairs(powerConfig.active) do
@@ -470,14 +502,36 @@ function powerButtonPressed(player, button)
 	end
 end
 
-function powerKeyDown(player, key, keyState)
-    powerButtonPressed(player, key)
+function powerKeyDown(player, button, keyState)
+	local power, powerState = powerForButton(player, button)
+	if not power or not powerState then
+		outputServerLog("No power found for button: "..button)
+		return
+	end
+
+	if power.toggle then
+		
+	else
+		usePowerUp2(player, button, buttonState, powerUp)
+	end
 end
 
-function powerKeyUp(player, key, keyState)
-    for i, powerUp in ipairs(powers) do
-        --powerUp(player)
-    end
+function powerKeyUp(player, button, keyState)
+    local power, powerState = powerForButton(player, button)
+	if not power or not powerState then
+		outputServerLog("No power found for button: "..button)
+		return
+	end
+	
+	if power.toggle then
+		if powerState.state == stateEnum.IN_USE then
+			endUsePower(player, powerState, power)
+		else
+			usePowerUp2(player, button, buttonState, power)
+		end
+	else
+		endUsePower(player, buttonState, power)
+	end
 end
 
 function emptyPowerState(power)
