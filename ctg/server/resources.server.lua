@@ -1,11 +1,11 @@
 local resources = {}
-local resourceState {}
+local resourceState = {}
 
 local nitroPowerUp = {
 	key = "energy",
 	name = "Energy",
 	desc = "",
-    type = "manual"
+    type = "manual",
 	capacity = 100,
     initialCapacity = 30,
 }

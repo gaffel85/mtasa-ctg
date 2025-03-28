@@ -32,6 +32,12 @@ local nitroPowerUp = {
 local powers = {}
 local powerStates = {}
 
+function addPowerUp(powerUp)
+	outputServerLog("Adding powerup "..inspect(powerUp))
+	--table.insert(powerUps, powerUp)
+	--powerUpStates[powerUp.key] = {}
+end
+
 function addResourcePower(powerUp)
     table.insert(powers, powerUp)
 end
@@ -44,7 +50,7 @@ function getPlayerPowerConfig2(player)
     }
 end
 
-function resetPowerStatesOnDeliverd2()
+function resetPowerStatesOnDeliverd()
 	for i, player in ipairs(getElementsByType("player")) do
 		setCompletedRank(player, getUsedRank(player))
 		resetPowerStatesForPlayer2(player)
@@ -64,7 +70,7 @@ function resetPowerStatesForPlayer2(player)
 	end
 end
 
-function handlePowersForGoldCarrierChanged2(newGoldCarrier, oldGoldCarrier)
+function handlePowersForGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
 	if oldGoldCarrier and newGoldCarrier then
 		loopOverPowersForPlayer2(oldGoldCarrier, function(player, powerUp, powerUpState, powerConfig)
 			if not powerUp.allowedGoldCarrier() then
