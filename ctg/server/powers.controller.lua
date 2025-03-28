@@ -5,6 +5,7 @@ local nitroPowerUp = {
 	bindKey = "lctrl",
 	resourceKey = "energy",
 	burnRate = 15,
+	minResourceAmount = 30,
 	cooldown = function() return getPowerConst().nitro.cooldown end,
 	duration = function() return getPowerConst().nitro.duration end,
 	initCooldown = function() return getPowerConst().nitro.initCooldown end,
@@ -21,10 +22,12 @@ local nitroPowerUp = {
 		removeVehicleUpgrade(vehicle, 1009)
 	end,
 	onActivated = function(player, vehicle)
-		-- outputChatBox("Nitro activated"..getPlayerName(player))
+		outputChatBox("Nitro activated"..getPlayerName(player))
+		setVehicleNitroActivated(vehicle, true)
 	end,
 	onDeactivated = function(player, vehicle)
-		-- outputChatBox("Nitro deactivated"..getPlayerName(player))
+		outputChatBox("Nitro deactivated"..getPlayerName(player))
+		setVehicleNitroActivated(vehicle, false)
 		removeVehicleUpgrade(vehicle, 1009)
 	end	
 }
@@ -144,13 +147,13 @@ function resetPowerState2(player, powerUp)
 		name = powerUp.name,
 		timer = nil
 	}
-	if powerUp.initCooldown() > 0 then
+	--if powerUp.initCooldown() > 0 then
 -- outputServerLog("initCooldown "..inspect(powerUp.initCooldown()))
-		setStateWithTimer2(stateEnum.COOLDOWN, powerUp.initCooldown(), powerUpState, player, powerUp)
-	else
+		--setStateWithTimer2(stateEnum.COOLDOWN, powerUp.initCooldown(), powerUpState, player, powerUp)
+	--else
 -- outputServerLog("initCooldown 0")
-		setState2(powerUp, player, stateEnum.READY, "Ready", powerUpState, nil)
-	end
+	setState2(powerUp, player, stateEnum.READY, "Ready", powerUpState, nil)
+	--end
 	playerState[powerUp.key] = powerUpState
 	return powerUpState
 end
@@ -256,13 +259,14 @@ function timerDone2(player, powerUpKey)
 	elseif powerUpState.state == stateEnum.IN_USE then
         resetResouceAmount(player, powerUp.resourceKey)
 		tryDeactivatePower2(powerUp, powerUpState, player)
+		tryEnablePower2(powerUp, powerUpState, player)
 	elseif powerUpState.state == stateEnum.WAITING then
 		tryEnablePower2(powerUp, powerUpState, player, vehicle)
 	end
 end
 
 function timeForFullResourceBurn(player, powerUp)
-    local resourceState = getResourceState(powerUp.resourceKey)
+    local resourceState = getResourceState(player, powerUp.resourceKey)
     local maxSeconds = resourceState.amount / powerUp.burnRate
     return maxSeconds
 end
@@ -373,14 +377,18 @@ function usePowerUp2(player, key, keyState, powerUp)
 	-- outputChatBox("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
 	
 	local state = getPlayerState2(player, powerUp)
+	local resourceState = getResourceState(player, powerUp.resourceKey)
+	if resourceState.amount < powerUp.minResourceAmount then
+		return
+	end
 	--outputServerLog("usePowerUp "..inspect(player)..inspect(state.state)..inspect(stateEnum.READY).." "..inspect(state.state == stateEnum.READY))
-	if not (state.state == stateEnum.READY) then
+	--if not (state.state == stateEnum.READY) then
 -- outputServerLog("returns")
 -- outputChatBox("Power not ready yet: "..inspect(powerUp.name))
-		return
-	else
+	--	return
+	--else
 -- outputServerLog("continues")
-	end
+	--end
 
     local calculateMaxDuration = timeForFullResourceBurn(player, powerUp)
 
