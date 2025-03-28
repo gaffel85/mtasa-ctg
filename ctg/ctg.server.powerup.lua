@@ -3,6 +3,8 @@ local nitroPowerUp = {
 	name = "Nitro",
 	desc = "Nitro is a powerup that gives you a speed boost for a short period of time. It can be activated by pressing the left control key.",
 	bindKey = "lctrl",
+	resourceKey = "energy",
+	burnRate = 15,
 	cooldown = function() return getPowerConst().nitro.cooldown end,
 	duration = function() return getPowerConst().nitro.duration end,
 	initCooldown = function() return getPowerConst().nitro.initCooldown end,
@@ -26,6 +28,8 @@ local nitroPowerUp = {
 		removeVehicleUpgrade(vehicle, 1009)
 	end	
 }
+
+addResourcePower(nitroPowerUp)
 
 local teleportPowerUp = {
 	key = "teleport",
@@ -468,14 +472,14 @@ end
 function bindPowerKeysForPlayer(player)
     --bindKey(player, "Z", "up", powerButtonPressed)
 	bindKey(player, "X", "up", powerButtonPressed)
-	bindKey(player, "C", "up", powerButtonPressed)
+	--bindKey(player, "C", "up", powerButtonPressed)
 	bindKey(player, "lctrl", "up", powerButtonPressed)
 end
 
 function unbindPowerKeysForPlayer(player)
     --unbindKey(player, "Z")
 	unbindKey(player, "X")
-	unbindKey(player, "C")
+	--unbindKey(player, "C")
 	unbindKey(player, "lctrl")
 end
 

@@ -13,7 +13,7 @@
 
 	<script src="ctg.server.waterdetect.lua" />
 	<script src="ctg.server.teleport.lua" />
-	<script src="ctg.server.powerup.lua" />
+	<!--<script src="ctg.server.powerup.lua" />-->
 
 	<script src="ctg.server.gold.lua" />
 	<script src="ctg.server.goldcarrier.lua" />
@@ -46,6 +46,8 @@
 	<script src="server/score.system.lua" />
 	<script src="server/math.utils.lua" />
 	<script src="server/catch.up.lua" />
+	<script src="server/resouces.server.lua" />
+	<script src="server/powers.controller.lua" />
 	
 	<script src="client/power.gui.lua" type="client" />
 	<script src="client/power.cameraangle.lua" type="client" />
