@@ -45,6 +45,20 @@ function destroyOldBlips()
     blips = {}
 end
 
+local plotLimit = 5
+function plotMainPoints()
+    outputServerLog("Plotting main points")
+    destroyOldBlips()
+    local all = getAllLocations()
+    for i, location in ipairs(all) do
+        local closeLocations = getLocations(location.x, location.y, location.z, 10)
+        if (#closeLocations > plotLimit) then
+            local blip = createBlip(location.x, location.y, location.z, 0, 2, 0, 255, 255, 255, 0)
+            table.insert(blips, blip)
+        end
+    end
+end
+
 function plotAllPositions()
     destroyOldBlips()
     local players = getElementsByType("player")
@@ -121,6 +135,8 @@ function readLocationsFromJsonFile()
         end
         outputServerLog("Read " .. totalRead .. " locations")
         plotAllPositions()
+
+        --setTimer(plotMainPoints, 5000, 1)
     end
 end
 

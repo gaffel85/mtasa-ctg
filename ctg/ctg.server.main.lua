@@ -103,13 +103,20 @@ function repairAllCars()
 end
 
 function givePointsToPlayer(player, points)
-    giveTeamScore(player, points)
     local score = getElementData(player, SCORE_KEY)
     if (score == false) then
         score = 0
     end
     score = score + points
     setElementData(player, SCORE_KEY, score)
+end
+
+function setScore(player, score)
+    setElementData(player, SCORE_KEY, score)
+end
+
+function getPlayerScore(player)
+    return getElementData(player, SCORE_KEY)
 end
 
 function arrayExists(tab, val)
@@ -240,6 +247,7 @@ function goldDelivered(player)
     local oldHideout = getTeamHideout().edl
     removeOldHideout()
 	givePointsToPlayer(getGoldCarrier(), 500)
+    giveTeamScore(player, 500)
     -- triggerEvent("goldDelivered", root, getGoldCarrier(), 500)
 	showTextGoldDelivered(getGoldCarrier())
 
@@ -323,16 +331,25 @@ end
 addEventHandler("onPlayerWasted", getRootElement(), playerWastedMain)
 
 -- listen for event from client called "reportTransform"
-addEvent("reportLastTransform", true)
+--addEvent("reportLastTransform", true)
 addEvent("reportTransform", true)
-addEventHandler("reportTransform", resourceRoot, function(transform, param1, param2, param3)
+addEventHandler("reportTransform", resourceRoot, function(transform, param1, param2, param3, param4)
+    outputChatBox("reportTransform in main "..inspect(transform)..' '..inspect(param1)..' '..inspect(param2)..' '..inspect(param3))
     if param1 and param1 == "replaceGold" then
         spawnGoldAtTransform(transform.x, transform.y, transform.z)
         refreshAllBlips()
-    end
-    if param1 and param1 == "telportTo" then
-        -- outputChatBox(inspect(param2).." "..inspect(param3))
+    elseif param1 and param1 == "teleportTo" then
+        outputChatBox(inspect(param2))
         teleportTo(param2, transform)
+    elseif param1 and param1 == "teleportOr" then
+        if not param2 or not param3 or not param4 then
+            outputServerLog("Missing params in teleportOr: ["..inspect(param2)..", "..inspect(param3)..", "..inspect(param4).."]")
+            return
+        end
+        outputServerLog("Teleporting to or: ["..inspect(transform)..", "..inspect(param2)..", "..inspect(param3)..", "..inspect(param4).."]")
+        teleportToOr(param2, transform, param3, param4)
+    else
+        outputConsole("Unknown param1 in reportTransform: ["..param1.."]")
     end
 end)
 
@@ -402,6 +419,13 @@ end)
 
 addCommandHandler("gather", function(thePlayer, command)
     testGather()
+end)
+
+addCommandHandler("score", function(thePlayer, command, scoreStr)
+    local newScore = tonumber(scoreStr)
+    if newScore then
+        setScore(thePlayer, newScore)
+    end
 end)
 
 addCommandHandler("param", function(source, command, paramName, paramValue)

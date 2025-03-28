@@ -6,7 +6,7 @@ function getDefaultConfig()
         bindableKeys = bindableKeys,
         active = {
             { key = "nitro", bindKey = "lctrl" },
-            { key = "teleport", bindKey = "Z" },
+            --{ key = "teleport", bindKey = "Z" },
             --{ key = "physics", bindKey = "C" },
             --{ key = "worldgravity", bindKey = "X" },
             --{ key = "jump", bindKey = "C" },
@@ -20,7 +20,7 @@ function getDefaultConfig()
         completedRank = 0,
         owned = {
             "nitro",
-            "teleport",
+            --"teleport",
             --"canon",
             --"worldgravity",
         },

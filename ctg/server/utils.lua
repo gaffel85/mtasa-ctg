@@ -121,18 +121,30 @@ end
 
 function meanPositionAndRotationOfElements(elements)
     if #elements == 0 then
+        outputServerLog("No elements found")
         return {x = 0, y = 0, z = 0, rotationZ = 0}
     end
 
     local x, y, z = 0, 0, 0
     local meanRotationZ = 0
     for i, element in ipairs(elements) do
-        local posX, posY, posZ = coordsFromEdl(element)
+        local posX, posY, posZ = getElementPosition(element)
         x = x + posX
         y = y + posY
         z = z + posZ
-        local _, _, rz = rotFromEdl(element)
+        local _, _, rz = getElementRotation(element)
         meanRotationZ = meanRotationZ + rz
     end
     return {x = x / #elements, y = y / #elements, z = z / #elements, rotationZ = meanRotationZ / #elements}
+end
+
+function playersExceptMe(me)
+    local players = getElementsByType("player")
+    local playersExceptMe = {}
+    for i, player in ipairs(players) do
+        if player ~= me then
+            table.insert(playersExceptMe, player)
+        end
+    end
+    return playersExceptMe
 end

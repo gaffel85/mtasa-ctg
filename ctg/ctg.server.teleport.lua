@@ -1,22 +1,65 @@
-function askForTeleport(player, secondParam)
+function askForTeleport(player, locationsAgo)
 	local leader = findLeader(player)
 	if (not leader or leader == player) then
 		-- outputChatBox("No leader found")
 		return
 	end
 	-- outputChatBox("Leader is "..getPlayerName(leader))
-	triggerClientEvent(leader, "reportLastTransform", resourceRoot, 2, "telportTo", player)
+	askForLocationNbr(player, leader, locationsAgo, "telportTo")
 end
 
+function askForLocationNbr(asker, targetPlayer, locationsAgo, targetFunction, param4, param5, param6)
+	triggerClientEvent(targetPlayer, "reportLastTransform", resourceRoot, locationsAgo, targetFunction, asker, param4, param5, param6)
+end
+
+function askForLocationBackInTime(asker, targetPlayer, timeAgo, targetFunction, param4, param5, param6)
+	triggerClientEvent(targetPlayer, "reportLastTransformTimeAgo", resourceRoot, timeAgo, targetFunction, asker, param4, param5, param6)
+end
+
+-- 0, 0, -0.85
+-- 24, 358, 247
 function teleportTo(player, transform)
 	local vehicle = getPedOccupiedVehicle(player)
 	if (not vehicle) then
 		return
 	end
-	setElementPosition(vehicle, transform.x, transform.y, transform.z)
+	local radius, x1, y1, z1, x2, y2, z2 = getVehicleSizeData(vehicle)
+	local distanceToGroundVector = { x = 0, y = 0, z = z1 }
+	local rotated_vector = rotate_euler(distanceToGroundVector, transform.rx, transform.ry, transform.rz)
+	local intersection_z = z_axis_intersection(rotated_vector, rotated_vector)
+
+	outputChatBox("Original z: "..z1.." Intersection z: "..intersection_z)
+	outputChatBox("Rotation vector "..inspect(transform.rx.." "..transform.ry.." "..transform.rz))
+
+	setElementPosition(vehicle, transform.x, transform.y, transform.z + 2)
 	setElementRotation(vehicle, transform.rx, transform.ry, transform.rz)
 	setElementVelocity(vehicle, transform.vx, transform.vy, transform.vz)
 	setElementAngularVelocity(vehicle, transform.vrx, transform.vry, transform.vrz)
+end
+
+function teleportToOr(player, transform, targetPos, optionalPos)
+	local vehicle = getPedOccupiedVehicle(player)
+	if (not vehicle) then
+		return
+	end
+
+	outputServerLog("Transform: "..inspect(transform))
+	outputServerLog("Target pos: "..inspect(targetPos))
+	outputServerLog("Optional pos: "..inspect(optionalPos))
+
+	local transformDistanceToTarget = getDistanceBetweenPoints3D(transform.x, transform.y, transform.z, targetPos.x, targetPos.y, targetPos.z)
+	local optionalPosDistanceToTarget = getDistanceBetweenPoints3D(optionalPos.x, optionalPos.y, optionalPos.z, targetPos.x, targetPos.y, targetPos.z)
+
+
+	outputServerLog("Transform distance to target: "..transformDistanceToTarget)
+	outputServerLog("Optional pos distance to target: "..optionalPosDistanceToTarget)
+	if transformDistanceToTarget < optionalPosDistanceToTarget then
+		outputServerLog("Teleporting to transform")
+		teleportTo(player, transform)
+	else
+		outputServerLog("Teleporting to optional pos")
+		setElementPosition(vehicle, optionalPos.x, optionalPos.y, optionalPos.z + 2)
+	end
 end
 
 -- function that finds the leader by first taking the goldCarrier, if there is one, and then the player that is closest to the gold
@@ -40,6 +83,20 @@ function findLeader(me)
 		end
 	end
 	return closestPlayer
+end
+
+function findTargetPos()
+	local goldCarrier = getGoldCarrier()
+	if goldCarrier then
+		-- outputChatBox("Found gold carrier as leader")
+		return getElementPosition(goldCarrier)
+	end
+
+	local gold = getLastGoldSpawn()
+	if not gold then
+		return nil
+	end
+	return gold.x, gold.y, gold.z
 end
 
 function getDistanceToGold(player)
@@ -130,3 +187,15 @@ function spawnCloseTo(player, pos)
 	setElementVelocity(vehicle, 0, 0, 0)
 	setElementAngularVelocity(vehicle, 0, 0, 0)
 end
+
+addCommandHandler("teleportAgo", function(thePlayer, command, timeAgo)
+	local timeAgoNbr = tonumber(timeAgo)
+	outputChatBox("Teleporting to location time ago "..timeAgoNbr)
+    askForLocationBackInTime(thePlayer, thePlayer, timeAgoNbr, "teleportTo")
+end)
+
+addCommandHandler("teleportIndex", function(thePlayer, command, locationNbr)
+	local locationNbrNbr = tonumber(locationNbr)
+	outputChatBox("Teleporting to location index "..locationNbrNbr)
+    askForLocationNbr(thePlayer, thePlayer, locationNbrNbr, "teleportTo")
+end)

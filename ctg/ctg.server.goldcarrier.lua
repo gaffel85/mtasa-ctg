@@ -19,13 +19,13 @@ function setGoldCarrier(carrier)
 
     oldGoldCarrier = goldCarrier
     if (oldGoldCarrier) then
-        removeVechicleHandling(oldGoldCarrier)
+        --removeVechicleHandling(oldGoldCarrier)
     end
 
     
     goldCarrier = carrier
     if (carrier) then
-        setVechicleHandling(goldCarrier)
+        --setVechicleHandling(goldCarrier)
     end
 end
 
