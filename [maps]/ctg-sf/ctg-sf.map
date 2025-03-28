@@ -1,4 +1,6 @@
 <map edf:definitions="ctg">
+    <mapid id="ctg-sf" />
+    <maparea xMin="-3500" xMax="-800" yMin="-1500" yMax="2000" />
     <playerSpawnPoint id="playerSpawnPoint (1)" interior="0" posX="-1847.8" posY="1281.3" posZ="22.4" rotX="0" rotY="0" rotZ="24"></playerSpawnPoint>
     <playerSpawnPoint id="playerSpawnPoint (2)" alpha="255" interior="0" posX="-1842.2" posY="1283.6" posZ="22.4" rotX="0" rotY="0" rotZ="24"></playerSpawnPoint>
     <playerSpawnPoint id="playerSpawnPoint (3)" alpha="255" interior="0" posX="-1845" posY="1282.4" posZ="22.4" rotX="0" rotY="0" rotZ="24"></playerSpawnPoint>

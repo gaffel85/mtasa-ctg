@@ -116,16 +116,23 @@ end
 
 function meanPositionOfPlayers()
     local players = getElementsByType("player")
-    if #players == 0 then
-        return {x = 0, y = 0, z = 0}
+    return meanPositionAndRotationOfElements(players)
+end
+
+function meanPositionAndRotationOfElements(elements)
+    if #elements == 0 then
+        return {x = 0, y = 0, z = 0, rotationZ = 0}
     end
 
     local x, y, z = 0, 0, 0
-    for i, player in ipairs(players) do
-        local posX, posY, posZ = getElementPosition(player)
+    local meanRotationZ = 0
+    for i, element in ipairs(elements) do
+        local posX, posY, posZ = coordsFromEdl(element)
         x = x + posX
         y = y + posY
         z = z + posZ
+        local _, _, rz = rotFromEdl(element)
+        meanRotationZ = meanRotationZ + rz
     end
-    return {x = x / #players, y = y / #players, z = z / #players}
+    return {x = x / #elements, y = y / #elements, z = z / #elements, rotationZ = meanRotationZ / #elements}
 end

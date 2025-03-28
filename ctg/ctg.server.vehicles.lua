@@ -1,4 +1,4 @@
-local currentVehicle = 526
+local currentVehicle = 415
 local CHANGE_VECHICLE_TEXT_ID = 963781
 local playersToKeepTheirVehicle = {}
 

@@ -2,6 +2,7 @@ local spawnPoints
 local currentSpawn = 1
 local participants = {}
 local blowingPlayer = nil
+local mapArea = nil
 
 local SCORE_KEY = "Score"
 
@@ -21,6 +22,15 @@ function getSpawnPoints()
     return spawnPoints
 end
 
+function getMapArea()
+    return mapArea
+end
+
+function isInsideMapArea(x, y, z)
+    local area = getMapArea()
+    return x >= area.xMin and x <= area.xMax and y >= area.yMin and y <= area.yMax
+end
+
 -- Stop player from exiting vehicle
 function exitVehicle(thePlayer, seat, jacked)
     cancelEvent()
@@ -38,27 +48,47 @@ end
 
 function spawnAtSpawnpoint(thePlayer, spawnPoint)
     local posX, posY, posZ = coordsFromEdl(spawnPoint)
-    local rotX, rotY, rotZ = rotFromEdl(spawnPoint)
+
+    local allLocations = getAllLocations()
+    if #allLocations == 0 then
+        local posX, posY, posZ = coordsFromEdl(spawnPoint)
+        local rotX, rotY, rotZ = rotFromEdl(spawnPoint)
+        spawnAt(thePlayer, posX, posY, posZ, rotX, rotY, rotZ)
+        return
+    end
+
+    local radius = 20
+    local locations = {}
+    while #locations == 0 do
+        locations = getLocations(posX, posY, posZ, radius)
+        radius = radius + 10
+    end
+
+    local posX, posY, posZ, rotX, rotY, rotZ = getRandomRotatedLocationOrOther(locations, 1)
+
+    if posX == 0 then
+        posX, posY, posZ = coordsFromEdl(spawnPoint)
+        rotX, rotY, rotZ = rotFromEdl(spawnPoint)
+    end
     spawnAt(thePlayer, posX, posY, posZ, rotX, rotY, rotZ)
 end
 
 function spawnAt(player, posX, posY, posZ, rotX, rotY, rotZ)
     -- posX="" posY="" posZ=""
-    -- local vehicle = createVehicle(551, -1982.86, 112.54, 27.68, 0, 0, 0, "BOMBER")
-    local vehicle = createVehicle(getCurrentVehicle(), posX, posY, posZ, rotX, rotY, rotZ, "BOMBER")
-    -- local vehicle = createVehicle(getCurrentVehicle(), posX, posY, posZ, 0, 0, 0, "BOMBER")
+    local vehicle = createVehicle(getCurrentVehicle(), posX, posY, posZ + 2, rotX, rotY, rotZ, "Hunter")
     spawnPlayer(player, 0, 0, 0, 0, 285)
     setTimer(function()
         warpPedIntoVehicle(player, vehicle)
         fadeCamera(player, true)
         setCameraTarget(player, player)
+        makePlayerGhost(player, 2, true, false)
     end, 50, 1)
 end
 
 function respawnAllPlayers()
     local players = getElementsByType("player")
     for k, v in ipairs(players) do
-        spawn(v)
+        spawn(v, true)
     end
 end
 
@@ -102,6 +132,13 @@ function getIndex(tab, val)
     return index
 end
 
+function shuffle(tbl)
+    for i = #tbl, 1, -1 do
+        local rand = math.random(i)
+        tbl[i], tbl[rand] = tbl[rand], tbl[i]
+    end
+end
+
 function removeFromTable(tab, val)
     local idx = getIndex(tab, val)
     if idx then 
@@ -126,12 +163,37 @@ function destroyElementsByType(elementType)
     end
 end
 
+function parseMapArea(mapRoot)
+    local mapAreaElements = getElementsByType("maparea", mapRoot)
+    if mapAreaElements == nil or #mapAreaElements == 0 then
+        outputServerLog("No map area elements found")
+        mapArea = { xMin = -3500, xMax = 3500, yMin = -3500, yMax = 3500 }
+        return
+    end
+    local mapAreaEdl = mapAreaElements[1]
+    local xMin = tonumber(getElementData(mapAreaEdl, "xMin"))
+    local xMax = tonumber(getElementData(mapAreaEdl, "xMax"))
+    local yMin = tonumber(getElementData(mapAreaEdl, "yMin"))
+    local yMax = tonumber(getElementData(mapAreaEdl, "yMax"))
+    mapArea = { xMin = xMin, xMax = xMax, yMin = yMin, yMax = yMax }
+end
+
+function testGather()
+    local spawn = spawnPoints[1]
+    local x, y, z = coordsFromEdl(spawn)
+    outputServerLog("Spawn location "..inspect(spawn).." "..inspect(x).." "..inspect(y).." "..inspect(z))
+    gatherPlayersAt(x, y, z, 10, 2)
+end
+
 function startGameMap(startedMap)
     local mapRoot = getResourceRootElement(startedMap)
+    outputServerLog("Starging map "..inspect(getElementID(mapRoot)))
     spawnPoints = getElementsByType("playerSpawnPoint", mapRoot)
     goldSpawnPoints = getElementsByType("goldSpawnPoint", mapRoot)
     hideouts = getElementsByType("hideout", mapRoot)
+    parseMapArea(mapRoot)
     currentSpawn = math.random(#spawnPoints)
+    mapChanged(spawnPoints)
     setGoldSpawns(goldSpawnPoints)
     setHideouts(hideouts)
     resetGame()
@@ -175,11 +237,15 @@ function startGameIfEnoughPlayers()
 end
 
 function goldDelivered(player)
+    local oldHideout = getTeamHideout().edl
     removeOldHideout()
 	givePointsToPlayer(getGoldCarrier(), 500)
     -- triggerEvent("goldDelivered", root, getGoldCarrier(), 500)
 	showTextGoldDelivered(getGoldCarrier())
-    activeRoundFinished()
+
+    local newGoldEdl = prepareNextGold()
+    outputServerLog("1 "..inspect(oldHideout))
+    activeRoundFinished(oldHideout, newGoldEdl)
 end
 
 function forceNextRound()
@@ -190,9 +256,15 @@ end
 addEvent("forceNextRoundFromClient", true)
 addEventHandler("forceNextRoundFromClient", resourceRoot, forceNextRound)
 
-function activeRoundFinished()
+function activeRoundFinished(oldHideout, newGoldEdl)
     nextVehicle()
     resetRoundVars()
+
+    local x, y, z = coordsFromEdl(oldHideout)
+    outputServerLog("1 "..inspect(oldHideout).." "..inspect(x).." "..inspect(y).." "..inspect(z))
+    local gatherTime = math.min(getConst().goldSpawnTime, getConst().gatherTime)
+    gatherPlayersAt(x, y, z, 70, gatherTime)
+
     scheduleNextGold(getConst().goldSpawnTime)
 end
 
@@ -326,6 +398,10 @@ addCommandHandler("fixit", function(thePlayer, command, newModel)
     if theVehicle then
         fixVehicle(theVehicle)
     end
+end)
+
+addCommandHandler("gather", function(thePlayer, command)
+    testGather()
 end)
 
 addCommandHandler("param", function(source, command, paramName, paramValue)

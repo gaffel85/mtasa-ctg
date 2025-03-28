@@ -122,6 +122,8 @@ function spawnCloseTo(player, pos)
 	local spawn = positionCloseTo(spwans, pos, 0)
 	local x, y, z = coordsFromEdl(spawn)
 	local rx, ry, rz = rotFromEdl(spawn)
+
+	makePlayerGhost(player, 2, true, false)
 	
 	setElementPosition(vehicle, x, y, z)
 	setElementRotation(vehicle, rx, ry, rz)
