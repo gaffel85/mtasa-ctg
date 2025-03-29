@@ -13,12 +13,12 @@ local nitroPowerUp = {
 	charges = function() return getPowerConst().nitro.charges end,
 	rank = function() return getPowerConst().nitro.rank end,
 	onEnable = function(player, vehicle)
-		-- outputChatBox("Nitro enabled "..getPlayerName(player))
+		outputChatBox("Nitro enabled "..getPlayerName(player))
 		addVehicleUpgrade(vehicle, 1009)
 		return true
 	end,
 	onDisable = function(player, vehicle)
-		-- outputChatBox("Nitro onDisabled"..getPlayerName(player))
+		outputChatBox("Nitro onDisabled"..getPlayerName(player))
 		removeVehicleUpgrade(vehicle, 1009)
 	end,
 	onActivated = function(player, vehicle)
@@ -152,7 +152,8 @@ function resetPowerState2(player, powerUp)
 		--setStateWithTimer2(stateEnum.COOLDOWN, powerUp.initCooldown(), powerUpState, player, powerUp)
 	--else
 -- outputServerLog("initCooldown 0")
-	setState2(powerUp, player, stateEnum.READY, "Ready", powerUpState, nil)
+	-- setState2(powerUp, player, stateEnum.READY, "Ready", powerUpState, nil)
+	tryEnablePower2(powerUp, powerUpState, player)
 	--end
 	playerState[powerUp.key] = powerUpState
 	return powerUpState
@@ -223,7 +224,9 @@ end
 function tryEnablePower2(powerUp, powerUpState, player)
 	local vehicle = getPedOccupiedVehicle (player)
 	if not vehicle then
-		setStateWithTimer2(stateEnum.WAITING, 2000, powerUpState, player, powerUp, "Waiting for vehicle")
+		outputServerLog("1")
+		setStateWithTimer2(stateEnum.WAITING, 2, powerUpState, player, powerUp, "Waiting for vehicle")
+		return
 	end
 
 	local wasEnabledOrWaitTime = powerUp.onEnable(player, vehicle)
@@ -236,14 +239,17 @@ function tryEnablePower2(powerUp, powerUpState, player)
 end
 
 function tryDeactivatePower2(powerUp, powerUpState, player)
+	outputServerLog("3")
 	local vehicle = getPedOccupiedVehicle (player)
 	if vehicle then
 		powerUp.onDeactivated(player, vehicle, powerUpState)
 	end
 
+	outputServerLog("4")
 	if powerUpState.charges and powerUpState.charges <= 0 then
 		setState2(powerUp, player, stateEnum.OUT_OF_CHARGES, "Out of charges", state, nil)
 	else
+		outputServerLog("5")
         setState2(powerUp, player, stateEnum.READY, "Ready", powerUpState, nil)
 		--setStateWithTimer2(stateEnum.COOLDOWN, powerUp.cooldown(), powerUpState, player, powerUp)
 	end
@@ -251,15 +257,17 @@ end
 
 function timerDone2(player, powerUpKey)
 	local powerUp = findPowerUpWithKey2(powerUpKey)
-	--outputServerLog("timerDone "..inspect(player))
+	outputServerLog("timerDone "..inspect(getPlayerName(player)))
 	local powerUpState = getPlayerState2(player, powerUp)
 	killPowerTimer2(powerUpState)
+	outputServerLog("timerDone2 "..inspect(powerUpState.state))
 	if powerUpState.state == stateEnum.COOLDOWN then
 		tryEnablePower2(powerUp, powerUpState, player)
 	elseif powerUpState.state == stateEnum.IN_USE then
 		endUsePower(player, powerUp, powerUpState)
 	elseif powerUpState.state == stateEnum.WAITING then
-		tryEnablePower2(powerUp, powerUpState, player, vehicle)
+		outputServerLog("tryEnablePower2 after waiting")
+		tryEnablePower2(powerUp, powerUpState, player)
 	end
 end
 
@@ -280,6 +288,7 @@ function setStateWithTimer2(stateType, duration, state, player, powerUp, message
 		return
 	end
 
+	outputServerLog("setStateWithTimer2 "..inspect(seconds))
 	--outputServerLog("Timer starting "..inspect(player).." "..inspect(powerUp.key))
 	state.timer = setTimer(function()
 -- outputServerLog("Timer done inside "..inspect(player).." "..inspect(powerUp.key))
@@ -296,6 +305,7 @@ function timeLeft2(powerUpState)
 end
 
 function getPlayerState2(player, powerUp)
+	--outputServerLog("getPlayerState2 "..inspect(getPlayerName(player)).." "..inspect(powerUp))
     local playerStates = powerStates[player]
 	local powerUpState = playerStates[powerUp.key]
 	if (not powerUpState) then
@@ -320,7 +330,7 @@ function setState2(powerUp, player, stateType, stateMessage, state)
     end
 	
 	if not state then
--- outputServerLog("setState "..inspect(player))
+		outputServerLog("setState "..inspect(getPlayerName(player)))
 		state = getPlayerState2(player, powerUp)
 	end
 
@@ -371,6 +381,7 @@ function getPowerUpsData2()
 end
 
 function endUsePower(player, powerUp, powerUpState)
+	outputServerLog("endUsePower "..inspect(getPlayerName(player)).." "..inspect(powerUp.key).." "..inspect(powerUpState.state))
 	if powerUpState.state ~= stateEnum.IN_USE then
 		return
 	end
@@ -381,21 +392,21 @@ end
 
 function usePowerUp2(player, key, keyState, powerUp)
 	--outputServerLog("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
-	-- outputChatBox("usePowerUp "..getPlayerName(player).." "..powerUp.name.." "..key.." "..keyState)
+	--outputChatBox("usePowerUp "..getPlayerName(player).." "..inspect(powerUp))
 	
 	local state = getPlayerState2(player, powerUp)
+	outputServerLog("usePowerUp "..inspect(getPlayerName(player)).." "..inspect(powerUp.resourceKey))
 	local resourceState = getResourceState(player, powerUp.resourceKey)
+	outputServerLog("Resource "..inspect(powerUp.resourceKey).." "..inspect(resourceState.amount))
 	if resourceState.amount < powerUp.minResourceAmount then
 		return
 	end
 	--outputServerLog("usePowerUp "..inspect(player)..inspect(state.state)..inspect(stateEnum.READY).." "..inspect(state.state == stateEnum.READY))
-	--if not (state.state == stateEnum.READY) then
--- outputServerLog("returns")
--- outputChatBox("Power not ready yet: "..inspect(powerUp.name))
-	--	return
-	--else
--- outputServerLog("continues")
-	--end
+	if not (state.state == stateEnum.READY) then
+		-- outputServerLog("returns")
+		outputChatBox("Power not ready yet: "..inspect(powerUp.name))
+		return
+	end
 
     local calculateMaxDuration = timeForFullResourceBurn(player, powerUp)
 
@@ -425,13 +436,13 @@ function loopOverPowersForPlayer2(player, callback)
 	for j, powerUpConfig in ipairs(powerConfig.active) do
 		local powerUp = findPowerUpWithKey2(powerUpConfig.key)
 		if powerUp == nil then
-	-- outputServerLog("powerUp is nil "..inspect(powerUpConfig.key))
+			outputServerLog("powerUp is nil "..inspect(powerUpConfig.key))
 			break
 		end
--- outputServerLog("loopOverPowersForPlayer "..inspect(player))
+		--outputServerLog("loopOverPowersForPlayer "..inspect(getPlayerName(player)))
 		local powerUpState = getPlayerState2(player, powerUp)
 		if not powerUpState then
-	-- outputServerLog("powerUpState is nil "..inspect(powerUpConfig.key))
+			outputServerLog("powerUpState is nil "..inspect(powerUpConfig.key))
 			break
 		end
 		callback(player, powerUp, powerUpState, powerConfig)
@@ -465,16 +476,16 @@ function powerForButton(player, button)
 	if (powerForBoundKey) then
 		powerUp = findPowerUpWithKey2(powerForBoundKey.key)
 		if (powerUp) then
-	-- outputServerLog("powerButtonPressed "..inspect(player))
+			--outputServerLog("powerButtonPressed "..inspect(powerUp))
 			powerUpState = getPlayerState2(player, powerUp)
 		end
 	else 
 -- outputChatBox("No power bound for button: "..button)
 	end
-	return powerUp, powerUpState
+	return powerUp, powerUpState, powerForBoundKey
 end
 
-function powerButtonPressed(player, button, buttonState)
+--[[function powerButtonPressed(player, button, buttonState)
 	local powerConfig = getPlayerPowerConfig2(player)
 	local powerForBoundKey = nil
 	for i, powerUpConfig in ipairs(powerConfig.active) do
@@ -490,7 +501,7 @@ function powerButtonPressed(player, button, buttonState)
 	if (powerForBoundKey) then
 		powerUp = findPowerUpWithKey2(powerForBoundKey.key)
 		if (powerUp) then
-	-- outputServerLog("powerButtonPressed "..inspect(player))
+			outputServerLog("powerButtonPressed "..inspect(getPlayerName(player)))
 			powerUpState = getPlayerState2(player, powerUp)
 		end
 	else 
@@ -501,36 +512,42 @@ function powerButtonPressed(player, button, buttonState)
 	 	usePowerUp2(player, button, powerUpState, powerUp)
 	end
 end
+]]--
 
 function powerKeyDown(player, button, keyState)
-	local power, powerState = powerForButton(player, button)
+	local power, powerState, powerConfig = powerForButton(player, button)
 	if not power or not powerState then
 		outputServerLog("No power found for button: "..button)
 		return
 	end
 
-	if power.toggle then
-		
+	-- outputServerLog("powerKeyDown Is toggle: "..inspect(powerConfig))
+	if powerConfig.toggle then
+		outputServerLog("Is toggle, doing nothing")	
 	else
-		usePowerUp2(player, button, buttonState, powerUp)
+		outputServerLog("Is not toggle, starting power")
+		usePowerUp2(player, button, buttonState, power)
 	end
 end
 
 function powerKeyUp(player, button, keyState)
-    local power, powerState = powerForButton(player, button)
+    local power, powerState, powerConfig = powerForButton(player, button)
 	if not power or not powerState then
 		outputServerLog("No power found for button: "..button)
 		return
 	end
 	
-	if power.toggle then
+	-- outputServerLog("powerKeyUp Is toggle: "..inspect(powerConfig))
+	if powerConfig.toggle then
 		if powerState.state == stateEnum.IN_USE then
-			endUsePower(player, powerState, power)
+			outputServerLog("Is in use, ending power")
+			endUsePower(player, power, powerState)
 		else
+			outputServerLog("Is not in use, starting power")
 			usePowerUp2(player, button, buttonState, power)
 		end
 	else
-		endUsePower(player, buttonState, power)
+		endUsePower(player, power, powerState)
 	end
 end
 
@@ -542,13 +559,14 @@ function emptyPowerState(power)
 end
 
 addEventHandler("onPlayerJoin", getRootElement(), function()
+	outputServerLog("onPlayerJoin")
 	powerStates[source] = {}
     resetPowerStatesForPlayer2(source)
 end)
   --unbind on quit
 
 addEventHandler("onPlayerQuit", getRootElement(), function()
-	loopOverPowersForPlayer(source, function(player, powerUp, powerUpState, powerConfig)
+	loopOverPowersForPlayer2(source, function(player, powerUp, powerUpState, powerConfig)
 		endActivePowers(player, powerUp, powerUpState)
 	end)
     powerStates[source] = nil

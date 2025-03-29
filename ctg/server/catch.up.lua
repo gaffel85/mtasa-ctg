@@ -19,7 +19,7 @@ function changeHandlingForPlayer(player, percentage, maxPercentage)
     local cappedPercentage = math.max(percentage, 0.7)
     local totalPercentage = cappedPercentage * maxPercentage
     
-    outputChatBox("Changing handling for "..getPlayerName(player).." to "..totalPercentage)
+    --outputChatBox("Changing handling for "..getPlayerName(player).." to "..totalPercentage)
     setVehicleHandling(vehicle, "maxVelocity", originalHandling["maxVelocity"] * totalPercentage)
     setVehicleHandling(vehicle, "engineAcceleration", originalHandling["engineAcceleration"] * totalPercentage)
 end

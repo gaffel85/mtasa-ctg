@@ -7,7 +7,7 @@ local nitroPowerUp = {
 	desc = "",
     type = "manual",
 	capacity = 100,
-    initialCapacity = 30,
+    initialCapacity = 50,
 }
 
 function addResource(resource)
@@ -27,13 +27,11 @@ function getResourceState(player, key)
     if not playerState then
         playerState = {}
         resourceState[player] = playerState
-        return
     end
     local resourceState = playerState[key]
     if not resourceState then
         resourceState = initResourceState(player, getResource(key))
     end
-    outputServerLog("Resource "..key.." "..inspect(resourceState))
     return resourceState
 end
 
@@ -93,6 +91,6 @@ setTimer(function()
             end
         end)
     end
-end, 5000, 0)
+end, 2000, 0)
 
 
