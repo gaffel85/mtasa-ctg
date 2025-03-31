@@ -1,7 +1,8 @@
 local resources = {}
 local resourceState = {}
+local RESOURCES_KEY = "RESOURCES_KEY"
 
-local nitroPowerUp = {
+local energyResource = {
 	key = "energy",
 	name = "Energy",
 	desc = "",
@@ -12,6 +13,7 @@ local nitroPowerUp = {
 
 function addResource(resource)
     table.insert(resources, resource)
+    setElementData(resourceRoot, RESOURCES_KEY, resources)
 end
 
 function getResource(key)
@@ -50,6 +52,12 @@ function addAmount(player, key, amount)
     end
 end
 
+addEvent("energyAmountChangedFromClient", true)
+addEventHandler("energyAmountChangedFromClient", resourceRoot, function(key, amount)
+    addAmount(source, key, amount)
+    outputServerLog("energyAmountChangedFromClient"..inspect(source).." "..key.." "..amount)
+end)
+
 function resetResouceAmount(player, key)
     local resourceState = getResourceState(player, key)
     if not resourceState then
@@ -74,7 +82,7 @@ end
 
 addEventHandler("onResourceStart", resourceRoot, function()
     resourceState = {}
-    addResource(nitroPowerUp)
+    addResource(energyResource)
 end)
 
 addEventHandler("onPlayerJoin", getRootElement(), function()
@@ -87,10 +95,10 @@ setTimer(function()
     for i, player in ipairs(getElementsByType("player")) do
         loopOverPowersForPlayer2(player, function(player, powerUp, powerUpState, powerConfig)
             if powerUp.state ~= getStateEnum().IN_USE then
-                addAmount(player, powerUp.resourceKey, 30)
+                --addAmount(player, powerUp.resourceKey, 30)
             end
         end)
     end
-end, 2000, 0)
+end, 10000000000, 0)
 
 

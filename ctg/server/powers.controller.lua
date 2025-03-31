@@ -50,7 +50,8 @@ addResourcePower(nitroPowerUp)
 function getPlayerPowerConfig2(player)
     return {
         active = {
-            { key = "nitro", bindKey = "C", toggle = true },
+            --{ key = "nitro", bindKey = "C", toggle = true },
+			{ key = "nitro", bindKey = "mouse1", toggle = false },
         }
     }
 end
@@ -388,6 +389,7 @@ function endUsePower(player, powerUp, powerUpState)
 	resetResouceAmount(player, powerUp.resourceKey)
 	tryDeactivatePower2(powerUp, powerUpState, player)
 	tryEnablePower2(powerUp, powerUpState, player)
+	triggerClientEvent(player, "resourceNotInUseFromServer", getRootElement(), powerUp.resourceKey, 0)
 end
 
 function usePowerUp2(player, key, keyState, powerUp)
@@ -411,6 +413,7 @@ function usePowerUp2(player, key, keyState, powerUp)
     local calculateMaxDuration = timeForFullResourceBurn(player, powerUp)
 
 	setStateWithTimer2(stateEnum.IN_USE, calculateMaxDuration, state, player, powerUp, "In use")
+	triggerClientEvent(player, "resourceInUseFromServer", getRootElement(), powerUp.resourceKey, powerUp.burnRate)
 	if state.charges and state.charges > 0 then
 		state.charges = state.charges - 1
 	end
@@ -575,7 +578,11 @@ end)
 registerBindFunctions(function(player)
     bindKey(player, "C", "down", powerKeyDown)
     bindKey(player, "C", "up", powerKeyUp)
+	bindKey(player, "mouse1", "down", powerKeyDown)
+    bindKey(player, "mouse1", "up", powerKeyUp)
 end, function(player)
     unbindKey(player, "C", "down", powerKeyDown)
     unbindKey(player, "C", "up", powerKeyUp)
+	unbindKey(player, "mouse1", "down", powerKeyDown)
+    unbindKey(player, "mouse1", "up", powerKeyUp)
 end)
