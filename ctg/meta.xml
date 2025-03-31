@@ -27,6 +27,7 @@
 	<script src="server/utils.lua" />
 
 	<script src="server/player.powerconfig.lua" />
+	<script src="server/resources.server.lua" />
 	<script src="server/powers.controller.lua" />
 	<script src="server/powerups/water.power.lua" />
 	<script src="server/powerups/camera.power.lua" />
@@ -47,7 +48,6 @@
 	<script src="server/score.system.lua" />
 	<script src="server/math.utils.lua" />
 	<script src="server/catch.up.lua" />
-	<script src="server/resources.server.lua" />
 	
 	<script src="client/power.gui.lua" type="client" />
 	<script src="client/power.cameraangle.lua" type="client" />

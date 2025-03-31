@@ -91,14 +91,4 @@ addEventHandler("onPlayerJoin", getRootElement(), function()
     end
 end)
 
-setTimer(function()
-    for i, player in ipairs(getElementsByType("player")) do
-        loopOverPowersForPlayer2(player, function(player, powerUp, powerUpState, powerConfig)
-            if powerUp.state ~= getStateEnum().IN_USE then
-                --addAmount(player, powerUp.resourceKey, 30)
-            end
-        end)
-    end
-end, 10000000000, 0)
-
 
