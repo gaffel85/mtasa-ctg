@@ -55,7 +55,7 @@ end
 addEvent("energyAmountChangedFromClient", true)
 addEventHandler("energyAmountChangedFromClient", resourceRoot, function(key, amount, secondsUntilEnd, isBurning, burnRate, fillRate)
     addAmount(source, key, amount)
-    outputServerLog("energyAmountChangedFromClient "..key.." "..amount.." "..secondsUntilEnd.." "..isBurning.." "..burnRate.." "..fillRate)
+    outputServerLog("energyAmountChangedFromClient "..key.." "..amount.." "..secondsUntilEnd.." "..inspect(isBurning).." "..inspect(burnRate).." "..inspect(fillRate))
 end)
 
 function resetResouceAmount(player, key)

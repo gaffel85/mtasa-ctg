@@ -462,7 +462,7 @@ function loopOverPowersForPlayer2(player, callback)
 end
 
 addEventHandler("energyAmountChangedFromClient", resourceRoot, function(key, amount, secondsUntilEnd, isBurning, burnRate, fillRate)
-    outputServerLog("energy from client "..key.." "..amount.." "..secondsUntilEnd.." "..isBurning.." "..burnRate.." "..fillRate)
+    outputServerLog("energy from client "..inspect(key).." "..inspect(amount).." "..inspect(secondsUntilEnd).." "..inspect(isBurning).." "..inspect(burnRate).." "..inspect(fillRate))
 	if isBurning then
 		local powerUp = findPowerWithResource(key)
 		local powerUpState = getPlayerState2(source, powerUp)
@@ -470,7 +470,8 @@ addEventHandler("energyAmountChangedFromClient", resourceRoot, function(key, amo
 			outputServerLog("powerUpState is nil "..inspect(powerUp.key))
 			return
 		end
-		setStateWithTimer2(stateEnum.BURNING, secondsUntilEnd, powerUpState, source, powerUp, "Burning")
+		killPowerTimer2(powerUpState)
+		setStateWithTimer2(stateEnum.IN_USE, secondsUntilEnd, powerUpState, source, powerUp)
 	end
 end)
 

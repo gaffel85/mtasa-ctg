@@ -42,8 +42,16 @@ function getEnergyResource()
 end
 
 function updateServerWithLatestValues()
-    local secondsUntilEnd = (currentAmount / burningRate)
-    triggerServerEvent("energyAmountChangedFromClient", resourceRoot, energyResourceKey, currentAmount, secondsUntilEnd, isBurning, burnRate, fillRate)
+    local resource = getEnergyResource()
+    if not resource then
+        return
+    end
+    local secondsUntilEnd = (resource.capacity - currentAmount) / fillRate
+    if isBurning then
+        secondsUntilEnd = currentAmount / burningRate
+    end
+    
+    triggerServerEvent("energyAmountChangedFromClient", resourceRoot, energyResourceKey, currentAmount, secondsUntilEnd, isBurning, burningRate, fillRate)
 end
 
 function fillBarPeriodically()
