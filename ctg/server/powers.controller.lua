@@ -354,6 +354,15 @@ function findPowerUpWithKey2(key)
 	return nil
 end
 
+function findPowerWithResource(resourceKey)
+	for i, powerUp in ipairs(powers) do
+		if (powerUp.resourceKey == resourceKey) then
+			return powerUp
+		end
+	end
+	return nil
+end
+
 function getPowerUps2()
 	return powers
 end
@@ -451,6 +460,19 @@ function loopOverPowersForPlayer2(player, callback)
 		callback(player, powerUp, powerUpState, powerConfig)
 	end
 end
+
+addEventHandler("energyAmountChangedFromClient", resourceRoot, function(key, amount, secondsUntilEnd, isBurning, burnRate, fillRate)
+    outputServerLog("energy from client "..key.." "..amount.." "..secondsUntilEnd.." "..isBurning.." "..burnRate.." "..fillRate)
+	if isBurning then
+		local powerUp = findPowerWithResource(key)
+		local powerUpState = getPlayerState2(source, powerUp)
+		if not powerUpState then
+			outputServerLog("powerUpState is nil "..inspect(powerUp.key))
+			return
+		end
+		setStateWithTimer2(stateEnum.BURNING, secondsUntilEnd, powerUpState, source, powerUp, "Burning")
+	end
+end)
 
 addEvent("loadPowerUpsServer", true)
 addEventHandler("loadPowerUpsServer", root, function()
@@ -570,7 +592,7 @@ end)
 
 addEventHandler("onPlayerQuit", getRootElement(), function()
 	loopOverPowersForPlayer2(source, function(player, powerUp, powerUpState, powerConfig)
-		endActivePowers(player, powerUp, powerUpState)
+		endActivePowers2(player, powerUp, powerUpState)
 	end)
     powerStates[source] = nil
 end)

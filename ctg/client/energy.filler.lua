@@ -41,6 +41,11 @@ function getEnergyResource()
     return nil
 end
 
+function updateServerWithLatestValues()
+    local secondsUntilEnd = (currentAmount / burningRate)
+    triggerServerEvent("energyAmountChangedFromClient", resourceRoot, energyResourceKey, currentAmount, secondsUntilEnd, isBurning, burnRate, fillRate)
+end
+
 function fillBarPeriodically()
     local resource = getEnergyResource()
     if not resource then
@@ -61,7 +66,7 @@ function fillBarPeriodically()
 
     if (math.abs(currentAmount - lastSendToServer) >= sendToServerDiff) then
         lastSendToServer = currentAmount
-        triggerServerEvent("energyAmountChangedFromClient", resourceRoot, energyResourceKey, currentAmount)
+        updateServerWithLatestValues()
     end
 
     local percentage = 100 * currentAmount / resource.capacity
@@ -73,6 +78,7 @@ addEventHandler("resourceInUseFromServer", getRootElement(), function(resourceKe
     outputConsole("Burning "..resourceKey.." with rate "..burnRate)
     isBurning = true
     burningRate = burnRate
+    updateServerWithLatestValues()
 end)
 
 addEvent("resourceNotInUseFromServer", true) -- (resourceKey, totalAmount)
@@ -80,6 +86,7 @@ addEventHandler("resourceNotInUseFromServer", getRootElement(), function(resourc
     outputConsole("Not burning "..resourceKey)
     isBurning = false
     burningRate = 0
+    updateServerWithLatestValues()
 end)
 
 setEnergyBarProgress(0)
