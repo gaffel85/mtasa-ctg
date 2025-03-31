@@ -108,5 +108,15 @@ addEventHandler("onClientResourceStart", getResourceRootElement(getThisResource(
     bindConfigResetKeys(source)
 end)
 
+setTimer(function()
+	local vehicle = getPedOccupiedVehicle(localPlayer)
+	if ( vehicle ) then
+		if isElementOnFire ( vehicle ) then
+			outputChatBox("Vehicle is on fire")
+			paralyzeAndRepairCar()
+		end
+	end
+end, 3000, 1)
+
 
 
