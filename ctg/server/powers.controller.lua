@@ -75,10 +75,10 @@ function resetPowerStatesOnDeliverdResourceBased()
 end
 
 function resetPowerStatesForPlayer2(player)
-	local powerConfig = getPlayerPowerConfig(player)
+	local powerConfig = getPlayerPowerConfig2(player)
 	for j, powerUpConfig in ipairs(powerConfig.active) do
 		local powerUp = findPowerUpWithKey2(powerUpConfig.key)
-		--outputServerLog("resetPowerStatesForPlayer "..inspect(player).." "..inspect(powerUp).." "..inspect(powerUpConfig))
+		--outputServerLog("------ resetPowerStatesForPlayer "..inspect(player).." "..inspect(powerUp).." "..inspect(powerUpConfig))
 		if powerUp then
 			resetPowerState2(player, powerUp)
 		else
@@ -122,7 +122,7 @@ end
 function endActivePowers2(player, powerUp, powerUpState)
 	if powerUpState then
 		if powerUpState.timer then
-			killPowerTimer(powerUpState)
+			killPowerTimer2(powerUpState)
 			powerUpState.timer = nil
 		end
 	end
@@ -515,7 +515,7 @@ function powerForButton(player, button)
 	if (powerForBoundKey) then
 		powerUp = findPowerUpWithKey2(powerForBoundKey.key)
 		if (powerUp) then
-			--outputServerLog("powerButtonPressed "..inspect(powerUp))
+			outputServerLog("powerButtonPressed "..inspect(powerUp.key).." "..inspect(player))
 			powerUpState = getPlayerState2(player, powerUp)
 		end
 	else 
@@ -609,6 +609,12 @@ addEventHandler("onPlayerQuit", getRootElement(), function()
 		endActivePowers2(player, powerUp, powerUpState)
 	end)
     powerStates[source] = nil
+end)
+
+addEventHandler("onResourceStart", resourceRoot, function()
+	outputServerLog("onResourceStart claring states")
+    resetPowerStatesOnDeliverdResourceBased()
+	outputServerLog(inspect(powerStates))
 end)
 
 registerBindFunctions(function(player)
