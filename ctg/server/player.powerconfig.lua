@@ -1,11 +1,13 @@
 local configs = {}
 local bindableKeys = {"X", "C"}
+local defaultStartRank = 5
+local defaultCompletedRank = 5
 
 function getDefaultConfig()
     return {
         bindableKeys = bindableKeys,
         active = {
-            { key = "nitro", bindKey = "lctrl" },
+            --{ key = "nitro", bindKey = "lctrl" },
             --{ key = "teleport", bindKey = "Z" },
             --{ key = "physics", bindKey = "C" },
             --{ key = "worldgravity", bindKey = "X" },
@@ -17,9 +19,9 @@ function getDefaultConfig()
             --{ key = "cinematic", bindKey = "N" },
         },
         wanted = {},
-        completedRank = 0,
+        completedRank = defaultStartRank,
         owned = {
-            "nitro",
+            --"nitro",
             --"teleport",
             --"canon",
             --"worldgravity",
@@ -117,8 +119,8 @@ end
 function getUsedRank(player)
     local val = getElementData(player, "usedRank")
     if not val then
-        setUsedRank(player, 1)
-        return 1
+        setUsedRank(player, defaultStartRank)
+        return defaultStartRank
     else
         return val
     end
@@ -131,8 +133,8 @@ end
 function getCompletedRank(player)
     local val = getElementData(player, "completedRank")
     if not val then
-        setCompletedRank(player, 0)
-        return 0
+        setCompletedRank(player, defaultCompletedRank)
+        return defaultCompletedRank
     else
         return val
     end

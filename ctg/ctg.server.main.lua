@@ -232,6 +232,7 @@ function joinHandler()
     startGameIfEnoughPlayers()
   -- outputChatBox("Welcome to Capture the Gold!", source)
     refreshAllBlips()
+    setPlayerMoney(source, 10000)
     --plotPoints()
 end
 addEventHandler("onPlayerJoin", getRootElement(), joinHandler)
@@ -277,7 +278,7 @@ function activeRoundFinished(oldHideout, newGoldEdl)
 end
 
 function resetRoundVars()
-    resetPowerStatesOnDeliverd()
+    resetPowerStatesOnDeliverdResourceBased()
     clearGoldCarrier()
 end
 

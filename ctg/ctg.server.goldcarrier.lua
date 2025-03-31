@@ -59,7 +59,7 @@ function clearGoldCarrier()
     -- triggerEvent("goldCarrierChanged", root, nil, tmpGoldCarrier)
     -- outputChatBox("goldcarrier.clearGoldCarrier, gold carrier: "..inspect(goldCarrier))
     onGoldCarrierChanged( nil, tmpGoldCarrier)
-    handlePowersForGoldCarrierChanged(nil, tmpGoldCarrier)
+    handlePowersForGoldCarrierChangedResourceBased(nil, tmpGoldCarrier)
 
     -- SHould be triggerClientEvent?
     triggerClientEvent("goldCarrierCleared", root)
@@ -89,7 +89,7 @@ function changeGoldCarrier(player)
     -- ALways togheter. Remove trigger?
     -- triggerEvent("goldCarrierChanged", root, goldCarrier, oldGoldCarrier)
     onGoldCarrierChanged( goldCarrier, oldGoldCarrier)
-    handlePowersForGoldCarrierChanged(goldCarrier, oldGoldCarrier)
+    handlePowersForGoldCarrierChangedResourceBased(goldCarrier, oldGoldCarrier)
 
     triggerClientEvent("onGoldCarrierChanged", player, oldGoldCarrier)    
 end

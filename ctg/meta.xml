@@ -13,7 +13,7 @@
 
 	<script src="ctg.server.waterdetect.lua" />
 	<script src="ctg.server.teleport.lua" />
-	<!--<script src="ctg.server.powerup.lua" />-->
+	<script src="ctg.server.powerup.lua" />
 
 	<script src="ctg.server.gold.lua" />
 	<script src="ctg.server.goldcarrier.lua" />

@@ -8,6 +8,7 @@ local powerConfig = nil
 local powerUpBoxes = {}
 local boundPowerBoxes = {}
 local boundableKeys = { "lctrl", "Z", "X", "C" }
+local defaultCompletedRank = 5
 
 function getPowerUp(key)
     for k, v in ipairs(powerUps) do
@@ -22,7 +23,7 @@ function getCompletedRank(player)
     local rank = getElementData(player, "completedRank")
     if (not rank) then
         outputConsole("completedRank not found")
-        rank = 0
+        rank = defaultCompletedRank
     end
     return rank
 end

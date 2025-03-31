@@ -45,11 +45,11 @@ local nitroPowerUp = {
 local powers = {}
 local powerStates = {}
 
-function addPowerUp(powerUp)
+--function addPowerUp(powerUp)
 	--outputServerLog("Adding powerup "..inspect(powerUp))
 	--table.insert(powerUps, powerUp)
 	--powerUpStates[powerUp.key] = {}
-end
+--end
 
 function addResourcePower(powerUp)
     table.insert(powers, powerUp)
@@ -66,7 +66,8 @@ function getPlayerPowerConfig2(player)
     }
 end
 
-function resetPowerStatesOnDeliverd()
+function resetPowerStatesOnDeliverdResourceBased()
+	resetPowerStatesOnDeliverd()
 	for i, player in ipairs(getElementsByType("player")) do
 		setCompletedRank(player, getUsedRank(player))
 		resetPowerStatesForPlayer2(player)
@@ -86,7 +87,8 @@ function resetPowerStatesForPlayer2(player)
 	end
 end
 
-function handlePowersForGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
+function handlePowersForGoldCarrierChangedResourceBased(newGoldCarrier, oldGoldCarrier)
+	handlePowersForGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
 	if oldGoldCarrier and newGoldCarrier then
 		loopOverPowersForPlayer2(oldGoldCarrier, function(player, powerUp, powerUpState, powerConfig)
 			if not powerUp.allowedGoldCarrier() then
@@ -271,7 +273,7 @@ function timerDone2(player, powerUpKey)
 	-- outputServerLog("timerDone "..inspect(getPlayerName(player)))
 	local powerUpState = getPlayerState2(player, powerUp)
 	killPowerTimer2(powerUpState)
-	outputServerLog("timerDone2 "..inspect(powerUpState.state))
+	--outputServerLog("timerDone2 "..inspect(powerUpState.state))
 	if powerUpState.state == stateEnum.COOLDOWN then
 		tryEnablePower2(powerUp, powerUpState, player)
 	elseif powerUpState.state == stateEnum.IN_USE then
@@ -472,7 +474,7 @@ end
 
 addEventHandler("energyAmountChangedFromClient", resourceRoot, function(key, amount, secondsUntilEnd, isBurning, burnRate, fillRate)
 	if isBurning then
-		outputServerLog("energy from client "..inspect(key).." "..inspect(amount).." "..inspect(secondsUntilEnd).." "..inspect(isBurning).." "..inspect(burnRate).." "..inspect(fillRate))
+		--outputServerLog("energy from client "..inspect(key).." "..inspect(amount).." "..inspect(secondsUntilEnd).." "..inspect(isBurning).." "..inspect(burnRate).." "..inspect(fillRate))
 		local player = client
 		local powerUp = findPowerWithResource(key)
 		--outputServerLog("getPlayerState2 "..inspect(getPlayerName(player)).." "..inspect(powerUp))
@@ -486,13 +488,13 @@ addEventHandler("energyAmountChangedFromClient", resourceRoot, function(key, amo
 	end
 end)
 
-addEvent("loadPowerUpsServer", true)
-addEventHandler("loadPowerUpsServer", root, function()
-	local data = getPowerUpsData2()
-	--triggerClientEvent("onPowerupsLoadedClient", getRootElement(), data)
-	triggerClientEvent(client, "onPowerupsLoadedClient", this, data)
-	--triggerClientEvent(source, "onPowerupsLoadedClient", this, data)
-end)
+--addEvent("loadPowerUpsServer", true)
+--addEventHandler("loadPowerUpsServer", root, function()
+--	local data = getPowerUpsData2()
+--	--triggerClientEvent("onPowerupsLoadedClient", getRootElement(), data)
+--	triggerClientEvent(client, "onPowerupsLoadedClient", this, data)
+--	--triggerClientEvent(source, "onPowerupsLoadedClient", this, data)
+--end)
 
 --addPowerUp(nitroPowerUp)
 --addPowerUp(teleportPowerUp)
@@ -610,15 +612,15 @@ addEventHandler("onPlayerQuit", getRootElement(), function()
 end)
 
 registerBindFunctions(function(player)
-    bindKey(player, "C", "down", powerKeyDown)
-    bindKey(player, "C", "up", powerKeyUp)
+    --bindKey(player, "C", "down", powerKeyDown)
+    --bindKey(player, "C", "up", powerKeyUp)
 	bindKey(player, "mouse1", "down", powerKeyDown)
     bindKey(player, "mouse1", "up", powerKeyUp)
 	bindKey(player, "mouse2", "down", powerKeyDown)
     bindKey(player, "mouse2", "up", powerKeyUp)
 end, function(player)
-    unbindKey(player, "C", "down", powerKeyDown)
-    unbindKey(player, "C", "up", powerKeyUp)
+    --unbindKey(player, "C", "down", powerKeyDown)
+    --unbindKey(player, "C", "up", powerKeyUp)
 	unbindKey(player, "mouse1", "down", powerKeyDown)
     unbindKey(player, "mouse1", "up", powerKeyUp)
 	unbindKey(player, "mouse2", "down", powerKeyDown)
