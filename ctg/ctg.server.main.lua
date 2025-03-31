@@ -305,6 +305,7 @@ end
 
 
 function playerDied(player)
+    outputChatBox("playerDied")
     local posX, posY, posZ = getElementPosition(player)
     if player == getGoldCarrier() then
         clearGoldCarrier()
@@ -317,6 +318,8 @@ function playerDied(player)
 end
 
 function playerWastedMain(ammo, attacker, weapon, bodypart)
+    outputChatBox("playerWastedMain")
+    cleanStuffInWorld()
     playerDied(source)
     --local posX, posY, posZ = getElementPosition(source)
     --spawnAt(source, posX, posY, posZ, 0, 0, 0)
@@ -390,12 +393,16 @@ function quitPlayer(quitType)
 end
 addEventHandler("onPlayerQuit", getRootElement(), quitPlayer)
 
+--[[
+// Added in map stuff
 function commitSuicide(sourcePlayer)
     -- kill the player and make him responsible for it
+    outputChatBox("killPed")
     killPed(sourcePlayer, sourcePlayer)
-    playerDied(sourcePlayer)
+    --playerDied(sourcePlayer)
 end
 addCommandHandler("kill", commitSuicide)
+]]--
 
 addEvent("onDisplayClientText", true)
 addEventHandler("onDisplayClientText", resourceRoot, displayMessageForPlayer)
