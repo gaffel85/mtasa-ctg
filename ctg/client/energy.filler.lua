@@ -72,7 +72,7 @@ function fillBarPeriodically()
         end
     end
 
-    if (math.abs(currentAmount - lastSendToServer) >= sendToServerDiff) then
+    if (currentAmount == 0 or currentAmount == resource.capacity or math.abs(currentAmount - lastSendToServer) >= sendToServerDiff) then
         lastSendToServer = currentAmount
         updateServerWithLatestValues()
     end
@@ -82,10 +82,17 @@ function fillBarPeriodically()
 end
 
 addEvent("resourceInUseFromServer", true) -- (resourceKey, burnRate)
-addEventHandler("resourceInUseFromServer", getRootElement(), function(resourceKey, burnRate)
+addEventHandler("resourceInUseFromServer", getRootElement(), function(resourceKey, burnRate, minBurn)
     outputConsole("Burning "..resourceKey.." with rate "..burnRate)
-    isBurning = true
-    burningRate = burnRate
+    
+    if burnRate == 0 then
+        if minBurn then
+            currentAmount = math.max(currentAmount - minBurn, 0)
+        end
+    else
+        burningRate = burnRate
+        isBurning = true
+    end
     updateServerWithLatestValues()
 end)
 

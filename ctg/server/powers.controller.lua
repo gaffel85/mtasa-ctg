@@ -62,6 +62,8 @@ function getPlayerPowerConfig2(player)
         active = {
             --{ key = "nitro", bindKey = "C", toggle = true },
 			{ key = "nitro", bindKey = "mouse1", toggle = false },
+			{ key = "jump", bindKey = "mouse2", toggle = false },
+			{ key = "canon", bindKey = "C", toggle = false },
         }
     }
 end
@@ -421,6 +423,7 @@ function usePowerUp2(player, key, keyState, powerUp)
 	local resourceState = getResourceState(player, powerUp.resourceKey)
 	--outputServerLog("Resource "..inspect(powerUp.resourceKey).." "..inspect(resourceState.amount))
 	if resourceState.amount < powerUp.minResourceAmount then
+		outputChatBox("Not enough "..powerUp.resourceKey.." to use "..powerUp.name..", requires "..powerUp.minResourceAmount.." "..powerUp.resourceKey.." ("..resourceState.amount.." available)")
 		return
 	end
 	--outputServerLog("usePowerUp "..inspect(player)..inspect(state.state)..inspect(stateEnum.READY).." "..inspect(state.state == stateEnum.READY))
@@ -433,7 +436,7 @@ function usePowerUp2(player, key, keyState, powerUp)
     local calculateMaxDuration = timeForFullResourceBurn(player, powerUp)
 
 	setStateWithTimer2(stateEnum.IN_USE, calculateMaxDuration, state, player, powerUp, "In use")
-	triggerClientEvent(player, "resourceInUseFromServer", getRootElement(), powerUp.resourceKey, powerUp.burnRate)
+	triggerClientEvent(player, "resourceInUseFromServer", getRootElement(), powerUp.resourceKey, powerUp.burnRate, powerUp.minBurn)
 	if state.charges and state.charges > 0 then
 		state.charges = state.charges - 1
 	end
@@ -554,6 +557,7 @@ end
 ]]--
 
 function powerKeyDown(player, button, keyState)
+	outputServerLog("powerKeyDown: "..button)
 	local power, powerState, powerConfig = powerForButton(player, button)
 	if not power or not powerState then
 		outputServerLog("No power found for button: "..button)
@@ -624,6 +628,8 @@ registerBindFunctions(function(player)
     bindKey(player, "mouse1", "up", powerKeyUp)
 	bindKey(player, "mouse2", "down", powerKeyDown)
     bindKey(player, "mouse2", "up", powerKeyUp)
+	bindKey(player, "C", "down", powerKeyDown)
+    bindKey(player, "C", "up", powerKeyUp)
 end, function(player)
     --unbindKey(player, "C", "down", powerKeyDown)
     --unbindKey(player, "C", "up", powerKeyUp)
@@ -631,4 +637,6 @@ end, function(player)
     unbindKey(player, "mouse1", "up", powerKeyUp)
 	unbindKey(player, "mouse2", "down", powerKeyDown)
     unbindKey(player, "mouse2", "up", powerKeyUp)
+	unbindKey(player, "C", "down", powerKeyDown)
+    unbindKey(player, "C", "up", powerKeyUp)
 end)

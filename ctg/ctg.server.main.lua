@@ -415,6 +415,11 @@ addEventHandler("onResourceStop", getResourceRootElement(getThisResource()), fun
 end)
 
 addEventHandler("onResourceStart", getResourceRootElement(getThisResource()), function()
+    --give money to all players 
+    local players = getElementsByType("player")
+    for k, v in ipairs(players) do
+        setPlayerMoney(v, 10000)
+    end
     call(scoreboardRes, "addScoreboardColumn", SCORE_KEY)
 end)
 

@@ -193,6 +193,7 @@ function QuadTree:queryRadius(center, radius, found)
 end
 
 -- Example usage
+--[[
 local quadTree = QuadTree.new(-4000, 4000, -4000, 4000)
 
 quadTree:add({x = 100, y = 200})
@@ -206,3 +207,4 @@ local pointsInRange = quadTree:queryRange({xMin = -500, xMax = 500, yMin = -500,
 for _, point in ipairs(pointsInRange) do
     print("Point in range:", point.x, point.y)
 end
+]]--

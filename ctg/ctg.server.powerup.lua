@@ -471,14 +471,14 @@ end
 function bindPowerKeysForPlayer(player)
     --bindKey(player, "Z", "up", powerButtonPressed)
 	bindKey(player, "X", "up", powerButtonPressed)
-	bindKey(player, "C", "up", powerButtonPressed)
+	--bindKey(player, "C", "up", powerButtonPressed)
 	bindKey(player, "lctrl", "up", powerButtonPressed)
 end
 
 function unbindPowerKeysForPlayer(player)
     --unbindKey(player, "Z")
 	unbindKey(player, "X")
-	unbindKey(player, "C")
+	--unbindKey(player, "C")
 	unbindKey(player, "lctrl")
 end
 
