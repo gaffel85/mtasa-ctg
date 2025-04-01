@@ -11,6 +11,11 @@ local stateEnum = {
 	WAITING = 6
 }
 
+function addPowerUp(powerUp)
+    -- Dummy method to catch shared powers
+    outputServerLog("Power up added: "..powerUp.key)
+end
+
 local function getKeyIndex(key) 
     for i, k in ipairs(keyOrder) do
         if (k == string.lower(key)) then

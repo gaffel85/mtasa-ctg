@@ -14,6 +14,8 @@
 	<script src="ctg.server.waterdetect.lua" />
 	<script src="ctg.server.teleport.lua" />
 	<script src="ctg.server.powerup.lua" />
+	<script src="shared/powers.repo.lua" />
+	<script src="shared/powers.repo.lua" type="client" />
 
 	<script src="ctg.server.gold.lua" />
 	<script src="ctg.server.goldcarrier.lua" />
@@ -36,7 +38,10 @@
 	<script src="server/powerups/chaos.power.lua" />
 	<script src="server/powerups/shield.power.lua" />
 	<script src="server/powerups/hidemap.power.lua" />
-	<script src="server/powerups/jump.power.lua" />
+	<script src="shared/powerups/nitro.power.lua" />
+	<script src="shared/powerups/nitro.power.lua" type="client" />
+	<script src="shared/powerups/jump.power.lua" />
+	<script src="shared/powerups/jump.power.lua" type="client" />
 	<script src="server/powerups/gravity.power.lua" />
 	<script src="server/powerups/physics.power.lua" />
 	<script src="server/collision.lua" />

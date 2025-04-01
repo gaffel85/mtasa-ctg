@@ -54,6 +54,26 @@ function updateServerWithLatestValues()
     triggerServerEvent("energyAmountChangedFromClient", resourceRoot, energyResourceKey, currentAmount, secondsUntilEnd, isBurning, burningRate, fillRate)
 end
 
+function shouldUpdateServer(resource)
+    if currentAmount == 0 and lastSendToServer > 0 then
+        return true
+    end
+    if currentAmount == resource.capacity and lastSendToServer < resource.capacity then
+        return true
+    end
+
+    for i, power in ipairs(findPowersWithResource(resource.key)) do
+        if lastSendToServer < power.minResourceAmount and currentAmount >= power.minResourceAmount then
+            return true
+        end
+        if lastSendToServer >= power.minResourceAmount and currentAmount < power.minResourceAmount then
+            return true
+        end
+    end
+
+    return math.abs(currentAmount - lastSendToServer) >= sendToServerDiff
+end
+
 function fillBarPeriodically()
     local resource = getEnergyResource()
     if not resource then
@@ -72,7 +92,7 @@ function fillBarPeriodically()
         end
     end
 
-    if (currentAmount == 0 or currentAmount == resource.capacity or math.abs(currentAmount - lastSendToServer) >= sendToServerDiff) then
+    if (shouldUpdateServer(resource)) then
         lastSendToServer = currentAmount
         updateServerWithLatestValues()
     end
