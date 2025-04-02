@@ -325,7 +325,7 @@ function usePowerUp2(player, key, keyState, powerUp)
 	local state = getPlayerState2(player, powerUp)
 	--outputServerLog("usePowerUp "..inspect(getPlayerName(player)).." "..inspect(powerUp.resourceKey))
 	local resourceState = getResourceState(player, powerUp.resourceKey)
-	outputServerLog("Resource "..inspect(powerUp.resourceKey).." "..inspect(resourceState.amount))
+	--outputServerLog("Resource "..inspect(powerUp.resourceKey).." "..inspect(resourceState.amount))
 	if resourceState.amount < powerUp.minResourceAmount then
 		outputChatBox("Not enough "..powerUp.resourceKey.." to use "..powerUp.name..", requires "..powerUp.minResourceAmount.." "..powerUp.resourceKey.." ("..resourceState.amount.." available)")
 		return
@@ -427,7 +427,7 @@ function powerForButton(player, button)
 	if (powerForBoundKey) then
 		powerUp = findPowerWithKey(powerForBoundKey.key)
 		if (powerUp) then
-			outputServerLog("powerButtonPressed "..inspect(powerUp.key).." "..inspect(player))
+			--outputServerLog("powerButtonPressed "..inspect(powerUp.key).." "..inspect(player))
 			powerUpState = getPlayerState2(player, powerUp)
 		end
 	else 
@@ -466,7 +466,7 @@ end
 ]]--
 
 function powerKeyDown(player, button, keyState)
-	outputServerLog("powerKeyDown: "..button)
+	--outputServerLog("powerKeyDown: "..button)
 	local power, powerState, powerConfig = powerForButton(player, button)
 	if not power or not powerState then
 		outputServerLog("No power found for button: "..button)
@@ -525,9 +525,9 @@ addEventHandler("onPlayerQuit", getRootElement(), function()
 end)
 
 addEventHandler("onResourceStart", resourceRoot, function()
-	outputServerLog("onResourceStart claring states")
+	--outputServerLog("onResourceStart claring states")
     resetPowerStatesOnDeliverdResourceBased()
-	outputServerLog(inspect(powerStates))
+	--outputServerLog(inspect(powerStates))
 end)
 
 registerBindFunctions(function(player)
