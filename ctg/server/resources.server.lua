@@ -32,6 +32,7 @@ function getResourceState(player, key)
     end
     local resourceState = playerState[key]
     if not resourceState then
+        -- outputServerLog("##### No state found, init new one"..inspect(player)..' '..key)
         resourceState = initResourceState(player, getResource(key))
     end
     return resourceState
@@ -52,10 +53,26 @@ function addAmount(player, key, amount)
     end
 end
 
+function setAmount(player, key, amount)
+    local resource = getResource(key)
+    local resourceState = getResourceState(player, key)
+    if not resourceState then
+        outputServerLog("Could not get resource state in setAmount"..inspect(player).." "..key)
+        return
+    end
+    -- outputServerLog("current amount "..resourceState.amount.. " setting to "..amount)
+    local newAmount = amount
+    if newAmount > resource.capacity then
+        resourceState.amount = resource.capacity
+    else
+        resourceState.amount = newAmount
+    end
+end
+
 addEvent("energyAmountChangedFromClient", true)
 addEventHandler("energyAmountChangedFromClient", resourceRoot, function(key, amount, secondsUntilEnd, isBurning, burnRate, fillRate)
-    addAmount(source, key, amount)
-    --outputServerLog("energyAmountChangedFromClient "..key.." "..amount.." "..secondsUntilEnd.." "..inspect(isBurning).." "..inspect(burnRate).." "..inspect(fillRate))
+    -- outputServerLog("energyAmountChangedFromClient "..key.." "..amount.." "..secondsUntilEnd.." "..inspect(isBurning).." "..inspect(burnRate).." "..inspect(fillRate))
+    setAmount(client, key, amount)
 end)
 
 function resetResouceAmount(player, key)

@@ -34,14 +34,15 @@
 	<script src="server/powerups/water.power.lua" />
 	<script src="server/powerups/camera.power.lua" />
 	<script src="server/powerups/vehicle.power.lua" />
-	<script src="server/powerups/canon.power.lua" />
 	<script src="server/powerups/chaos.power.lua" />
 	<script src="server/powerups/shield.power.lua" />
 	<script src="server/powerups/hidemap.power.lua" />
-	<script src="shared/powerups/nitro.power.lua" />
-	<script src="shared/powerups/nitro.power.lua" type="client" />
-	<script src="shared/powerups/jump.power.lua" />
-	<script src="shared/powerups/jump.power.lua" type="client" />
+	<script src="shared/powers/nitro.power.lua" />
+	<script src="shared/powers/nitro.power.lua" type="client" />
+	<script src="shared/powers/jump.power.lua" />
+	<script src="shared/powers/jump.power.lua" type="client" />
+	<script src="shared/powers/canon.power.lua" />
+	<script src="shared/powers/canon.power.lua" type="client" />
 	<script src="server/powerups/gravity.power.lua" />
 	<script src="server/powerups/physics.power.lua" />
 	<script src="server/collision.lua" />
