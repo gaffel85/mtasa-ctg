@@ -1,8 +1,10 @@
 DGS = exports.dgs --shorten the export function prefix
 
 local energyBar = nil
+local overchargeBar = nil
 local RESOURCES_KEY = "RESOURCES_KEY"
 local energyResourceKey = "energy"
+local overchargeResourceKey = "overcharge"
 local timerDiff = 50
 local fillRate = 10
 
@@ -14,13 +16,29 @@ local energyState = {
     burningRate = 0
 }
 
+local overchargeState = {
+    key = overchargeResourceKey,
+    currentAmount = 0,
+    lastSendToServer = 0,
+    isBurning = false,
+    burningRate = 0
+}
+
 function getClientState(resouceKey)
-    return energyState
+    if resouceKey == energyState.key then
+        return energyState
+    elseif resouceKey == overchargeState.key then
+        return overchargeState
+    end
+    return nil
 end
 
 function createEnergyBar()
     energyBar = guiCreateProgressBar( 0.8, 0.5, 0.1, 0.04, true, nil ) --create the gui-progressbar
-    dsgEnergyBar = DGS:dgsCreateProgressBar(0.8, 0.55, 0.1, 0.04, true, nil)
+end
+
+function createOverChargeBar()
+    overchargeBar = DGS:dgsCreateProgressBar(0.8, 0.55, 0.1, 0.04, true, nil)
 end
 
 function getEnergyBar()
@@ -30,10 +48,21 @@ function getEnergyBar()
     return energyBar, dsgEnergyBar
 end
 
+function getOverChargeBar()
+    if overchargeBar == nil then
+        createOverChargeBar()
+    end
+    return overchargeBar
+end
+
 function setEnergyBarProgress(percentage)   
-    local energyBar, dsgEnergyBar = getEnergyBar()
+    local energyBar = getEnergyBar()
     guiProgressBarSetProgress(energyBar, percentage)
-    DGS:dgsProgressBarSetProgress(dsgEnergyBar, percentage)
+end
+
+function setOverChargeBarProgress(percentage)
+    local overchargeBar = getOverChargeBar()
+    DGS:dgsProgressBarSetProgress(overchargeBar, percentage)
 end
 
 function getResourceData(resourceKey)
@@ -87,14 +116,52 @@ function shouldUpdateServer(resource, clientResourceState)
     return false
 end
 
-function fillBarPeriodically()
+function updateOverchargeProgress(overchargeResource)
+    if not overchargeResource then
+        overchargeResource = getResourceData(overchargeResourceKey)
+        if not overchargeResource then
+            return
+        end
+    end
+
+    local percentage = 100 * overchargeState.currentAmount / overchargeResource.capacity
+    setOverChargeBarProgress(percentage)
+end
+
+function addToOverCharge(amount)
+    local resource = getResourceData(overchargeResourceKey)
+    if not resource then
+        return
+    end
+
+    if not overchargeState.isBurning then
+        overchargeState.currentAmount = overchargeState.currentAmount + amount
+        if overchargeState.currentAmount > resource.capacity then
+            overchargeState.currentAmount = resource.capacity
+        end
+    end
+
+    if (shouldUpdateServer(resource, overchargeState)) then
+        overchargeState.lastSendToServer = overchargeState.currentAmount
+        updateServerWithLatestValues(overchargeState)
+    end
+
+    updateOverchargeProgress(resource)
+end
+
+function fillEnergyPeriodically()
     local resource = getResourceData(energyResourceKey)
     if not resource then
         return
     end
 
     if energyState.isBurning then
-        energyState.currentAmount = energyState.currentAmount - (energyState.burningRate * timerDiff / 1000)
+        local burnAmount = (energyState.burningRate * timerDiff / 1000)
+        if energyState.currentAmount > 0 then
+            addToOverCharge(burnAmount * 3)
+        end
+
+        energyState.currentAmount = energyState.currentAmount - burnAmount
         if energyState.currentAmount < 0 then
             energyState.currentAmount = 0
         end
@@ -120,12 +187,16 @@ addEventHandler("resourceInUseFromServer", getRootElement(), function(resourceKe
 
     local clientResourceState = getClientState(resourceKey)
     if not clientResourceState then
+        outputConsole("Could not get client resource state in resourceInUseFromServer with key "..resourceKey)
         return
     end
     
     if burnRate == 0 then
         if minBurn then
             clientResourceState.currentAmount = math.max(clientResourceState.currentAmount - minBurn, 0)
+            if resourceKey == overchargeResourceKey then
+                updateOverchargeProgress()
+            end
         end
     else
         clientResourceState.burningRate = burnRate
@@ -140,6 +211,7 @@ addEventHandler("resourceNotInUseFromServer", getRootElement(), function(resourc
 
     local clientResourceState = getClientState(resourceKey)
     if not clientResourceState then
+        outputConsole("Could not get client resource state in resourceNotInUseFromServer with key "..resourceKey)
         return
     end
 
@@ -148,5 +220,16 @@ addEventHandler("resourceNotInUseFromServer", getRootElement(), function(resourc
     updateServerWithLatestValues(clientResourceState)
 end)
 
-setEnergyBarProgress(0)
-setTimer(fillBarPeriodically, timerDiff, 0)
+local energyResource = getResourceData(energyResourceKey)
+if energyResource then
+    energyState.currentAmount = energyResource.initialCapacity
+    setEnergyBarProgress(100 * energyState.currentAmount / energyResource.capacity)
+end
+
+local overchargeResource = getResourceData(overchargeResourceKey)
+if overchargeResource then
+    overchargeState.currentAmount = overchargeResource.initialCapacity
+    updateOverchargeProgress(overchargeResource)
+end
+
+setTimer(fillEnergyPeriodically, timerDiff, 0)

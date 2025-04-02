@@ -11,6 +11,15 @@ local energyResource = {
     initialCapacity = 50,
 }
 
+local overchargeResource = {
+    key = "overcharge",
+    name = "Overcharge",
+    desc = "",
+    type = "manual",
+    capacity = 100,
+    initialCapacity = 0,
+}
+
 function addResource(resource)
     table.insert(resources, resource)
     setElementData(resourceRoot, RESOURCES_KEY, resources)
@@ -100,6 +109,7 @@ end
 addEventHandler("onResourceStart", resourceRoot, function()
     resourceState = {}
     addResource(energyResource)
+    addResource(overchargeResource)
 end)
 
 addEventHandler("onPlayerJoin", getRootElement(), function()
