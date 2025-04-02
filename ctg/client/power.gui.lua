@@ -13,7 +13,7 @@ local stateEnum = {
 
 function addPowerUp(powerUp)
     -- Dummy method to catch shared powers
-    outputServerLog("Power up added: "..powerUp.key)
+    outputConsole("Power up added: "..powerUp.key)
 end
 
 local function getKeyIndex(key) 

@@ -9,19 +9,24 @@ local lastSendToServer = 0
 local isBurning = false
 local burningRate = 0
 
+DGS = exports.dgs --shorten the export function prefix
+
 function createEnergyBar()
     energyBar = guiCreateProgressBar( 0.8, 0.5, 0.1, 0.04, true, nil ) --create the gui-progressbar
+    dsgEnergyBar = DGS:dgsCreateProgressBar(0.8, 0.55, 0.1, 0.04, true, nil)
 end
 
 function getEnergyBar()
     if energyBar == nil then
         createEnergyBar()
     end
-    return energyBar
+    return energyBar, dsgEnergyBar
 end
 
-function setEnergyBarProgress(percentage)
-    guiProgressBarSetProgress(getEnergyBar(), percentage)
+function setEnergyBarProgress(percentage)   
+    local energyBar, dsgEnergyBar = getEnergyBar()
+    guiProgressBarSetProgress(energyBar, percentage)
+    DGS:dgsProgressBarSetProgress(dsgEnergyBar, percentage)
 end
 
 function getEnergyResource()

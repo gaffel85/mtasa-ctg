@@ -3,6 +3,7 @@
 	<include resource="scoreboard"/>
 	<include resource="votemanager"/>
 	<include resource="easytext" />
+	<include resource="dgs" />
 
 	<script src="ctg.server.properties.lua" />
 	<script src="ctg.server.properties.lua" type="client" />
@@ -27,6 +28,7 @@
 	<script src="server/bind.lua" />
 
 	<script src="server/utils.lua" />
+	<script src="client/power.gui.lua" type="client" />
 
 	<script src="server/player.powerconfig.lua" />
 	<script src="server/resources.server.lua" />
@@ -56,7 +58,6 @@
 	<script src="server/catch.up.lua" />
 	<script src="server/cleaner.server.lua" />
 	
-	<script src="client/power.gui.lua" type="client" />
 	<script src="client/power.cameraangle.lua" type="client" />
 	<script src="client/powerconfig.window.lua" type="client" />
 	<script src="client/power.shielded.lua" type="client" />
