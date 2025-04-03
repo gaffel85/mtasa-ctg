@@ -1,5 +1,4 @@
-local energyBar = nil
-local overchargeBar = nil
+DGS = exports.dgs --shorten the export function prefix
 
 local energyUi = {
     bar = nil,
@@ -15,20 +14,24 @@ local overchargeUi = {
     canonLabel = nil,
 }
 
+local startX = 0.88
+local labelX = 0.92
+
 local function createEnergyBar()
-    energyBar = guiCreateProgressBar( 0.8, 0.5, 0.1, 0.04, true, nil ) --create the gui-progressbar
+    return guiCreateProgressBar( startX, 0.5, 0.1, 0.04, true, nil ) --create the gui-progressbar
 end
 
 local function createOverChargeBar()
-    -- overchargeBar = DGS:dgsCreateProgressBar(0.8, 0.55, 0.1, 0.04, true, nil)
-    overchargeBar = DGS:dgsCreateProgressBar(0.8, 0.5, 0.3, 0.3, true, nil)
-    DGS:dgsProgressBarSetStyle(overchargeBar,"ring-round",{
-        isClockwise = true,
-        rotation = 90,
-        antiAliased = 0.005,
-        radius = 0.2,
-        thickness = 0.05
-    })
+    overchargeBar = DGS:dgsCreateProgressBar(startX, 0.55, 0.1, 0.04, true, nil)
+    --overchargeBar = DGS:dgsCreateProgressBar(0.8, 0.5, 0.3, 0.3, true, nil)
+    --DGS:dgsProgressBarSetStyle(overchargeBar,"ring-round",{
+    --    isClockwise = true,
+    --    rotation = 90,
+    --    antiAliased = 0.005,
+    --    radius = 0.2,
+    --    thickness = 0.05
+    --})
+    return overchargeBar
 end
 
 local function createText(x, y, width, height, text)
@@ -38,21 +41,28 @@ local function createText(x, y, width, height, text)
     return label
 end
 
+local function createKeyButton(x, y, text)
+    local button = guiCreateButton(x, y, 0.03, 0.04, text, true, nil)
+    guiLabelSetHorizontalAlign(button, "left")
+    guiLabelSetVerticalAlign(button, "center")
+    return button
+end
+
 local function createNitroUi()
-    local button = guiCreateButton(0.8, 0.42, 0.1, 0.04, "LMB", true, nil)
-    local label = createText(0.8, 0.42, 0.1, 0.04, "LMB")
+    local button = createKeyButton(startX, 0.4, "LMB")
+    local label = createText(labelX, 0.4, 0.1, 0.04, "Nitro")
     return button, label
 end
 
 local function createJumpUi()
-    local button = guiCreateButton(0.8, 0.45, 0.1, 0.04, "RMB", true, nil)
-    local label = createText(0.8, 0.45, 0.1, 0.04, "RMB")
+    local button = createKeyButton(startX, 0.45, "RMB")
+    local label = createText(labelX, 0.45, 0.1, 0.04, "Jump")
     return button, label
 end
 
 local function createCanonUi()
-    local button = guiCreateButton(0.8, 0.65, 0.1, 0.04, "C", true, nil)
-    local label = createText(0.8, 0.65, 0.1, 0.04, "Canon ball")
+    local button = createKeyButton(startX, 0.6, "C")
+    local label = createText(labelX, 0.6, 0.1, 0.04, "Canon ball")
     return button, label
 end
 
@@ -60,7 +70,7 @@ local function getEnergyUi()
     if energyUi.bar == nil then
         local nitroButton, nitroLabel = createNitroUi()
         local jumpButton, jumpLabel = createJumpUi()
-        energyUi.bar = getEnergyBar()
+        energyUi.bar = createEnergyBar()
         energyUi.nitroButton = nitroButton
         energyUi.nitroLabel = nitroLabel
         energyUi.jumpButton = jumpButton
@@ -89,9 +99,18 @@ function setOverChargeBarProgress(percentage)
     DGS:dgsProgressBarSetProgress(overchargeBar, percentage)
 end
 
+local function setPowerEnabled(ui, enabled)
+    if enabled then
+        guiSetAlpha(ui.button, 1)
+        guiSetAlpha(ui.label, 1)
+        guiSetText(ui.label, "Nitro")
+    else
+        guiSetAlpha(ui.button, 0.5)
+        guiSetAlpha(ui.label, 0.5)
+        guiSetText(ui.label, "Not enough energy")
+    end
+end
+
 function setNitroEnabled(enabled)
-    local energyUi = getEnergyUi()
-    guiSetAlpha(energyUi.nitroButton, 1)
-    guiSetAlpha(energyUi.nitroLabel, 1)
-    guiSetText(energyUi.nitroButton, "LMB")
+    setPowerEnabled(getEnergyUi(), enabled)
 end

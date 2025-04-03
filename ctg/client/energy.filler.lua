@@ -1,5 +1,3 @@
-DGS = exports.dgs --shorten the export function prefix
-
 local RESOURCES_KEY = "RESOURCES_KEY"
 local energyResourceKey = "energy"
 local overchargeResourceKey = "overcharge"
@@ -82,6 +80,9 @@ function shouldUpdateServer(resource, clientResourceState)
     return false
 end
 
+local function enableDisableUi()
+end
+
 function updateOverchargeProgress(overchargeResource)
     if not overchargeResource then
         overchargeResource = getResourceData(overchargeResourceKey)
@@ -142,6 +143,7 @@ function fillEnergyPeriodically()
         energyState.lastSendToServer = energyState.currentAmount
         updateServerWithLatestValues(energyState)
     end
+    enableDisableUi()
 
     local percentage = 100 * energyState.currentAmount / resource.capacity
     setEnergyBarProgress(percentage)
