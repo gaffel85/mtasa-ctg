@@ -66,6 +66,7 @@
 	<script src="client/help.gui.lua" type="client" />
 	<script src="client/ghost.client.lua" type="client" />
 	<script src="client/location.client.lua" type="client" />
+	<script src="client/energy.ui.lua" type="client" />
 	<script src="client/energy.filler.lua" type="client" />
 
 	<script src="shared/ghost.shared.lua" type="client" />
