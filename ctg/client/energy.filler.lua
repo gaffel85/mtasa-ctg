@@ -1,7 +1,5 @@
 DGS = exports.dgs --shorten the export function prefix
 
-local energyBar = nil
-local overchargeBar = nil
 local RESOURCES_KEY = "RESOURCES_KEY"
 local energyResourceKey = "energy"
 local overchargeResourceKey = "overcharge"
@@ -31,59 +29,6 @@ function getClientState(resouceKey)
         return overchargeState
     end
     return nil
-end
-
-function createEnergyBar()
-    energyBar = guiCreateProgressBar( 0.8, 0.5, 0.1, 0.04, true, nil ) --create the gui-progressbar
-end
-
-function create3dText()
-    local x, y, z = getElementPosition(localPlayer)
-    outputChatBox("x:"..x.." y:"..y.." z:"..z)
-    local theMarker = createMarker ( x, y, z, "corona", 1.5, 255, 255, 0, 4 )
-    local text = DGS:dgsCreate3DText(x, y, z, "DGS 3D Text Test", white)
-    DGS:dgsSetProperty(text, "fadeDistance", 20)
-    DGS:dgsSetProperty(text, "shadow", {1,1,tocolor(0,0,0,255),true})
-    DGS:dgsSetProperty(text, "outline", {"out",1,tocolor(255,255,255,255)})
-    DGS:dgs3DTextAttachToElement(text,theMarker,0,5,0)
-end
-
-setTimer(create3dText, 2000, 1)
-
-function createOverChargeBar()
-    -- overchargeBar = DGS:dgsCreateProgressBar(0.8, 0.55, 0.1, 0.04, true, nil)
-    overchargeBar = DGS:dgsCreateProgressBar(0.8, 0.5, 0.3, 0.3, true, nil)
-    DGS:dgsProgressBarSetStyle(overchargeBar,"ring-round",{
-        isClockwise = true,
-        rotation = 90,
-        antiAliased = 0.005,
-        radius = 0.2,
-        thickness = 0.05
-    })
-end
-
-function getEnergyBar()
-    if energyBar == nil then
-        createEnergyBar()
-    end
-    return energyBar, dsgEnergyBar
-end
-
-function getOverChargeBar()
-    if overchargeBar == nil then
-        createOverChargeBar()
-    end
-    return overchargeBar
-end
-
-function setEnergyBarProgress(percentage)   
-    local energyBar = getEnergyBar()
-    guiProgressBarSetProgress(energyBar, percentage)
-end
-
-function setOverChargeBarProgress(percentage)
-    local overchargeBar = getOverChargeBar()
-    DGS:dgsProgressBarSetProgress(overchargeBar, percentage)
 end
 
 function getResourceData(resourceKey)
