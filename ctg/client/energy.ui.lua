@@ -2,16 +2,25 @@ DGS = exports.dgs --shorten the export function prefix
 
 local energyUi = {
     bar = nil,
-    nitroButton = nil,
-    nitroLabel = nil,
-    jumpButton = nil,
-    jumpLabel = nil,
+    nitro = {
+        button = nil,
+        label = nil,
+        defaultText = "Nitro",
+    }
+    jump = {
+        button = nil,
+        label = nil,
+        defaultText = "Jump",
+    },
 }
 
 local overchargeUi = {
     bar = nil,
-    canonButton = nil,
-    canonLabel = nil,
+    canon = {
+        button = nil,
+        label = nil,
+        defaultText = "Canon ball",
+    },
 }
 
 local startX = 0.88
@@ -42,6 +51,15 @@ local function createText(x, y, width, height, text)
 end
 
 local function createKeyButton(x, y, text)
+    local rndRect = DGS:dgsCreateRoundRect(50,true,tocolor(0,0,0,150))  --Create Rounded Rectangle with 50 pixels radius 
+    local image1 = DGS:dgsCreateImage(200,200,400,100,rndRect,false)  --Apply it to the dgs image
+
+    local dgsButton1 = DGS:dgsCreateButton(x - 0.2, y, 0.03, 0.04, "DGS 1", true, nil, nil, nil, nil, image1)
+    local dgsButton2 = DGS:dgsCreateButton(x - 0.3, y, 0.03, 0.04, "DGS 2", true, nil, nil, nil, nil, rndRect)
+
+    local line = DGS:dgsCreateLine(x, y, 0.95, 0.3, true)
+    DGS:dgsLineAddItem(line,0,0.1,1,0.3,2,tocolor(0,255,0,255),true)
+
     local button = guiCreateButton(x, y, 0.03, 0.04, text, true, nil)
     guiLabelSetHorizontalAlign(button, "left")
     guiLabelSetVerticalAlign(button, "center")
@@ -50,19 +68,19 @@ end
 
 local function createNitroUi()
     local button = createKeyButton(startX, 0.4, "LMB")
-    local label = createText(labelX, 0.4, 0.1, 0.04, "Nitro")
+    local label = createText(labelX, 0.4, 0.1, 0.04, energyUi.nitro.defaultText)
     return button, label
 end
 
 local function createJumpUi()
     local button = createKeyButton(startX, 0.45, "RMB")
-    local label = createText(labelX, 0.45, 0.1, 0.04, "Jump")
+    local label = createText(labelX, 0.45, 0.1, 0.04, energyUi.jump.defaultText)
     return button, label
 end
 
 local function createCanonUi()
     local button = createKeyButton(startX, 0.6, "C")
-    local label = createText(labelX, 0.6, 0.1, 0.04, "Canon ball")
+    local label = createText(labelX, 0.6, 0.1, 0.04, overchargeUi.canon.defaultText)
     return button, label
 end
 
@@ -71,10 +89,10 @@ local function getEnergyUi()
         local nitroButton, nitroLabel = createNitroUi()
         local jumpButton, jumpLabel = createJumpUi()
         energyUi.bar = createEnergyBar()
-        energyUi.nitroButton = nitroButton
-        energyUi.nitroLabel = nitroLabel
-        energyUi.jumpButton = jumpButton
-        energyUi.jumpLabel = jumpLabel
+        energyUi.nitro.button = nitroButton
+        energyUi.nitro.label = nitroLabel
+        energyUi.jump.button = jumpButton
+        energyUi.jump.label = jumpLabel
     end
     return energyUi
 end
@@ -83,8 +101,8 @@ local function getOverchargeUi()
     if overchargeUi.bar == nil then
         local canonButton, canonLabel = createCanonUi()
         overchargeUi.bar = createOverChargeBar()
-        overchargeUi.button = canonButton
-        overchargeUi.label = canonLabel
+        overchargeUi.canon.button = canonButton
+        overchargeUi.canon.label = canonLabel
     end
     return overchargeUi
 end
@@ -99,18 +117,26 @@ function setOverChargeBarProgress(percentage)
     DGS:dgsProgressBarSetProgress(overchargeBar, percentage)
 end
 
-local function setPowerEnabled(ui, enabled)
+local function setPowerEnabled(buttonLabelUi, enabled)
     if enabled then
-        guiSetAlpha(ui.button, 1)
-        guiSetAlpha(ui.label, 1)
-        guiSetText(ui.label, "Nitro")
+        guiSetAlpha(buttonLabelUi.button, 1)
+        guiSetAlpha(buttonLabelUi.label, 1)
+        guiSetText(buttonLabelUi.label, buttonLabelUi.defaultText)
     else
-        guiSetAlpha(ui.button, 0.5)
-        guiSetAlpha(ui.label, 0.5)
-        guiSetText(ui.label, "Not enough energy")
+        guiSetAlpha(buttonLabelUi.button, 0.5)
+        guiSetAlpha(buttonLabelUi.label, 0.5)
+        guiSetText(buttonLabelUi.label, "Not enough energy")
     end
 end
 
 function setNitroEnabled(enabled)
-    setPowerEnabled(getEnergyUi(), enabled)
+    setPowerEnabled(getEnergyUi().nitro, enabled)
+end
+
+function setJumpEnabled(enabled)
+    setPowerEnabled(getEnergyUi().jump, enabled)
+end
+
+function setCanonEnabled(enabled)
+    setPowerEnabled(getOverchargeUi().canon, enabled)
 end
