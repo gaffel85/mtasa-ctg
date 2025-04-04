@@ -50,6 +50,12 @@ local function createText(x, y, width, height, text)
     return label
 end
 
+local function testButton()
+    local rndRect = DGS:dgsCreateRoundRect(10,false,tocolor(255,255,255,255))
+    local button = DGS:dgsCreateButton((270,10,120,60,"Button\nRounded",false)
+        :setProperty("image",rndRect))
+end
+
 local function createKeyButton(x, y, text)
     local rndRect = DGS:dgsCreateRoundRect(50,true,tocolor(0,0,0,150))  --Create Rounded Rectangle with 50 pixels radius 
     local image1 = DGS:dgsCreateImage(200,200,400,100,rndRect,false)  --Apply it to the dgs image
@@ -86,6 +92,8 @@ end
 
 local function getEnergyUi()
     if energyUi.bar == nil then
+        testButton()
+
         local nitroButton, nitroLabel = createNitroUi()
         local jumpButton, jumpLabel = createJumpUi()
         energyUi.bar = createEnergyBar()
