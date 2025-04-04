@@ -232,6 +232,7 @@ function joinHandler()
     startGameIfEnoughPlayers()
   -- outputChatBox("Welcome to Capture the Gold!", source)
     refreshAllBlips()
+    setPlayerMoney(source, 10000)
     --plotPoints()
 end
 addEventHandler("onPlayerJoin", getRootElement(), joinHandler)
@@ -244,7 +245,7 @@ function startGameIfEnoughPlayers()
 end
 
 function goldDelivered(player)
-    local oldHideout = getTeamHideout().edl
+    local oldHideout = getTeamHideout(player).edl
     removeOldHideout()
 	givePointsToPlayer(getGoldCarrier(), 500)
     giveTeamScore(player, 500)
@@ -277,7 +278,7 @@ function activeRoundFinished(oldHideout, newGoldEdl)
 end
 
 function resetRoundVars()
-    resetPowerStatesOnDeliverd()
+    resetPowerStatesOnDeliverdResourceBased()
     clearGoldCarrier()
 end
 
@@ -304,6 +305,7 @@ end
 
 
 function playerDied(player)
+    outputChatBox("playerDied")
     local posX, posY, posZ = getElementPosition(player)
     if player == getGoldCarrier() then
         clearGoldCarrier()
@@ -316,6 +318,8 @@ function playerDied(player)
 end
 
 function playerWastedMain(ammo, attacker, weapon, bodypart)
+    outputChatBox("playerWastedMain")
+    cleanStuffInWorld()
     playerDied(source)
     --local posX, posY, posZ = getElementPosition(source)
     --spawnAt(source, posX, posY, posZ, 0, 0, 0)
@@ -389,12 +393,16 @@ function quitPlayer(quitType)
 end
 addEventHandler("onPlayerQuit", getRootElement(), quitPlayer)
 
+--[[
+// Added in map stuff
 function commitSuicide(sourcePlayer)
     -- kill the player and make him responsible for it
+    outputChatBox("killPed")
     killPed(sourcePlayer, sourcePlayer)
-    playerDied(sourcePlayer)
+    --playerDied(sourcePlayer)
 end
 addCommandHandler("kill", commitSuicide)
+]]--
 
 addEvent("onDisplayClientText", true)
 addEventHandler("onDisplayClientText", resourceRoot, displayMessageForPlayer)
@@ -407,6 +415,11 @@ addEventHandler("onResourceStop", getResourceRootElement(getThisResource()), fun
 end)
 
 addEventHandler("onResourceStart", getResourceRootElement(getThisResource()), function()
+    --give money to all players 
+    local players = getElementsByType("player")
+    for k, v in ipairs(players) do
+        setPlayerMoney(v, 10000)
+    end
     call(scoreboardRes, "addScoreboardColumn", SCORE_KEY)
 end)
 

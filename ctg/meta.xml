@@ -3,6 +3,7 @@
 	<include resource="scoreboard"/>
 	<include resource="votemanager"/>
 	<include resource="easytext" />
+	<include resource="dgs" />
 
 	<script src="ctg.server.properties.lua" />
 	<script src="ctg.server.properties.lua" type="client" />
@@ -14,6 +15,8 @@
 	<script src="ctg.server.waterdetect.lua" />
 	<script src="ctg.server.teleport.lua" />
 	<script src="ctg.server.powerup.lua" />
+	<script src="shared/powers.repo.lua" />
+	<script src="shared/powers.repo.lua" type="client" />
 
 	<script src="ctg.server.gold.lua" />
 	<script src="ctg.server.goldcarrier.lua" />
@@ -22,32 +25,39 @@
 	<script src="ctg.server.hideout.lua" />
 	<script src="ctg.server.main.lua" />
 	<script src="ctg.server.vehicles.lua" />
+	<script src="server/bind.lua" />
 
 	<script src="server/utils.lua" />
+	<script src="client/power.gui.lua" type="client" />
 
 	<script src="server/player.powerconfig.lua" />
+	<script src="server/resources.server.lua" />
+	<script src="server/powers.controller.lua" />
 	<script src="server/powerups/water.power.lua" />
 	<script src="server/powerups/camera.power.lua" />
 	<script src="server/powerups/vehicle.power.lua" />
-	<script src="server/powerups/canon.power.lua" />
 	<script src="server/powerups/chaos.power.lua" />
 	<script src="server/powerups/shield.power.lua" />
 	<script src="server/powerups/hidemap.power.lua" />
-	<script src="server/powerups/jump.power.lua" />
+	<script src="shared/powers/nitro.power.lua" />
+	<script src="shared/powers/nitro.power.lua" type="client" />
+	<script src="shared/powers/jump.power.lua" />
+	<script src="shared/powers/jump.power.lua" type="client" />
+	<script src="shared/powers/canon.power.lua" />
+	<script src="shared/powers/canon.power.lua" type="client" />
 	<script src="server/powerups/gravity.power.lua" />
 	<script src="server/powerups/physics.power.lua" />
 	<script src="server/collision.lua" />
 	<script src="server/distance.meter.lua" />
 	<script src="server/admin.control.lua" />
-	<script src="server/bind.lua" />
 	<script src="server/ghost.server.lua" />
 	<script src="server/location.db.lua" />
 	<script src="server/gather.players.lua" />
 	<script src="server/score.system.lua" />
 	<script src="server/math.utils.lua" />
 	<script src="server/catch.up.lua" />
+	<script src="server/cleaner.server.lua" />
 	
-	<script src="client/power.gui.lua" type="client" />
 	<script src="client/power.cameraangle.lua" type="client" />
 	<script src="client/powerconfig.window.lua" type="client" />
 	<script src="client/power.shielded.lua" type="client" />
@@ -56,6 +66,8 @@
 	<script src="client/help.gui.lua" type="client" />
 	<script src="client/ghost.client.lua" type="client" />
 	<script src="client/location.client.lua" type="client" />
+	<script src="client/energy.ui.lua" type="client" />
+	<script src="client/energy.filler.lua" type="client" />
 
 	<script src="shared/ghost.shared.lua" type="client" />
 	<script src="shared/ghost.shared.lua" />
