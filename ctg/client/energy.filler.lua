@@ -86,9 +86,12 @@ local function enableDisableUi()
             setNitroEnabled(energyState.currentAmount >= power.minResourceAmount)
         elseif power.key == "jump" then
             setJumpEnabled(energyState.currentAmount >= power.minResourceAmount)
-        elseif power.key == "canon" then
-            setCanonEnabled(overchargeState.currentAmount >= power.minResourceAmount)
         end
+    end
+
+    local canonPower = findPowerWithKey("canon")
+    if canonPower then
+        setCanonEnabled(overchargeState.currentAmount >= canonPower.minResourceAmount)
     end
 end
 

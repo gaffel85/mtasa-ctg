@@ -51,9 +51,16 @@ local function createText(x, y, width, height, text)
 end
 
 local function testButton()
-    local rndRect = DGS:dgsCreateRoundRect(10,false,tocolor(255,255,255,255))
-    local button = DGS:dgsCreateButton((270,10,120,60,"Button\nRounded",false)
-        :setProperty("image",rndRect))
+    local rndRect = DGS:dgsCreateRoundRect(10,false,tocolor(0,10,20,255))
+    
+    local button = DGS:dgsCreateButton(270,10,120,60,"Button\nRounded",false)
+    DGS:dgsSetProperty(rndRect,"outline",{
+        side="in",
+        width=5,
+        color=tocolor(255,255,225,255),
+    })
+    
+    DGS:dgsSetProperty(button, "image",rndRect)
 end
 
 local function createKeyButton(x, y, text)
@@ -63,8 +70,8 @@ local function createKeyButton(x, y, text)
     --local dgsButton1 = DGS:dgsCreateButton(x - 0.2, y, 0.03, 0.04, "DGS 1", true, nil, nil, nil, nil, image1)
     --local dgsButton2 = DGS:dgsCreateButton(x - 0.3, y, 0.03, 0.04, "DGS 2", true, nil, nil, nil, nil, rndRect)
 
-    local line = DGS:dgsCreateLine(x, y, 0.95, 0.3, true)
-    DGS:dgsLineAddItem(line,0,0.1,1,0.3,2,tocolor(0,255,0,255),true)
+    --local line = DGS:dgsCreateLine(x, y, 0.95, 0.3, true)
+    --DGS:dgsLineAddItem(line,0,0.1,1,0.3,2,tocolor(0,255,0,255),true)
 
     local button = guiCreateButton(x, y, 0.03, 0.04, text, true, nil)
     guiLabelSetHorizontalAlign(button, "left")
