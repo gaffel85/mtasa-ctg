@@ -9,9 +9,10 @@ local powerStates = {}
 function getPlayerPowerConfig2(player)
     return {
         active = {
-            --{ key = "nitro", bindKey = "C", toggle = true },
+            { key = "nitro", bindKey = "lctrl", toggle = true },
 			{ key = "nitro", bindKey = "mouse1", toggle = false },
 			{ key = "jump", bindKey = "mouse2", toggle = false },
+			{ key = "jump", bindKey = "lshift", toggle = false },
 			{ key = "canon", bindKey = "C", toggle = false },
         }
     }
@@ -539,6 +540,10 @@ registerBindFunctions(function(player)
     bindKey(player, "mouse2", "up", powerKeyUp)
 	bindKey(player, "C", "down", powerKeyDown)
     bindKey(player, "C", "up", powerKeyUp)
+	bindKey(player, "lctrl", "down", powerKeyDown)
+    bindKey(player, "lctrl", "up", powerKeyUp)
+	bindKey(player, "lshift", "down", powerKeyDown)
+    bindKey(player, "lshift", "up", powerKeyUp)
 end, function(player)
     --unbindKey(player, "C", "down", powerKeyDown)
     --unbindKey(player, "C", "up", powerKeyUp)
@@ -548,4 +553,8 @@ end, function(player)
     unbindKey(player, "mouse2", "up", powerKeyUp)
 	unbindKey(player, "C", "down", powerKeyDown)
     unbindKey(player, "C", "up", powerKeyUp)
+	unbindKey(player, "lctrl", "down", powerKeyDown)
+    unbindKey(player, "lctrl", "up", powerKeyUp)
+	unbindKey(player, "lshift", "down", powerKeyDown)
+    unbindKey(player, "lshift", "up", powerKeyUp)
 end)
