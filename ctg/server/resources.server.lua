@@ -20,6 +20,16 @@ local overchargeResource = {
     initialCapacity = 0,
 }
 
+local vehicleTimeResource = {
+    key = "vehicleTime",
+    name = "Vehicle Time",
+    desc = "",
+    type = "time",
+    capacity = 100,
+    initialCapacity = 80,
+    fillRate = 5,
+}
+
 function addResource(resource)
     table.insert(resources, resource)
     setElementData(resourceRoot, RESOURCES_KEY, resources)
@@ -101,6 +111,7 @@ function initResourceState(player, resource)
     end
     local resourceState = {
         amount = resource.initialCapacity,
+        lastChanged = getRealTime().timestamp,
     }
     playerState[resource.key] = resourceState
     return resourceState
@@ -110,6 +121,7 @@ addEventHandler("onResourceStart", resourceRoot, function()
     resourceState = {}
     addResource(energyResource)
     addResource(overchargeResource)
+    addResource(vehicleTimeResource)
 end)
 
 addEventHandler("onPlayerJoin", getRootElement(), function()
