@@ -87,6 +87,7 @@ local offoadPowerUp = {
 	minBurn = 50,
 	burnRate = 10,
 	minResourceAmount = 100,
+    shareState = true,
 	cooldown = function() return getPowerConst().offroad.cooldown end,
 	duration = function() return getPowerConst().offroad.duration end,
     charges = function() return getPowerConst().offroad.charges end,
