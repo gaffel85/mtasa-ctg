@@ -155,3 +155,76 @@ end
 function setCanonEnabled(enabled)
     setPowerEnabled(getOverchargeUi().canon, enabled)
 end
+
+--[[
+
+GUIEditor = {
+    button = {},
+    window = {},
+    edit = {},
+    label = {}
+}
+addEventHandler("onClientResourceStart", resourceRoot,
+    function()
+        GUIEditor.window[1] = guiCreateWindow(0.80, 0.29, 0.19, 0.26, "", true)
+        guiWindowSetSizable(GUIEditor.window[1], false)
+
+        maxOvercharge = guiCreateRadioButton(0.77, 0.07, 0.04, 0.05, "", true, GUIEditor.window[1])
+        jumpEnergy = guiCreateRadioButton(0.90, 0.50, 0.04, 0.05, "", true, GUIEditor.window[1])
+        nitroEnergy = guiCreateRadioButton(0.90, 0.77, 0.04, 0.05, "", true, GUIEditor.window[1])
+        guiRadioButtonSetSelected(nitroEnergy, true)
+
+
+        GUIEditor.button[1] = guiCreateButton(0.91, 0.33, 0.03, 0.04, "C", true)
+
+
+        GUIEditor.button[2] = guiCreateButton(0.91, 0.41, 0.03, 0.04, "shift", true)
+
+
+        GUIEditor.button[3] = guiCreateButton(0.87, 0.41, 0.03, 0.04, "RMB", true)
+
+
+        GUIEditor.button[4] = guiCreateButton(0.91, 0.47, 0.03, 0.04, "lctrl", true)
+
+
+        GUIEditor.button[5] = guiCreateButton(0.87, 0.47, 0.03, 0.04, "LMB", true)
+
+
+        GUIEditor.label[1] = guiCreateLabel(0.84, 0.35, 0.06, 0.02, "Canon ball", true)
+        guiSetFont(GUIEditor.label[1], "clear-normal")
+        guiLabelSetHorizontalAlign(GUIEditor.label[1], "right", false)
+        guiLabelSetVerticalAlign(GUIEditor.label[1], "center")
+
+
+        GUIEditor.label[2] = guiCreateLabel(0.90, 0.42, 0.01, 0.02, "/", true)
+        guiSetFont(GUIEditor.label[2], "clear-normal")
+        guiLabelSetHorizontalAlign(GUIEditor.label[2], "right", false)
+        guiLabelSetVerticalAlign(GUIEditor.label[2], "center")
+
+
+        GUIEditor.label[3] = guiCreateLabel(0.80, 0.42, 0.06, 0.02, "Jump", true)
+        guiSetFont(GUIEditor.label[3], "clear-normal")
+        guiLabelSetHorizontalAlign(GUIEditor.label[3], "right", false)
+        guiLabelSetVerticalAlign(GUIEditor.label[3], "center")
+
+
+        GUIEditor.label[4] = guiCreateLabel(0.90, 0.49, 0.01, 0.02, "/", true)
+        guiSetFont(GUIEditor.label[4], "clear-normal")
+        guiLabelSetHorizontalAlign(GUIEditor.label[4], "right", false)
+        guiLabelSetVerticalAlign(GUIEditor.label[4], "center")
+
+
+        GUIEditor.label[5] = guiCreateLabel(0.80, 0.49, 0.06, 0.02, "Nitro", true)
+        guiSetFont(GUIEditor.label[5], "clear-normal")
+        guiLabelSetHorizontalAlign(GUIEditor.label[5], "right", false)
+        guiLabelSetVerticalAlign(GUIEditor.label[5], "center")
+
+
+        GUIEditor.edit[1] = guiCreateEdit(0.97, 0.31, 0.02, 0.23, "", true)
+
+
+        GUIEditor.edit[2] = guiCreateEdit(0.94, 0.31, 0.02, 0.23, "", true)    
+    end
+)
+
+]]--
