@@ -81,12 +81,12 @@ function shouldUpdateServer(resource, clientResourceState)
 end
 
 local function enableDisableUi()
-    for i, power in ipairs(findPowersWithResource(resource.key)) do
+    for i, power in ipairs(findPowersWithResource(energyResourceKey)) do
         if power.key == "nitro" then
-            setNitroEnabled(energyState.currentAmount >= power.minResourceAmount
-        else if power.key = "jump" then
+            setNitroEnabled(energyState.currentAmount >= power.minResourceAmount)
+        elseif power.key == "jump" then
             setJumpEnabled(energyState.currentAmount >= power.minResourceAmount)
-        else if power.key = "canon" then
+        elseif power.key == "canon" then
             setCanonEnabled(overchargeState.currentAmount >= power.minResourceAmount)
         end
     end
