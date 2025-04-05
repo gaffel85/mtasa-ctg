@@ -24,9 +24,9 @@ function PowerStateRepo:initPowerState(player, powerUp, initialState)
 end
 
 local function getKey(powerUp)
-    if powerUp.shareState then
-        return powerUp.resourceKey
-    end
+    --if powerUp.shareState then
+    --    return powerUp.resourceKey
+    --end
     return powerUp.key
 end
 

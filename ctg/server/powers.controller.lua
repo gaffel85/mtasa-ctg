@@ -12,6 +12,9 @@ function getPlayerPowerConfig2(player)
 			{ key = "jump", bindKey = "mouse2", toggle = false },
 			{ key = "jump", bindKey = "lshift", toggle = false },
 			{ key = "canon", bindKey = "C", toggle = false },
+			{ key = "supercar", bindKey = "1", toggle = true },
+			{ key = "offroad", bindKey = "2", toggle = true },
+			--{ key = "airplane", bindKey = "3", toggle = true },
         }
     }
 end
@@ -204,8 +207,20 @@ function tryDeactivatePower2(powerUp, powerUpState, player)
 	else
 		--outputServerLog("5")
         --setState2(powerUp, player, stateEnum.READY, "Ready", powerUpState, nil)
-		setStateWithTimer2(stateEnum.COOLDOWN, powerUp.cooldown(), powerUpState, player, powerUp)
+		setStateWithTimer2(stateEnum.COOLDOWN, getCooldown(powerUp), powerUpState, player, powerUp)
 	end
+end
+
+local function getCooldown(powerUp)
+	local resource = getResource(powerUp.resourceKey)
+	if resource and resource.type == "time" then
+		return resource.capacity / resource.fillRate
+	end
+
+	if powerUp.cooldown() > 0 then
+		return powerUp.cooldown()
+	end
+	return 0
 end
 
 function timerDone2(player, powerUpKey)
@@ -292,7 +307,18 @@ function setState2(powerUp, player, stateType, stateMessage, state)
 	if powerUp.charges() and powerUp.charges() > 0 then
 		totalCharges = powerUp.charges()
 	end
-	triggerClientEvent(player, "powerupStateChangedClient", player, stateType, oldState, powerUp.name, stateMessage, config.bindKey, state.charges, totalCharges, timeLeft2(state))
+
+	local timeLeft = timeLeft2(state)
+	--if powerUp.shareState then
+		--outputServerLog("setState "..inspect(powerUp.key).." "..inspect(state.state).." "..inspect(state.stateMessage))
+		--timeLeft = timeForFullResourceBurn(player, powerUp)
+	--end
+
+	triggerClientEvent(player, "powerupStateChangedClient", player, stateType, oldState, powerUp.name, stateMessage, config.bindKey, state.charges, totalCharges, timeLeft)
+end
+
+local function stateFromSharedResource(player, powerUp)
+
 end
 
 function endUsePower(player, powerUp, powerUpState)
@@ -332,6 +358,7 @@ function usePowerUp2(player, key, keyState, powerUp)
 	if state.charges and state.charges > 0 then
 		state.charges = state.charges - 1
 	end
+
 	-- outputChatBox("state: "..tostring(state.activated))
 	--outputServerLog("state: "..inspect(state))
 	local vehicle = getPedOccupiedVehicle(player)
@@ -345,6 +372,8 @@ function usePowerUp2(player, key, keyState, powerUp)
 	else
 		-- outputChatBox("vehicle is nil")
 	end
+
+	setAmount(player, powerUp.resourceKey, powerUp.minBurn)
 	
 	--unbindKey(player, key, keyState, usePowerUp, powerUp)
 end
@@ -530,6 +559,12 @@ registerBindFunctions(function(player)
     bindKey(player, "lctrl", "up", powerKeyUp)
 	bindKey(player, "lshift", "down", powerKeyDown)
     bindKey(player, "lshift", "up", powerKeyUp)
+	bindKey(player, "1", "down", powerKeyDown)
+	bindKey(player, "1", "up", powerKeyUp)
+	bindKey(player, "2", "down", powerKeyDown)
+	bindKey(player, "2", "up", powerKeyUp)
+	bindKey(player, "3", "down", powerKeyDown)
+	bindKey(player, "3", "up", powerKeyUp)
 end, function(player)
     --unbindKey(player, "C", "down", powerKeyDown)
     --unbindKey(player, "C", "up", powerKeyUp)
@@ -543,4 +578,10 @@ end, function(player)
     unbindKey(player, "lctrl", "up", powerKeyUp)
 	unbindKey(player, "lshift", "down", powerKeyDown)
     unbindKey(player, "lshift", "up", powerKeyUp)
+	unbindKey(player, "1", "down", powerKeyDown)
+	unbindKey(player, "1", "up", powerKeyUp)
+	unbindKey(player, "2", "down", powerKeyDown)
+	unbindKey(player, "2", "up", powerKeyUp)
+	unbindKey(player, "3", "down", powerKeyDown)
+	unbindKey(player, "3", "up", powerKeyUp)
 end)
