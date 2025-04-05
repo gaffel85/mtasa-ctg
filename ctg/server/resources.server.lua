@@ -94,15 +94,6 @@ addEventHandler("energyAmountChangedFromClient", resourceRoot, function(key, amo
     setAmount(client, key, amount)
 end)
 
-function resetResouceAmount(player, key)
-    local resourceState = getResourceState(player, key)
-    if not resourceState then
-        outputServerLog("Could not get resource state in resetResourceAmount")
-        return
-    end
-    resourceState.amount = 0
-end
-
 function initResourceState(player, resource)
     local playerState = resourceState[player]
     if not playerState then
