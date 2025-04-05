@@ -12,7 +12,7 @@ function getPlayerPowerConfig2(player)
 			{ key = "jump", bindKey = "mouse2", toggle = false },
 			{ key = "jump", bindKey = "lshift", toggle = false },
 			{ key = "canon", bindKey = "C", toggle = false },
-			{ key = "supercar", bindKey = "1", toggle = true },
+			{ key = "superCar", bindKey = "1", toggle = true },
 			{ key = "offroad", bindKey = "2", toggle = true },
 			--{ key = "airplane", bindKey = "3", toggle = true },
         }
@@ -185,6 +185,9 @@ function tryEnablePower2(powerUp, powerUpState, player)
 		return
 	end
 
+	local resource = getResource(powerUp.resourceKey)
+	setAmount(player, powerUp.resourceKey, resource.capacity)
+
 	local wasEnabledOrWaitTime = powerUp.onEnable(player, vehicle)
 	if (wasEnabledOrWaitTime) then
 		setState2(powerUp, player, stateEnum.READY, "Ready", powerUpState, nil)
@@ -211,9 +214,9 @@ function tryDeactivatePower2(powerUp, powerUpState, player)
 	end
 end
 
-local function getCooldown(powerUp)
+function getCooldown(powerUp)
 	local resource = getResource(powerUp.resourceKey)
-	if resource and resource.type == "time" then
+	if resource and resource.type == "vehicleTime" then
 		return resource.capacity / resource.fillRate
 	end
 
@@ -373,8 +376,10 @@ function usePowerUp2(player, key, keyState, powerUp)
 		-- outputChatBox("vehicle is nil")
 	end
 
-	setAmount(player, powerUp.resourceKey, powerUp.minBurn)
-	
+	if powerUp.minBurn then
+	addAmount(player, powerUp.resourceKey, -1 * powerUp.minBurn)
+	end
+
 	--unbindKey(player, key, keyState, usePowerUp, powerUp)
 end
 

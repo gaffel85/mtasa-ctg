@@ -26,7 +26,7 @@ local vehicleTimeResource = {
     desc = "",
     type = "time",
     capacity = 100,
-    initialCapacity = 80,
+    initialCapacity = 100,
     fillRate = 5,
 }
 
@@ -65,6 +65,9 @@ function addAmount(player, key, amount)
         return
     end
     local newAmount = resourceState.amount + amount
+    if key == "vehicleTime" then
+        outputServerLog("new amount "..newAmount)
+    end
     if newAmount > resource.capacity then
         resourceState.amount = resource.capacity
     else
@@ -81,6 +84,9 @@ function setAmount(player, key, amount)
     end
     -- outputServerLog("current amount "..resourceState.amount.. " setting to "..amount)
     local newAmount = amount
+    if key == "vehicleTime" then
+        outputServerLog("new amount "..newAmount)
+    end
     if newAmount > resource.capacity then
         resourceState.amount = resource.capacity
     else

@@ -46,6 +46,8 @@
 	<script src="shared/powers/jump.power.lua" type="client" />
 	<script src="shared/powers/canon.power.lua" />
 	<script src="shared/powers/canon.power.lua" type="client" />
+	<script src="shared/powers/vehicle.changer.power.lua" />
+	<script src="shared/powers/vehicle.changer.power.lua" type="client" />
 	<script src="server/powerups/gravity.power.lua" />
 	<script src="server/powerups/physics.power.lua" />
 	<script src="server/collision.lua" />
