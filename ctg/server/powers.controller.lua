@@ -185,9 +185,6 @@ function tryEnablePower2(powerUp, powerUpState, player)
 		return
 	end
 
-	local resource = getResource(powerUp.resourceKey)
-	setAmount(player, powerUp.resourceKey, resource.capacity)
-
 	local wasEnabledOrWaitTime = powerUp.onEnable(player, vehicle)
 	if (wasEnabledOrWaitTime) then
 		setState2(powerUp, player, stateEnum.READY, "Ready", powerUpState, nil)
@@ -216,7 +213,7 @@ end
 
 function getCooldown(powerUp)
 	local resource = getResource(powerUp.resourceKey)
-	if resource and resource.type == "vehicleTime" then
+	if resource and resource.type == "time" then
 		return resource.capacity / resource.fillRate
 	end
 
@@ -234,6 +231,8 @@ function timerDone2(player, powerUpKey)
 	--outputServerLog("timerDone2 "..inspect(powerUpState.state))
 	if powerUpState.state == stateEnum.COOLDOWN then
 		tryEnablePower2(powerUp, powerUpState, player)
+		local resource = getResource(powerUp.resourceKey)
+	setAmount(player, powerUp.resourceKey, resource.capacity)
 	elseif powerUpState.state == stateEnum.IN_USE then
 		endUsePower(player, powerUp, powerUpState)
 	elseif powerUpState.state == stateEnum.WAITING then
@@ -317,7 +316,7 @@ function setState2(powerUp, player, stateType, stateMessage, state)
 		--timeLeft = timeForFullResourceBurn(player, powerUp)
 	--end
 
-	triggerClientEvent(player, "powerupStateChangedClient", player, stateType, oldState, powerUp.name, stateMessage, config.bindKey, state.charges, totalCharges, timeLeft)
+	triggerClientEvent(player, "powerStateChangedClient", player, stateType, oldState, powerUp.key, stateMessage, config.bindKey, state.charges, totalCharges, timeLeft)
 end
 
 local function stateFromSharedResource(player, powerUp)

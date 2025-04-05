@@ -71,6 +71,7 @@
 	<script src="client/location.client.lua" type="client" />
 	<script src="client/energy.ui.lua" type="client" />
 	<script src="client/energy.filler.lua" type="client" />
+	<script src="client/vehicle.switch.ui.lua" type="client" />
 
 	<script src="shared/ghost.shared.lua" type="client" />
 	<script src="shared/ghost.shared.lua" />
