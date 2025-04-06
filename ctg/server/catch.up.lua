@@ -57,10 +57,12 @@ end
 function playersWithDistanceToLeader(playersWithScore)
     local playersWithDistance = {}
     for _, player in ipairs(playersWithScore) do
-        local leader = findLeader(player.player)
+        local leader = getGoldCarrier()
         if leader then
             local distance = getDistanceBetweenPoints3D(getElementPosition(player.player), getElementPosition(leader))
             table.insert(playersWithDistance, {player = player.player, distance = distance, percentage = player.percentage})
+        else
+            table.insert(playersWithDistance, {player = player.player, distance = 0, percentage = player.percentage})
         end
     end
     return playersWithDistance
