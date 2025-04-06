@@ -50,6 +50,12 @@ function showVehicleProgressBar(shouldShow)
     DGS:dgsSetVisible(vehiclesUi.airplane.button, not shouldShow)
 end
 
+function setAlphaForLabels(alpha)
+    DGS:dgsSetAlhpa(vehiclesUi.superCar.label, alpha)
+    DGS:dgsSetAlhpa(vehiclesUi.offroad.label, alpha)
+    DGS:dgsSetAlhpa(vehiclesUi.airplane.label, alpha)
+end
+
 function setVehicleProgressTimer(timeLeft, backwards)
     if backwards then
         guiProgressBarSetProgress(powerBox.progress, 100)
@@ -102,7 +108,8 @@ local function createVehicleWindow()
     vehicleWindow = DGS:dgsCreateWindow(0.02, 0.5, 0.1, 0.1, "Swtich Vehicle", true)
     DGS:dgsSetProperty(vehicleWindow, "closeButtonEnabled", false)
     DGS:dgsSetProperty(vehicleWindow, "titleColor", tocolor(255, 255, 60, 255))
-    progressBar = DGS:dgsCreateProgressBar(xPadding, 0.20, 0.26, 0.71, true, vehicleWindow)
+    progressBar = DGS:dgsCreateProgressBar(xPadding, yPadding, 0.26, 0.71, true, vehicleWindow)
+    DGS:dgsProgressBarSetStyle(progressBar,"normal-vertical")
     DGS:dgsSetProperty(progressBar, "barColor", tocolor(255, 255, 60, 255))
     
     local y = yPadding
@@ -167,11 +174,15 @@ addEventHandler("powerStateChangedClient", getRootElement(), function (state, ol
 
     if combinedState == stateEnum.COOLDOWN then
         showVehicleProgressBar(true)
+        setAlphaForLabels(0.5)
+        DGS:dgsSetAlpha(combinedUi.label, 1.0)
         setVehicleProgressTimer(combinedUi.lastTimeLeft, false)
     elseif combinedState == stateEnum.IN_USE then
         showVehicleProgressBar(true)
+        setAlphaForLabels(0.5)
         setVehicleProgressTimer(combinedUi.lastTimeLeft, true)
     else
+        setAlphaForLabels(1.0)
         showVehicleProgressBar(false)
     end
 
