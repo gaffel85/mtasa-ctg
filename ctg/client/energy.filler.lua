@@ -2,7 +2,7 @@ local RESOURCES_KEY = "RESOURCES_KEY"
 local energyResourceKey = "energy"
 local overchargeResourceKey = "overcharge"
 local timerDiff = 50
-local fillRate = 10
+local fillRate = 6
 
 local energyState = {
     key = energyResourceKey,
@@ -137,7 +137,7 @@ function fillEnergyPeriodically()
     if energyState.isBurning then
         local burnAmount = (energyState.burningRate * timerDiff / 1000)
         if energyState.currentAmount > 0 then
-            addToOverCharge(burnAmount * 3)
+            addToOverCharge(burnAmount * 0.5)
         end
 
         energyState.currentAmount = energyState.currentAmount - burnAmount
