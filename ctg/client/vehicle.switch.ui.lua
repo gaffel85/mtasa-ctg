@@ -9,27 +9,68 @@ local vehiclesUi = {
         label = nil,
         key = "superCar",
         lastState = nil,
-        lastTime
+        lastTimeLeft = nil,
     },
     offroad = {
         button = nil,
         label = nil,
         key = "offroad",
         lastState = nil,
+        lastTimeLeft = nil,
     },
     airplane = {
         button = nil,
         label = nil,
         key = "airplane",
         lastState = nil,
+        lastTimeLeft = nil,
     },
 }
+local stateEnum = {
+	READY = 1,
+	COOLDOWN = 2,
+	IN_USE = 3,
+	OUT_OF_CHARGES = 4,
+	PAUSED = 5,
+	WAITING = 6
+}
+local statePrio = {
+    [stateEnum.READY] = 0,
+    [stateEnum.COOLDOWN] = 1,
+    [stateEnum.IN_USE] = 2,
+    [stateEnum.OUT_OF_CHARGES] = 0,
+    [stateEnum.PAUSED] = 0,
+    [stateEnum.WAITING] = 0
+}
 
-function showVehicleProgressBar()
-    DGS:dgsSetVisible(progressBar, true)
-    DGS:dgsSetVisible(vehiclesUi.superCar.button, false)
-    DGS:dgsSetVisible(vehiclesUi.offroad.button, false)
-    DGS:dgsSetVisible(vehiclesUi.airplane.button, false)
+function showVehicleProgressBar(shouldShow)
+    DGS:dgsSetVisible(progressBar, shouldShow)
+    DGS:dgsSetVisible(vehiclesUi.superCar.button, not shouldShow)
+    DGS:dgsSetVisible(vehiclesUi.offroad.button, not shouldShow)
+    DGS:dgsSetVisible(vehiclesUi.airplane.button, not shouldShow)
+end
+
+function setVehicleProgressTimer(timeLeft, backwards)
+    if backwards then
+        guiProgressBarSetProgress(powerBox.progress, 100)
+    else
+        guiProgressBarSetProgress(powerBox.progress, 0)
+    end
+    local progressSteps = 1
+    local steps = 100 / progressSteps
+    local timeDelta = 1000 * timeLeft / steps
+ 
+    if backwards then
+        progressSteps = -progressSteps
+    end
+    
+    --outputChatBox("timeLef: "..inspect(timeLeft).." steps: "..steps.." progressSteps: "..progressSteps.." timeDelta: "..timeDelta)
+    timer = setTimer(function()
+        local oldProgress = DGS:dgsProgressBarSetProgress(progressBar)
+        local newProgress = oldProgress + progressSteps
+        --outputChatBox("oldProgress: "..oldProgress.." newProgress: "..newProgress)
+        DGS:dgsProgressBarSetProgress(progressBar, newProgress)
+    end, timeDelta, steps)
 end
 
 --[[
@@ -87,6 +128,22 @@ function killVehicleTimerForWindow()
     end
 end
 
+function getHighestPrioStateFromAll()
+    local highestPrio = 0
+    local highestPrioUi = nil
+    for key, vehicleUi in pairs(vehiclesUi) do
+        local state = vehicleUi.lastState
+        if state then
+            local prio = statePrio[state]
+            if prio > highestPrio then
+                highestPrio = prio
+                highestPrioUi = vehicleUi
+            end
+        end
+    end
+    return highestPrio, highestPrioUi
+end
+
 addEventHandler("powerStateChangedClient", getRootElement(), function (state, oldState, powerKey, message, bindKey, charges, totalCharges, timeLeft)
     getVehicleWindow()
     killVehicleTimerForWindow()
@@ -96,9 +153,21 @@ addEventHandler("powerStateChangedClient", getRootElement(), function (state, ol
         return
     end
     vehicleUi.lastState = state
-    vehicleUi.lastMessage = message
-    
+    vehicleUi.lastTimeLeft = timeLeft
 
+    local combinedState, combinedUi = getHighestPrioStateFromAll()
+
+    if combinedState == stateEnum.COOLDOWN then
+        showVehicleProgressBar(true)
+        setVehicleProgressTimer(combinedUi.lastTimeLeft, false)
+    elseif combinedState == stateEnum.IN_USE then
+        showVehicleProgressBar(true)
+        setVehicleProgressTimer(combinedUi.lastTimeLeft, true)
+    else
+        showVehicleProgressBar(false)
+    end
+
+    --[[
     if state == stateEnum.COOLDOWN then
         guiSetVisible(powerBox.progress, true)
 		guiSetAlpha ( powerBox.window,0.5 )
@@ -123,6 +192,7 @@ addEventHandler("powerStateChangedClient", getRootElement(), function (state, ol
         guiSetAlpha ( powerBox.button, 1 )
         guiSetAlpha ( powerBox.window, 1 )
     end
+    ]]--
 end)
 
 
