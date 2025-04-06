@@ -94,22 +94,30 @@ addEventHandler("onClientResourceStart", resourceRoot,
 )
 ]]--
 
+local xPadding = 0.08
+local yPadding = 0.05
+local yVerticalHeight = 0.21
+local yElementPadding = 0.05
 local function createVehicleWindow()
     vehicleWindow = DGS:dgsCreateWindow(0.02, 0.5, 0.1, 0.1, "Swtich Vehicle", true)
+    DGS:dgsSetProperty(vehicleWindow, "closeButtonEnabled", false)
     DGS:dgsSetProperty(vehicleWindow, "titleColor", tocolor(255, 255, 60, 255))
-    progressBar = DGS:dgsCreateProgressBar(0.08, 0.20, 0.26, 0.71, true, vehicleWindow)
+    progressBar = DGS:dgsCreateProgressBar(xPadding, 0.20, 0.26, 0.71, true, vehicleWindow)
     DGS:dgsSetProperty(progressBar, "barColor", tocolor(255, 255, 60, 255))
     
-    vehiclesUi.superCar.button = DGS:dgsCreateButton(0.08, 0.19, 0.21, 0.21, "1", true, vehicleWindow)
-    vehiclesUi.superCar.label = DGS:dgsCreateLabel(0.37, 0.19, 0.88, 0.21, "Super car", true, vehicleWindow)
+    local y = yPadding
+    vehiclesUi.superCar.button = DGS:dgsCreateButton(xPadding, y, 0.21, yVerticalHeight, "1", true, vehicleWindow)
+    vehiclesUi.superCar.label = DGS:dgsCreateLabel(0.37, y, 0.88, yVerticalHeight, "Super car", true, vehicleWindow)
     DGS:dgsSetProperty(vehiclesUi.superCar.label, "verticalAlign", "center")
     
-    vehiclesUi.offroad.button = DGS:dgsCreateButton(0.08, 0.45, 0.21, 0.21, "2", true, vehicleWindow)
-    vehiclesUi.offroad.label = DGS:dgsCreateLabel(0.37, 0.45, 0.88, 0.21, "Offroad", true, vehicleWindow)
+    y = y + yVerticalHeight + yElementPadding
+    vehiclesUi.offroad.button = DGS:dgsCreateButton(xPadding, y, 0.21, yVerticalHeight, "2", true, vehicleWindow)
+    vehiclesUi.offroad.label = DGS:dgsCreateLabel(0.37, y, 0.88, yVerticalHeight, "Offroad", true, vehicleWindow)
     DGS:dgsSetProperty(vehiclesUi.offroad.label, "verticalAlign", "center")
     
-    vehiclesUi.airplane.button = DGS:dgsCreateButton(0.08, 0.75, 0.21, 0.21, "3", true, vehicleWindow)
-    vehiclesUi.airplane.label = DGS:dgsCreateLabel(0.37, 0.75, 0.88, 0.21, "Airplane", true, vehicleWindow)
+    y = y + yVerticalHeight + yElementPadding
+    vehiclesUi.airplane.button = DGS:dgsCreateButton(xPadding, y, 0.21, yVerticalHeight, "3", true, vehicleWindow)
+    vehiclesUi.airplane.label = DGS:dgsCreateLabel(0.37, y, 0.88, yVerticalHeight, "Airplane", true, vehicleWindow)
     DGS:dgsSetProperty(vehiclesUi.airplane.label, "verticalAlign", "center")
 
     DGS:dgsSetVisible(progressBar, false)
