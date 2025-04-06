@@ -1,7 +1,7 @@
 local checkScoresTimer
 local catchUpPowerDisplay = nil
 
-function changeHandlingForPlayer(player, percentage, maxPercentage)
+function changeHandlingForPlayer(player, percentage, maxPercentage, distancePercentage)
     local vehicle = getPedOccupiedVehicle(player)
     if not vehicle then
         return
@@ -16,9 +16,11 @@ function changeHandlingForPlayer(player, percentage, maxPercentage)
         setVehicleHandling(vehicle, "mass", originalHandling["mass"])
     end
 
-    local cappedPercentage = math.max(percentage, 0.7)
-    local totalPercentage = cappedPercentage * maxPercentage
+    local cappedPercentage = math.max(percentage, getConsts().handicapHandlingMinPercentage)
+    local combinedPercentage = math.max(cappedPercentage * distancePercentage, getConsts().handicapTotalMinPercentage)
+    local totalPercentage = combinedPercentage * maxPercentage
     
+    outputChatBox("Handling percentage: "..inspect(totalPercentage), player)
     --outputChatBox("Changing handling for "..getPlayerName(player).." to "..totalPercentage)
     setVehicleHandling(vehicle, "maxVelocity", originalHandling["maxVelocity"] * totalPercentage)
     setVehicleHandling(vehicle, "engineAcceleration", originalHandling["engineAcceleration"] * totalPercentage)
@@ -32,11 +34,36 @@ function handicapHandling(playersWithScore)
         end
     end
 
-    local maxPercentage = 1 + getConst().handicapHandlingExtraPercentage
-    for _, player in ipairs(playersWithScore) do
-        local handlingPercentage = 1 - (player.percentage - lowestPercentage)
-        changeHandlingForPlayer(player.player, handlingPercentage, maxPercentage)
+    local playersWithDistance = playersWithDistanceToLeader(playersWithScore)
+    local distanceLimit = 300
+    local biggestDistanceInLimit = 0
+    for _, player in ipairs(playersWithDistance) do
+        if player.distance < distanceLimit then
+            if player.distance > biggestDistanceInLimit then
+                biggestDistanceInLimit = player.distance
+            end
+        end
     end
+
+    local maxDistanceHandicap = getConst().handicapHandlingMaxForDistance
+    local maxPercentage = 1 + getConst().handicapHandlingExtraPercentage
+    for _, player in ipairs(playersWithDistance) do
+        local handlingPercentage = 1 - (player.percentage - lowestPercentage)
+        local distancePercentage = (1 - maxDistanceHandicap) + math.min(player.distance / biggestDistanceInLimit, 1) * maxDistanceHandicap
+        changeHandlingForPlayer(player.player, handlingPercentage, maxPercentage, distancePercentage)
+    end
+end
+
+function playersWithDistanceToLeader(playersWithScore)
+    local playersWithDistance = {}
+    for _, player in ipairs(playersWithScore) do
+        local leader = findLeader(player.player)
+        if leader then
+            local distance = getDistanceBetweenPoints3D(getElementPosition(player.player), getElementPosition(leader))
+            table.insert(playersWithDistance, {player = player.player, distance = distance, percentage = player.percentage})
+        end
+    end
+    return playersWithDistance
 end
 
 function scorePercentageForPlayers(players)
