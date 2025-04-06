@@ -9,27 +9,74 @@ local vehiclesUi = {
         label = nil,
         key = "superCar",
         lastState = nil,
-        lastTime
+        lastTimeLeft = nil,
     },
     offroad = {
         button = nil,
         label = nil,
         key = "offroad",
         lastState = nil,
+        lastTimeLeft = nil,
     },
     airplane = {
         button = nil,
         label = nil,
         key = "airplane",
         lastState = nil,
+        lastTimeLeft = nil,
     },
 }
+local stateEnum = {
+	READY = 1,
+	COOLDOWN = 2,
+	IN_USE = 3,
+	OUT_OF_CHARGES = 4,
+	PAUSED = 5,
+	WAITING = 6
+}
+local statePrio = {
+    [stateEnum.READY] = 0,
+    [stateEnum.COOLDOWN] = 1,
+    [stateEnum.IN_USE] = 2,
+    [stateEnum.OUT_OF_CHARGES] = 0,
+    [stateEnum.PAUSED] = 0,
+    [stateEnum.WAITING] = 0
+}
 
-function showVehicleProgressBar()
-    DGS:dgsSetVisible(progressBar, true)
-    DGS:dgsSetVisible(vehiclesUi.superCar.button, false)
-    DGS:dgsSetVisible(vehiclesUi.offroad.button, false)
-    DGS:dgsSetVisible(vehiclesUi.airplane.button, false)
+function showVehicleProgressBar(shouldShow)
+    DGS:dgsSetVisible(progressBar, shouldShow)
+    DGS:dgsSetVisible(vehiclesUi.superCar.button, not shouldShow)
+    DGS:dgsSetVisible(vehiclesUi.offroad.button, not shouldShow)
+    DGS:dgsSetVisible(vehiclesUi.airplane.button, not shouldShow)
+end
+
+function setAlphaForLabels(alpha)
+    DGS:dgsSetAlhpa(vehiclesUi.superCar.label, alpha)
+    DGS:dgsSetAlhpa(vehiclesUi.offroad.label, alpha)
+    DGS:dgsSetAlhpa(vehiclesUi.airplane.label, alpha)
+end
+
+function setVehicleProgressTimer(timeLeft, backwards)
+    if backwards then
+        guiProgressBarSetProgress(powerBox.progress, 100)
+    else
+        guiProgressBarSetProgress(powerBox.progress, 0)
+    end
+    local progressSteps = 1
+    local steps = 100 / progressSteps
+    local timeDelta = 1000 * timeLeft / steps
+ 
+    if backwards then
+        progressSteps = -progressSteps
+    end
+    
+    --outputChatBox("timeLef: "..inspect(timeLeft).." steps: "..steps.." progressSteps: "..progressSteps.." timeDelta: "..timeDelta)
+    timer = setTimer(function()
+        local oldProgress = DGS:dgsProgressBarSetProgress(progressBar)
+        local newProgress = oldProgress + progressSteps
+        --outputChatBox("oldProgress: "..oldProgress.." newProgress: "..newProgress)
+        DGS:dgsProgressBarSetProgress(progressBar, newProgress)
+    end, timeDelta, steps)
 end
 
 --[[
@@ -53,22 +100,31 @@ addEventHandler("onClientResourceStart", resourceRoot,
 )
 ]]--
 
+local xPadding = 0.08
+local yPadding = 0.05
+local yVerticalHeight = 0.21
+local yElementPadding = 0.05
 local function createVehicleWindow()
     vehicleWindow = DGS:dgsCreateWindow(0.02, 0.5, 0.1, 0.1, "Swtich Vehicle", true)
+    DGS:dgsSetProperty(vehicleWindow, "closeButtonEnabled", false)
     DGS:dgsSetProperty(vehicleWindow, "titleColor", tocolor(255, 255, 60, 255))
-    progressBar = DGS:dgsCreateProgressBar(0.08, 0.20, 0.26, 0.71, true, vehicleWindow)
+    progressBar = DGS:dgsCreateProgressBar(xPadding, yPadding, 0.26, 0.71, true, vehicleWindow)
+    DGS:dgsProgressBarSetStyle(progressBar,"normal-vertical")
     DGS:dgsSetProperty(progressBar, "barColor", tocolor(255, 255, 60, 255))
     
-    vehiclesUi.superCar.button = DGS:dgsCreateButton(0.08, 0.19, 0.21, 0.21, "1", true, vehicleWindow)
-    vehiclesUi.superCar.label = DGS:dgsCreateLabel(0.37, 0.19, 0.88, 0.21, "Super car", true, vehicleWindow)
+    local y = yPadding
+    vehiclesUi.superCar.button = DGS:dgsCreateButton(xPadding, y, 0.21, yVerticalHeight, "1", true, vehicleWindow)
+    vehiclesUi.superCar.label = DGS:dgsCreateLabel(0.37, y, 0.88, yVerticalHeight, "Super car", true, vehicleWindow)
     DGS:dgsSetProperty(vehiclesUi.superCar.label, "verticalAlign", "center")
     
-    vehiclesUi.offroad.button = DGS:dgsCreateButton(0.08, 0.45, 0.21, 0.21, "2", true, vehicleWindow)
-    vehiclesUi.offroad.label = DGS:dgsCreateLabel(0.37, 0.45, 0.88, 0.21, "Offroad", true, vehicleWindow)
+    y = y + yVerticalHeight + yElementPadding
+    vehiclesUi.offroad.button = DGS:dgsCreateButton(xPadding, y, 0.21, yVerticalHeight, "2", true, vehicleWindow)
+    vehiclesUi.offroad.label = DGS:dgsCreateLabel(0.37, y, 0.88, yVerticalHeight, "Offroad", true, vehicleWindow)
     DGS:dgsSetProperty(vehiclesUi.offroad.label, "verticalAlign", "center")
     
-    vehiclesUi.airplane.button = DGS:dgsCreateButton(0.08, 0.75, 0.21, 0.21, "3", true, vehicleWindow)
-    vehiclesUi.airplane.label = DGS:dgsCreateLabel(0.37, 0.75, 0.88, 0.21, "Airplane", true, vehicleWindow)
+    y = y + yVerticalHeight + yElementPadding
+    vehiclesUi.airplane.button = DGS:dgsCreateButton(xPadding, y, 0.21, yVerticalHeight, "3", true, vehicleWindow)
+    vehiclesUi.airplane.label = DGS:dgsCreateLabel(0.37, y, 0.88, yVerticalHeight, "Airplane", true, vehicleWindow)
     DGS:dgsSetProperty(vehiclesUi.airplane.label, "verticalAlign", "center")
 
     DGS:dgsSetVisible(progressBar, false)
@@ -87,6 +143,22 @@ function killVehicleTimerForWindow()
     end
 end
 
+function getHighestPrioStateFromAll()
+    local highestPrio = 0
+    local highestPrioUi = nil
+    for key, vehicleUi in pairs(vehiclesUi) do
+        local state = vehicleUi.lastState
+        if state then
+            local prio = statePrio[state]
+            if prio > highestPrio then
+                highestPrio = prio
+                highestPrioUi = vehicleUi
+            end
+        end
+    end
+    return highestPrio, highestPrioUi
+end
+
 addEventHandler("powerStateChangedClient", getRootElement(), function (state, oldState, powerKey, message, bindKey, charges, totalCharges, timeLeft)
     getVehicleWindow()
     killVehicleTimerForWindow()
@@ -96,9 +168,25 @@ addEventHandler("powerStateChangedClient", getRootElement(), function (state, ol
         return
     end
     vehicleUi.lastState = state
-    vehicleUi.lastMessage = message
-    
+    vehicleUi.lastTimeLeft = timeLeft
 
+    local combinedState, combinedUi = getHighestPrioStateFromAll()
+
+    if combinedState == stateEnum.COOLDOWN then
+        showVehicleProgressBar(true)
+        setAlphaForLabels(0.5)
+        DGS:dgsSetAlpha(combinedUi.label, 1.0)
+        setVehicleProgressTimer(combinedUi.lastTimeLeft, false)
+    elseif combinedState == stateEnum.IN_USE then
+        showVehicleProgressBar(true)
+        setAlphaForLabels(0.5)
+        setVehicleProgressTimer(combinedUi.lastTimeLeft, true)
+    else
+        setAlphaForLabels(1.0)
+        showVehicleProgressBar(false)
+    end
+
+    --[[
     if state == stateEnum.COOLDOWN then
         guiSetVisible(powerBox.progress, true)
 		guiSetAlpha ( powerBox.window,0.5 )
@@ -123,6 +211,7 @@ addEventHandler("powerStateChangedClient", getRootElement(), function (state, ol
         guiSetAlpha ( powerBox.button, 1 )
         guiSetAlpha ( powerBox.window, 1 )
     end
+    ]]--
 end)
 
 
