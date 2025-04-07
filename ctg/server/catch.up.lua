@@ -1,7 +1,17 @@
 local checkScoresTimer
 local catchUpPowerDisplay = nil
+local SCORE_PERCENTAGE_TEXT_KEY = "SCORE_PERCENTAGE_TEXT_KEY"
+local DISTANCE_PERCENTAGE_TEXT_KEY = "DISTANCE_PERCENTAGE_TEXT_KEY"
+local TOTAL_PERCENTAGE_TEXT_KEY = "TOTAL_PERCENTAGE_TEXT_KEY"
 
-function changeHandlingForPlayer(player, percentage, maxPercentage)
+function showPercentageForPlayer(player, scorePercentage, distancePercentage, totalPercentage)
+    local x = 0.98
+    displayMessageForPlayer(player, SCORE_PERCENTAGE_TEXT_KEY, math.floor(scorePercentage * 100).."%", 99999999, x, 0.02, 255, 255, 255, 255, 1)
+    displayMessageForPlayer(player, DISTANCE_PERCENTAGE_TEXT_KEY, math.floor(distancePercentage * 100).."%", 99999999, x, 0.04, 255, 255, 255, 255, 1)
+    displayMessageForPlayer(player, TOTAL_PERCENTAGE_TEXT_KEY, math.floor(totalPercentage * 100).."%", 99999999, x, 0.06, 255, 255, 255, 255, 1)
+end
+
+function changeHandlingForPlayer(player, percentage, maxPercentage, distancePercentage)
     local vehicle = getPedOccupiedVehicle(player)
     if not vehicle then
         return
@@ -16,9 +26,13 @@ function changeHandlingForPlayer(player, percentage, maxPercentage)
         setVehicleHandling(vehicle, "mass", originalHandling["mass"])
     end
 
-    local cappedPercentage = math.max(percentage, 0.7)
-    local totalPercentage = cappedPercentage * maxPercentage
+    local cappedPercentage = math.max(percentage, getConst().handicapHandlingMinPercentage)
+    local combinedPercentage = math.max(cappedPercentage * distancePercentage, getConst().handicapTotalMinPercentage)
+    local totalPercentage = combinedPercentage * maxPercentage
+
+    showPercentageForPlayer(player, cappedPercentage, distancePercentage, totalPercentage)
     
+    --outputChatBox("Handling percentage: "..inspect(totalPercentage).." distancePercentage: "..distancePercentage.." cappedPercentage: "..cappedPercentage.." combinedPercentage: "..combinedPercentage, player)
     --outputChatBox("Changing handling for "..getPlayerName(player).." to "..totalPercentage)
     setVehicleHandling(vehicle, "maxVelocity", originalHandling["maxVelocity"] * totalPercentage)
     setVehicleHandling(vehicle, "engineAcceleration", originalHandling["engineAcceleration"] * totalPercentage)
@@ -32,11 +46,46 @@ function handicapHandling(playersWithScore)
         end
     end
 
-    local maxPercentage = 1 + getConst().handicapHandlingExtraPercentage
-    for _, player in ipairs(playersWithScore) do
-        local handlingPercentage = 1 - (player.percentage - lowestPercentage)
-        changeHandlingForPlayer(player.player, handlingPercentage, maxPercentage)
+    local playersWithDistance = playersWithDistanceToLeader(playersWithScore)
+    local distanceLimit = 300
+    local biggestDistanceInLimit = 0
+    for _, player in ipairs(playersWithDistance) do
+        if player.distance < distanceLimit then
+            if player.distance > biggestDistanceInLimit then
+                biggestDistanceInLimit = player.distance
+            end
+        end
     end
+
+    local maxDistanceHandicap = getConst().handicapHandlingMaxForDistance
+    local maxPercentage = 1 + getConst().handicapHandlingExtraPercentage
+    local extraDistanceToAdd = distanceLimit - biggestDistanceInLimit
+    for _, player in ipairs(playersWithDistance) do
+        local handlingPercentage = 1 - (player.percentage - lowestPercentage)
+        local distancePercentage = 1
+        if biggestDistanceInLimit > 0 then
+            local distancePercentBeforeCap = math.min((player.distance + extraDistanceToAdd) / distanceLimit, 1)
+            distancePercentage = (1 - maxDistanceHandicap) + distancePercentBeforeCap * maxDistanceHandicap
+        end
+        changeHandlingForPlayer(player.player, handlingPercentage, maxPercentage, distancePercentage)
+    end
+end
+
+function playersWithDistanceToLeader(playersWithScore)
+    local playersWithDistance = {}
+    local leader = getGoldCarrier()
+    for _, player in ipairs(playersWithScore) do
+        if leader then
+            local x1, y1, z1 = getElementPosition(player.player)
+            local x2, y2, z2 = getElementPosition(leader)
+            -- outputServerLog("Positions to compare: "..inspect({x1, y1, z1}).." - "..inspect({x2, y2, z2}))
+            local distance = getDistanceBetweenPoints3D(x1, y1, z1, x2, y2, z2)
+            table.insert(playersWithDistance, {player = player.player, distance = distance, percentage = player.percentage})
+        else
+            table.insert(playersWithDistance, {player = player.player, distance = 0, percentage = player.percentage})
+        end
+    end
+    return playersWithDistance
 end
 
 function scorePercentageForPlayers(players)

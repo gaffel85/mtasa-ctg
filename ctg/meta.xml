@@ -12,6 +12,7 @@
 	<script src="shared/quad.tree.lua" type="client" />
 	<script src="shared/quad.tree.lua" />
 
+	<script src="server/power.state.repo.lua" />
 	<script src="ctg.server.waterdetect.lua" />
 	<script src="ctg.server.teleport.lua" />
 	<script src="ctg.server.powerup.lua" />
@@ -45,6 +46,8 @@
 	<script src="shared/powers/jump.power.lua" type="client" />
 	<script src="shared/powers/canon.power.lua" />
 	<script src="shared/powers/canon.power.lua" type="client" />
+	<script src="shared/powers/vehicle.changer.power.lua" />
+	<script src="shared/powers/vehicle.changer.power.lua" type="client" />
 	<script src="server/powerups/gravity.power.lua" />
 	<script src="server/powerups/physics.power.lua" />
 	<script src="server/collision.lua" />
@@ -68,11 +71,14 @@
 	<script src="client/location.client.lua" type="client" />
 	<script src="client/energy.ui.lua" type="client" />
 	<script src="client/energy.filler.lua" type="client" />
+	<script src="client/vehicle.switch.ui.lua" type="client" />
 
 	<script src="shared/ghost.shared.lua" type="client" />
 	<script src="shared/ghost.shared.lua" />
 	<script src="shared/vehicle.data.lua" type="client" />
 	<script src="shared/vehicle.data.lua" />
+	<script src="shared/gold.carrier.repo.lua" type="client" />
+	<script src="shared/gold.carrier.repo.lua" />
 
 	<script src="ctg.client.goldcarrier.lua" type="client" />
     <script src="ctg.client.collision.lua" type="client" />

@@ -1,5 +1,3 @@
-local powerStates = {}
-
 --function addPowerUp(powerUp)
 	--outputServerLog("Adding powerup "..inspect(powerUp))
 	--table.insert(powerUps, powerUp)
@@ -14,6 +12,9 @@ function getPlayerPowerConfig2(player)
 			{ key = "jump", bindKey = "mouse2", toggle = false },
 			{ key = "jump", bindKey = "lshift", toggle = false },
 			{ key = "canon", bindKey = "C", toggle = false },
+			{ key = "superCar", bindKey = "1", toggle = true },
+			{ key = "offroad", bindKey = "2", toggle = true },
+			{ key = "airplane", bindKey = "3", toggle = true },
         }
     }
 end
@@ -72,18 +73,20 @@ function getStateEnum()
 end
 
 function endActivePowers2(player, powerUp, powerUpState)
-	if powerUpState then
-		if powerUpState.timer then
-			killPowerTimer2(powerUpState)
-			powerUpState.timer = nil
-		end
+	if not powerUpState then
+		return
 	end
 
-	if powerUpState and powerUpState.state == stateEnum.PAUSED then
+	if powerUpState.timer then
+		killPowerTimer2(powerUpState)
+		powerUpState.timer = nil
+	end
+
+	if powerUpState.state == stateEnum.PAUSED then
 		unpausePower2(player, powerUp, powerUpState)
 	end
 
-	if powerUpState and (powerUpState.state == stateEnum.IN_USE or powerUpState.state == stateEnum.READY) then
+	if powerUpState.state == stateEnum.IN_USE or powerUpState.state == stateEnum.READY then
 		local vehicle = getPedOccupiedVehicle (player)
 		if vehicle then
 			powerUp.onDeactivated(player, vehicle)
@@ -92,26 +95,14 @@ function endActivePowers2(player, powerUp, powerUpState)
 end
 
 function resetPowerState2(player, powerUp)
-    local playerState = powerStates[player]
-	if not playerState then
-		playerState = {}
-		powerStates[player] = playerState
+    local powerUpState = PowerStateRepo:getPowerState(player, powerUp)
+	
+	if powerUpState then
+		-- get old state and kill timer
+		endActivePowers2(player, powerUp, powerUpState)
+	else
+		powerUpState = PowerStateRepo:initPowerState(player, powerUp, stateEnum.READY)
 	end
-
-	-- get old state and kill timer
-	local powerUpState = playerState[powerUp.key]
-	endActivePowers2(player, powerUp, powerUpState)
-
-	powerUpState = {
-		state = stateEnum.READY,
-		endTime = nil,
-		timeLeftOnPause = nil,
-		stateMessage = nil,
-		stateBeforePause = nil,
-		charges = powerUp.charges(),
-		name = powerUp.name,
-		timer = nil
-	}
 	--if powerUp.initCooldown() > 0 then
 -- outputServerLog("initCooldown "..inspect(powerUp.initCooldown()))
 		--setStateWithTimer2(stateEnum.COOLDOWN, powerUp.initCooldown(), powerUpState, player, powerUp)
@@ -120,7 +111,7 @@ function resetPowerState2(player, powerUp)
 	-- setState2(powerUp, player, stateEnum.READY, "Ready", powerUpState, nil)
 	tryEnablePower2(powerUp, powerUpState, player)
 	--end
-	playerState[powerUp.key] = powerUpState
+	-- PowerStateRepo:setState(player, powerUp, powerUpState)
 	return powerUpState
 end
 
@@ -216,7 +207,26 @@ function tryDeactivatePower2(powerUp, powerUpState, player)
 	else
 		--outputServerLog("5")
         --setState2(powerUp, player, stateEnum.READY, "Ready", powerUpState, nil)
-		setStateWithTimer2(stateEnum.COOLDOWN, powerUp.cooldown(), powerUpState, player, powerUp)
+		setStateWithTimer2(stateEnum.COOLDOWN, getCooldown(powerUp), powerUpState, player, powerUp)
+	end
+end
+
+function getCooldown(powerUp)
+	local resource = getResource(powerUp.resourceKey)
+	if resource and resource.type == "time" then
+		return resource.capacity / resource.fillRate
+	end
+
+	if powerUp.cooldown() > 0 then
+		return powerUp.cooldown()
+	end
+	return 0
+end
+
+function resetIfResourceTypeIsTime(player, powerUp)
+	local resource = getResource(powerUp.resourceKey)
+	if resource and resource.type == "time" then
+		setAmount(player, powerUp.resourceKey, resource.capacity)
 	end
 end
 
@@ -228,6 +238,7 @@ function timerDone2(player, powerUpKey)
 	--outputServerLog("timerDone2 "..inspect(powerUpState.state))
 	if powerUpState.state == stateEnum.COOLDOWN then
 		tryEnablePower2(powerUp, powerUpState, player)
+		resetIfResourceTypeIsTime(player, powerUp)
 	elseif powerUpState.state == stateEnum.IN_USE then
 		endUsePower(player, powerUp, powerUpState)
 	elseif powerUpState.state == stateEnum.WAITING then
@@ -270,8 +281,7 @@ function timeLeft2(powerUpState)
 end
 
 function getPlayerState2(player, powerUp)
-    local playerStates = powerStates[player]
-	local powerUpState = playerStates[powerUp.key]
+	local powerUpState = PowerStateRepo:getPowerState(player, powerUp)
 	if (not powerUpState) then
 		powerUpState = resetPowerState2(player, powerUp)
 	end
@@ -305,7 +315,18 @@ function setState2(powerUp, player, stateType, stateMessage, state)
 	if powerUp.charges() and powerUp.charges() > 0 then
 		totalCharges = powerUp.charges()
 	end
-	triggerClientEvent(player, "powerupStateChangedClient", player, stateType, oldState, powerUp.name, stateMessage, config.bindKey, state.charges, totalCharges, timeLeft2(state))
+
+	local timeLeft = timeLeft2(state)
+	--if powerUp.shareState then
+		--outputServerLog("setState "..inspect(powerUp.key).." "..inspect(state.state).." "..inspect(state.stateMessage))
+		--timeLeft = timeForFullResourceBurn(player, powerUp)
+	--end
+
+	triggerClientEvent(player, "powerStateChangedClient", player, stateType, oldState, powerUp.key, stateMessage, config.bindKey, state.charges, totalCharges, timeLeft)
+end
+
+local function stateFromSharedResource(player, powerUp)
+
 end
 
 function endUsePower(player, powerUp, powerUpState)
@@ -345,6 +366,7 @@ function usePowerUp2(player, key, keyState, powerUp)
 	if state.charges and state.charges > 0 then
 		state.charges = state.charges - 1
 	end
+
 	-- outputChatBox("state: "..tostring(state.activated))
 	--outputServerLog("state: "..inspect(state))
 	local vehicle = getPedOccupiedVehicle(player)
@@ -358,7 +380,11 @@ function usePowerUp2(player, key, keyState, powerUp)
 	else
 		-- outputChatBox("vehicle is nil")
 	end
-	
+
+	if powerUp.minBurn then
+	addAmount(player, powerUp.resourceKey, -1 * powerUp.minBurn)
+	end
+
 	--unbindKey(player, key, keyState, usePowerUp, powerUp)
 end
 
@@ -513,7 +539,7 @@ end
 
 addEventHandler("onPlayerJoin", getRootElement(), function()
 	outputServerLog("onPlayerJoin")
-	powerStates[source] = {}
+	PowerStateRepo:clearStateForPlayer(source)
     resetPowerStatesForPlayer2(source)
 end)
   --unbind on quit
@@ -522,13 +548,12 @@ addEventHandler("onPlayerQuit", getRootElement(), function()
 	loopOverPowersForPlayer2(source, function(player, powerUp, powerUpState, powerConfig)
 		endActivePowers2(player, powerUp, powerUpState)
 	end)
-    powerStates[source] = nil
+    PowerStateRepo:removeStateForPlayer(source)
 end)
 
 addEventHandler("onResourceStart", resourceRoot, function()
 	--outputServerLog("onResourceStart claring states")
     resetPowerStatesOnDeliverdResourceBased()
-	--outputServerLog(inspect(powerStates))
 end)
 
 registerBindFunctions(function(player)
@@ -544,6 +569,12 @@ registerBindFunctions(function(player)
     bindKey(player, "lctrl", "up", powerKeyUp)
 	bindKey(player, "lshift", "down", powerKeyDown)
     bindKey(player, "lshift", "up", powerKeyUp)
+	bindKey(player, "1", "down", powerKeyDown)
+	bindKey(player, "1", "up", powerKeyUp)
+	bindKey(player, "2", "down", powerKeyDown)
+	bindKey(player, "2", "up", powerKeyUp)
+	bindKey(player, "3", "down", powerKeyDown)
+	bindKey(player, "3", "up", powerKeyUp)
 end, function(player)
     --unbindKey(player, "C", "down", powerKeyDown)
     --unbindKey(player, "C", "up", powerKeyUp)
@@ -557,4 +588,10 @@ end, function(player)
     unbindKey(player, "lctrl", "up", powerKeyUp)
 	unbindKey(player, "lshift", "down", powerKeyDown)
     unbindKey(player, "lshift", "up", powerKeyUp)
+	unbindKey(player, "1", "down", powerKeyDown)
+	unbindKey(player, "1", "up", powerKeyUp)
+	unbindKey(player, "2", "down", powerKeyDown)
+	unbindKey(player, "2", "up", powerKeyUp)
+	unbindKey(player, "3", "down", powerKeyDown)
+	unbindKey(player, "3", "up", powerKeyUp)
 end)

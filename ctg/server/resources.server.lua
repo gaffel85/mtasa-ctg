@@ -20,6 +20,16 @@ local overchargeResource = {
     initialCapacity = 0,
 }
 
+local vehicleTimeResource = {
+    key = "vehicleTime",
+    name = "Vehicle Time",
+    desc = "",
+    type = "time",
+    capacity = 100,
+    initialCapacity = 100,
+    fillRate = 5,
+}
+
 function addResource(resource)
     table.insert(resources, resource)
     setElementData(resourceRoot, RESOURCES_KEY, resources)
@@ -55,6 +65,9 @@ function addAmount(player, key, amount)
         return
     end
     local newAmount = resourceState.amount + amount
+    if key == "vehicleTime" then
+        outputServerLog("new amount "..newAmount)
+    end
     if newAmount > resource.capacity then
         resourceState.amount = resource.capacity
     else
@@ -71,6 +84,9 @@ function setAmount(player, key, amount)
     end
     -- outputServerLog("current amount "..resourceState.amount.. " setting to "..amount)
     local newAmount = amount
+    if key == "vehicleTime" then
+        outputServerLog("new amount "..newAmount)
+    end
     if newAmount > resource.capacity then
         resourceState.amount = resource.capacity
     else
@@ -84,15 +100,6 @@ addEventHandler("energyAmountChangedFromClient", resourceRoot, function(key, amo
     setAmount(client, key, amount)
 end)
 
-function resetResouceAmount(player, key)
-    local resourceState = getResourceState(player, key)
-    if not resourceState then
-        outputServerLog("Could not get resource state in resetResourceAmount")
-        return
-    end
-    resourceState.amount = 0
-end
-
 function initResourceState(player, resource)
     local playerState = resourceState[player]
     if not playerState then
@@ -101,6 +108,7 @@ function initResourceState(player, resource)
     end
     local resourceState = {
         amount = resource.initialCapacity,
+        lastChanged = getRealTime().timestamp,
     }
     playerState[resource.key] = resourceState
     return resourceState
@@ -110,6 +118,7 @@ addEventHandler("onResourceStart", resourceRoot, function()
     resourceState = {}
     addResource(energyResource)
     addResource(overchargeResource)
+    addResource(vehicleTimeResource)
 end)
 
 addEventHandler("onPlayerJoin", getRootElement(), function()

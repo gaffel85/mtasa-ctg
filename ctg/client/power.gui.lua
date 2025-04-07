@@ -121,7 +121,7 @@ function setProgressTimer(powerBox, bindKey, timeLeft, backwards)
     local progressSteps = 1
     local steps = 100 / progressSteps
     local timeDelta = 1000 * timeLeft / steps
-
+ 
     if backwards then
         progressSteps = -progressSteps
     end

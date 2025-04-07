@@ -16,7 +16,8 @@
 			"extensions": [
 				"subtixx.mtasa-lua",
 				"sumneko.lua",
-				"GitHub.copilot"
+				"GitHub.copilot",
+				"ERAGON.mtasa-dgs-lua"
 			]
 		}
 	}
