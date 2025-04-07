@@ -23,32 +23,6 @@ local helicopterPowerup = {
 	end	
 }
 
-
-local planePowerup = {
-	key = "plane",
-	name = "Plane",
-    desc = "Changes your vehicle to a plane for a short period of time.",
-	cooldown = function() return getPowerConst().plane.cooldown end,
-	duration = function() return getPowerConst().plane.duration end,
-    charges = function() return getPowerConst().plane.charges end,
-	initCooldown = function() return getPowerConst().plane.initCooldown end,
-	allowedGoldCarrier = function() return getPowerConst().plane.allowedGoldCarrier end,
-	rank = function() return getPowerConst().plane.rank end,
-	onEnable = function(player)
-		return true
-	end,
-	onDisable = function(player)
-	end,
-	onActivated = function(player, vehicle, state)
-		preventChangeFor(player)
-		setVehicleForPlayer(player, 593)
-	end,
-	onDeactivated = function(player, vehicle, state)
-		unpreventChangeFor(player)
-		setVehicleForPlayer(player, getCurrentVehicle())
-	end	
-}
-
 local bussesForEveryone = {
 	key = "busses",
 	name = "Bustrip",
@@ -94,4 +68,3 @@ local bussesForEveryone = {
 
 addPowerUp(helicopterPowerup)
 addPowerUp(bussesForEveryone)
-addPowerUp(planePowerup)

@@ -14,7 +14,7 @@ function getPlayerPowerConfig2(player)
 			{ key = "canon", bindKey = "C", toggle = false },
 			{ key = "superCar", bindKey = "1", toggle = true },
 			{ key = "offroad", bindKey = "2", toggle = true },
-			--{ key = "airplane", bindKey = "3", toggle = true },
+			{ key = "airplane", bindKey = "3", toggle = true },
         }
     }
 end
