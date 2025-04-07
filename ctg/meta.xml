@@ -77,6 +77,8 @@
 	<script src="shared/ghost.shared.lua" />
 	<script src="shared/vehicle.data.lua" type="client" />
 	<script src="shared/vehicle.data.lua" />
+	<script src="shared/gold.carrier.repo.lua" type="client" />
+	<script src="shared/gold.carrier.repo.lua" />
 
 	<script src="ctg.client.goldcarrier.lua" type="client" />
     <script src="ctg.client.collision.lua" type="client" />

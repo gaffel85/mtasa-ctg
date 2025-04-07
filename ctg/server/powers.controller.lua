@@ -223,6 +223,13 @@ function getCooldown(powerUp)
 	return 0
 end
 
+function resetIfResourceTypeIsTime(player, powerUp)
+	local resource = getResource(powerUp.resourceKey)
+	if resource and resource.type == "time" then
+		setAmount(player, powerUp.resourceKey, resource.capacity)
+	end
+end
+
 function timerDone2(player, powerUpKey)
 	local powerUp = findPowerWithKey(powerUpKey)
 	-- outputServerLog("timerDone "..inspect(getPlayerName(player)))
@@ -231,8 +238,7 @@ function timerDone2(player, powerUpKey)
 	--outputServerLog("timerDone2 "..inspect(powerUpState.state))
 	if powerUpState.state == stateEnum.COOLDOWN then
 		tryEnablePower2(powerUp, powerUpState, player)
-		local resource = getResource(powerUp.resourceKey)
-	setAmount(player, powerUp.resourceKey, resource.capacity)
+		resetIfResourceTypeIsTime(player, powerUp)
 	elseif powerUpState.state == stateEnum.IN_USE then
 		endUsePower(player, powerUp, powerUpState)
 	elseif powerUpState.state == stateEnum.WAITING then
