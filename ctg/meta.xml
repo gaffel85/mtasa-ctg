@@ -60,6 +60,7 @@
 	<script src="server/math.utils.lua" />
 	<script src="server/catch.up.lua" />
 	<script src="server/cleaner.server.lua" />
+	<script src="server/scoreboard.lua" />
 	
 	<script src="client/power.cameraangle.lua" type="client" />
 	<script src="client/powerconfig.window.lua" type="client" />
