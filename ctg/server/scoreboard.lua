@@ -17,6 +17,47 @@ function getOrCreateScoreBoardDisplay()
     return scoreBoardDisplay
 end
 
+--[[
+-- remove all these IDs
+
+]]--
+function removeLampposts()
+    removeWorldModel(642, 10000, 0, 0, 0)
+    removeWorldModel(1211, 10000, 0, 0, 0)
+    removeWorldModel(1223, 10000, 0, 0, 0)
+    removeWorldModel(1226, 10000, 0, 0, 0)
+    removeWorldModel(1231, 10000, 0, 0, 0)
+    removeWorldModel(1232, 10000, 0, 0, 0)
+    removeWorldModel(1238, 10000, 0, 0, 0)
+    removeWorldModel(1244, 10000, 0, 0, 0)
+    removeWorldModel(1257, 10000, 0, 0, 0)
+    removeWorldModel(1270, 10000, 0, 0, 0)
+    removeWorldModel(1283, 10000, 0, 0, 0)
+    removeWorldModel(1284, 10000, 0, 0, 0)
+    removeWorldModel(1285, 10000, 0, 0, 0)
+    removeWorldModel(1286, 10000, 0, 0, 0)
+    removeWorldModel(1287, 10000, 0, 0, 0)
+    removeWorldModel(1288, 10000, 0, 0, 0)
+    removeWorldModel(1289, 10000, 0, 0, 0)
+    removeWorldModel(1290, 10000, 0, 0, 0)
+    removeWorldModel(1291, 10000, 0, 0, 0)
+    removeWorldModel(1293, 10000, 0, 0, 0)
+    removeWorldModel(1294, 10000, 0, 0, 0)
+    removeWorldModel(1297, 10000, 0, 0, 0)
+    removeWorldModel(1315, 10000, 0, 0, 0)
+    removeWorldModel(1350, 10000, 0, 0, 0)
+    removeWorldModel(1351, 10000, 0, 0, 0)
+    removeWorldModel(1352, 10000, 0, 0, 0)
+    removeWorldModel(1375, 10000, 0, 0, 0)
+    removeWorldModel(1478, 10000, 0, 0, 0)
+    removeWorldModel(1568, 10000, 0, 0, 0)
+    removeWorldModel(3091, 10000, 0, 0, 0)
+    removeWorldModel(3460, 10000, 0, 0, 0)
+    removeWorldModel(3516, 10000, 0, 0, 0)
+    removeWorldModel(3853, 10000, 0, 0, 0)
+    removeWorldModel(3855, 10000, 0, 0, 0)
+end
+
 --on player join and quit add player as observer
 addEventHandler("onPlayerJoin", getRootElement(), function()
     textDisplayAddObserver(getOrCreateScoreBoardDisplay(), source)
@@ -44,6 +85,8 @@ addEventHandler("onResourceStart", getResourceRootElement(getThisResource()), fu
         getOrCreateScoreBoardDisplay()
         textItemSetText(scoreText, scoreBoardString)
     end, 1000, 0)
+
+    removeLampposts()
 end)
 
 addEventHandler("onResourceStop", getResourceRootElement(getThisResource()), function()
