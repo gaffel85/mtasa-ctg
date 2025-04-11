@@ -6,6 +6,8 @@ local quadTree = QuadTree.new(-3500, 3500, -3500, 3500)
 local locationsInList = {}
 local locationsToInsert = {}
 
+local callbacks = {}
+
 function addLocation(location)
     --outputServerLog("Adding location "..inspect(location))
     quadTree:add(location)
@@ -32,13 +34,17 @@ function getLocations(x, y, z, radius)
     return quadTree:queryRadius({ x = x, y = y }, radius)
 end
 
-function mapChanged()
+function mapChanged(callback)
     saveWholeFileAsJson()
     clearLocations()
-    readLocationsFromJsonFile()
+    readLocationsFromJsonFile(callback)
 end
 
-function readLocationsFromJsonFile()
+function addCallback(callback)
+    table.insert(callbacks, callback)
+end
+
+function readLocationsFromJsonFile(callback)
     if fileExists(filePath) then
         local file = fileOpen(filePath)
         local size = fileGetSize(file)
@@ -59,7 +65,8 @@ function readLocationsFromJsonFile()
             table.insert(locationsToInsert, location)
         end
         outputLog("Read "..#locationsAsArray.." locations from file")
-        insertSomeLocationsAndWait()
+        outputLog("Calling insertSomeLocationsAndWait with callback"..inspect(callback))
+        insertSomeLocationsAndWait(callback)
         --plotAllPositions()
 
         --setTimer(plotMainPoints, 5000, 1)
@@ -67,14 +74,20 @@ function readLocationsFromJsonFile()
 end
 
 local totalToInsertThisTime = 2000
-function insertSomeLocationsAndWait()
+function insertSomeLocationsAndWait(callback)
+    --assert callback not nil
+    if callback == nil then
+        outputLog("Callback is nil in insertSomeLocationsAndWait")
+        return
+    end
     --take 200 locations from locationsToInsert
     outputLog("Inserting "..totalToInsertThisTime.." locations")
 
     for i = 1, totalToInsertThisTime do
         if #locationsToInsert == 0 then
             outputLog("Read " .. totalRead .. " locations")
-            markStrongLocationsSomeAndWait()
+            outputLog("Calling markStrongLocationsSomeAndWait with callback"..inspect(callback))
+            markStrongLocationsSomeAndWait(callback)
             return
         end
         local location = table.remove(locationsToInsert, 1)
@@ -92,24 +105,30 @@ function insertSomeLocationsAndWait()
     end
 
     if #locationsToInsert > 0 then
-        outputLog("Locations left to insert: "..#locationsToInsert)
-        setTimer(insertSomeLocationsAndWait, 1, 1)
+        --outputLog("Locations left to insert: "..#locationsToInsert)
+        setTimer(insertSomeLocationsAndWait, 1, 1, callback)
     else
         outputLog("Read " .. totalRead .. " locations")
-        markStrongLocationsSomeAndWait()
+        outputLog("2Calling markStrongLocationsSomeAndWait with callback"..inspect(callback))
+        markStrongLocationsSomeAndWait(callback)
     end
 end
 
 local neighborsRadius = 10
 local totalToMarkAtTime = 500
-function markStrongLocationsSomeAndWait(index)
+function markStrongLocationsSomeAndWait(callback, index)
     local locIndex = index or 1
+    --assert callback not nil
+    if callback == nil then
+        outputLog("Callback is nil in markStrongLocationsSomeAndWait with index "..locIndex)
+        return
+    end
     outputLog("Start marking at "..locIndex)
     -- loop over 500 locations and perform an operation, if more setTimer
     for i = locIndex, locIndex + totalToMarkAtTime - 1 do
         if i > #locationsInList then
             outputLog("Index "..i.." is out of bounds, total: "..#locationsInList)
-            eleminateSomeLocationsAndWait()
+            eleminateSomeLocationsAndWait(callback)
             return
         end
         local location = locationsInList[i]
@@ -122,11 +141,12 @@ function markStrongLocationsSomeAndWait(index)
 
     local lastIndx = locIndex + totalToMarkAtTime - 1
     if lastIndx < #locationsInList then
-        outputLog("Locations left to mark")
-        setTimer(markStrongLocationsSomeAndWait, 1, 1, lastIndx + 1)
+        --outputLog("Locations left to mark")
+        outputLog("3Calling markStrongLocationsSomeAndWait with callback"..inspect(callback))
+        setTimer(markStrongLocationsSomeAndWait, 1, 1, callback, lastIndx + 1)
     else
         outputLog("Marked " .. totalRead .. " locations")
-        eleminateSomeLocationsAndWait()
+        eleminateSomeLocationsAndWait(callback)
     end
 end
 
@@ -159,13 +179,19 @@ end
 local totalRemoved = 0
 local removePercentage = 0.8
 local totalToEleminateAtTime = 500
-function eleminateSomeLocationsAndWait(index)
+function eleminateSomeLocationsAndWait(callback, index)
     local locIndex = index or 1
+    --assert callback not nil
+    if callback == nil then
+        outputLog("Callback is nil in eleminateSomeLocationsAndWait with index "..locIndex)
+        return
+    end
     outputLog("Start eleminating at "..locIndex)
     -- loop over 500 locations and perform an operation, if more setTimer
     for i = locIndex, locIndex + totalToEleminateAtTime - 1 do
         if i > #locationsInList then
             outputLog("Index "..i.." is out of bounds, total: "..#locationsInList..", removed: "..totalRemoved)
+            callback()
             return
         end
         local location = locationsInList[i]
@@ -179,10 +205,11 @@ function eleminateSomeLocationsAndWait(index)
 
     local lastIndx = locIndex + totalToEleminateAtTime - 1
     if lastIndx < #locationsInList then
-        outputLog("Locations left to eleminate")
-        setTimer(eleminateSomeLocationsAndWait, 1, 1, lastIndx + 1)
+        --outputLog("Locations left to eleminate")
+        setTimer(eleminateSomeLocationsAndWait, 1, 1, callback, lastIndx + 1)
     else
         outputLog("Eleminated " .. totalRead .. " locations, removed: " .. totalRemoved)
+        callback()
     end
 end
 
