@@ -11,26 +11,15 @@ function showPercentageForPlayer(player, scorePercentage, distancePercentage, to
     displayMessageForPlayer(player, TOTAL_PERCENTAGE_TEXT_KEY, math.floor(totalPercentage * 100).."%", 99999999, x, 0.06, 255, 255, 255, 255, 1)
 end
 
-function changeHandlingForPlayer(player, percentage, maxPercentage, distancePercentage)
+function changeHandlingForPlayer(player, extraGoldMass, totalPercentage)
     local vehicle = getPedOccupiedVehicle(player)
     if not vehicle then
         return
     end
 
     local originalHandling = getOriginalHandling(getElementModel(vehicle))
-    if player == getGoldCarrier() then
-        percentage = getConst().goldHandlingCoeff * percentage
-        local newMass = originalHandling["mass"] + getConst().goldMass
-        setVehicleHandling(vehicle, "mass", newMass)
-    else
-        setVehicleHandling(vehicle, "mass", originalHandling["mass"])
-    end
-
-    local cappedPercentage = math.max(percentage, getConst().handicapHandlingMinPercentage)
-    local combinedPercentage = math.max(cappedPercentage * distancePercentage, getConst().handicapTotalMinPercentage)
-    local totalPercentage = combinedPercentage * maxPercentage
-
-    showPercentageForPlayer(player, cappedPercentage, distancePercentage, totalPercentage)
+    local newMass = originalHandling["mass"] + extraGoldMass
+    setVehicleHandling(vehicle, "mass", newMass)
     
     --outputChatBox("Handling percentage: "..inspect(totalPercentage).." distancePercentage: "..distancePercentage.." cappedPercentage: "..cappedPercentage.." combinedPercentage: "..combinedPercentage, player)
     --outputChatBox("Changing handling for "..getPlayerName(player).." to "..totalPercentage)
@@ -39,6 +28,68 @@ function changeHandlingForPlayer(player, percentage, maxPercentage, distancePerc
 end
 
 function handicapHandling(playersWithScore)
+    local players = playersWithDistanceToLeader(playersWithScore)
+    adjustedScorePercentageForPlayers(players)
+    goldCarrierPercentageForPlayers(players)
+
+    local highestCombinedPercentage = 0
+    local highestPercentagePlayer = nil
+    for _, player in ipairs(players) do
+        local combinedPercentage = player.scorePercentage * player.distancePercentage * player.goldCarrierPercentage
+        if combinedPercentage > highestCombinedPercentage then
+            highestCombinedPercentage = combinedPercentage
+            highestPercentagePlayer = player.player
+        end
+    end
+
+    local extraPercentage = 1
+    if highestPercentagePlayer then
+        local vehicle = getPedOccupiedVehicle(highestPercentagePlayer)
+        if vehicle then
+            local _, _, _, _, _, _, _, _, maxSpeed = getVehicleSizeData(vehicle)
+            extraPercentage = calculateExtraVehiclePercentage(maxSpeed)
+            --outputChatBox("Extra percentage: "..extraPercentage, highestPercentagePlayer)
+        end
+    end
+
+    local coeffToMakeHighestGoTo100 = extraPercentage / highestCombinedPercentage
+    for _, player in ipairs(players) do
+        local total = coeffToMakeHighestGoTo100 * (player.scorePercentage * player.distancePercentage * player.goldCarrierPercentage)
+        player.totalPercentage = math.max(total, getConst().handicapTotalMinPercentage)
+        showPercentageForPlayer(player.player, player.scorePercentage, player.distancePercentage, player.totalPercentage)
+    end
+
+    for _, player in ipairs(players) do
+        changeHandlingForPlayer(player.player, player.extraGoldMass, player.totalPercentage)
+    end
+end
+
+function calculateExtraVehiclePercentage(maxSpeed)
+    -- maxSpeed 50 and below should result in 200% speed
+    -- maxSpeed 200 and above should result in 100% speed
+    -- interpolate in between
+    if maxSpeed < 50 then
+        return 2
+    elseif maxSpeed > 200 then
+        return 1
+    else
+        return (7/3) - (maxSpeed / 150)
+    end
+end
+
+function goldCarrierPercentageForPlayers(players)
+    for _, player in ipairs(players) do
+        if player == getGoldCarrier() then
+            player.goldCarrierPercentage = getConst().goldHandlingCoeff
+            player.extraGoldMass = getConst().goldMass
+        else
+            player.goldCarrierPercentage = 1
+            player.extraGoldMass = 0
+        end
+    end
+end
+
+function adjustedScorePercentageForPlayers(playersWithScore)
     local lowestPercentage = 1
     for _, player in ipairs(playersWithScore) do
         if player.percentage < lowestPercentage then
@@ -46,28 +97,10 @@ function handicapHandling(playersWithScore)
         end
     end
 
-    local playersWithDistance = playersWithDistanceToLeader(playersWithScore)
-    local distanceLimit = 300
-    local biggestDistanceInLimit = 0
-    for _, player in ipairs(playersWithDistance) do
-        if player.distance < distanceLimit then
-            if player.distance > biggestDistanceInLimit then
-                biggestDistanceInLimit = player.distance
-            end
-        end
-    end
-
-    local maxDistanceHandicap = getConst().handicapHandlingMaxForDistance
     local maxPercentage = 1 + getConst().handicapHandlingExtraPercentage
-    local extraDistanceToAdd = distanceLimit - biggestDistanceInLimit
-    for _, player in ipairs(playersWithDistance) do
+    for _, player in ipairs(playersWithScore) do
         local handlingPercentage = 1 - (player.percentage - lowestPercentage)
-        local distancePercentage = 1
-        if biggestDistanceInLimit > 0 then
-            local distancePercentBeforeCap = math.min((player.distance + extraDistanceToAdd) / distanceLimit, 1)
-            distancePercentage = (1 - maxDistanceHandicap) + distancePercentBeforeCap * maxDistanceHandicap
-        end
-        changeHandlingForPlayer(player.player, handlingPercentage, maxPercentage, distancePercentage)
+        player.scorePercentage = math.max(handlingPercentage, getConst().handicapHandlingMinPercentage)
     end
 end
 
@@ -85,6 +118,28 @@ function playersWithDistanceToLeader(playersWithScore)
             table.insert(playersWithDistance, {player = player.player, distance = 0, percentage = player.percentage})
         end
     end
+
+    local distanceLimit = 300
+    local biggestDistanceInLimit = 0
+    for _, player in ipairs(playersWithDistance) do
+        if player.distance < distanceLimit then
+            if player.distance > biggestDistanceInLimit then
+                biggestDistanceInLimit = player.distance
+            end
+        end
+    end
+
+    local maxDistanceHandicap = getConst().handicapHandlingMaxForDistance -- 0.5
+    local extraDistanceToAdd = distanceLimit - biggestDistanceInLimit
+    for _, player in ipairs(playersWithDistance) do
+        local distancePercentage = 1
+        if biggestDistanceInLimit > 0 then
+            local distancePercentBeforeCap = math.min((player.distance + extraDistanceToAdd) / distanceLimit, 1)
+            distancePercentage = (1 - maxDistanceHandicap) + distancePercentBeforeCap * maxDistanceHandicap
+        end
+        player.distancePercentage = distancePercentage
+    end
+
     return playersWithDistance
 end
 

@@ -2,7 +2,6 @@ local spawnPoints
 local currentSpawn = 1
 local participants = {}
 local blowingPlayer = nil
-local mapArea = nil
 
 local SCORE_KEY = "Score"
 
@@ -22,15 +21,6 @@ function getSpawnPoints()
     return spawnPoints
 end
 
-function getMapArea()
-    return mapArea
-end
-
-function isInsideMapArea(x, y, z)
-    local area = getMapArea()
-    return x >= area.xMin and x <= area.xMax and y >= area.yMin and y <= area.yMax
-end
-
 -- Stop player from exiting vehicle
 function exitVehicle(thePlayer, seat, jacked)
     cancelEvent()
@@ -38,21 +28,31 @@ end
 addEventHandler("onVehicleStartExit", getRootElement(), exitVehicle)
 
 function spawn(thePlayer, random)
-    local spawnPoint = spawnPoints[math.random(#spawnPoints)]
-    if (random == true) then
-        local spawnPoint = spawnPoints[currentSpawn]
-        currentSpawn = currentSpawn % #spawnPoints + 1
-    end  
-    spawnAtSpawnpoint(thePlayer, spawnPoint)
+    local all = getAllLocations()
+    if #all > 0 then
+        local randomLocation = all[math.random(#all)]
+        outputServerLog("Spawning at random location "..inspect(randomLocation))
+        spawnAt(thePlayer, randomLocation.x, randomLocation.y, randomLocation.z, randomLocation.rx, randomLocation.ry, randomLocation.rz)
+        return
+    else
+        local spawnPoint = spawnPoints[math.random(#spawnPoints)]
+        if (random == true) then
+            local spawnPoint = spawnPoints[currentSpawn]
+            currentSpawn = currentSpawn % #spawnPoints + 1
+        end  
+        spawnAtSpawnpointEdl(thePlayer, spawnPoint)
+    end
 end
 
-function spawnAtSpawnpoint(thePlayer, spawnPoint)
-    local posX, posY, posZ = coordsFromEdl(spawnPoint)
+function spawnAtSpawnpointEdl(thePlayer, spawnPointEdl)
+    local posX, posY, posZ = coordsFromEdl(spawnPointEdl)
+    local rotX, rotY, rotZ = rotFromEdl(spawnPointEdl)
+    spawnAtSpawnpoint(thePlayer, posX, posY, posZ, rotX, rotY, rotZ)
+end
 
+function spawnAtSpawnpoint(thePlayer, posX, posY, posZ, rotX, rotY, rotZ)
     local allLocations = getAllLocations()
     if #allLocations == 0 then
-        local posX, posY, posZ = coordsFromEdl(spawnPoint)
-        local rotX, rotY, rotZ = rotFromEdl(spawnPoint)
         spawnAt(thePlayer, posX, posY, posZ, rotX, rotY, rotZ)
         return
     end
@@ -74,6 +74,7 @@ function spawnAtSpawnpoint(thePlayer, spawnPoint)
 end
 
 function spawnAt(player, posX, posY, posZ, rotX, rotY, rotZ)
+    --outputServerLog("Spawning at "..inspect(posX)..", "..inspect(posY)..", "..inspect(posZ)..", "..inspect(rotX)..", "..inspect(rotY)..", "..inspect(rotZ))
     -- posX="" posY="" posZ=""
     local vehicle = createVehicle(getCurrentVehicle(), posX, posY, posZ + 2, rotX, rotY, rotZ, "Hunter")
     spawnPlayer(player, 0, 0, 0, 0, 285)
@@ -182,7 +183,7 @@ function parseMapArea(mapRoot)
     local xMax = tonumber(getElementData(mapAreaEdl, "xMax"))
     local yMin = tonumber(getElementData(mapAreaEdl, "yMin"))
     local yMax = tonumber(getElementData(mapAreaEdl, "yMax"))
-    mapArea = { xMin = xMin, xMax = xMax, yMin = yMin, yMax = yMax }
+    setMapArea({ xMin = xMin, xMax = xMax, yMin = yMin, yMax = yMax })
 end
 
 function testGather()
@@ -190,6 +191,10 @@ function testGather()
     local x, y, z = coordsFromEdl(spawn)
     outputServerLog("Spawn location "..inspect(spawn).." "..inspect(x).." "..inspect(y).." "..inspect(z))
     gatherPlayersAt(x, y, z, 10, 2)
+end
+
+function respawnAfterMapFinished()
+    respawnAllPlayers()
 end
 
 function startGameMap(startedMap)
@@ -200,7 +205,7 @@ function startGameMap(startedMap)
     hideouts = getElementsByType("hideout", mapRoot)
     parseMapArea(mapRoot)
     currentSpawn = math.random(#spawnPoints)
-    mapChanged(spawnPoints)
+    mapChanged(respawnAfterMapFinished)
     setGoldSpawns(goldSpawnPoints)
     setHideouts(hideouts)
     resetGame()

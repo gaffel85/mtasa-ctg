@@ -47,7 +47,7 @@ local statePrio = {
 }
 
 function showVehicleProgressBar(shouldShow)
-    outputChatBox("showVehicleProgressBar: "..inspect(shouldShow))
+    --outputChatBox("showVehicleProgressBar: "..inspect(shouldShow))
     DGS:dgsSetVisible(progressBar, shouldShow)
     DGS:dgsSetVisible(vehiclesUi.superCar.button, not shouldShow)
     DGS:dgsSetVisible(vehiclesUi.offroad.button, not shouldShow)
@@ -171,7 +171,7 @@ function getHighestPrioStateFromAll()
         local state = vehicleUi.lastState
         if state then
             local prio = statePrio[state]
-            outputConsole("State: "..stateStringName(state).." Priority: "..prio)
+            --outputConsole("State: "..stateStringName(state).." Priority: "..prio)
             if prio > highestPrio then
                 highestPrio = prio
                 highestPrioUi = vehicleUi
@@ -213,7 +213,7 @@ addEventHandler("powerStateChangedClient", getRootElement(), function (state, ol
 
     local combinedUi = getHighestPrioStateFromAll()
     if combinedUi then
-        outputConsole("Combined state: "..stateStringName(combinedUi.lastState)..'('..inspect(combinedUi)..')')
+        --outputConsole("Combined state: "..stateStringName(combinedUi.lastState)..'('..inspect(combinedUi)..')')
     end
 
     if combinedUi and combinedUi.lastState == stateEnum.COOLDOWN then

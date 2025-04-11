@@ -5,12 +5,19 @@
 	<include resource="easytext" />
 	<include resource="dgs" />
 
+	<file src="locations.json" />
+	<file src="img/san-fierro.png" />
+	<file src="img/san-fierro-h.png" />
+
+	<script src="client/events.lua" type="client" />
 	<script src="ctg.server.properties.lua" />
 	<script src="ctg.server.properties.lua" type="client" />
 	<script src="ctg.server.texts.lua" />
 
 	<script src="shared/quad.tree.lua" type="client" />
 	<script src="shared/quad.tree.lua" />
+	<script src="shared/map.area.lua" />
+	<script src="shared/map.area.lua" type="client" />
 
 	<script src="server/power.state.repo.lua" />
 	<script src="ctg.server.waterdetect.lua" />
@@ -54,6 +61,8 @@
 	<script src="server/distance.meter.lua" />
 	<script src="server/admin.control.lua" />
 	<script src="server/ghost.server.lua" />
+	<script src="shared/location.repo.lua" />
+	<script src="shared/location.repo.lua" type="client" />
 	<script src="server/location.db.lua" />
 	<script src="server/power.pickup.lua" />
 	<script src="server/gather.players.lua" />
@@ -61,7 +70,9 @@
 	<script src="server/math.utils.lua" />
 	<script src="server/catch.up.lua" />
 	<script src="server/cleaner.server.lua" />
+	<script src="server/scoreboard.lua" />
 	
+	<script src="client/location.plotter.lua" type="client" />
 	<script src="client/power.cameraangle.lua" type="client" />
 	<script src="client/powerconfig.window.lua" type="client" />
 	<script src="client/power.shielded.lua" type="client" />
