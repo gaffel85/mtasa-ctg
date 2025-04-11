@@ -119,12 +119,16 @@ function plotLocations()
         local x1, y1 = getMapX(location.y), getMapY(location.x)
         local x2 = x1 + dotWidth
         local y2 = y1 + dotWidth
+        local strongness = location.stongness or 255
         local color = tocolor(math.min(255, location.neighbors * 255 / 100), 255 - location.neighbors * 255 / 100, 0, 255)
+        if location.weak then
+            color = tocolor(0, 0, 255, 255)
+        end
         local lineIndex = DGS:dgsLineAddItem(lineArea, x1, y1, x2, y2, dotWidth, color, false)
         table.insert(lineFragments, lineIndex)
         index = index + 1
         if index == 1 then
-            outputChatBox("DGS:dgsLineAddItem(lineArea,"..x1..","..y1..","..x2..","..y2..", 3, tocolor(0,255,0,255),true)")
+            outputChatBox("Dot: strongness: "..strongness..", neighbors: "..location.neighbors)
             --break loop
         end
         
