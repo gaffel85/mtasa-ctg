@@ -119,8 +119,8 @@ function plotLocations()
         local x1, y1 = getMapX(location.y), getMapY(location.x)
         local x2 = x1 + dotWidth
         local y2 = y1 + dotWidth
-        --DGS:dgsLineAddItem(lineArea,0,0,1000,1000, 2, tocolor(0,255,0,255),true)
-        local lineIndex = DGS:dgsLineAddItem(lineArea, x1, y1, x2, y2, dotWidth, tocolor(0, 255, 0, 255), false)
+        local color = tocolor(math.min(255, location.neighbors * 255 / 100), 255 - location.neighbors * 255 / 100, 0, 255)
+        local lineIndex = DGS:dgsLineAddItem(lineArea, x1, y1, x2, y2, dotWidth, color, false)
         table.insert(lineFragments, lineIndex)
         index = index + 1
         if index == 1 then

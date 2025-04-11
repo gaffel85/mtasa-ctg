@@ -3,22 +3,24 @@ local locationsNotUsed = {}
 local totalRead = 0
 local filePath = "locations.json"
 local quadTree = QuadTree.new(-3500, 3500, -3500, 3500)
+local locationsInList = {}
 local locationsToInsert = {}
 
 function addLocation(location)
     --outputServerLog("Adding location "..inspect(location))
     quadTree:add(location)
+    table.insert(locationsInList, location)
 end
 
 function getAllLocations()
-    local quadLocations = quadTree:getAll()
-    return quadLocations
+    return locationsInList
 end
 
 function clearLocations()
     quadTree:clear()
     locationsNotUsed = {}
     totalRead = 0
+    locationsInList = {}
 end
 
 function containsLocation(location)
@@ -68,14 +70,11 @@ local totalToInsertThisTime = 2000
 function insertSomeLocationsAndWait()
     --take 200 locations from locationsToInsert
     outputLog("Inserting "..totalToInsertThisTime.." locations")
-    if totalRead > 5000 then
-        outputLog("Already read 5000 locations, skipping")
-        return
-    end
 
     for i = 1, totalToInsertThisTime do
         if #locationsToInsert == 0 then
-            outputLog("No more locations to insert")
+            outputLog("Read " .. totalRead .. " locations")
+            markStrongLocationsSomeAndWait()
             return
         end
         local location = table.remove(locationsToInsert, 1)
@@ -97,8 +96,32 @@ function insertSomeLocationsAndWait()
         setTimer(insertSomeLocationsAndWait, 1, 1)
     else
         outputLog("Read " .. totalRead .. " locations")
+        markStrongLocationsSomeAndWait()
+    end
+end
+
+local totalToMarkAtTime = 500
+function markStrongLocationsSomeAndWait(index)
+    local locIndex = index or 1
+    outputLog("Start marking at "..locIndex)
+    -- loop over 500 locations and perform an operation, if more setTimer
+    for i = locIndex, locIndex + totalToMarkAtTime - 1 do
+        if i > #locationsInList then
+            outputLog("Index "..i.." is out of bounds, total: "..#locationsInList)
+            return
+        end
+        local location = locationsInList[i]
+        local neighbors = getLocations(location.x, location.y, location.z, 100)
+        location.neighbors = #neighbors
     end
 
+    local lastIndx = locIndex + totalToMarkAtTime - 1
+    if lastIndx < #locationsInList then
+        outputLog("Locations left to mark")
+        setTimer(markStrongLocationsSomeAndWait, 1, 1, lastIndx + 1)
+    else
+        outputLog("Marked " .. totalRead .. " locations")
+    end
 end
 
 function convertLocationToSaveFormat(location)
