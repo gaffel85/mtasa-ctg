@@ -194,6 +194,7 @@ function testGather()
 end
 
 function respawnAfterMapFinished()
+    outputServerLog("Respawning all players after map finished")
     respawnAllPlayers()
 end
 
@@ -205,7 +206,8 @@ function startGameMap(startedMap)
     hideouts = getElementsByType("hideout", mapRoot)
     parseMapArea(mapRoot)
     currentSpawn = math.random(#spawnPoints)
-    mapChanged(respawnAfterMapFinished)
+    addFinishedLoadingLocationsCallback(respawnAfterMapFinished)
+    mapChanged()
     setGoldSpawns(goldSpawnPoints)
     setHideouts(hideouts)
     resetGame()
