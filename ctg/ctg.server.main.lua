@@ -27,11 +27,30 @@ function exitVehicle(thePlayer, seat, jacked)
 end
 addEventHandler("onVehicleStartExit", getRootElement(), exitVehicle)
 
+function filterOutLocationsWithFewestNeighbors(locations)
+    local minNeighbors = 0
+    for i, location in ipairs(locations) do
+        if location.neighbors < minNeighbors or minNeighbors == 0 then
+            minNeighbors = location.neighbors
+        end
+    end
+
+    local filteredLocations = {}
+    for i, location in ipairs(locations) do
+        if location.neighbors == minNeighbors then
+            table.insert(filteredLocations, location)
+        end
+    end
+
+    return filteredLocations
+end
+
 function spawn(thePlayer, random)
     local all = getAllLocations()
     if #all > 0 then
-        local randomLocation = all[math.random(#all)]
-        outputServerLog("Spawning at random location "..inspect(randomLocation))
+        local withFewestNeighbors = filterOutLocationsWithFewestNeighbors(all)
+        local randomLocation = withFewestNeighbors[math.random(#withFewestNeighbors)]
+        outputServerLog("Spawning at random location "..inspect(randomLocation).." with "..inspect(randomLocation.neighbors).." neighbors")
         spawnAt(thePlayer, randomLocation.x, randomLocation.y, randomLocation.z, randomLocation.rx, randomLocation.ry, randomLocation.rz)
         return
     else
