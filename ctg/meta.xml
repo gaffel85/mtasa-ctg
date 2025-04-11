@@ -55,6 +55,7 @@
 	<script src="server/admin.control.lua" />
 	<script src="server/ghost.server.lua" />
 	<script src="server/location.db.lua" />
+	<script src="server/power.pickup.lua" />
 	<script src="server/gather.players.lua" />
 	<script src="server/score.system.lua" />
 	<script src="server/math.utils.lua" />

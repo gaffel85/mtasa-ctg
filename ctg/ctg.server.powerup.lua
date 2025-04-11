@@ -65,6 +65,10 @@ local teleportPowerUp = {
 local powerUpStates = {}
 local powerUps = {}
 
+function getAllPowers()
+	return powerUps
+end
+
 function addPowerUp(powerUp)
 	table.insert(powerUps, powerUp)
 	powerUpStates[powerUp.key] = {}
