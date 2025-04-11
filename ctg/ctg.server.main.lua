@@ -2,7 +2,6 @@ local spawnPoints
 local currentSpawn = 1
 local participants = {}
 local blowingPlayer = nil
-local mapArea = nil
 
 local SCORE_KEY = "Score"
 
@@ -20,15 +19,6 @@ end
 
 function getSpawnPoints()
     return spawnPoints
-end
-
-function getMapArea()
-    return mapArea
-end
-
-function isInsideMapArea(x, y, z)
-    local area = getMapArea()
-    return x >= area.xMin and x <= area.xMax and y >= area.yMin and y <= area.yMax
 end
 
 -- Stop player from exiting vehicle
@@ -182,7 +172,7 @@ function parseMapArea(mapRoot)
     local xMax = tonumber(getElementData(mapAreaEdl, "xMax"))
     local yMin = tonumber(getElementData(mapAreaEdl, "yMin"))
     local yMax = tonumber(getElementData(mapAreaEdl, "yMax"))
-    mapArea = { xMin = xMin, xMax = xMax, yMin = yMin, yMax = yMax }
+    setMapArea({ xMin = xMin, xMax = xMax, yMin = yMin, yMax = yMax })
 end
 
 function testGather()
