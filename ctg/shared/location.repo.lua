@@ -6,7 +6,7 @@ local quadTree = QuadTree.new(-3500, 3500, -3500, 3500)
 local locationsInList = {}
 local locationsToInsert = {}
 
-local callbacks = {}
+local callback = nil
 
 function addLocation(location)
     --outputServerLog("Adding location "..inspect(location))
@@ -34,20 +34,20 @@ function getLocations(x, y, z, radius)
     return quadTree:queryRadius({ x = x, y = y }, radius)
 end
 
-function mapChanged()
+function mapChanged(callback)
     saveWholeFileAsJson()
     clearLocations()
+    addFinishedLoadingLocationsCallback(callback)
     readLocationsFromJsonFile()
 end
 
-function addFinishedLoadingLocationsCallback(callback)
-    table.insert(callbacks, callback)
+local function addFinishedLoadingLocationsCallback(newCallback)
+    callback = newCallback
 end
 
 function callCallbacks()
-    for i, callback in ipairs(callbacks) do
-        callback()
-    end
+    callback()
+    callback = nil
 end
 
 function readLocationsFromJsonFile()
@@ -78,6 +78,10 @@ function readLocationsFromJsonFile()
     end
 end
 
+function callReducer()
+    MeanPosReducer.markStrongLocationsSomeAndWait(callback)
+end
+
 local totalToInsertThisTime = 2000
 function insertSomeLocationsAndWait()
     --take 200 locations from locationsToInsert
@@ -86,7 +90,7 @@ function insertSomeLocationsAndWait()
     for i = 1, totalToInsertThisTime do
         if #locationsToInsert == 0 then
             outputLog("Read " .. totalRead .. " locations")
-            markStrongLocationsSomeAndWait()
+            callReducer()
             return
         end
         local location = table.remove(locationsToInsert, 1)
@@ -108,95 +112,7 @@ function insertSomeLocationsAndWait()
         setTimer(insertSomeLocationsAndWait, 1, 1, )
     else
         outputLog("Read " .. totalRead .. " locations")
-        markStrongLocationsSomeAndWait()
-    end
-end
-
-local neighborsRadius = 10
-local totalToMarkAtTime = 500
-function markStrongLocationsSomeAndWait(index)
-    local locIndex = index or 1
-    outputLog("Start marking at "..locIndex)
-    -- loop over 500 locations and perform an operation, if more setTimer
-    for i = locIndex, locIndex + totalToMarkAtTime - 1 do
-        if i > #locationsInList then
-            outputLog("Index "..i.." is out of bounds, total: "..#locationsInList)
-            eleminateSomeLocationsAndWait()
-            return
-        end
-        local location = locationsInList[i]
-        local neighbors = getLocations(location.x, location.y, location.z, neighborsRadius)
-        local meanX, meanY = meanXYPos(neighbors)
-        local distance = getDistanceBetweenPoints2D(location.x, location.y, meanX, meanY)
-        location.distance = distance
-        location.neighbors = #neighbors
-    end
-
-    local lastIndx = locIndex + totalToMarkAtTime - 1
-    if lastIndx < #locationsInList then
-        --outputLog("Locations left to mark")
-        setTimer(markStrongLocationsSomeAndWait, 1, 1, lastIndx + 1)
-    else
-        outputLog("Marked " .. totalRead .. " locations")
-        eleminateSomeLocationsAndWait()
-    end
-end
-
-function meanValueOfNeighbors(locations)
-    local total = 0
-    for i, location in ipairs(locations) do
-        total = total + location.neighbors
-    end
-    return total / #locations
-end
-
-function meanXYPos(locations)
-    local totalX = 0
-    local totalY = 0
-    for i, location in ipairs(locations) do
-        totalX = totalX + location.x
-        totalY = totalY + location.y
-    end
-    return totalX / #locations, totalY / #locations
-end
-
-function meanDistance(neighbors)
-    local total = 0
-    for i, location in ipairs(neighbors) do
-        total = total + location.distance
-    end
-    return total / #neighbors
-end
-
-local totalRemoved = 0
-local removePercentage = 0.8
-local totalToEleminateAtTime = 500
-function eleminateSomeLocationsAndWait(index)
-    local locIndex = index or 1
-    outputLog("Start eleminating at "..locIndex)
-    -- loop over 500 locations and perform an operation, if more setTimer
-    for i = locIndex, locIndex + totalToEleminateAtTime - 1 do
-        if i > #locationsInList then
-            outputLog("Index "..i.." is out of bounds, total: "..#locationsInList..", removed: "..totalRemoved)
-            callCallbacks()
-            return
-        end
-        local location = locationsInList[i]
-        local neighbors = getLocations(location.x, location.y, location.z, neighborsRadius)
-        local meanDistance = meanDistance(neighbors)
-        if #neighbors > 5 and location.distance * removePercentage > meanDistance then
-            location.weak = true
-            totalRemoved = totalRemoved + 1
-        end
-    end
-
-    local lastIndx = locIndex + totalToEleminateAtTime - 1
-    if lastIndx < #locationsInList then
-        --outputLog("Locations left to eleminate")
-        setTimer(eleminateSomeLocationsAndWait, 1, 1, lastIndx + 1)
-    else
-        outputLog("Eleminated " .. totalRead .. " locations, removed: " .. totalRemoved)
-        callCallbacks()
+        callReducer()
     end
 end
 

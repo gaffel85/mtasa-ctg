@@ -61,6 +61,8 @@
 	<script src="server/distance.meter.lua" />
 	<script src="server/admin.control.lua" />
 	<script src="server/ghost.server.lua" />
+	<script src="shared/locations/reducer.meanPos.lua" />
+	<script src="shared/locations/reducer.meanPos.lua" type="client" />
 	<script src="shared/location.repo.lua" />
 	<script src="shared/location.repo.lua" type="client" />
 	<script src="server/location.db.lua" />
