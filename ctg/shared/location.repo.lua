@@ -82,6 +82,16 @@ function callReducer()
     MeanPosReducer.markStrongLocationsSomeAndWait(callback)
 end
 
+function updateNeighborsCnt(location)
+    local neighbors = getLocations(location.x, location.y, location.z, MeanPosReducer.neighborsRadius)
+    location.neighbors = #neighbors
+    for i, neighbor in ipairs(neighbors) do
+        if neighbor ~= location then
+            neighbor.neighbors = neighbor.neighbors + 1
+        end
+    end
+end
+
 local totalToInsertThisTime = 2000
 function insertSomeLocationsAndWait()
     --take 200 locations from locationsToInsert
@@ -90,7 +100,7 @@ function insertSomeLocationsAndWait()
     for i = 1, totalToInsertThisTime do
         if #locationsToInsert == 0 then
             outputLog("Read " .. totalRead .. " locations")
-            callReducer()
+            --callReducer()
             return
         end
         local location = table.remove(locationsToInsert, 1)
@@ -100,6 +110,7 @@ function insertSomeLocationsAndWait()
             totalRead = totalRead + 1
             if isInsideMapArea(location.x, location.y, location.z) then
                 addLocation(location)
+                updateNeighborsCnt(location)
                 --addPlotPoint(location)
             else
                 table.insert(locationsNotUsed, location)
@@ -112,7 +123,7 @@ function insertSomeLocationsAndWait()
         setTimer(insertSomeLocationsAndWait, 1, 1, )
     else
         outputLog("Read " .. totalRead .. " locations")
-        callReducer()
+        --callReducer()
     end
 end
 

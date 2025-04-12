@@ -39,6 +39,7 @@ function getOrCreatePlotWindow()
         local yOffsetLabel = DGS:dgsCreateLabel(0.90, 0.07, 0.1, 0.02, "Y Offset", true, plotWindow)
         local yOffsetPlusButton = DGS:dgsCreateButton(0.95, 0.07, 0.04, 0.02, "+", true, plotWindow)
         local yOffsetMinusButton = DGS:dgsCreateButton(0.97, 0.07, 0.04, 0.02, "-", true, plotWindow)
+        local reduceLocationsButton = DGS:dgsCreateButton(0.90, 0.09, 0.1, 0.02, "Reduce Locations", true, plotWindow)
         addEventHandler ( "onDgsMouseClick", xScalePlusButton, function() 
             xScale = xScale + scaleSteps
             outputConsole("X Scale: "..xScale)
@@ -79,8 +80,17 @@ function getOrCreatePlotWindow()
             outputConsole("Y Offset: "..yOffset)
             plotLocations()
         end)
+        addEventHandler ( "onDgsMouseClick", reduceLocationsButton, function() 
+            outputChatBox("Reducing locations")
+            callReducer()
+        end)
     end
     return plotWindow
+end
+
+function callReducer()
+    outputChatBox("callReducer")
+    MeanPosReducer.markStrongLocationsSomeAndWait(plotLocations)
 end
 
 function drawMap()
