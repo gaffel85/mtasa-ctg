@@ -101,7 +101,7 @@ end
 
 function callReducer()
     outputChatBox("callReducer")
-    reduceLocationsInRepo()
+    reduceLocationsInRepo(plotLocations)
 end
 
 function drawMap()
@@ -138,17 +138,18 @@ function plotLocations()
     local index = 0
     for i, location in ipairs(allLocations) do
         local x1, y1 = getMapX(location.y), getMapY(location.x)
-        local x2 = x1 + dotWidth
-        local y2 = y1 + dotWidth
+        local size = dotWidth
+        local x2 = x1 + size
+        local y2 = y1 + size
         local strongness = location.stongness or 255
         local neighbors = location.neighbors or 0
         --local color = tocolor(math.min(255, neighbors * 255 / 100), 255 - neighbors * 255 / 100, 0, 255)
-        local color = tocolor(128, 128, 128, 255)
+        local color = tocolor(0, 0, 255, 255)
         if location.new then
             color = tocolor(80, 255, 80, 255)
         end
         if location.weak then
-            color = tocolor(0, 0, 255, 255)
+            color = tocolor(255, 255, 0, 255)
         end
         local lineIndex = DGS:dgsLineAddItem(lineArea, x1, y1, x2, y2, dotWidth, color, false)
         table.insert(lineFragments, lineIndex)

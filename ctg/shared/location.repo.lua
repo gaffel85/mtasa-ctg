@@ -9,8 +9,15 @@ local isAddingFromFile = false
 
 local callback = nil
 
-function reduceLocationsInRepo(callback)
-    ClusterReducer:reduceLocations(quadTree, quadTree, callback) 
+function reduceLocationsInRepo(callback, cluster_distance, min_cluster_points, max_rotation_diff, astar_distance)
+    ClusterReducer:reduceLocations(quadTree, function(reducedLocations)
+        quadTree:clear()
+        for i, p in ipairs(reducedLocations) do
+            addLocation(p)
+            p.new = false
+        end
+        callback()
+    end, cluster_distance, min_cluster_points, max_rotation_diff, astar_distance)
 end
 
 function addLocation(location)

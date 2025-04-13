@@ -18,24 +18,17 @@ function ClusterReducer:callCallbacks()
     self.callbacks = {}
 end
 
-function ClusterReducer:reduceLocations(original_qt, result_qt, callback)
-    --add callack
+function ClusterReducer:reduceLocations(original_qt, callback, cluster_distance, min_cluster_points, max_rotation_diff, astar_distance)
     self:addCallback(callback)
+    setTimer(function ()
+        local cluster_distance = cluster_distance or 3.0 -- Max distance for neighbors (epsilon)
+        local min_cluster_points = min_cluster_points or 3 -- Min points to form a dense cluster
+        local max_rotation_diff = max_rotation_diff or 90.0 -- Max angle diff in degrees
+        local astar_distance = astar_distance or 7.0 -- A* connection distance (used for noise check logic maybe)
 
-    local cluster_distance = 8.0 -- Max distance for neighbors (epsilon)
-    local min_cluster_points = 3 -- Min points to form a dense cluster
-    local max_rotation_diff = 90.0 -- Max angle diff in degrees
-    local astar_distance = 7.0 -- A* connection distance (used for noise check logic maybe)
-
-    local reducedLocations = reduce_points_clustered(original_qt, cluster_distance, min_cluster_points, max_rotation_diff, astar_distance)
-    if original_qt == result_qt then
-        original_qt:clear()
-    end
-
-    for i, p in ipairs(reducedLocations) do
-        result_qt:add(p)
-    end
-    self:callCallbacks()
+        local reducedLocations = reduce_points_clustered(original_qt, cluster_distance, min_cluster_points, max_rotation_diff, astar_distance)
+        self:callCallbacks(reducedLocations)
+    end, 1000, 1)
 end
 
 function calculate_distance_2d_sq(p1, p2)
@@ -99,6 +92,7 @@ function reduce_points_clustered(original_qt, epsilon, minPts, max_angle_diff_de
     for i, p in ipairs(points) do
         p.visited = false
         p.cluster_id = nil
+        p.weak = true -- mark as weak and then mark all reduced point as not weak in the end
     end
     
     local epsilon_sq = epsilon * epsilon -- Use squared distance
@@ -242,7 +236,10 @@ function reduce_points_clustered(original_qt, epsilon, minPts, max_angle_diff_de
         end
     end
     print(string.format("Kept %d noise points.", noise_kept))
-    
+
+    for _, point in ipairs(reduced_points) do
+        point.weak = false
+    end    
     
     print(string.format("Final reduced point count: %d", #reduced_points))
     return reduced_points
