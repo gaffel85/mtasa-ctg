@@ -1,6 +1,47 @@
 -- [[ Previous helper functions like calculate_distance_2d_sq, get_map_bounds remain ]]
 -- [[ Assumes QuadTree implementation ]]
 
+ClusterReducer = {
+    callbacks = {},
+    neighborsRadius = 10,
+    totalToMarkAtTime = 500,
+}
+
+function ClusterReducer:addCallback(callback)
+    table.insert(self.callbacks, callback)
+end
+
+function ClusterReducer:callCallbacks()
+    for i, callback in ipairs(self.callbacks) do
+        callback()
+    end
+    self.callbacks = {}
+end
+
+function ClusterReducer:reduceLocations(original_qt, result_qt, callback)
+    --add callack
+    self:addCallback(callback)
+
+    local cluster_distance = 8.0 -- Max distance for neighbors (epsilon)
+    local min_cluster_points = 3 -- Min points to form a dense cluster
+    local max_rotation_diff = 90.0 -- Max angle diff in degrees
+    local astar_distance = 7.0 -- A* connection distance (used for noise check logic maybe)
+
+    local reducedLocations = reduce_points_clustered(original_qt, cluster_distance, min_cluster_points, max_rotation_diff, astar_distance)
+    if original_qt == result_qt then
+        original_qt:clear()
+    end
+
+    for i, p in ipairs(reducedLocations) do
+        result_qt:add(p)
+    end
+    self:callCallbacks()
+end
+
+function calculate_distance_2d_sq(p1, p2)
+    return getDistanceBetweenPoints2D(p1.x, p1.y, p2.x, p2.y)
+end
+
 -- Helper function for angle normalization (to -180 to 180)
 local function normalize_angle_deg(angle)
     angle = angle % 360
@@ -33,31 +74,32 @@ local function angle_diff_deg(a1, a2)
     local avg_rad = math.atan2(sum_y / count, sum_x / count)
     return math.deg(avg_rad)
 end
+
+function get_map_bounds(points)
+    local xMin, xMax = math.huge, -math.huge
+    local yMin, yMax = math.huge, -math.huge
+    for _, p in ipairs(points) do
+        if p.x < xMin then xMin = p.x end
+        if p.x > xMax then xMax = p.x end
+        if p.y < yMin then yMin = p.y end
+        if p.y > yMax then yMax = p.y end
+    end
+    return xMin, xMax, yMin, yMax
+end
     
     -- Modified main reduction function
-function reduce_points_clustered(original_points, epsilon, minPts, max_angle_diff_deg, astar_connect_dist)
-    if not original_points or #original_points == 0 then return {} end
+function reduce_points_clustered(original_qt, epsilon, minPts, max_angle_diff_deg, astar_connect_dist)
+    if not original_qt then return {} end
+    local points = original_qt:getAll()
     
     print(string.format("Starting clustered reduction. Points: %d, Epsilon: %.2f, MinPts: %d, MaxAngleDiff: %.1f",
-                        #original_points, epsilon, minPts, max_angle_diff_deg))
+                        #points, epsilon, minPts, max_angle_diff_deg))
     
     -- 1. Prepare points and QuadTree
-    local points = {} -- Use a copy to add temporary fields
-    for i, p in ipairs(original_points) do
-        points[i] = {
-            x=p.x, y=p.y, z=p.z, rx=p.rx, ry=p.ry, rz=p.rz,
-            id = i, -- Keep original index if needed
-            visited = false,
-            cluster_id = nil
-        }
+    for i, p in ipairs(points) do
+        p.visited = false
+        p.cluster_id = nil
     end
-    
-    local xMin, xMax, yMin, yMax = get_map_bounds(points)
-    local original_qt = QuadTree.new(xMin, xMax, yMin, yMax, 4) -- Capacity = 4
-    for _, p in ipairs(points) do
-        original_qt:add(p)
-    end
-    print("QuadTree built.")
     
     local epsilon_sq = epsilon * epsilon -- Use squared distance
     
@@ -96,8 +138,7 @@ function reduce_points_clustered(original_points, epsilon, minPts, max_angle_dif
                     table.insert(clusters[cluster_id], current_neighbor) -- Add to cluster list
     
                     -- Find *its* neighbors
-                    local found_new = {}
-                    original_qt:queryRadius(current_neighbor, epsilon, found_new)
+                    local found_new = original_qt:queryRadius(current_neighbor, epsilon)
                     local valid_new_neighbors = {}
                     for _, potential_neighbor in ipairs(found_new) do
                         -- Check distance (redundant if queryRadius is exact, good check otherwise)
@@ -128,8 +169,7 @@ function reduce_points_clustered(original_points, epsilon, minPts, max_angle_dif
     for i, point in ipairs(points) do
         if not point.visited then
             point.visited = true
-            local found_neighbors = {}
-            original_qt:queryRadius(point, epsilon, found_neighbors)
+            local found_neighbors = original_qt:queryRadius(point, epsilon)
     
             local valid_neighbors = {}
             for _, neighbor in ipairs(found_neighbors) do
@@ -237,9 +277,11 @@ local min_cluster_points = 3 -- Min points to form a dense cluster
 local max_rotation_diff = 90.0 -- Max angle diff in degrees
 local astar_distance = 7.0 -- A* connection distance (used for noise check logic maybe)
 
+local original_qt = QuadTree.new(-3500, 3500, -3500, 3500)
+
 -- Run the reduction
 local reduced_game_points = reduce_points_clustered(
-    all_game_points,
+    original_qt,
     cluster_distance,
     min_cluster_points,
     max_rotation_diff,

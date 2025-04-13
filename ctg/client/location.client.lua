@@ -27,8 +27,34 @@ function  getVehicleGroundPos(vehicle)
     return x, y, ground
 end
 
-function saveLocationForPlayer()
-    local player = localPlayer
+function saveLocationsForAllPlayers()
+    for i, player in ipairs(getElementsByType("player")) do
+        local newLocation = saveLocationForPlayer(player)
+        if newLocation then
+            addLocation(newLocation)
+            clientPlotPosition(newLocation.x, newLocation.y, newLocation.z) 
+
+            if player == localPlayer then
+                table.insert(locations, newLocation)
+                --plotPosition(newLocation.x, newLocation.y, newLocation.z)
+
+                local serverLocation = convertToCompactServerFormat(newLocation)
+                table.insert(locationsToSend, serverLocation)
+
+                if (#locationsToSend > serverPackageSize) then
+                    triggerServerEvent("locationFromClient", resourceRoot, locationsToSend)
+                    locationsToSend = {}
+                end
+
+                if (#locations > maxLocactions) then
+                    table.remove(locations, 1)
+                end
+            end
+        end
+    end
+end
+
+function saveLocationForPlayer(player)
     -- save location, rotation, velocity and angular velocity for player
     local vehicle = getPedOccupiedVehicle(player)
     if not vehicle then
@@ -69,21 +95,9 @@ function saveLocationForPlayer()
         avz = avz,
         timestamp = getRealTime().timestamp,
         speedMet = speedInKmh >= minSpeedForRotation,
+        player = player
     }
-    table.insert(locations, newLocation)
-    plotPosition(x, y, z)
-
-    local serverLocation = convertToCompactServerFormat(newLocation)
-    table.insert(locationsToSend, serverLocation)
-
-    if (#locationsToSend > serverPackageSize) then
-        triggerServerEvent("locationFromClient", resourceRoot, locationsToSend)
-        locationsToSend = {}
-    end
-
-    if (#locations > maxLocactions) then
-		table.remove(locations, 1)
-	end
+    return newLocation
 end
 
 function convertToCompactServerFormat(location)
@@ -115,21 +129,21 @@ function convertToServerFormat(location)
     }
 end
 
-function plotPosition(x, y, z)
-    -- plot a position in the world
-    --local blip = createBlip(x, y, z, 0, 2, 120, 90, 255, 255, 0)
+function clientPlotPosition(x, y, z)
+    --plot a position in the world
+    local blip = createBlip(x, y, z, 0, 2, 120, 90, 255, 255, 0)
     -- remove oldest blip if more than maxBlips
-   -- if #lastBlips > maxBlips then
-    --    local oldestBlip = table.remove(lastBlips, 1)
-    --    destroyElement(oldestBlip)
-    --end
-    --table.insert(lastBlips, blip)
+   if #lastBlips > maxBlips then
+        local oldestBlip = table.remove(lastBlips, 1)
+        destroyElement(oldestBlip)
+    end
+    table.insert(lastBlips, blip)
 end
 
 function plotAllPositions()
     -- plot all positions in the world
     for i, location in ipairs(locations) do
-        plotPosition(location.x, location.y, location.z)
+        clientPlotPosition(location.x, location.y, location.z)
     end
 end
 
@@ -167,7 +181,7 @@ function findLocationClosestToTimeAgo(timeAgo)
     return closestLocation
 end
 
-setTimer(saveLocationForPlayer, 500, 100000000)
+setTimer(saveLocationsForAllPlayers, 500, 100000000)
 outputChatBox("Main file")
 
 addEvent("reportLastTransform", true)

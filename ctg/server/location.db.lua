@@ -105,6 +105,6 @@ addEventHandler("onResourceStart", resourceRoot,
 addEventHandler("onResourceStop", resourceRoot,
     function()
         destroyOldBlips()
-        saveWholeFileAsJson()
+        --saveWholeFileAsJson()
     end
 )

@@ -11,8 +11,13 @@ local SCORE_KEY = "Score"
 scoreboardRes = getResourceFromName("scoreboard")
 
 function goldPickedUp(player)
+    --outputServerLog("Gold picked up by "..inspect(player))
     changeGoldCarrier(player)
-    showPresentGoldCarrier(getGoldCarrier())
+    if getGoldCarrier() then
+        showPresentGoldCarrier(getGoldCarrier())
+    else
+        outputServerLog("No gold carrier found")
+    end
     
     spawnNewHideout()
 end
@@ -50,7 +55,7 @@ function spawn(thePlayer, random)
     if #all > 0 then
         local withFewestNeighbors = filterOutLocationsWithFewestNeighbors(all)
         local randomLocation = withFewestNeighbors[math.random(#withFewestNeighbors)]
-        outputServerLog("Spawning at random location "..inspect(randomLocation).." with "..inspect(randomLocation.neighbors).." neighbors")
+        --outputServerLog("Spawning at random location "..inspect(randomLocation).." with "..inspect(randomLocation.neighbors).." neighbors")
         spawnAt(thePlayer, randomLocation.x, randomLocation.y, randomLocation.z, randomLocation.rx, randomLocation.ry, randomLocation.rz)
         return
     else
@@ -66,6 +71,7 @@ end
 function spawnAtSpawnpointEdl(thePlayer, spawnPointEdl)
     local posX, posY, posZ = coordsFromEdl(spawnPointEdl)
     local rotX, rotY, rotZ = rotFromEdl(spawnPointEdl)
+    --outputServerLog("Spawning at spawn point edl "..inspect(spawnPointEdl).." with "..inspect(posX)..", "..inspect(posY)..", "..inspect(posZ)..", "..inspect(rotX)..", "..inspect(rotY)..", "..inspect(rotZ))
     spawnAtSpawnpoint(thePlayer, posX, posY, posZ, rotX, rotY, rotZ)
 end
 
@@ -79,6 +85,7 @@ function spawnAtSpawnpoint(thePlayer, posX, posY, posZ, rotX, rotY, rotZ)
     local radius = 20
     local locations = {}
     while #locations == 0 do
+        --outputServerLog("Getting locations with radius from spawnAtSpawnpoint"..inspect(posX)..", "..inspect(posY)..", "..inspect(posZ)..", "..radius)
         locations = getLocations(posX, posY, posZ, radius)
         radius = radius + 10
     end
@@ -225,7 +232,6 @@ function startGameMap(startedMap)
     hideouts = getElementsByType("hideout", mapRoot)
     parseMapArea(mapRoot)
     currentSpawn = math.random(#spawnPoints)
-    addFinishedLoadingLocationsCallback()
     mapChanged(respawnAfterMapFinished)
     setGoldSpawns(goldSpawnPoints)
     setHideouts(hideouts)
@@ -340,7 +346,7 @@ function playerDied(player)
         refreshAllBlips()
     end
     local closestSpawn = positionCloseTo(spawnPoints, {x = posX, y = posY, z = posZ}, 0)
-    spawnAtSpawnpoint(player, closestSpawn)
+    spawnAtSpawnpointEdl(player, closestSpawn)
 end
 
 function playerWastedMain(ammo, attacker, weapon, bodypart)

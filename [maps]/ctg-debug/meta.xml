@@ -1,6 +1,6 @@
 <meta>
 
-    <info author="gaffel" type="map" gamemodes="ctg" />
+    <info author="gaffel" type="map" gamemodes="xctg" />
 
     <map src="ctg-debug.map" />
     <script src="mapstuff.lua" type="server"/>

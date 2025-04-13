@@ -13,7 +13,9 @@ function getGoldCarrier()
 end
 
 function setGoldCarrier(carrier)
+    outputServerLog("Setting gold carrier to "..inspect(carrier))
     if (carrier == goldCarrier) then
+        outputServerLog("Gold carrier will not changed to "..inspect(carrier))
         return
     end
 
@@ -24,6 +26,7 @@ function setGoldCarrier(carrier)
 
     
     goldCarrier = carrier
+    outputServerLog("Gold carrier set to "..inspect(getGoldCarrier))
     if (carrier) then
         --setVechicleHandling(goldCarrier)
     end
@@ -79,7 +82,6 @@ function changeGoldCarrier(player)
 	setTimer(function() 
 		clearShield()
 	end, getConst().tillbakaKakatime, 1)
-
 
     setGoldCarrier(player)
     --tillbakaKakaShield = true

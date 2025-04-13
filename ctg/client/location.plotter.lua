@@ -40,6 +40,7 @@ function getOrCreatePlotWindow()
         local yOffsetPlusButton = DGS:dgsCreateButton(0.95, 0.07, 0.04, 0.02, "+", true, plotWindow)
         local yOffsetMinusButton = DGS:dgsCreateButton(0.97, 0.07, 0.04, 0.02, "-", true, plotWindow)
         local reduceLocationsButton = DGS:dgsCreateButton(0.90, 0.09, 0.1, 0.02, "Reduce Locations", true, plotWindow)
+        local saveLocationsButton = DGS:dgsCreateButton(0.90, 0.11, 0.1, 0.02, "Save Locations", true, plotWindow)
         addEventHandler ( "onDgsMouseClick", xScalePlusButton, function() 
             xScale = xScale + scaleSteps
             outputConsole("X Scale: "..xScale)
@@ -84,13 +85,17 @@ function getOrCreatePlotWindow()
             outputChatBox("Reducing locations")
             callReducer()
         end)
+        addEventHandler ( "onDgsMouseClick", saveLocationsButton, function() 
+            outputChatBox("Saving locations")
+            saveWholeFileAsJson()
+        end)
     end
     return plotWindow
 end
 
 function callReducer()
     outputChatBox("callReducer")
-    MeanPosReducer.markStrongLocationsSomeAndWait(plotLocations)
+    reduceLocationsInRepo()
 end
 
 function drawMap()
@@ -130,7 +135,8 @@ function plotLocations()
         local x2 = x1 + dotWidth
         local y2 = y1 + dotWidth
         local strongness = location.stongness or 255
-        local color = tocolor(math.min(255, location.neighbors * 255 / 100), 255 - location.neighbors * 255 / 100, 0, 255)
+        local neighbors = location.neighbors or 0
+        local color = tocolor(math.min(255, neighbors * 255 / 100), 255 - neighbors * 255 / 100, 0, 255)
         if location.weak then
             color = tocolor(0, 0, 255, 255)
         end

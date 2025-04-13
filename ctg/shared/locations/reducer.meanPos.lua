@@ -1,10 +1,10 @@
 MeanPosReducer = {
     callbacks = {},
     neighborsRadius = 10,
-    totalToMarkAtTime = 500
+    totalToMarkAtTime = 500,
 }
 
-local function MeanPosReducer:addCallback(callback)
+function MeanPosReducer:addCallback(callback)
     table.insert(self.callbacks, callback)
 end
 
@@ -15,7 +15,7 @@ function MeanPosReducer:callCallbacks()
     self.callbacks = {}
 end
 
-function MeanPosReducer:reduceLocations(allLocations, callback)
+function MeanPosReducer:reduceLocations(original_qt, result_qt, callback)
     --add callack
     self:addCallback(callback)
     markStrongLocationsSomeAndWait()
@@ -25,6 +25,7 @@ function markStrongLocationsSomeAndWait(index)
     local locIndex = index or 1
     outputLog("Start marking at "..locIndex)
     -- loop over 500 locations and perform an operation, if more setTimer
+    local locationsInList = getAllLocations()
     for i = locIndex, locIndex + MeanPosReducer.totalToMarkAtTime - 1 do
         if i > #locationsInList then
             outputLog("Index "..i.." is out of bounds, total: "..#locationsInList)
@@ -82,10 +83,11 @@ function eleminateSomeLocationsAndWait(index)
     local locIndex = index or 1
     outputLog("Start eleminating at "..locIndex)
     -- loop over 500 locations and perform an operation, if more setTimer
+    local locationsInList = getAllLocations()
     for i = locIndex, locIndex + totalToEleminateAtTime - 1 do
         if i > #locationsInList then
             outputLog("Index "..i.." is out of bounds, total: "..#locationsInList..", removed: "..totalRemoved)
-            MeanPosReducer.callCallbacks()
+            MeanPosReducer:callCallbacks()
             return
         end
         local location = locationsInList[i]
@@ -103,6 +105,6 @@ function eleminateSomeLocationsAndWait(index)
         setTimer(eleminateSomeLocationsAndWait, 1, 1, lastIndx + 1)
     else
         outputLog("Eleminated " .. totalRead .. " locations, removed: " .. totalRemoved)
-        MeanPosReducer.callCallbacks()
+        MeanPosReducer:callCallbacks()
     end
 end

@@ -1,15 +1,21 @@
 --local locations = {}
 local locationsNotUsed = {}
 local totalRead = 0
-local filePath = "locations.json"
+local current_id = 1
 local quadTree = QuadTree.new(-3500, 3500, -3500, 3500)
 local locationsInList = {}
 local locationsToInsert = {}
 
 local callback = nil
 
+function reduceLocationsInRepo(callback)
+    ClusterReducer:reduceLocations(quadTree, quadTree, callback) 
+end
+
 function addLocation(location)
     --outputServerLog("Adding location "..inspect(location))
+    location.id = current_id
+    current_id = current_id + 1
     quadTree:add(location)
     table.insert(locationsInList, location)
 end
@@ -35,22 +41,27 @@ function getLocations(x, y, z, radius)
 end
 
 function mapChanged(callback)
-    saveWholeFileAsJson()
+    --saveWholeFileAsJson()
     clearLocations()
     addFinishedLoadingLocationsCallback(callback)
     readLocationsFromJsonFile()
 end
 
-local function addFinishedLoadingLocationsCallback(newCallback)
+function addFinishedLoadingLocationsCallback(newCallback)
     callback = newCallback
 end
 
 function callCallbacks()
+    --outputLog("Callback is "..inspect(callback))
+    if not callback then
+        return
+    end
     callback()
     callback = nil
 end
 
 function readLocationsFromJsonFile()
+    local filePath = "locations.json"
     if fileExists(filePath) then
         local file = fileOpen(filePath)
         local size = fileGetSize(file)
@@ -79,7 +90,7 @@ function readLocationsFromJsonFile()
 end
 
 function callReducer()
-    MeanPosReducer.markStrongLocationsSomeAndWait(callback)
+    MeanPosReducer:markStrongLocationsSomeAndWait(callback)
 end
 
 function updateNeighborsCnt(location)
@@ -100,7 +111,7 @@ function insertSomeLocationsAndWait()
     for i = 1, totalToInsertThisTime do
         if #locationsToInsert == 0 then
             outputLog("Read " .. totalRead .. " locations")
-            --callReducer()
+            callCallbacks()
             return
         end
         local location = table.remove(locationsToInsert, 1)
@@ -120,10 +131,10 @@ function insertSomeLocationsAndWait()
 
     if #locationsToInsert > 0 then
         --outputLog("Locations left to insert: "..#locationsToInsert)
-        setTimer(insertSomeLocationsAndWait, 1, 1, )
+        setTimer(insertSomeLocationsAndWait, 1, 1)
     else
         outputLog("Read " .. totalRead .. " locations")
-        --callReducer()
+        callCallbacks()
     end
 end
 
@@ -150,6 +161,8 @@ function saveWholeFileAsJson()
         outputLog("Saving " .. newCnt .. " locations (total: " .. totalToSave .. ")")
     end
 
+    local timestamp = getRealTime().timestamp
+    local filePath = "locations_"..timestamp..".json"
     if fileExists(filePath) then
         fileDelete(filePath)
     end
