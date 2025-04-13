@@ -146,6 +146,7 @@ function plotLocations()
         local color = tocolor(128, 128, 128, 255)
         if location.new then
             color = tocolor(80, 255, 80, 255)
+        end
         if location.weak then
             color = tocolor(0, 0, 255, 255)
         end
