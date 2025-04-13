@@ -70,8 +70,10 @@ function readLocationsFromJsonFile(useClientFile)
         filePath = getLastFilePath()
         if not filePath then
             outputLog("No file to read, using default file: locations.json")
+            filePath = "locations.json"
+        else
+            outputLog("Reading from "..filePath)
         end
-        outputLog("Reading from "..filePath)
     end
     if not fileExists(filePath) then
         outputLog("File "..filePath.." does not exist, using default file: locations.json")
@@ -179,9 +181,20 @@ function getCurrentFileId()
         local size = fileGetSize(file)
         local content = fileRead(file, size)
         fileClose(file)
-        return tonumber(content)
+        outputConsole("Current file id: "..inspect(content))
+        -- check if is number
+        if tonumber(content) then
+            return tonumber(content)
+        else
+            return 0
+        end
+    else
+        local file = fileCreate(currentFileIdFilePath)
+        fileWrite(file, "0")
+        fileFlush(file)
+        fileClose(file)
+        return 0
     end
-    return 0
 end
 
 function getNextFilePath()
@@ -193,7 +206,7 @@ function getNextFilePath()
     end
 
     local file = fileOpen(currentFileIdFilePath)
-    fileWrite(file, nextFileId)
+    fileWrite(file, ""..nextFileId)
     fileFlush(file)
     fileClose(file)
 
