@@ -4,7 +4,7 @@ local lastBlips = {}
 local maxBlips = 5
 local minDistance = 5
 local minSpeedForRotation = 50
-local serverPackageSize = 3
+local serverPackageSize = 10
 local maxLocactions = 500
 
 function hasLocationCloseToForPlayer(x, y, z)
