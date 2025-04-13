@@ -41,6 +41,7 @@ function getOrCreatePlotWindow()
         local yOffsetMinusButton = DGS:dgsCreateButton(0.97, 0.07, 0.04, 0.02, "-", true, plotWindow)
         local reduceLocationsButton = DGS:dgsCreateButton(0.90, 0.09, 0.1, 0.02, "Reduce Locations", true, plotWindow)
         local saveLocationsButton = DGS:dgsCreateButton(0.90, 0.11, 0.1, 0.02, "Save Locations", true, plotWindow)
+        local loadLocationsButton = DGS:dgsCreateButton(0.90, 0.13, 0.1, 0.02, "Load Locations", true, plotWindow)
         addEventHandler ( "onDgsMouseClick", xScalePlusButton, function() 
             xScale = xScale + scaleSteps
             outputConsole("X Scale: "..xScale)
@@ -89,6 +90,11 @@ function getOrCreatePlotWindow()
             outputChatBox("Saving locations")
             saveWholeFileAsJson()
         end)
+        addEventHandler ( "onDgsMouseClick", loadLocationsButton, function() 
+            outputChatBox("Loading locations")
+            clearLocations()
+            readLocationsFromJsonFile(true)
+        end)
     end
     return plotWindow
 end
@@ -136,7 +142,10 @@ function plotLocations()
         local y2 = y1 + dotWidth
         local strongness = location.stongness or 255
         local neighbors = location.neighbors or 0
-        local color = tocolor(math.min(255, neighbors * 255 / 100), 255 - neighbors * 255 / 100, 0, 255)
+        --local color = tocolor(math.min(255, neighbors * 255 / 100), 255 - neighbors * 255 / 100, 0, 255)
+        local color = tocolor(128, 128, 128, 255)
+        if location.new then
+            color = tocolor(80, 255, 80, 255)
         if location.weak then
             color = tocolor(0, 0, 255, 255)
         end
@@ -167,7 +176,11 @@ function togglePlotterWindow()
 end
 
 clearLocations()
-readLocationsFromJsonFile()
+local useClientFile = false
+if getPlayerName(localPlayer) == "Karl" then
+    useClientFile = true
+end
+readLocationsFromJsonFile(useClientFile)
 --outputConsole(" ============ Read "..#getAllLocations().." locations")
 --drawMap()
 --plotLocations()

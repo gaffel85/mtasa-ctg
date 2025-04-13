@@ -5,6 +5,7 @@ local current_id = 1
 local quadTree = QuadTree.new(-3500, 3500, -3500, 3500)
 local locationsInList = {}
 local locationsToInsert = {}
+local isAddingFromFile = false
 
 local callback = nil
 
@@ -14,6 +15,9 @@ end
 
 function addLocation(location)
     --outputServerLog("Adding location "..inspect(location))
+    if not isAddingFromFile then
+        location.new = true
+    end
     location.id = current_id
     current_id = current_id + 1
     quadTree:add(location)
@@ -60,9 +64,23 @@ function callCallbacks()
     callback = nil
 end
 
-function readLocationsFromJsonFile()
+function readLocationsFromJsonFile(useClientFile)
     local filePath = "locations.json"
+    if useClientFile then
+        filePath = getLastFilePath()
+        if not filePath then
+            outputLog("No file to read, using default file: locations.json")
+        end
+        outputLog("Reading from "..filePath)
+    end
+    if not fileExists(filePath) then
+        outputLog("File "..filePath.." does not exist, using default file: locations.json")
+        filePath = "locations.json"
+    end
     if fileExists(filePath) then
+
+        isAddingFromFile = true
+
         local file = fileOpen(filePath)
         local size = fileGetSize(file)
         local content = fileRead(file, size)
@@ -103,6 +121,12 @@ function updateNeighborsCnt(location)
     end
 end
 
+function insertingDone()
+    outputLog("Read " .. totalRead .. " locations")
+    isAddingFromFile = false
+    callCallbacks()
+end
+
 local totalToInsertThisTime = 2000
 function insertSomeLocationsAndWait()
     --take 200 locations from locationsToInsert
@@ -110,8 +134,7 @@ function insertSomeLocationsAndWait()
 
     for i = 1, totalToInsertThisTime do
         if #locationsToInsert == 0 then
-            outputLog("Read " .. totalRead .. " locations")
-            callCallbacks()
+            insertingDone()
             return
         end
         local location = table.remove(locationsToInsert, 1)
@@ -133,8 +156,7 @@ function insertSomeLocationsAndWait()
         --outputLog("Locations left to insert: "..#locationsToInsert)
         setTimer(insertSomeLocationsAndWait, 1, 1)
     else
-        outputLog("Read " .. totalRead .. " locations")
-        callCallbacks()
+        insertingDone()
     end
 end
 
@@ -150,6 +172,43 @@ function convertLocationToSaveFormat(location)
     }
 end
 
+local currentFileIdFilePath = "currentFileId.txt"
+function getCurrentFileId()
+    if fileExists(currentFileIdFilePath) then
+        local file = fileOpen(currentFileIdFilePath)
+        local size = fileGetSize(file)
+        local content = fileRead(file, size)
+        fileClose(file)
+        return tonumber(content)
+    end
+    return 0
+end
+
+function getNextFilePath()
+    local currentFileId = getCurrentFileId()
+    local nextFileId = currentFileId + 1
+    local filePath = "locations_"..nextFileId..".json"
+    if fileExists(filePath) then
+        fileDelete(filePath)
+    end
+
+    local file = fileOpen(currentFileIdFilePath)
+    fileWrite(file, nextFileId)
+    fileFlush(file)
+    fileClose(file)
+
+    return filePath
+end
+
+function getLastFilePath()
+    local currentFileId = getCurrentFileId()
+    local filePath = "locations_"..currentFileId..".json"
+    if fileExists(filePath) then
+        return filePath
+    end
+    return nil
+end
+
 function saveWholeFileAsJson()
     local allUsedLocatsion = getAllLocations()
     local totalToSave = #allUsedLocatsion + #locationsNotUsed
@@ -161,8 +220,7 @@ function saveWholeFileAsJson()
         outputLog("Saving " .. newCnt .. " locations (total: " .. totalToSave .. ")")
     end
 
-    local timestamp = getRealTime().timestamp
-    local filePath = "locations_"..timestamp..".json"
+    local filePath = getNextFilePath()
     if fileExists(filePath) then
         fileDelete(filePath)
     end
