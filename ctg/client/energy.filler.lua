@@ -128,6 +128,50 @@ function addToOverCharge(amount)
     updateOverchargeProgress(resource)
 end
 
+function calculateZRotation(vx, vy)
+    -- calculate the rotation around Z-axis from velocity vector
+    local speed = math.sqrt(vx*vx + vy*vy)
+
+    local angle = math.deg(math.acos(vx/speed)) - 90
+    if vy < 0 then
+        angle = 360 - angle
+    end
+    return angle
+end
+
+-- calculate 
+function howMuchAgainstTheTargetIsPlayerHeading(playerDirection, target)
+    local playerX, playerY, playerZ = getElementPosition(localPlayer)
+    local targetX, targetY, targetZ = target.x, target.y, target.z
+
+    local dx = targetX - playerX
+    local dy = targetY - playerY
+
+    local angle = math.atan2(dy, dx)
+    local angleDiff = math.deg(angle) - playerDirection
+
+    if angleDiff < 0 then
+        angleDiff = angleDiff + 360
+    end
+
+    return angleDiff
+end
+
+function modifiedFillRate()
+    local target = getLastTarget()
+    local anglePercentage = 1
+    if target then
+        local vx, vy = getElementVelocity(localPlayer)
+        local playerHeading = calculateZRotation(vx, vy)
+        local diff = howMuchAgainstTheTargetIsPlayerHeading(playerHeading, target)
+        anglePercentage = 1 - math.min(1, (diff / 180))
+    end
+
+    local speed = getElementSpeed(localPlayer, 1)
+    local speedPercentage = math.min(1, (speed / 100))
+    return fillRate * anglePercentage * speedPercentage
+end
+
 function fillEnergyPeriodically()
     local resource = getResourceData(energyResourceKey)
     if not resource then
@@ -145,7 +189,7 @@ function fillEnergyPeriodically()
             energyState.currentAmount = 0
         end
     else
-        energyState.currentAmount = energyState.currentAmount + (fillRate * timerDiff / 1000)
+        energyState.currentAmount = energyState.currentAmount + (modifiedFillRate() * timerDiff / 1000)
         if energyState.currentAmount > resource.capacity then
             energyState.currentAmount = resource.capacity
         end
