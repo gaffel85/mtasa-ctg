@@ -9,6 +9,10 @@
 	<file src="img/san-fierro.png" />
 	<file src="img/san-fierro-h.png" />
 
+	<script src="shared/math.lua" />
+	<script src="shared/math.lua" type="client" />
+	<script src="shared/camera.path.lua" />
+	<script src="shared/camera.path.lua" type="client" />
 	<script src="client/events.lua" type="client" />
 	<script src="ctg.server.properties.lua" />
 	<script src="ctg.server.properties.lua" type="client" />

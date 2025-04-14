@@ -240,7 +240,47 @@ function meanPositionOrMyOwn(player, targetPos, meanPositionOfAllPlayersExceptMe
     return alternativePos, useOwnPos
 end
 
+-- Input data
+local inputData = {
+    { -2705.9004, -5.7179713, 3.1838109, 0, 0, 180, true },
+    { -2705.8423, -27.603497, 3.1796875, 360, 0, 180, true },
+    { -2705.79, -49.481808, 3.1796875, 0, 0, 180, true },
+    { -2705.7288, -71.910072, 3.296875, 360, 360, 180, true },
+    { -2705.6714, -94.007538, 3.1796875, 360, 0, 180, true },
+    { -2705.6108, -115.58537, 3.1796875, 360, 0, 180, true },
+    { -2705.5459, -138.02504, 3.1796875, 0, 0, 180, true },
+    { -2705.4832, -159.76917, 3.1796875, 360, 360, 180, true },
+    { -2705.4333, -177.77101, 3.1796875, 0, 359, 180, true },
+    { -2705.4038, -189.75586, 3.1796875, 360, 359, 180, true }
+}
+
+-- Function to extract positions
+local function extractPositions(data)
+    local positions = {}
+    for _, entry in ipairs(data) do
+        local position = {
+            x = entry[1],
+            y = entry[2],
+            z = entry[3]
+        }
+        table.insert(positions, position)
+    end
+    return positions
+end
+
+-- Extract positions
+local positions = extractPositions(inputData)
+
+-- Print the resulting positions
+for _, pos in ipairs(positions) do
+    print(string.format("Position: x = %.4f, y = %.4f, z = %.4f", pos.x, pos.y, pos.z))
+end
+
 function useCatchUp(player)
+    cameraFly({
+        extractPositions(inputData)
+    }, player, 2)
+
     if isFarEnoughFromLeader(player) then
         local playersWithScore = scorePercentageForPlayers(getElementsByType("player"))
         if #playersWithScore == 0 then
