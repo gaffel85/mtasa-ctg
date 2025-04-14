@@ -232,21 +232,37 @@
                 local count = #point_list
                 if count > 0 then
                     local sum_x, sum_y, sum_z = 0, 0, 0
-                    local angles = {}
+                    --local angles = {}
                     for _, p in ipairs(point_list) do
                         sum_x = sum_x + p.x
                         sum_y = sum_y + p.y
                         sum_z = sum_z + p.z
-                        table.insert(angles, p.rz)
+                        --table.insert(angles, p.rz)
                     end
-                    local avg_rz = average_angle_deg(angles)
-                    local centroid = {
-                        x = sum_x / count, y = sum_y / count, z = sum_z / count,
-                        rx = 0, ry = 0, rz = avg_rz, -- Assuming rx, ry not averaged
-                        cluster_id = c_id, -- Keep track of source cluster if needed
-                        weak = true -- Initially weak, finalized later
-                    }
-                    table.insert(self.reduced_points, centroid)
+                    --local avg_rz = average_angle_deg(angles)
+
+                    -- find the point in point_list that is closest to the centroid and has speedMet set to true
+                    local closest_point = nil
+                    local closest_distance = math.huge
+                    local closest_distance_speed_not_met = math.huge
+                    local closest_point_speed_not_met = nil
+                    for _, p in ipairs(point_list) do
+                        local dist_sq = calculate_distance_2d_sq(p, {x = sum_x / count, y = sum_y / count})
+                        if p.speedMet then
+                            if dist_sq < closest_distance then
+                                closest_distance = dist_sq
+                                closest_point = p
+                            end
+                        else
+                            if dist_sq < closest_distance_speed_not_met then
+                                closest_distance_speed_not_met = dist_sq
+                                closest_point_speed_not_met = p
+                            end
+                        end
+                    end
+
+                    local bestPoint = closest_point or closest_point_speed_not_met or point_list[1]
+                    table.insert(self.reduced_points, bestPoint)
                 end
             end
             outputConsole(string.format("ClusterReducer: Generated %d centroids.", #self.reduced_points))
