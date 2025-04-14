@@ -108,7 +108,7 @@
         -- Store parameters and state
         self.original_qt = original_qt
         self.callback = callback or function() outputConsole("ClusterReducer: Reduction finished (no callback provided).") end -- Ensure callback is callable
-        self.epsilon = cluster_distance or 8.0
+        self.epsilon = cluster_distance or 10.0
         self.epsilon_sq = self.epsilon * self.epsilon
         self.minPts = min_cluster_points or 5
         self.max_angle_diff_deg = max_rotation_diff or 90.0
