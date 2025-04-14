@@ -292,7 +292,7 @@ local function extractPositions(data)
 end
 
 function useCatchUp(player)
-    cameraFly(extractPositions(inputData), player, 360)
+    --cameraFly(extractPositions(inputData), player, 360)
 
     if isFarEnoughFromLeader(player) then
         local playersWithScore = scorePercentageForPlayers(getElementsByType("player"))
