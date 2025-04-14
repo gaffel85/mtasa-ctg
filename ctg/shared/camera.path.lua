@@ -37,7 +37,7 @@ function cameraFly(recordedPoints, playerToShowTheCameraFor, cameraFlySpeed)
 
   -- Constants for the animation loop
   local timerInterval = 50 -- ms between updates (adjust for smoother/less smooth, affects performance)
-  local lookAheadFactor = 0.05 -- How far ahead on the spline to look (0.0 to 1.0). Small values give smoother look direction.
+  local lookAheadFactor = 0.5 -- How far ahead on the spline to look (0.0 to 1.0). Small values give smoother look direction.
 
   -- --- The Timer Callback Function ---
   local function updateCameraFly()
@@ -68,7 +68,7 @@ function cameraFly(recordedPoints, playerToShowTheCameraFor, cameraFlySpeed)
     local camPos = catmullRomInterpolate(p0, p1, p2, p3, t)
 
     -- Calculate look-at position: slightly ahead on the same spline segment
-    local lookAtT = math.min(t + lookAheadFactor, 1.0) -- Calculate T for look-at, clamp to 1.0
+    local lookAtT = math.min(t + lookAheadFactor, 100.0) -- Calculate T for look-at, clamp to 1.0
     local lookAtPos = catmullRomInterpolate(p0, p1, p2, p3, lookAtT)
 
     -- Ensure lookAtPos is not identical to camPos (can happen at segment ends or with zero lookAheadFactor)
@@ -85,7 +85,7 @@ function cameraFly(recordedPoints, playerToShowTheCameraFor, cameraFlySpeed)
             end
         else
              lookAtPos = p2
-        fi
+        end
     end
 
 

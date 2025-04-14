@@ -43,6 +43,7 @@ function saveLocationsForAllPlayers()
 
                 if (#locationsToSend > serverPackageSize) then
                     triggerServerEvent("locationFromClient", resourceRoot, locationsToSend)
+                    outputConsole(inspect(locationsToSend))
                     locationsToSend = {}
                 end
 
