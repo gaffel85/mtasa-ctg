@@ -53,7 +53,7 @@ end
 function spawn(thePlayer, random)
     local all = getAllLocations()
     if #all > 0 then
-        local withFewestNeighbors = filterOutLocationsWithFewestNeighbors(all)
+        local withFewestNeighbors = all --filterOutLocationsWithFewestNeighbors(all)
         local randomLocation = withFewestNeighbors[math.random(#withFewestNeighbors)]
         --outputServerLog("Spawning at random location "..inspect(randomLocation).." with "..inspect(randomLocation.neighbors).." neighbors")
         spawnAt(thePlayer, randomLocation.x, randomLocation.y, randomLocation.z, randomLocation.rx, randomLocation.ry, randomLocation.rz)
