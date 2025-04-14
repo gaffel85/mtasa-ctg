@@ -11,7 +11,7 @@ local callback = nil
 
 function reduceLocationsInRepo(callback, cluster_distance, min_cluster_points, max_rotation_diff, astar_distance)
     ClusterReducer:reduceLocations(quadTree, function(reducedLocations)
-        quadTree:clear()
+        clearLocations()
         for i, p in ipairs(reducedLocations) do
             addLocation(p)
             p.new = false

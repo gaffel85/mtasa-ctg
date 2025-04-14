@@ -15,6 +15,5 @@ addEventHandler("onGoldCarrierChanged", getRootElement(), goldCarrierChanged)
 function onGoldCarrierCleared ( )
 	goldCarrier = nil
 end
-addEvent("goldCarrierCleared", true)
 addEventHandler("goldCarrierCleared", getRootElement(), onGoldCarrierCleared)
 

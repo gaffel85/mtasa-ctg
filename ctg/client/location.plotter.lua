@@ -155,7 +155,7 @@ function plotLocations()
         table.insert(lineFragments, lineIndex)
         index = index + 1
         if index == 1 then
-            outputChatBox("Dot: strongness: "..strongness..", neighbors: "..location.neighbors)
+            outputChatBox("Dot: strongness: "..strongness..", neighbors: "..neighbors)
             --break loop
         end
         

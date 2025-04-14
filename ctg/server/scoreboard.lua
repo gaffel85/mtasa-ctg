@@ -76,7 +76,7 @@ addEventHandler("onResourceStart", getResourceRootElement(getThisResource()), fu
         --append scores for all players sorted by score
         local players = getElementsByType("player")
         table.sort(players, function(a, b)
-            return getPlayerScore(a) > getPlayerScore(b)
+            return (getPlayerScore(a) or 0) > (getPlayerScore(b) or 0)
         end)
         for _, player in ipairs(players) do
             local score = getPlayerScore(player) or 0

@@ -62,7 +62,6 @@ function onMakeGhostFromServer(player, invisible)
         makeOtherPlayerGhostForMe(player, vehicle, invisible)
     end	
 end
-addEvent("makeGhostFromServer", true)
 addEventHandler("makeGhostFromServer", getRootElement(), onMakeGhostFromServer)
 
 function unmakeMeGhostForMyself(player, vehicle)
@@ -104,7 +103,6 @@ function onUnmakeGhostFromServer(player)
         unmakeOtherPlayerGhostForMe(player, vehicle)
     end	
 end
-addEvent("unmakeGhostFromServer", true)
 addEventHandler("unmakeGhostFromServer", getRootElement(), onUnmakeGhostFromServer)
 
 addEventHandler("onClientVehicleEnter", getRootElement(),

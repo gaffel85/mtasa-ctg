@@ -133,8 +133,10 @@ function calculateZRotation(vx, vy)
     local speed = math.sqrt(vx*vx + vy*vy)
 
     local angle = math.deg(math.acos(vx/speed)) - 90
-    if vy < 0 then
-        angle = 360 - angle
+    if vy > 180 then
+        angle = angle - 360
+    elseif vy < -180 then
+        angle = angle + 360
     end
     return angle
 end
@@ -150,6 +152,8 @@ function howMuchAgainstTheTargetIsPlayerHeading(playerDirection, target)
     local angle = math.atan2(dy, dx)
     local angleDiff = math.deg(angle) - playerDirection
 
+
+    --outputChatBox("Angle: "..math.deg(angle)..", "..angleDiff..", "..playerDirection)
     if angleDiff < 0 then
         angleDiff = angleDiff + 360
     end
@@ -158,18 +162,25 @@ function howMuchAgainstTheTargetIsPlayerHeading(playerDirection, target)
 end
 
 function modifiedFillRate()
-    local target = getLastTarget()
+    local target = getLastTarget(localPlayer)
     local anglePercentage = 1
-    if target then
-        local vx, vy = getElementVelocity(localPlayer)
+    local vehicle = getPedOccupiedVehicle( localPlayer )
+    if not vehicle then
+        return 0
+    end
+
+    local vx, vy = getElementVelocity(vehicle)
+    --outputChatBox("Velocity: "..vx..", "..vy)
+    if target and vx and vy then
         local playerHeading = calculateZRotation(vx, vy)
         local diff = howMuchAgainstTheTargetIsPlayerHeading(playerHeading, target)
         anglePercentage = 1 - math.min(1, (diff / 180))
     end
 
-    local speed = getElementSpeed(localPlayer, 1)
-    local speedPercentage = math.min(1, (speed / 100))
-    return fillRate * anglePercentage * speedPercentage
+    local speed = math.sqrt(vx*vx + vy*vy)
+    local speedPercentage = math.min(1, (speed / 50))
+    --outputChatBox("Angle: "..anglePercentage..", Speed: "..speedPercentage)
+    return fillRate * anglePercentage-- * speedPercentage
 end
 
 function fillEnergyPeriodically()

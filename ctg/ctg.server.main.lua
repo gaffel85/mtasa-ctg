@@ -35,14 +35,14 @@ addEventHandler("onVehicleStartExit", getRootElement(), exitVehicle)
 function filterOutLocationsWithFewestNeighbors(locations)
     local minNeighbors = 0
     for i, location in ipairs(locations) do
-        if location.neighbors < minNeighbors or minNeighbors == 0 then
-            minNeighbors = location.neighbors
+        if (location.neighbors or 0) < minNeighbors or minNeighbors == 0 then
+            minNeighbors = location.neighbors or 0
         end
     end
 
     local filteredLocations = {}
     for i, location in ipairs(locations) do
-        if location.neighbors == minNeighbors then
+        if (location.neighbors or 0) == minNeighbors then
             table.insert(filteredLocations, location)
         end
     end

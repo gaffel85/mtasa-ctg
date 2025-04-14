@@ -12,7 +12,43 @@
         -- If getDistanceBetweenPoints2D *already* returns squared distance, just use:
         -- return getDistanceBetweenPoints2D(p1.x, p1.y, p2.x, p2.y)
     end
+
+    local function normalize_angle_deg(angle)
+        angle = angle % 360
+        if angle > 180 then
+            angle = angle - 360
+        elseif angle <= -180 then
+            angle = angle + 360
+        end
+        return angle
+    end
+
+    local function angle_diff_deg(a1, a2)
+        local diff = normalize_angle_deg(a1) - normalize_angle_deg(a2)
+        return math.abs(normalize_angle_deg(diff)) -- Ensure result is positive diff <= 180
+    end
+
+    local function isInsideAngleDiffInterval(a1, a2, max_diff) 
+        --local angle_diff = angle_diff_deg(a1, a2)
+        -- if in interval or if the opposite direction is in interval
+        --return angle_diff <= max_diff or (angle_diff > 180 - max_diff)
+        return true
+    end
     
+    -- Helper function to calculate average angle (rz) - robust method using vectors
+    local function average_angle_deg(angles_deg)
+        local count = #angles_deg
+        if count == 0 then return 0 end -- Or handle error/default
+
+        local sum_x, sum_y = 0, 0
+        for _, angle_deg in ipairs(angles_deg) do
+            local rad = math.rad(angle_deg)
+            sum_x = sum_x + math.cos(rad)
+            sum_y = sum_y + math.sin(rad)
+        end
+        local avg_rad = math.atan2(sum_y / count, sum_x / count)
+        return math.deg(avg_rad)
+    end
     
     ClusterReducer = {
         -- Configuration
@@ -62,19 +98,19 @@
     -- This function now takes a single callback for completion.
     function ClusterReducer:reduceLocations(original_qt, callback, cluster_distance, min_cluster_points, max_rotation_diff, astar_distance)
         if self.phase ~= 'idle' and self.phase ~= 'done' then
-            print("ClusterReducer: Warning - Reduction already in progress.")
+            outputConsole("ClusterReducer: Warning - Reduction already in progress.")
             -- Optionally queue the request or return an error
             return
         end
     
-        print("ClusterReducer: Initiating reduction...")
+        outputConsole("ClusterReducer: Initiating reduction...")
     
         -- Store parameters and state
         self.original_qt = original_qt
-        self.callback = callback or function() print("ClusterReducer: Reduction finished (no callback provided).") end -- Ensure callback is callable
-        self.epsilon = cluster_distance or 3.0
+        self.callback = callback or function() outputConsole("ClusterReducer: Reduction finished (no callback provided).") end -- Ensure callback is callable
+        self.epsilon = cluster_distance or 8.0
         self.epsilon_sq = self.epsilon * self.epsilon
-        self.minPts = min_cluster_points or 3
+        self.minPts = min_cluster_points or 5
         self.max_angle_diff_deg = max_rotation_diff or 90.0
         self.astar_distance = astar_distance or 7.0
         self.astar_distance_sq = self.astar_distance * self.astar_distance
@@ -92,18 +128,18 @@
         -- Schedule the first processing step using the timer
         -- Using an anonymous function ensures 'self' is correctly captured
         setTimer(function() self:_process_chunk() end, self.timer_delay, 1)
-        print("ClusterReducer: Initial processing step scheduled.")
+        outputConsole("ClusterReducer: Initial processing step scheduled.")
     end
     
     -- Internal function called by the timer to process a chunk
     function ClusterReducer:_process_chunk()
         -- Safety check in case timer fires unexpectedly
         if self.phase == 'idle' or self.phase == 'done' then
-            print("ClusterReducer: Warning - _process_chunk called in inappropriate phase:", self.phase)
+            outputConsole("ClusterReducer: Warning - _process_chunk called in inappropriate phase:", self.phase)
             return
         end
     
-        print(string.format("ClusterReducer: Processing chunk, Phase: %s, Index: %d / %d",
+        outputConsole(string.format("ClusterReducer: Processing chunk, Phase: %s, Index: %d / %d",
                             self.phase, self.current_index, #self.points))
     
         -- Max execution time per chunk (optional, simple way to prevent long stalls)
@@ -115,7 +151,7 @@
         -- ===================
         if self.phase == 'init' then
             -- Phase 1: Prepare points from QuadTree
-            print("ClusterReducer: Phase 'init'...")
+            outputConsole("ClusterReducer: Phase 'init'...")
             local all_points_refs = self.original_qt:getAll()
             self.points = {} -- Ensure it's clean
             -- We assume the objects from getAll() can have fields added directly.
@@ -128,7 +164,7 @@
                 p.id = p.id or i -- Assign index as ID if 'id' doesn't exist
                 table.insert(self.points, p)
             end
-            print(string.format("ClusterReducer: Prepared %d points.", #self.points))
+            outputConsole(string.format("ClusterReducer: Prepared %d points.", #self.points))
             self.phase = 'clustering'
             self.current_index = 1
     
@@ -156,7 +192,7 @@
     
                          if neighbor and neighbor.id ~= point.id then -- Exclude self
                             if calculate_distance_2d_sq(point, neighbor) <= self.epsilon_sq then
-                                if angle_diff_deg(point.rz, neighbor.rz) <= self.max_angle_diff_deg then
+                                if isInsideAngleDiffInterval(point.rz, neighbor.rz, self.max_angle_diff_deg) then
                                     table.insert(valid_neighbors, neighbor)
                                 end
                             end
@@ -182,7 +218,7 @@
     
             -- Check if phase is complete
             if self.current_index > #self.points then
-                print(string.format("ClusterReducer: Clustering phase complete. Found %d core points, initiated %d clusters.", self.core_points_found, self.clusters_initiated))
+                outputConsole(string.format("ClusterReducer: Clustering phase complete. Found %d core points, initiated %d clusters.", self.core_points_found, self.clusters_initiated))
                 self.phase = 'centroids'
                 self.current_index = 1 -- Reset index for next phase
             end
@@ -190,7 +226,7 @@
         elseif self.phase == 'centroids' then
             -- Phase 3: Calculate all centroids
             -- Assuming this is fast enough for one chunk. If not, needs chunking too.
-            print("ClusterReducer: Phase 'centroids'...")
+            outputConsole("ClusterReducer: Phase 'centroids'...")
             self.reduced_points = {} -- Clear previous results if any
             for c_id, point_list in pairs(self.clusters) do
                 local count = #point_list
@@ -213,7 +249,7 @@
                     table.insert(self.reduced_points, centroid)
                 end
             end
-            print(string.format("ClusterReducer: Generated %d centroids.", #self.reduced_points))
+            outputConsole(string.format("ClusterReducer: Generated %d centroids.", #self.reduced_points))
             self.phase = 'noise'
             self.current_index = 1 -- Reset index for noise handling phase
     
@@ -254,7 +290,7 @@
     
             -- Check if phase complete
             if self.current_index > #self.points then
-                print(string.format("ClusterReducer: Noise handling phase complete. Total kept noise points: %d.", self.noise_kept))
+                outputConsole(string.format("ClusterReducer: Noise handling phase complete. Total kept noise points: %d.", self.noise_kept))
                 self.phase = 'finalizing'
                 self.current_index = 1 -- Reset index for finalization phase
             end
@@ -273,7 +309,7 @@
     
             -- Check if phase complete
             if self.current_index > #self.reduced_points then
-                print("ClusterReducer: Finalizing phase complete.")
+                outputConsole("ClusterReducer: Finalizing phase complete.")
                 self.phase = 'done'
             end
     
@@ -287,7 +323,7 @@
             setTimer(function() self:_process_chunk() end, self.timer_delay, 1)
         elseif self.phase == 'done' then
             -- Process finished!
-            print(string.format("ClusterReducer: Reduction complete. Final point count: %d", #self.reduced_points))
+            outputConsole(string.format("ClusterReducer: Reduction complete. Final point count: %d", #self.reduced_points))
             -- Clear temporary data (optional, depends if reducer instance is reused)
             -- self.points = {}
             -- self.clusters = {}
@@ -345,9 +381,9 @@
                          local potential_neighbor = self.points[potential_neighbor_ref.id] -- Requires ID mapping
                          if potential_neighbor then
                              if calculate_distance_2d_sq(current_neighbor, potential_neighbor) <= self.epsilon_sq then
-                                 if angle_diff_deg(current_neighbor.rz, potential_neighbor.rz) <= self.max_angle_diff_deg then
+                                if isInsideAngleDiffInterval(current_neighbor.rz, potential_neighbor.rz, self.max_angle_diff_deg) then
                                     table.insert(valid_new_neighbors, potential_neighbor)
-                                 end
+                                end
                              end
                          end
                      end
@@ -394,15 +430,15 @@
     
     -- Define the callback function for when reduction is complete
     local function on_reduction_complete(final_reduced_points)
-        print("--- Reduction Complete ---")
-        print("Received", #final_reduced_points, "reduced points.")
+        outputConsole("--- Reduction Complete ---")
+        outputConsole("Received", #final_reduced_points, "reduced points.")
         -- Do something with the final points: save, update game state, etc.
         -- [[ Add your logic here ]]
     
         -- Example: Print some results
         -- for i = 1, math.min(10, #final_reduced_points) do
         --     local p = final_reduced_points[i]
-        --     print(string.format("Point %d: x=%.2f, y=%.2f, z=%.2f, rz=%.2f (Weak: %s, Cluster: %s)",
+        --     outputConsole(string.format("Point %d: x=%.2f, y=%.2f, z=%.2f, rz=%.2f (Weak: %s, Cluster: %s)",
         --                         i, p.x, p.y, p.z, p.rz, tostring(p.weak), tostring(p.cluster_id or 'noise')))
         -- end
     end
@@ -417,4 +453,4 @@
     --     astar_distance
     -- )
     
-    -- print("Cluster reduction process started asynchronously...")
+    -- outputConsole("Cluster reduction process started asynchronously...")

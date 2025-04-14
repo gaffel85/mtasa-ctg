@@ -199,7 +199,6 @@ function inspectState()
     outputConsole(inspect(printableState))
 end
 
-addEvent("powerStateChangedClient", true)
 addEventHandler("powerStateChangedClient", getRootElement(), function (state, oldState, powerKey, message, bindKey, charges, totalCharges, timeLeft)
     --outputChatBox("Power state changed: "..state.." for "..powerKey)
     getVehicleWindow()

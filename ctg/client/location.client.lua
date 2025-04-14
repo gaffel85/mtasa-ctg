@@ -32,7 +32,7 @@ function saveLocationsForAllPlayers()
         local newLocation = saveLocationForPlayer(player)
         if newLocation then
             addLocation(newLocation)
-            clientPlotPosition(newLocation.x, newLocation.y, newLocation.z) 
+            --clientPlotPosition(newLocation.x, newLocation.y, newLocation.z) 
 
             if player == localPlayer then
                 table.insert(locations, newLocation)
