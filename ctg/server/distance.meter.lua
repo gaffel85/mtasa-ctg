@@ -1,6 +1,5 @@
 local TARGET_NAME_TEXT_ID = 847780
 local DISTANCE_TO_TARGET_TEXT_ID = 847781
-local lastTargetPosKey = "lastTargetPosKey"
 
 local x = 0.5
 local y = 0.02
@@ -16,7 +15,7 @@ function updateDescriptionOnBlipsChange()
         local spawn = getLastGoldSpawn()
         if spawn then
             for k, player in ipairs(players) do
-                setElementData(player, lastTargetPosKey, { x = spawn.x, y = spawn.y, z = spawn.z })
+                setPlayerStaticTarget(player, spawn.x, spawn.y, spawn.z)
             end
 
             local desc = spawn.desc
@@ -30,9 +29,19 @@ function updateDescriptionOnBlipsChange()
     else
         for k, player in ipairs(players) do
             local hideout = getTeamHideout(player)
+
+            if getGoldCarrier() == player then
+                if hideout then
+                    setPlayerStaticTarget(player, hideout.pos.x, hideout.pos.y, hideout.pos.z)
+                else
+                    setPlayerMovingTarget(player, getGoldCarrier())
+                end
+            else
+                setPlayerMovingTarget(player, getGoldCarrier())
+            end
+
             if hideout then
                 local desc = hideout.desc
-                setElementData(player, lastTargetPosKey, { x = hideout.pos.x, y = hideout.pos.y, z = hideout.pos.z })
                 if desc and desc ~= "" then
                     displayMessageForPlayer(player, TARGET_NAME_TEXT_ID, "\""..desc.."\"", 5000000, x, y, r, g, b, alpha, scale)
                 else

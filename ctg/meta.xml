@@ -19,6 +19,8 @@
 	<script src="data/goldcarrier.shared.lua" />
 	<script src="data/goldcarrier.shared.lua" type="client" />
 	<script src="data/goldcarrier.server.lua" />
+	<script src="data/target.shared.lua" />
+	<script src="data/target.shared.lua" type="client" />
 
 	<script src="ctg.server.properties.lua" />
 	<script src="ctg.server.properties.lua" type="client" />

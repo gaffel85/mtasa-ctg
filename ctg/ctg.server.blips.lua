@@ -67,4 +67,15 @@ function refreshAllBlips()
             end
         end
     end
+
+    for k, player in ipairs(players) do
+        local target = getPlayerCurrentTarget(player)
+        if target then
+            if target.isStatic then
+                createBlip(target.x, target.y, target.z, 0, 4, 255, 255, 0, 255, 100, 16383.0, player)
+            else
+                createBlipAttachedTo(target.element, 0, 4, 255, 255, 0, 255, 100, 16383.0, player)
+            end
+        end
+    end
 end

@@ -9,7 +9,7 @@ local vechicleHandlingLookup = {}
 
 function setGoldCarrier(carrier)
     outputServerLog("Setting gold carrier to "..inspect(carrier))
-    if (carrier == getGoldCarier()) then
+    if (carrier == getGoldCarrier()) then
         outputServerLog("Gold carrier will not changed to "..inspect(carrier))
         return
     end
@@ -21,7 +21,7 @@ function setGoldCarrier(carrier)
 
     outputServerLog("Gold carrier set to "..inspect(getGoldCarrier))
     if (carrier) then
-        --setVechicleHandling(getGoldCarier())
+        --setVechicleHandling(getGoldCarrier())
     end
 end
 
@@ -45,7 +45,7 @@ end
 
 function clearGoldCarrier()
     -- outputChatBox("Clear gold carrier!!!!")
-    local tmpGoldCarrier = getGoldCarier()
+    local tmpGoldCarrier = getGoldCarrier()
     setGoldCarrier(nil)
     oldGoldCarrier = nil
     clearShield()
@@ -53,7 +53,7 @@ function clearGoldCarrier()
 
     -- ALways togheter. Remove trigger?
     -- triggerEvent("goldCarrierChanged", root, nil, tmpGoldCarrier)
-    -- outputChatBox("goldcarrier.clearGoldCarrier, gold carrier: "..inspect(getGoldCarier()))
+    -- outputChatBox("goldcarrier.clearGoldCarrier, gold carrier: "..inspect(getGoldCarrier()))
     onGoldCarrierChanged( nil, tmpGoldCarrier)
     handlePowersForGoldCarrierChangedResourceBased(nil, tmpGoldCarrier)
 
@@ -62,11 +62,11 @@ function clearGoldCarrier()
 end
 
 function changeGoldCarrier(player)
-    if (player == getGoldCarier()) then
+    if (player == getGoldCarrier()) then
         return
     end
 
-    if ( isShielded(getGoldCarier()) == true) then
+    if ( isShielded(getGoldCarrier()) == true) then
 		-- outputChatBox("Did not change, tillbaka kaka")
 		return
 	end
@@ -79,12 +79,12 @@ function changeGoldCarrier(player)
     setGoldCarrier(player)
     --tillbakaKakaShield = true
 
-	givePointsToPlayer(getGoldCarier(), 50)
+	givePointsToPlayer(getGoldCarrier(), 50)
 
     -- ALways togheter. Remove trigger?
-    -- triggerEvent("goldCarrierChanged", root, getGoldCarier(), oldGoldCarrier)
-    onGoldCarrierChanged( getGoldCarier(), oldGoldCarrier)
-    handlePowersForGoldCarrierChangedResourceBased(getGoldCarier(), oldGoldCarrier)
+    -- triggerEvent("goldCarrierChanged", root, getGoldCarrier(), oldGoldCarrier)
+    onGoldCarrierChanged( getGoldCarrier(), oldGoldCarrier)
+    handlePowersForGoldCarrierChangedResourceBased(getGoldCarrier(), oldGoldCarrier)
 
     triggerClientEvent("onGoldCarrierChanged", player, oldGoldCarrier)    
 end

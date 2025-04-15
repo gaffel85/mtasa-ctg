@@ -22,7 +22,7 @@ function givePointsToPlayer(player, points)
     setElementData(player, SCORE_KEY, newScore)
 end
 
-local function changeTotalScore(change)
+function changeTotalScore(change)
     local totalScore = getElementData(resourceRoot, TOTAL_SCORE_KEY)
     if (totalScore == false) then
         totalScore = 0
@@ -32,7 +32,7 @@ local function changeTotalScore(change)
     return totalScore
 end
 
-local function setScorePercentage(player, newScore, totalScore)
+function setScorePercentage(player, newScore, totalScore)
     local avgScore = totalScore / #(getElementsByType("player"))
     if avgScore == 0 then
         avgScore = 1

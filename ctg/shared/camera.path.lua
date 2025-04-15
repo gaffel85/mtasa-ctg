@@ -76,7 +76,7 @@ function cameraFly(recordedPoints, playerToShowTheCameraFor, cameraFlySpeed, opt
             end
         else
              targetLookAtPos = p2
-        fi
+        end
     end
 
     -- Initialize or Smooth the ACTUAL Look-At Position

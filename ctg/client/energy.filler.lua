@@ -2,7 +2,7 @@ local RESOURCES_KEY = "RESOURCES_KEY"
 local energyResourceKey = "energy"
 local overchargeResourceKey = "overcharge"
 local timerDiff = 250
-local fillRate = 6
+local fillRate = 10
 
 local energyState = {
     key = energyResourceKey,
@@ -162,31 +162,38 @@ function howMuchAgainstTheTargetIsPlayerHeading(playerDirection, target)
     local angle = normalize_angle_deg(math.deg(math.atan2(dy, dx)) - 90)
     local angleDiff = math.abs(angle - normalize_angle_deg(playerDirection))
 
-    outputChatBox("Angle: "..angle..", "..playerDirection..", "..angleDiff)
+    --outputChatBox("Angle: "..angle..", "..playerDirection..", "..angleDiff)
     return angleDiff
 end
 
 function modifiedFillRate()
-    local target = getLastTarget(localPlayer)
+    local targetX, targetY, targetZ = getPlayerCurrentTargetPos(localPlayer)
     local anglePercentage = 1
+    local distancePercentage = 1
     local vehicle = getPedOccupiedVehicle( localPlayer )
     if not vehicle then
         return 0
     end
     
     --outputChatBox("Velocity: "..vx..", "..vy)
-    if target then
+    if targetX then
         local _, _, playerHeading = getElementRotation(vehicle)
-        local diff = howMuchAgainstTheTargetIsPlayerHeading(playerHeading, target)
+        local diff = howMuchAgainstTheTargetIsPlayerHeading(playerHeading, { x = targetX, y = targetY, z = targetZ })
         anglePercentage = 1 - math.min(1, (diff / 90))
-        setEnergyBarProgress(anglePercentage * 100)
     end
 
     local vx, vy = getElementVelocity(vehicle)
-    local speed = math.sqrt(vx*vx + vy*vy)
-    local speedPercentage = math.min(1, (speed / 50))
+    local speed = math.sqrt(vx*vx + vy*vy) * 200
+    local speedPercentage = math.min(1, (speed / 80))
+
+    local targetX, targetY, targetZ = getPlayerCurrentTargetPos(localPlayer)
+    if targetX then
+        local distanceToTarget = getDistanceBetweenPoints3D(playerX, playerY, playerZ, targetX, targetY, targetZ)
+        local distancePercentage = math.min(1, (distanceToTarget / 100))
+    end
+
     --outputChatBox("Angle: "..anglePercentage..", Speed: "..speedPercentage)
-    return fillRate * anglePercentage-- * speedPercentage
+    return fillRate * anglePercentage * speedPercentage
 end
 
 function fillEnergyPeriodically()
@@ -219,7 +226,7 @@ function fillEnergyPeriodically()
     enableDisableUi()
 
     local percentage = 100 * energyState.currentAmount / resource.capacity
-    --setEnergyBarProgress(percentage)
+    setEnergyBarProgress(percentage)
 end
 
 addEvent("resourceInUseFromServer", true) -- (resourceKey, burnRate)

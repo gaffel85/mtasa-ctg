@@ -170,16 +170,77 @@ function shouldShowCatchupPower(player)
         return false
     end
 
+    local _, _, useOwnPos = alternativePos(player.player)
+    outputServerLog("Use own pos: "..inspect(useOwnPos).." for player: "..getPlayerName(player.player))
+    return not useOwnPos
+end
+
+function alternativePos(player)
+    local leader = findLeader(player)
+    if (not leader or leader == player) then
+        outputServerLog("No leader found for useCatchUp")
+        return nil, nil, true, nil
+    end
+
     local targetX, targetY, targetZ = findTargetPos()
-    local meanPositionOfAllPlayers = meanPositionAndRotationOfElements(playersExceptMe(player.player))
+    local targetPos = {x = targetX, y = targetY, z = targetZ}
+    local playerExceptMe = playersExceptMe(player)
+    local meanPositionOfAllPlayers = meanPositionAndRotationOfElements(playerExceptMe)
 
-    local alternativePos, useOwnPos = meanPositionOrMyOwn(player.player, {x = targetX, y = targetY, z = targetZ}, meanPositionOfAllPlayers)
-
-    if player.percentage < 0.9 then
-        --outputChatBox("Below 90% of the best score "..inspect(player.percentage))
-        return true
+    local x, y, z = getElementPosition(player)
+    local alternativePos = nil
+    local useOwnPos = false
+    if #playerExceptMe < 1 then
+        alternativePos = { x = x, y = y, z = z }
+        useOwnPos = true
     else
-        return not useOwnPos
+        alternativePos, useOwnPos = meanPositionOrMyOwn(x, y, z, targetPos, meanPositionOfAllPlayers)
+    end
+
+    return leader, alternativePos, useOwnPos, targetPos, meanPositionOfAllPlayers, playerExceptMe
+end
+
+function useCatchUp(player)
+    --cameraFly(extractPositions(inputData), player, 360)
+
+    if isFarEnoughFromLeader(player) then
+        local playersWithScore = scorePercentageForPlayers(getElementsByType("player"))
+        if #playersWithScore == 0 then
+            return
+        end
+        local myPercentage = 1
+        for _, playerWithScore in ipairs(playersWithScore) do
+            if playerWithScore.player == player then
+                myPercentage = playerWithScore.percentage
+                break
+            end
+        end
+        
+        local leader, alternativePos, useOwnPos, targetPos, meanPositionOfAllPlayers, playerExceptMe = alternativePos(player)
+        if not leader then
+            return
+        end
+
+        if #playerExceptMe <= 1 then
+            useOwnPos = true
+        end
+
+        if myPercentage < 0.7 then
+            outputChatBox("Use Below 70% of the best score "..inspect(myPercentage))
+            askForLocationNbr(player, leader, 3, "teleportOr", targetPos, alternativePos)
+        elseif myPercentage < 0.8 then
+            outputChatBox("Use Below 80% of the best score "..inspect(myPercentage))
+            askForLocationNbr(player, leader, 5, "teleportOr", targetPos, alternativePos)
+        elseif myPercentage < 0.9 then
+            outputChatBox("Use Below 90% of the best score "..inspect(myPercentage))
+            askForLocationNbr(player, leader, 7, "teleportOr", targetPos, alternativePos)
+        else
+            outputChatBox("Use above 90% of the best score. "..inspect(myPercentage).." Using useOwnPos? "..inspect(useOwnPos))
+            if not useOwnPos then
+                spawnCloseTo(player, meanPositionOfAllPlayers)
+            end
+            
+        end
     end
 end
 
@@ -218,12 +279,7 @@ function createMessageDisplay()
     textDisplayAddText ( catchUpPowerDisplay, howToEnableItem )
 end
 
-function meanPositionOrMyOwn(player, targetPos, meanPositionOfAllPlayersExceptMe)
-    local x, y, z = getElementPosition(player)
-    if #meanPositionOfAllPlayersExceptMe <= 1 then
-        return { x = x, y = y, z = z }, true
-    end
-
+function meanPositionOrMyOwn(x, y, z, targetPos, meanPositionOfAllPlayersExceptMe)
     --outputServerLog("Player pos "..getPlayerName(player) ..": "..inspect({x, y, z}))
     local distanceToTargetPos = getDistanceBetweenPoints3D(x, y, z, targetPos.x, targetPos.y, targetPos.z)
     --outputServerLog("Distance to target pos: "..distanceToTargetPos)
@@ -289,51 +345,6 @@ local function extractPositions(data)
         table.insert(positions, position)
     end
     return positions
-end
-
-function useCatchUp(player)
-    --cameraFly(extractPositions(inputData), player, 360)
-
-    if isFarEnoughFromLeader(player) then
-        local playersWithScore = scorePercentageForPlayers(getElementsByType("player"))
-        if #playersWithScore == 0 then
-            return
-        end
-        local myPercentage = 1
-        for _, playerWithScore in ipairs(playersWithScore) do
-            if playerWithScore.player == player then
-                myPercentage = playerWithScore.percentage
-                break
-            end
-        end
-        local leader = findLeader(player)
-	    if (not leader or leader == player) then
-		    outputServerLog("No leader found for useCatchUp")
-		    return
-	    end
-
-        local targetX, targetY, targetZ = findTargetPos()
-        local targetPos = {x = targetX, y = targetY, z = targetZ}
-        local meanPositionOfAllPlayers = meanPositionAndRotationOfElements(playersExceptMe(player))
-        local alternativePos, useOwnPos = meanPositionOrMyOwn(player, targetPos, meanPositionOfAllPlayers)
-
-        if myPercentage < 0.7 then
-            outputChatBox("Use Below 70% of the best score "..inspect(myPercentage))
-            askForLocationNbr(player, leader, 1, "teleportOr", targetPos, alternativePos)
-        elseif myPercentage < 0.8 then
-            outputChatBox("Use Below 80% of the best score "..inspect(myPercentage))
-            askForLocationNbr(player, leader, 3, "teleportOr", targetPos, alternativePos)
-        elseif myPercentage < 0.9 then
-            outputChatBox("Use Below 90% of the best score "..inspect(myPercentage))
-            askForLocationNbr(player, leader, 5, "teleportOr", targetPos, alternativePos)
-        else
-            outputChatBox("Use above 90% of the best score. "..inspect(myPercentage).." Using useOwnPos? "..inspect(useOwnPos))
-            if not useOwnPos then
-                spawnCloseTo(player, meanPositionOfAllPlayers)
-            end
-            
-        end
-    end
 end
 
 -- Start the timer when the resource starts

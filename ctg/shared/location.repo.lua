@@ -125,7 +125,7 @@ function updateNeighborsCnt(location)
     location.neighbors = #neighbors
     for i, neighbor in ipairs(neighbors) do
         if neighbor ~= location then
-            neighbor.neighbors = neighbor.neighbors + 1
+            neighbor.neighbors = (neighbor.neighbors or 0) + 1
         end
     end
 end
