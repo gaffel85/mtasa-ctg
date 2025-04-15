@@ -67,6 +67,8 @@ addEventHandler("onPlayerQuit", getRootElement(), function()
 end)
 
 addEventHandler("onResourceStart", getResourceRootElement(getThisResource()), function()
+    call(scoreboardRes, "addScoreboardColumn", getScoreDataKey())
+    call(scoreboardRes, "addScoreboardColumn", getScorePercentageDataKey())
     -- add all players as observers
     for _, player in ipairs(getElementsByType("player")) do
         textDisplayAddObserver(getOrCreateScoreBoardDisplay(), player)
@@ -96,4 +98,5 @@ addEventHandler("onResourceStop", getResourceRootElement(getThisResource()), fun
     if timer then
         killTimer(timer)
     end
+    call(scoreboardRes, "removeScoreboardColumn", SCORE_KEY)
 end)

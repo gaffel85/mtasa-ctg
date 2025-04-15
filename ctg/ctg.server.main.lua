@@ -3,8 +3,6 @@ local currentSpawn = 1
 local participants = {}
 local blowingPlayer = nil
 
-local SCORE_KEY = "Score"
-
 --addEvent("goldDelivered")
 --addEvent("goldCarrierChanged")
 
@@ -127,23 +125,6 @@ function repairAllCars()
             fixVehicle(veh)
         end
     end
-end
-
-function givePointsToPlayer(player, points)
-    local score = getElementData(player, SCORE_KEY)
-    if (score == false) then
-        score = 0
-    end
-    score = score + points
-    setElementData(player, SCORE_KEY, score)
-end
-
-function setScore(player, score)
-    setElementData(player, SCORE_KEY, score)
-end
-
-function getPlayerScore(player)
-    return getElementData(player, SCORE_KEY)
 end
 
 function arrayExists(tab, val)
@@ -327,15 +308,6 @@ function resetGame()
 	scheduleNextGold(2)
 end
 
-function resetScore()
-    local players = getElementsByType("player")
-    for k, v in ipairs(players) do
-        setElementData(v, SCORE_KEY, 0)
-    end
-end
-
-
-
 function playerDied(player)
     outputChatBox("playerDied")
     local posX, posY, posZ = getElementPosition(player)
@@ -442,17 +414,12 @@ addEventHandler("onDisplayClientText", resourceRoot, displayMessageForPlayer)
 addEvent("onClearClientText", true)
 addEventHandler("onClearClientText", getRootElement(), clearMessageForPlayer)
 
-addEventHandler("onResourceStop", getResourceRootElement(getThisResource()), function()
-    call(scoreboardRes, "removeScoreboardColumn", SCORE_KEY)
-end)
-
 addEventHandler("onResourceStart", getResourceRootElement(getThisResource()), function()
     --give money to all players 
     local players = getElementsByType("player")
     for k, v in ipairs(players) do
         setPlayerMoney(v, 10000)
     end
-    call(scoreboardRes, "addScoreboardColumn", SCORE_KEY)
 end)
 
 addCommandHandler("fixit", function(thePlayer, command, newModel)
@@ -469,7 +436,7 @@ end)
 addCommandHandler("score", function(thePlayer, command, scoreStr)
     local newScore = tonumber(scoreStr)
     if newScore then
-        setScore(thePlayer, newScore)
+        setScoreDeug(thePlayer, newScore)
     end
 end)
 

@@ -57,7 +57,7 @@ function getProps()
 end
 
 function getScore()
-    return getElementData(player, "Score")
+    return  getPlayerScore(player)
 end
 
 function saveConsts()
@@ -88,7 +88,7 @@ function refreshPlayers()
     --loop over all players and create a row for each player
     for i, player in ipairs(getElementsByType("player")) do
         local playerName = getPlayerName(player)
-        local score = getElementData(player, "score")
+        local score = getPlayerScore(player)
         local money = getPlayerMoney(player)
         local rank = getCompletedRank(player)
 
@@ -103,7 +103,7 @@ function refreshPlayers()
         addEventHandler("onClientGUIBlur", scoreInput, function() 
             local text = guiGetText(source)
             local asNumber = tonumber(text)
-            setElementData(player, "Score", asNumber)
+            setPlayerScore(player, asNumber)
          end)
         local moneyLabel = guiCreateLabel(0.18, yPos, 0.02, 0.02, "Money", true, playerTab)
         guiLabelSetHorizontalAlign(moneyLabel, "right", false)

@@ -14,6 +14,18 @@ function vecLength(v)
 function vecScale(v, scalar)
     return { x = v.x * scalar, y = v.y * scalar, z = v.z * scalar }
   end
+
+  -- Linear interpolation between two vectors
+-- factor = 0.0 -> returns v1
+-- factor = 1.0 -> returns v2
+local function vecLerp(v1, v2, factor)
+    factor = math.max(0.0, math.min(1.0, factor)) -- Clamp factor between 0 and 1
+    return {
+      x = v1.x + (v2.x - v1.x) * factor,
+      y = v1.y + (v2.y - v1.y) * factor,
+      z = v1.z + (v2.z - v1.z) * factor
+    }
+  end
   
   -- Catmull-Rom Spline Interpolation
   -- p0, p1, p2, p3 are points {x, y, z}

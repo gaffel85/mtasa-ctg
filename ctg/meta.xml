@@ -14,6 +14,12 @@
 	<script src="shared/camera.path.lua" />
 	<script src="shared/camera.path.lua" type="client" />
 	<script src="client/events.lua" type="client" />
+	<script src="data/score.shared.lua" />
+	<script src="data/score.shared.lua" type="client" />
+	<script src="data/goldcarrier.shared.lua" />
+	<script src="data/goldcarrier.shared.lua" type="client" />
+	<script src="data/goldcarrier.server.lua" />
+
 	<script src="ctg.server.properties.lua" />
 	<script src="ctg.server.properties.lua" type="client" />
 	<script src="ctg.server.texts.lua" />
@@ -97,8 +103,6 @@
 	<script src="shared/ghost.shared.lua" />
 	<script src="shared/vehicle.data.lua" type="client" />
 	<script src="shared/vehicle.data.lua" />
-	<script src="shared/gold.carrier.repo.lua" type="client" />
-	<script src="shared/gold.carrier.repo.lua" />
 
 	<script src="ctg.client.goldcarrier.lua" type="client" />
     <script src="ctg.client.collision.lua" type="client" />
