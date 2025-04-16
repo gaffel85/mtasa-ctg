@@ -1,8 +1,9 @@
 local RESOURCES_KEY = "RESOURCES_KEY"
 local energyResourceKey = "energy"
 local overchargeResourceKey = "overcharge"
-local timerDiff = 250
+local timerDiff = 50
 local fillRate = 10
+local dynamicFillRate = fillRate
 
 local energyState = {
     key = energyResourceKey,
@@ -174,6 +175,8 @@ function modifiedFillRate()
     if not vehicle then
         return 0
     end
+
+    local playerX, playerY, playerZ = getElementPosition(vehicle)
     
     --outputChatBox("Velocity: "..vx..", "..vy)
     if targetX then
@@ -189,17 +192,25 @@ function modifiedFillRate()
     local targetX, targetY, targetZ = getPlayerCurrentTargetPos(localPlayer)
     if targetX then
         local distanceToTarget = getDistanceBetweenPoints3D(playerX, playerY, playerZ, targetX, targetY, targetZ)
-        local distancePercentage = math.min(1, (distanceToTarget / 100))
+        distancePercentage = 0.05 + distanceToTarget / 300
+        --setEnergyBarProgress(distancePercentage * 100)
     end
 
     --outputChatBox("Angle: "..anglePercentage..", Speed: "..speedPercentage)
-    return fillRate * anglePercentage * speedPercentage
+    dynamicFillRate = fillRate * anglePercentage * speedPercentage * distancePercentage
 end
 
+local timesBetweenFillRateCalcs = 0
 function fillEnergyPeriodically()
     local resource = getResourceData(energyResourceKey)
     if not resource then
         return
+    end
+
+    timesBetweenFillRateCalcs = timesBetweenFillRateCalcs + 1
+    if timesBetweenFillRateCalcs == 5 then
+        modifiedFillRate()
+        timesBetweenFillRateCalcs = 0
     end
 
     if energyState.isBurning then
@@ -213,7 +224,7 @@ function fillEnergyPeriodically()
             energyState.currentAmount = 0
         end
     else
-        energyState.currentAmount = energyState.currentAmount + (modifiedFillRate() * timerDiff / 1000)
+        energyState.currentAmount = energyState.currentAmount + (dynamicFillRate * timerDiff / 1000)
         if energyState.currentAmount > resource.capacity then
             energyState.currentAmount = resource.capacity
         end
