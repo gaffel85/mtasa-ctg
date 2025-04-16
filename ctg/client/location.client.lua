@@ -168,12 +168,12 @@ function findLocationClosestToTimeAgo(timeAgo)
     local closestLocation = locations[1]
     --outputConsole("closestLocation "..inspect(closestLocation.timestamp))
     local closestTime = math.abs(getRealTime().timestamp - closestLocation.timestamp - timeAgo)
-    outputConsole("Closest initial time: "..closestTime)
+    --outputConsole("Closest initial time: "..closestTime)
     
     for i, location in ipairs(locations) do
         local time = getRealTime().timestamp - location.timestamp
         local locationTimeAgo = math.abs(time - timeAgo)
-        outputConsole("Location time ago: "..locationTimeAgo)
+        --outputConsole("Location time ago: "..locationTimeAgo)
         if locationTimeAgo < closestTime then
             closestTime = locationTimeAgo
             closestLocation = location
@@ -187,10 +187,10 @@ outputChatBox("Main file")
 
 addEvent("reportLastTransform", true)
 addEventHandler("reportLastTransform", resourceRoot, function(index, param1, param2, param3, param4, param5, param6)
-	outputChatBox("reportLastTransform "..inspect(index).." "..inspect(param1).." "..inspect(param2).." "..inspect(param3))
-    outputChatBox("1")
+	--outputChatBox("reportLastTransform "..inspect(index).." "..inspect(param1).." "..inspect(param2).." "..inspect(param3))
+    --outputChatBox("1")
 	if (#locations == 0 or #locations < index) then
-        outputChatBox("2")
+        --outputChatBox("2")
         outputChatBox("Too few locations "..#locations.." "..index)
 		return
 	end
@@ -201,7 +201,7 @@ addEventHandler("reportLastTransform", resourceRoot, function(index, param1, par
         return
     end
     local serverTransform = convertToServerFormat(transform)
-    outputConsole("Transform to send  "..inspect(serverTransform))
+    --outputConsole("Transform to send  "..inspect(serverTransform))
 	triggerServerEvent("reportTransform", resourceRoot, serverTransform, param1, param2, param3, param4, param5, param6)
 end)
 

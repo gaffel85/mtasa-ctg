@@ -18,7 +18,7 @@ function vecScale(v, scalar)
   -- Linear interpolation between two vectors
 -- factor = 0.0 -> returns v1
 -- factor = 1.0 -> returns v2
-local function vecLerp(v1, v2, factor)
+function vecLerp(v1, v2, factor)
     factor = math.max(0.0, math.min(1.0, factor)) -- Clamp factor between 0 and 1
     return {
       x = v1.x + (v2.x - v1.x) * factor,

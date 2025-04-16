@@ -89,8 +89,7 @@ function cameraFly(recordedPoints, playerToShowTheCameraFor, cameraFlySpeed, opt
     end
 
     -- Set the camera matrix using the TARGET position and the SMOOTHED look-at
-    setCameraMatrix(playerToShowTheCameraFor,
-                    targetCamPos.x, targetCamPos.y, targetCamPos.z,
+    setCameraMatrix(targetCamPos.x, targetCamPos.y, targetCamPos.z,
                     currentActualLookAt.x, currentActualLookAt.y, currentActualLookAt.z) -- Use the smoothed look-at
 
     -- Update interpolation factor 't' - SAME AS BEFORE
@@ -116,7 +115,7 @@ function cameraFly(recordedPoints, playerToShowTheCameraFor, cameraFlySpeed, opt
         -- Optional: Final snap
         local finalPos = recordedPoints[numPoints]
         -- For the final lookAt, we might want to use the last calculated target or the smoothed one
-        setCameraMatrix(playerToShowTheCameraFor, finalPos.x, finalPos.y, finalPos.z,
+        setCameraMatrix(finalPos.x, finalPos.y, finalPos.z,
                         currentActualLookAt.x, currentActualLookAt.y, currentActualLookAt.z)
         currentActualLookAt = nil -- Clear state
         return
@@ -134,7 +133,6 @@ function cameraFly(recordedPoints, playerToShowTheCameraFor, cameraFlySpeed, opt
   currentFlyTimer = setTimer(updateCameraFly, timerInterval, 0)
 
   -- Initial camera setup
-  setCameraMatrix(playerToShowTheCameraFor,
-                  startPos.x, startPos.y, startPos.z,
+  setCameraMatrix(startPos.x, startPos.y, startPos.z,
                   nextPos.x, nextPos.y, nextPos.z)
 end

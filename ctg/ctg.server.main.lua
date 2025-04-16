@@ -354,7 +354,7 @@ addEventHandler("reportTransform", resourceRoot, function(transform, param1, par
             outputServerLog("Missing params in teleportOr: ["..inspect(param2)..", "..inspect(param3)..", "..inspect(param4).."]")
             return
         end
-        outputServerLog("Teleporting to or: ["..inspect(transform)..", "..inspect(param2)..", "..inspect(param3)..", "..inspect(param4).."]")
+        --outputServerLog("Teleporting to or: ["..inspect(transform)..", "..inspect(param2)..", "..inspect(param3)..", "..inspect(param4).."]")
         teleportToOr(param2, transform, param3, param4)
     else
         outputConsole("Unknown param1 in reportTransform: ["..param1.."]")
