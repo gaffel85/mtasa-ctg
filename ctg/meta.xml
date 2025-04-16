@@ -11,7 +11,6 @@
 
 	<script src="shared/math.lua" />
 	<script src="shared/math.lua" type="client" />
-	<script src="shared/camera.path.lua" />
 	<script src="shared/camera.path.lua" type="client" />
 	<script src="client/events.lua" type="client" />
 	<script src="data/score.shared.lua" />
@@ -100,6 +99,7 @@
 	<script src="client/energy.ui.lua" type="client" />
 	<script src="client/energy.filler.lua" type="client" />
 	<script src="client/vehicle.switch.ui.lua" type="client" />
+	<script src="client/catch.up.client.lua" type="client" />
 
 	<script src="shared/ghost.shared.lua" type="client" />
 	<script src="shared/ghost.shared.lua" />

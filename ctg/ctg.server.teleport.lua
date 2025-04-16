@@ -43,18 +43,18 @@ function teleportToOr(player, transform, targetPos, optionalPos)
 		return
 	end
 
-	outputServerLog("Transform: "..inspect(transform))
-	outputServerLog("Target pos: "..inspect(targetPos))
-	outputServerLog("Optional pos: "..inspect(optionalPos))
+	--outputServerLog("Transform: "..inspect(transform))
+	--outputServerLog("Target pos: "..inspect(targetPos))
+	--outputServerLog("Optional pos: "..inspect(optionalPos))
 
 	local transformDistanceToTarget = getDistanceBetweenPoints3D(transform.x, transform.y, transform.z, targetPos.x, targetPos.y, targetPos.z)
 	local optionalPosDistanceToTarget = getDistanceBetweenPoints3D(optionalPos.x, optionalPos.y, optionalPos.z, targetPos.x, targetPos.y, targetPos.z)
 
 
-	outputServerLog("Transform distance to target: "..transformDistanceToTarget)
-	outputServerLog("Optional pos distance to target: "..optionalPosDistanceToTarget)
+	--outputServerLog("Transform distance to target: "..transformDistanceToTarget)
+	--outputServerLog("Optional pos distance to target: "..optionalPosDistanceToTarget)
 	if transformDistanceToTarget < optionalPosDistanceToTarget then
-		outputServerLog("Teleporting to transform")
+		--outputServerLog("Teleporting to transform")
 		teleportTo(player, transform)
 	else
 		outputServerLog("Teleporting to optional pos")
