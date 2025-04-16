@@ -171,7 +171,6 @@ function shouldShowCatchupPower(player)
     end
 
     local _, _, useOwnPos = alternativePos(player.player)
-    outputServerLog("Use own pos: "..inspect(useOwnPos).." for player: "..getPlayerName(player.player))
     return not useOwnPos
 end
 
