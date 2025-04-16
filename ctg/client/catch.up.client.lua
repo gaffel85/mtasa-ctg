@@ -49,8 +49,58 @@ local inputData = {
        return positions
    end
 
+function teleportPlayerAndSetCameraToFollow(player)
+    local x, y, z = getCameraMatrix()
+    local vehicle = getPedOccupiedVehicle(localPlayer)
+    if vehicle then
+        setElementPosition(vehicle, x, y, z)
+    else
+        setElementPosition(player, x, y, z)
+    end
+    setCameraTarget(player)
+end
+
 function flyCameraTo(player, leader, stepsBehind)
-    cameraFly(extractPositions(inputData), player, 360)
+    if (not leader) then
+        outputConsole("No leader")
+        return
+    end
+    local allLeaderLocations = getLocationsForPlayer(leader)
+    if (#allLeaderLocations == 0) then
+        outputConsole("No leader locations")
+        return
+    end
+
+    -- sort them on id with highest first
+    table.sort(allLeaderLocations, function(a, b) return a.id > b.id end)
+
+    local x, y, z = getElementPosition(player)
+    -- find the leaderLocation that is closest to the player
+    local closestLeadLocationIndex = 1
+    local closestLeaderLocation = allLeaderLocations[closestLeadLocationIndex]
+    local closestLeaderLocationDistance = getDistanceBetweenPoints3D(x, y, z, closestLeaderLocation.x, closestLeaderLocation.y, closestLeaderLocation.z)
+    for i, location in ipairs(allLeaderLocations) do
+        if getDistanceBetweenPoints3D(x, y, z, location.x, location.y, location.z) < closestLeaderLocationDistance then
+            closestLeadLocationIndex = i
+            closestLeaderLocation = location
+            closestLeaderLocationDistance = getDistanceBetweenPoints3D(x, y, z, location.x, location.y, location.z)
+        end
+    end
+
+    outputConsole("Closest leader location: "..inspect(closestLeadLocationIndex) .. " " .. inspect(closestLeaderLocation))
+
+    local leaderLocations = {}
+    for i = closestLeadLocationIndex, #allLeaderLocations - stepsBehind - 1 do
+        local loc = allLeaderLocations[i]
+        table.insert(leaderLocations, { x = loc.x, y = loc.y, z = loc.z + 3 })
+    end
+
+    outputConsole("Leader locations: "..inspect(#leaderLocations))
+
+    cameraFly(leaderLocations, player, 360, function()
+        outputChatBox("Catch up completed for "..inspect(getPlayerName(player)))
+        teleportPlayerAndSetCameraToFollow(player)
+    end, { lookAtSmoothFactor = 0.08 })
 end
 
 addEventHandler("startCatchUp", getRootElement(), function (leader, stepsBehind)

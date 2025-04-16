@@ -208,7 +208,7 @@ function cameraFly(recordedPoints, playerToShowTheCameraFor, cameraFlySpeed, onC
           end
       else
            targetLookAtPos = p2
-      fi
+      end
     end
 
     -- Initialize or Smooth the ACTUAL Look-At Position using Lerp

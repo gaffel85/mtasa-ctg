@@ -51,6 +51,16 @@ function getLocations(x, y, z, radius)
     return quadTree:queryRadius({ x = x, y = y }, radius)
 end
 
+function getLocationsForPlayer(player)
+    local playerLocations = {}
+    for i, location in ipairs(locationsInList) do
+        if location.player == player then
+            table.insert(playerLocations, location)
+        end
+    end
+    return playerLocations
+end
+
 function mapChanged(callback)
     --saveWholeFileAsJson()
     clearLocations()

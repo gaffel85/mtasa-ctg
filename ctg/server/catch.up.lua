@@ -224,16 +224,16 @@ function useCatchUp(player)
 
         if myPercentage < 0.7 then
             outputChatBox("Use Below 70% of the best score "..inspect(myPercentage))
-            --askForLocationNbr(player, leader, 3, "teleportOr", targetPos, alternativePos)
-            triggerClientEvent(player, "startCatchUp", player, leader, 3)
+            askForLocationNbr(player, leader, 3, "teleportOr", targetPos, alternativePos)
+            --triggerClientEvent(player, "startCatchUp", player, leader, 3)
         elseif myPercentage < 0.8 then
             outputChatBox("Use Below 80% of the best score "..inspect(myPercentage))
-            --askForLocationNbr(player, leader, 5, "teleportOr", targetPos, alternativePos)
-            triggerClientEvent(player, "startCatchUp", player, leader, 5)
+            askForLocationNbr(player, leader, 5, "teleportOr", targetPos, alternativePos)
+            --triggerClientEvent(player, "startCatchUp", player, leader, 5)
         elseif myPercentage < 0.9 then
             outputChatBox("Use Below 90% of the best score "..inspect(myPercentage))
-            --askForLocationNbr(player, leader, 7, "teleportOr", targetPos, alternativePos)
-            triggerClientEvent(player, "startCatchUp", player, leader, 7)
+            askForLocationNbr(player, leader, 7, "teleportOr", targetPos, alternativePos)
+            --triggerClientEvent(player, "startCatchUp", player, leader, 7)
         else
             outputChatBox("Use above 90% of the best score. "..inspect(myPercentage).." Using useOwnPos? "..inspect(useOwnPos))
             if not useOwnPos then

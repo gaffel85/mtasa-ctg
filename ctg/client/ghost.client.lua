@@ -117,7 +117,7 @@ addEventHandler("onClientVehicleEnter", getRootElement(),
             --outputChatBox("Someone else entered the vehicle")
             -- loop over all ghosts and apply
             if (isPlayerGhost(thePlayer)) then
-                makeOtherPlayerGhostForMe(ghostPlayer, source, isInvisibleGhost(thePlayer))
+                makeOtherPlayerGhostForMe(thePlayer, source, isInvisibleGhost(thePlayer))
             end
         end 
     end
