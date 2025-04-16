@@ -100,6 +100,7 @@
 	<script src="client/energy.filler.lua" type="client" />
 	<script src="client/vehicle.switch.ui.lua" type="client" />
 	<script src="client/catch.up.client.lua" type="client" />
+	<script src="client/defense.rays.lua" type="client" />
 
 	<script src="shared/ghost.shared.lua" type="client" />
 	<script src="shared/ghost.shared.lua" />

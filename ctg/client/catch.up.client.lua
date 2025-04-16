@@ -61,6 +61,70 @@ function teleportPlayerAndSetCameraToFollow(player)
     setCameraTarget(player)
 end
 
+local targetLocation = nil
+local throwTimer = nil
+local velocityFactor = 5
+local initialVelocity = 1.5
+function throwPlayerTo(player, leader, stepsBehind)
+    targetLocation = nil
+    if throwTimer and isTimer(throwTimer) then
+        kill(throwTimer)
+        throwTimer = nil
+    end
+    -- get last leader position - stepsbehind
+    if (not leader) then
+        outputConsole("No leader")
+        return
+    end
+
+    local vehicle = getPedOccupiedVehicle(player)
+    if not vehicle then
+        outputConsole("Player is not in a vehicle")
+        return
+    end
+    local allLeaderLocations = getLocationsForPlayer(leader)
+    if (#allLeaderLocations == 0) then
+        outputConsole("No leader locations")
+        return
+    end
+
+    -- sort them on id with highest first
+    table.sort(allLeaderLocations, function(a, b) return a.id > b.id end)
+    if stepsBehind > #allLeaderLocations then
+        targetLocation = allLeaderLocations[1]
+    else
+        targetLocation = allLeaderLocations[stepsBehind]
+    end
+
+    setElementVelocity(vehicle, 0, 0, initialVelocity)
+    throwTimer = setTimer(function()
+        if (targetLocation) then
+            local x, y, z = getElementPosition(vehicle)
+            -- get a position between x,y,z and targetLocation 50m from x, y, z
+            local distance2d = getDistanceBetweenPoints2D(x, y, targetLocation.x, targetLocation.y)
+            if distance2d < 20 then
+                outputChatBox("Target location close")
+                local vectorFromPosToTarget = {targetLocation.x - x, targetLocation.y - y, targetLocation.z - z}
+                setElementVelocity(vehicle, vectorFromPosToTarget[1] * velocityFactor, vectorFromPosToTarget[2] * velocityFactor, vectorFromPosToTarget[3] * velocityFactor)
+            else
+                local factor = 20
+                local vectorFromPosToTarget = {targetLocation.x - x, targetLocation.y - y, 0}
+                local vectorFromPosToTargetNormalized = {vectorFromPosToTarget[1] / distance2d, vectorFromPosToTarget[2] / distance2d, 0}
+                local newX, newY, newZ = x + vectorFromPosToTarget[1] * factor, y + vectorFromPosToTarget[2] * factor, z
+                if isLineOfSightClear(x, y, z, newX, newY, newZ) then
+                    --setElementPosition(vehicle, newX, newY, newZ)
+                    setElementVelocity(vehicle, vectorFromPosToTargetNormalized[1] * velocityFactor, vectorFromPosToTargetNormalized[2] * velocityFactor, initialVelocity / 5)
+                else
+                    setElementVelocity(vehicle, 0, 0, initialVelocity)
+                end
+            end
+        else 
+            killTimer(throwTimer)
+            throwTimer = nil
+        end
+    end, 2000, 0)
+end
+
 function flyCameraTo(player, leader, stepsBehind)
     if (not leader) then
         outputConsole("No leader")
@@ -107,7 +171,7 @@ end
 addEventHandler("startCatchUp", getRootElement(), function (leader, stepsBehind)
     local player = localPlayer
     outputChatBox("Will catch up "..inspect(getPlayerName(player)).." to "..inspect(getPlayerName(leader)).." in "..inspect(stepsBehind).." steps")
-    flyCameraTo(player, leader, stepsBehind)
+    throwPlayerTo(player, leader, stepsBehind)
 end)
 
 addEventHandler("stopCatchUp", getRootElement(), function ()
