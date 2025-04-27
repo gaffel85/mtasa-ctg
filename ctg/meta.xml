@@ -20,6 +20,9 @@
 	<script src="data/goldcarrier.server.lua" />
 	<script src="data/target.shared.lua" />
 	<script src="data/target.shared.lua" type="client" />
+	<script src="data/hideout.shared.lua" />
+	<script src="data/hideout.shared.lua" type="client" />
+	<script src="data/hideout.server.lua" />
 
 	<script src="ctg.server.properties.lua" />
 	<script src="ctg.server.properties.lua" type="client" />

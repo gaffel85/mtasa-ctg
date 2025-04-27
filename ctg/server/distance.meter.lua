@@ -28,7 +28,7 @@ function updateDescriptionOnBlipsChange()
         end
     else
         for k, player in ipairs(players) do
-            local hideout = getTeamHideout(player)
+            local hideout = getPlayerHideout(player)
 
             if getGoldCarrier() == player then
                 if hideout then

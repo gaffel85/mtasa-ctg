@@ -258,7 +258,7 @@ function startGameIfEnoughPlayers()
 end
 
 function goldDelivered(player)
-    local oldHideout = getTeamHideout(player).edl
+    local oldHideout = getPlayerHideout(player).edl
     removeOldHideout()
 	givePointsToPlayer(getGoldCarrier(), 500)
     giveTeamScore(player, 500)
