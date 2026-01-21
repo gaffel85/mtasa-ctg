@@ -66,7 +66,7 @@ function setPlayerPowerConfig(player, config)
         resetPowerState(player, powerUp)
       -- outputServerLog("setting userRand "..inspect(config).." "..inspect(powerUp.rank()))
         if powerUp.rank() > getUsedRank(player) then
-            outputChatBox("Increased rank to "..powerUp.rank().."!", player)
+            --outputChatBox("Increased rank to "..powerUp.rank().."!", player)
             setUsedRank(player, powerUp.rank())
         end
     end

@@ -349,13 +349,13 @@ function usePowerUp2(player, key, keyState, powerUp)
 	local resourceState = getResourceState(player, powerUp.resourceKey)
 	--outputServerLog("Resource "..inspect(powerUp.resourceKey).." "..inspect(resourceState.amount))
 	if resourceState.amount < powerUp.minResourceAmount then
-		outputChatBox("Not enough "..powerUp.resourceKey.." to use "..powerUp.name..", requires "..powerUp.minResourceAmount.." "..powerUp.resourceKey.." ("..resourceState.amount.." available)")
+		outputChatBox("Not enough "..powerUp.resourceKey.." to use "..powerUp.name..", requires "..powerUp.minResourceAmount.." "..powerUp.resourceKey.." ("..resourceState.amount.." available)", player)
 		return
 	end
 	--outputServerLog("usePowerUp "..inspect(player)..inspect(state.state)..inspect(stateEnum.READY).." "..inspect(state.state == stateEnum.READY))
 	if not (state.state == stateEnum.READY) then
 		-- outputServerLog("returns")
-		outputChatBox("Power not ready yet: "..inspect(powerUp.name))
+		outputChatBox("Power not ready yet: "..inspect(powerUp.name), player)
 		return
 	end
 

@@ -183,7 +183,7 @@ function findLocationClosestToTimeAgo(timeAgo)
 end
 
 setTimer(saveLocationsForAllPlayers, 500, 100000000)
-outputChatBox("Main file")
+--outputChatBox("Main file")
 
 addEvent("reportLastTransform", true)
 addEventHandler("reportLastTransform", resourceRoot, function(index, param1, param2, param3, param4, param5, param6)
@@ -194,7 +194,7 @@ addEventHandler("reportLastTransform", resourceRoot, function(index, param1, par
         outputChatBox("Too few locations "..#locations.." "..index)
 		return
 	end
-    outputChatBox("3")
+    --outputChatBox("3")
 	local transform = locations[#locations - index]
     if not transform then
         outputChatBox("Could not find location at index "..index)

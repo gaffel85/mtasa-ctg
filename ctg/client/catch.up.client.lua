@@ -103,7 +103,7 @@ function throwPlayerTo(player, leader, stepsBehind)
             -- get a position between x,y,z and targetLocation 50m from x, y, z
             local distance2d = getDistanceBetweenPoints2D(x, y, targetLocation.x, targetLocation.y)
             if distance2d < 20 then
-                outputChatBox("Target location close")
+                --outputChatBox("Target location close")
                 local vectorFromPosToTarget = {targetLocation.x - x, targetLocation.y - y, targetLocation.z - z}
                 setElementVelocity(vehicle, vectorFromPosToTarget[1] * velocityFactor, vectorFromPosToTarget[2] * velocityFactor, vectorFromPosToTarget[3] * velocityFactor)
             else
@@ -163,18 +163,18 @@ function flyCameraTo(player, leader, stepsBehind)
     outputConsole("Leader locations: "..inspect(#leaderLocations))
 
     cameraFly(leaderLocations, player, 360, function()
-        outputChatBox("Catch up completed for "..inspect(getPlayerName(player)))
+        --outputChatBox("Catch up completed for "..inspect(getPlayerName(player)))
         teleportPlayerAndSetCameraToFollow(player)
     end, { lookAtSmoothFactor = 0.08 })
 end
 
 addEventHandler("startCatchUp", getRootElement(), function (leader, stepsBehind)
     local player = localPlayer
-    outputChatBox("Will catch up "..inspect(getPlayerName(player)).." to "..inspect(getPlayerName(leader)).." in "..inspect(stepsBehind).." steps")
+    --outputChatBox("Will catch up "..inspect(getPlayerName(player)).." to "..inspect(getPlayerName(leader)).." in "..inspect(stepsBehind).." steps")
     throwPlayerTo(player, leader, stepsBehind)
 end)
 
 addEventHandler("stopCatchUp", getRootElement(), function ()
     local player = localPlayer
-    outputChatBox("Catch up stopped for "..inspect(getPlayerName(player)))
+    --outputChatBox("Catch up stopped for "..inspect(getPlayerName(player)))
 end)

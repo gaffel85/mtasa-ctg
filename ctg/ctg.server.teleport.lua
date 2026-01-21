@@ -28,8 +28,8 @@ function teleportTo(player, transform)
 	local rotated_vector = rotate_euler(distanceToGroundVector, transform.rx, transform.ry, transform.rz)
 	local intersection_z = z_axis_intersection(rotated_vector, rotated_vector)
 
-	outputChatBox("Original z: "..z1.." Intersection z: "..intersection_z)
-	outputChatBox("Rotation vector "..inspect(transform.rx.." "..transform.ry.." "..transform.rz))
+	--outputChatBox("Original z: "..z1.." Intersection z: "..intersection_z)
+	--outputChatBox("Rotation vector "..inspect(transform.rx.." "..transform.ry.." "..transform.rz))
 
 	setElementPosition(vehicle, transform.x, transform.y, transform.z + 2)
 	setElementRotation(vehicle, transform.rx, transform.ry, transform.rz)

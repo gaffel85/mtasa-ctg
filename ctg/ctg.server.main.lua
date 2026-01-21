@@ -309,7 +309,7 @@ function resetGame()
 end
 
 function playerDied(player)
-    outputChatBox("playerDied")
+    --outputChatBox("playerDied")
     local posX, posY, posZ = getElementPosition(player)
     if player == getGoldCarrier() then
         clearGoldCarrier()
@@ -322,7 +322,7 @@ function playerDied(player)
 end
 
 function playerWastedMain(ammo, attacker, weapon, bodypart)
-    outputChatBox("playerWastedMain")
+    --outputChatBox("playerWastedMain")
     cleanStuffInWorld()
     playerDied(source)
     --local posX, posY, posZ = getElementPosition(source)
@@ -342,12 +342,12 @@ addEventHandler("onPlayerWasted", getRootElement(), playerWastedMain)
 --addEvent("reportLastTransform", true)
 addEvent("reportTransform", true)
 addEventHandler("reportTransform", resourceRoot, function(transform, param1, param2, param3, param4)
-    outputChatBox("reportTransform in main "..inspect(transform)..' '..inspect(param1)..' '..inspect(param2)..' '..inspect(param3))
+    --outputChatBox("reportTransform in main "..inspect(transform)..' '..inspect(param1)..' '..inspect(param2)..' '..inspect(param3))
     if param1 and param1 == "replaceGold" then
         spawnGoldAtTransform(transform.x, transform.y, transform.z)
         refreshAllBlips()
     elseif param1 and param1 == "teleportTo" then
-        outputChatBox(inspect(param2))
+        --outputChatBox(inspect(param2))
         teleportTo(param2, transform)
     elseif param1 and param1 == "teleportOr" then
         if not param2 or not param3 or not param4 then
@@ -435,7 +435,7 @@ end)
 
 -- Debug command: spawn player at 0,0,0 on foot to reproduce vehicle-less respawn bug
 addCommandHandler("bug", function(thePlayer, command)
-    outputChatBox("Spawning at 0,0,0 without vehicle for bug reproduction", thePlayer)
+    --outputChatBox("Spawning at 0,0,0 without vehicle for bug reproduction", thePlayer)
     local pname = tostring(getPlayerName(thePlayer) or "unknown")
     outputServerLog("/bug invoked by "..pname)
     -- destroy any occupied vehicle first so player ends up on foot
