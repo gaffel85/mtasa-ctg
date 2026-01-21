@@ -433,6 +433,17 @@ addCommandHandler("gather", function(thePlayer, command)
     testGather()
 end)
 
+-- Debug command: spawn player at 0,0,0 on foot to reproduce vehicle-less respawn bug
+addCommandHandler("bug", function(thePlayer, command)
+    outputChatBox("Spawning at 0,0,0 without vehicle for bug reproduction", thePlayer)
+    local pname = tostring(getPlayerName(thePlayer) or "unknown")
+    outputServerLog("/bug invoked by "..pname)
+    -- spawnPlayer will place the player on foot at the given coords
+    spawnPlayer(thePlayer, 0, 0, 0, 0, 285)
+    fadeCamera(thePlayer, true)
+    setCameraTarget(thePlayer, thePlayer)
+end)
+
 addCommandHandler("score", function(thePlayer, command, scoreStr)
     local newScore = tonumber(scoreStr)
     if newScore then
