@@ -43,7 +43,7 @@ function getResource(key)
     end
 end
 
-function getResourceState(player, key)
+function getResourceEnergyState(player, key)
     local playerState = resourceState[player]
     if not playerState then
         playerState = {}
@@ -59,7 +59,7 @@ end
 
 function addAmount(player, key, amount)
     local resource = getResource(key)
-    local resourceState = getResourceState(player, key)
+    local resourceState = getResourceEnergyState(player, key)
     if not resourceState then
         outputServerLog("Could not get resource state in addAmount"..inspect(player).." "..key)
         return
@@ -77,7 +77,7 @@ end
 
 function setAmount(player, key, amount)
     local resource = getResource(key)
-    local resourceState = getResourceState(player, key)
+    local resourceState = getResourceEnergyState(player, key)
     if not resourceState then
         outputServerLog("Could not get resource state in setAmount"..inspect(player).." "..key)
         return

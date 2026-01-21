@@ -1,5 +1,5 @@
 <meta>
-    <info author="gaffel85" type="gamemode" name="Capture the Gold" description="CTF with cars"  edf:definition="ctg.edf" />
+    <info author="gaffel85" type="gamemode" name="Capture the Gold" description="CTF with cars" edf:definition="ctg.edf" />
 	<include resource="scoreboard"/>
 	<include resource="votemanager"/>
 	<include resource="easytext" />
