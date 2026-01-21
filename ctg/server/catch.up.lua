@@ -201,46 +201,50 @@ end
 
 function useCatchUp(player)
     if isFarEnoughFromLeader(player) then
-        local playersWithScore = scorePercentageForPlayers(getElementsByType("player"))
-        if #playersWithScore == 0 then
-            return
+        useCatchUpForced(player)
+    end
+end
+
+function useCatchUpForce(player)
+    local playersWithScore = scorePercentageForPlayers(getElementsByType("player"))
+    if #playersWithScore == 0 then
+        return
+    end
+    local myPercentage = 1
+    for _, playerWithScore in ipairs(playersWithScore) do
+        if playerWithScore.player == player then
+            myPercentage = playerWithScore.percentage
+            break
         end
-        local myPercentage = 1
-        for _, playerWithScore in ipairs(playersWithScore) do
-            if playerWithScore.player == player then
-                myPercentage = playerWithScore.percentage
-                break
-            end
+    end
+    
+    local leader, alternativePos, useOwnPos, targetPos, meanPositionOfAllPlayers, playerExceptMe = alternativePos(player)
+    if not leader then
+        return
+    end
+
+    if #playerExceptMe <= 1 then
+        useOwnPos = true
+    end
+
+    if myPercentage < 0.7 then
+        outputChatBox("Use Below 70% of the best score "..inspect(myPercentage))
+        askForLocationNbr(player, leader, 3, "teleportOr", targetPos, alternativePos)
+        --triggerClientEvent(player, "startCatchUp", player, leader, 3)
+    elseif myPercentage < 0.8 then
+        outputChatBox("Use Below 80% of the best score "..inspect(myPercentage))
+        askForLocationNbr(player, leader, 5, "teleportOr", targetPos, alternativePos)
+        --triggerClientEvent(player, "startCatchUp", player, leader, 5)
+    elseif myPercentage < 0.9 then
+        outputChatBox("Use Below 90% of the best score "..inspect(myPercentage))
+        askForLocationNbr(player, leader, 7, "teleportOr", targetPos, alternativePos)
+        --triggerClientEvent(player, "startCatchUp", player, leader, 7)
+    else
+        outputChatBox("Use above 90% of the best score. "..inspect(myPercentage).." Using useOwnPos? "..inspect(useOwnPos))
+        if not useOwnPos then
+            spawnCloseTo(player, meanPositionOfAllPlayers)
         end
         
-        local leader, alternativePos, useOwnPos, targetPos, meanPositionOfAllPlayers, playerExceptMe = alternativePos(player)
-        if not leader then
-            return
-        end
-
-        if #playerExceptMe <= 1 then
-            useOwnPos = true
-        end
-
-        if myPercentage < 0.7 then
-            outputChatBox("Use Below 70% of the best score "..inspect(myPercentage))
-            askForLocationNbr(player, leader, 3, "teleportOr", targetPos, alternativePos)
-            --triggerClientEvent(player, "startCatchUp", player, leader, 3)
-        elseif myPercentage < 0.8 then
-            outputChatBox("Use Below 80% of the best score "..inspect(myPercentage))
-            askForLocationNbr(player, leader, 5, "teleportOr", targetPos, alternativePos)
-            --triggerClientEvent(player, "startCatchUp", player, leader, 5)
-        elseif myPercentage < 0.9 then
-            outputChatBox("Use Below 90% of the best score "..inspect(myPercentage))
-            askForLocationNbr(player, leader, 7, "teleportOr", targetPos, alternativePos)
-            --triggerClientEvent(player, "startCatchUp", player, leader, 7)
-        else
-            outputChatBox("Use above 90% of the best score. "..inspect(myPercentage).." Using useOwnPos? "..inspect(useOwnPos))
-            if not useOwnPos then
-                spawnCloseTo(player, meanPositionOfAllPlayers)
-            end
-            
-        end
     end
 end
 
