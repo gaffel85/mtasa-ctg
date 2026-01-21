@@ -201,7 +201,7 @@ end
 
 function useCatchUp(player)
     if isFarEnoughFromLeader(player) then
-        useCatchUpForced(player)
+        useCatchUpForce(player)
     end
 end
 
