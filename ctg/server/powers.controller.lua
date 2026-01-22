@@ -562,7 +562,12 @@ function forceResetPowers2(player)
     end
 	outputServerLog("Powers reset for player "..inspect(getPlayerName(player)))
 	if (getGoldCarrier() == player) then
-		handlePowersForGoldCarrierChangedResourceBased(nil, player)
+		-- Re-apply gold carrier restrictions after reset
+		loopOverPowersForPlayer2(player, function(p, powerUp, powerUpState, powerConfig)
+			if not powerUp.allowedGoldCarrier() then
+				pausePower2(p, powerUp, powerUpState)
+			end
+		end)
 	end
 end
 
