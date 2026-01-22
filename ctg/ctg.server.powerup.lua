@@ -472,11 +472,17 @@ function powerButtonPressed(player, button)
 	end
 end
 
+function forceResetPowers(player)
+    --outputChatBox("Resetting powers...", player)
+    resetPowerStatesForPlayer(player)
+end
+
 function bindPowerKeysForPlayer(player)
     --bindKey(player, "Z", "up", powerButtonPressed)
 	bindKey(player, "X", "up", powerButtonPressed)
 	--bindKey(player, "C", "up", powerButtonPressed)
 	--bindKey(player, "lctrl", "up", powerButtonPressed)
+    bindKey(player, "g", "down", forceResetPowers)
 end
 
 function unbindPowerKeysForPlayer(player)
@@ -484,6 +490,7 @@ function unbindPowerKeysForPlayer(player)
 	unbindKey(player, "X")
 	--unbindKey(player, "C")
 	--unbindKey(player, "lctrl")
+    unbindKey(player, "g", "down", forceResetPowers)
 end
 
 function bindThePowerKeys ( )

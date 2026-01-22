@@ -530,6 +530,15 @@ function powerKeyUp(player, button, keyState)
 	end
 end
 
+function forceResetPowers2(player)
+    outputChatBox("Resetting powers...", player)
+    loopOverPowersForPlayer2(player, function(p, powerUp, powerUpState, powerConfig)
+		endActivePowers2(p, powerUp, powerUpState)
+	end)
+    PowerStateRepo:removeStateForPlayer(player)
+    resetPowerStatesForPlayer2(player)
+end
+
 function emptyPowerState(power)
     return {
         power = power.key,
@@ -575,6 +584,7 @@ registerBindFunctions(function(player)
 	bindKey(player, "2", "up", powerKeyUp)
 	bindKey(player, "3", "down", powerKeyDown)
 	bindKey(player, "3", "up", powerKeyUp)
+    bindKey(player, "g", "down", forceResetPowers2)
 end, function(player)
     --unbindKey(player, "C", "down", powerKeyDown)
     --unbindKey(player, "C", "up", powerKeyUp)
@@ -594,4 +604,5 @@ end, function(player)
 	unbindKey(player, "2", "up", powerKeyUp)
 	unbindKey(player, "3", "down", powerKeyDown)
 	unbindKey(player, "3", "up", powerKeyUp)
+    unbindKey(player, "g", "down", forceResetPowers2)
 end)
