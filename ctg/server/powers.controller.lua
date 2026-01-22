@@ -4,6 +4,15 @@
 	--powerUpStates[powerUp.key] = {}
 --end
 
+local stateEnum = {
+	READY = 1,
+	COOLDOWN = 2,
+	IN_USE = 3,
+	OUT_OF_CHARGES = 4,
+	PAUSED = 5,
+	WAITING = 6
+}
+
 function getPlayerPowerConfig2(player)
     return {
         active = {
@@ -62,15 +71,6 @@ function handlePowersForGoldCarrierChangedResourceBased(newGoldCarrier, oldGoldC
 		end)
 	end
 end
-
-local stateEnum = {
-	READY = 1,
-	COOLDOWN = 2,
-	IN_USE = 3,
-	OUT_OF_CHARGES = 4,
-	PAUSED = 5,
-	WAITING = 6
-}
 
 function getStateEnum()
     return stateEnum
