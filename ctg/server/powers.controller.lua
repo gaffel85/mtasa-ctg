@@ -42,7 +42,7 @@ end
 
 function handlePowersForGoldCarrierChangedResourceBased(newGoldCarrier, oldGoldCarrier)
 	handlePowersForGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
-	if oldGoldCarrier and newGoldCarrier then
+	if oldGoldCarrier then
 		loopOverPowersForPlayer2(oldGoldCarrier, function(player, powerUp, powerUpState, powerConfig)
 			if not powerUp.allowedGoldCarrier() then
 				unpausePower2(player, powerUp, powerUpState)
@@ -51,7 +51,7 @@ function handlePowersForGoldCarrierChangedResourceBased(newGoldCarrier, oldGoldC
 	end
 
 	if newGoldCarrier then
-	loopOverPowersForPlayer2(newGoldCarrier, function(player, powerUp, powerUpState, powerConfig)
+		loopOverPowersForPlayer2(newGoldCarrier, function(player, powerUp, powerUpState, powerConfig)
 			if not powerUp.allowedGoldCarrier() then
 				pausePower2(player, powerUp, powerUpState)
 			end

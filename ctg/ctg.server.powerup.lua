@@ -102,7 +102,7 @@ function resetPowerStatesForPlayer(player)
 end
 
 function handlePowersForGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
-	if oldGoldCarrier and newGoldCarrier then
+	if oldGoldCarrier then
 		loopOverPowersForPlayer(oldGoldCarrier, function(player, powerUp, powerUpState, powerConfig)
 			if not powerUp.allowedGoldCarrier() then
 				unpausePower(player, powerUp, powerUpState)
@@ -111,7 +111,7 @@ function handlePowersForGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
 	end
 
 	if newGoldCarrier then
-	loopOverPowersForPlayer(newGoldCarrier, function(player, powerUp, powerUpState, powerConfig)
+		loopOverPowersForPlayer(newGoldCarrier, function(player, powerUp, powerUpState, powerConfig)
 			if not powerUp.allowedGoldCarrier() then
 				pausePower(player, powerUp, powerUpState)
 			end
