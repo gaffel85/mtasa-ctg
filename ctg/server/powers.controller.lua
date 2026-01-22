@@ -540,6 +540,7 @@ function forceResetPowers2(player)
 	initAllResourceStatesForPlayer(player)
 	setAmount(player, "vehicleTime", 0)
     resetPowerStatesForPlayer2(player)
+	outputServerLog("Powers reset for player "..inspect(getPlayerName(player)))
 	if (getGoldCarrier() == player) then
 		handlePowersForGoldCarrierChangedResourceBased(nil, player)
 	end
