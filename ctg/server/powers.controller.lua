@@ -542,7 +542,24 @@ function forceResetPowers2(player)
     PowerStateRepo:removeStateForPlayer(player)
 	PowerStateRepo:clearStateForPlayer(player)
 	initAllResourceStatesForPlayer(player)
+	setAmount(player, "vehicleTime", 0)
     resetPowerStatesForPlayer2(player)
+
+    -- Manually start cooldown for a vehicleTime power to trigger refill
+    local powerToPutOnCooldown = nil
+    local powerConfig = getPlayerPowerConfig2(player)
+    for j, powerUpConfig in ipairs(powerConfig.active) do
+        local powerUp = findPowerWithKey(powerUpConfig.key)
+        if powerUp and powerUp.resourceKey == "vehicleTime" then
+            powerToPutOnCooldown = powerUp
+            break
+        end
+    end
+
+    if powerToPutOnCooldown then
+        local powerUpState = getPlayerState2(player, powerToPutOnCooldown)
+        setStateWithTimer2(stateEnum.COOLDOWN, getCooldown(powerToPutOnCooldown), powerUpState, player, powerToPutOnCooldown, "Resetting")
+    end
 	outputServerLog("Powers reset for player "..inspect(getPlayerName(player)))
 	if (getGoldCarrier() == player) then
 		handlePowersForGoldCarrierChangedResourceBased(nil, player)
