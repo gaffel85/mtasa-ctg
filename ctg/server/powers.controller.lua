@@ -536,7 +536,9 @@ function forceResetPowers2(player)
 		endActivePowers2(p, powerUp, powerUpState)
 	end)
     PowerStateRepo:removeStateForPlayer(player)
-    resetPowerStatesForPlayer2(player)
+	PowerStateRepo:clearStateForPlayer(source)
+	initAllResourceStatesForPlayer(player)
+    resetPowerStatesForPlayer2(source)
 end
 
 function emptyPowerState(power)

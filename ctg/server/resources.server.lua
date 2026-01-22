@@ -106,12 +106,12 @@ function initResourceState(player, resource)
         playerState = {}
         resourceState[player] = playerState
     end
-    local resourceState = {
+    local stateOfResource = {
         amount = resource.initialCapacity,
         lastChanged = getRealTime().timestamp,
     }
-    playerState[resource.key] = resourceState
-    return resourceState
+    playerState[resource.key] = stateOfResource
+    return stateOfResource
 end
 
 addEventHandler("onResourceStart", resourceRoot, function()
@@ -121,10 +121,14 @@ addEventHandler("onResourceStart", resourceRoot, function()
     addResource(vehicleTimeResource)
 end)
 
-addEventHandler("onPlayerJoin", getRootElement(), function()
+function initAllResourceStatesForPlayer(player)
     for i, resource in ipairs(resources) do
-        initResourceState(source, resource)
+        initResourceState(player, resource)
     end
+end
+
+addEventHandler("onPlayerJoin", getRootElement(), function()
+    initAllResourceStatesForPlayer(source)
 end)
 
 
