@@ -84,9 +84,6 @@ function setAmount(player, key, amount)
     end
     -- outputServerLog("current amount "..resourceState.amount.. " setting to "..amount)
     local newAmount = amount
-    if key == "vehicleTime" then
-        outputServerLog("new amount "..newAmount)
-    end
     if newAmount > resource.capacity then
         resourceState.amount = resource.capacity
     else

@@ -536,9 +536,13 @@ function forceResetPowers2(player)
 		endActivePowers2(p, powerUp, powerUpState)
 	end)
     PowerStateRepo:removeStateForPlayer(player)
-	PowerStateRepo:clearStateForPlayer(source)
+	PowerStateRepo:clearStateForPlayer(player)
 	initAllResourceStatesForPlayer(player)
-    resetPowerStatesForPlayer2(source)
+	setAmount(player, "vehicleTime", 0)
+    resetPowerStatesForPlayer2(player)
+	if (getGoldCarrier() == player) then
+		handlePowersForGoldCarrierChangedResourceBased(nil, player)
+	end
 end
 
 function emptyPowerState(power)
