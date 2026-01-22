@@ -53,7 +53,11 @@ function handlePowersForGoldCarrierChangedResourceBased(newGoldCarrier, oldGoldC
 	if newGoldCarrier then
 		loopOverPowersForPlayer2(newGoldCarrier, function(player, powerUp, powerUpState, powerConfig)
 			if not powerUp.allowedGoldCarrier() then
-				pausePower2(player, powerUp, powerUpState)
+				if powerUpState.state == stateEnum.IN_USE then
+					endUsePower(player, powerUp, powerUpState)
+				else
+					pausePower2(player, powerUp, powerUpState)
+				end
 			end
 		end)
 	end
@@ -142,7 +146,7 @@ function pausePower2(player, powerUp, powerUpState)
 		-- do nothing
 	end
 
-	setState2(powerUp, player, stateEnum.PAUSED, "Paused while leading", state, nil)
+	setState2(powerUp, player, stateEnum.PAUSED, "Paused while leading", powerUpState, nil)
 	local vehicle = getPedOccupiedVehicle (player)
 	if vehicle then
 		powerUp.onDeactivated(player, vehicle)
@@ -163,7 +167,7 @@ function unpausePower2(player, powerUp, powerUpState)
 		elseif powerUpState.stateBeforePause == stateEnum.READY then
 			tryEnablePower2(powerUp, powerUpState, player)
 		elseif powerUpState.stateBeforePause == stateEnum.OUT_OF_CHARGES then
-			setState2(powerUp, player, stateEnum.OUT_OF_CHARGES, "Out of charges", state, nil)
+			setState2(powerUp, player, stateEnum.OUT_OF_CHARGES, "Out of charges", powerUpState, nil)
 		end
 	end
 
@@ -538,7 +542,6 @@ function forceResetPowers2(player)
     PowerStateRepo:removeStateForPlayer(player)
 	PowerStateRepo:clearStateForPlayer(player)
 	initAllResourceStatesForPlayer(player)
-	setAmount(player, "vehicleTime", 0)
     resetPowerStatesForPlayer2(player)
 	outputServerLog("Powers reset for player "..inspect(getPlayerName(player)))
 	if (getGoldCarrier() == player) then
