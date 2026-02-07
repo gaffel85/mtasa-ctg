@@ -1,3 +1,8 @@
+-- This file implements an older, timer-based power-up system.
+-- It is still partially in use and works in conjunction with the new resource-based system in ctg/server/powers.controller.lua.
+-- The new system calls functions from this file, and this file is responsible for managing a set of older power-ups.
+-- It also handles the key bindings for these older power-ups, which are configurable by the player.
+
 local nitroPowerUp = {
 	key = "nitro",
 	name = "Nitro",
@@ -441,9 +446,11 @@ addEventHandler("loadPowerUpsServer", root, function()
 	--triggerClientEvent(source, "onPowerupsLoadedClient", this, data)
 end)
 
---addPowerUp(nitroPowerUp)
---addPowerUp(teleportPowerUp)
+-- This function is called when a player presses a key that is bound to a power-up in this older power-up system.
+-- The key bindings are configurable by the player.
 
+-- This function is called when a player presses a key that is bound to a power-up in this older power-up system.
+-- The key bindings are configurable by the player.
 function powerButtonPressed(player, button)
 	local powerConfig = getPlayerPowerConfig(player)
 	local powerForBoundKey = nil
@@ -472,17 +479,12 @@ function powerButtonPressed(player, button)
 	end
 end
 
-function forceResetPowers(player)
-    --outputChatBox("Resetting powers...", player)
-    resetPowerStatesForPlayer(player)
-end
-
 function bindPowerKeysForPlayer(player)
     --bindKey(player, "Z", "up", powerButtonPressed)
 	bindKey(player, "X", "up", powerButtonPressed)
 	--bindKey(player, "C", "up", powerButtonPressed)
 	--bindKey(player, "lctrl", "up", powerButtonPressed)
-    bindKey(player, "g", "down", forceResetPowers)
+    --bindKey(player, "g", "down", forceResetPowers)
 end
 
 function unbindPowerKeysForPlayer(player)
@@ -490,7 +492,7 @@ function unbindPowerKeysForPlayer(player)
 	unbindKey(player, "X")
 	--unbindKey(player, "C")
 	--unbindKey(player, "lctrl")
-    unbindKey(player, "g", "down", forceResetPowers)
+    --unbindKey(player, "g", "down", forceResetPowers)
 end
 
 function bindThePowerKeys ( )
