@@ -26,5 +26,3 @@ local hideMapPower = {
         end
 	end	
 }
-
-addPowerUp(hideMapPower)

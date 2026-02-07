@@ -141,8 +141,6 @@ local planePowerup = {
 	end	
 }
 
---addPowerUp(superCarPowerUpOld)
 addResourcePower(superCarPowerUp)
---addPowerUp(offoadPowerUpOld)
 addResourcePower(offoadPowerUp)
 addResourcePower(planePowerup)

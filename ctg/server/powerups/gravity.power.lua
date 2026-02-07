@@ -20,5 +20,3 @@ local worldGravityPower = {
 		setGravity(0.008)
 	end	
 }
-
-addPowerUp(worldGravityPower)

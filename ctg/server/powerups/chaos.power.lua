@@ -41,5 +41,3 @@ local trafficChaos = {
         
 	end	
 }
-
-addPowerUp(trafficChaos)

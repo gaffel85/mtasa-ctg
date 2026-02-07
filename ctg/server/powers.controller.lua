@@ -4,6 +4,11 @@
 	--powerUpStates[powerUp.key] = {}
 --end
 
+local NOTIFY_POWER_ACTIVATED_KEY = 8914555
+function notifyPowerActivated(player, powerUpName)
+	displayMessageForAll(NOTIFY_POWER_ACTIVATED_KEY, getPlayerName(player).." activated "..powerUpName, player, "", 3000, 0.5, 0.3, 255, 100, 0, 255, 2 )
+end
+
 function getPlayerPowerConfig2(player)
     return {
         active = {
@@ -20,9 +25,7 @@ function getPlayerPowerConfig2(player)
 end
 
 function resetPowerStatesOnDeliverdResourceBased()
-	resetPowerStatesOnDeliverd()
 	for i, player in ipairs(getElementsByType("player")) do
-		setCompletedRank(player, getUsedRank(player))
 		resetPowerStatesForPlayer2(player)
 	end
 end
@@ -41,7 +44,6 @@ function resetPowerStatesForPlayer2(player)
 end
 
 function handlePowersForGoldCarrierChangedResourceBased(newGoldCarrier, oldGoldCarrier)
-	handlePowersForGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
 	if oldGoldCarrier then
 		loopOverPowersForPlayer2(oldGoldCarrier, function(player, powerUp, powerUpState, powerConfig)
 			if not powerUp.allowedGoldCarrier() then

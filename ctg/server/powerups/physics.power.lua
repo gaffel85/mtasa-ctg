@@ -113,5 +113,3 @@ local physicsPower = {
 	onDeactivated = function(player, vehicle, state)
 	end	
 }
-
-addPowerUp(physicsPower)

@@ -21,5 +21,3 @@ local cinematicCamera = {
 		removeShieldedPlayer(player, 1, 2)
 	end	
 }
-
-addPowerUp(cinematicCamera)

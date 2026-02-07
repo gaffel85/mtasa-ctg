@@ -65,6 +65,3 @@ local bussesForEveryone = {
         end
 	end	
 }
-
-addPowerUp(helicopterPowerup)
-addPowerUp(bussesForEveryone)

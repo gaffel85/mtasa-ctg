@@ -57,5 +57,4 @@ local canonPushPowerup = {
 }
 
 
-addPowerUp(canonPushPowerupOld)
 addResourcePower(canonPushPowerup)

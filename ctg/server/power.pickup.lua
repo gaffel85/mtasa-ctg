@@ -37,17 +37,17 @@ function PowerPickup:pickedUp(player)
         destroyElement(self.marker)
     end
 
-    local oldConfig = getPlayerPowerConfig(player)
-    oldConfig.owned = { self.powerKey }
-    oldConfig.active = { { key = self.powerKey, bindKey = "X" }, }
-    setPlayerPowerConfig(player, oldConfig)
+    --local oldConfig = getPlayerPowerConfig(player)
+    --oldConfig.owned = { self.powerKey }
+    --oldConfig.active = { { key = self.powerKey, bindKey = "X" }, }
+    --setPlayerPowerConfig(player, oldConfig)
 end
 
 function PowerPickupRepo:createRandomPickup(x, y, z)
-    local allPowers = getAllPowers()
-    local power = allPowers[math.random(1, #allPowers)]
-    local pickup = PowerPickup:new(power.key)
-    pickup:placeAt(x, y, z)
-    table.insert(self.pickups, pickup)
-    return pickup
+    --local allPowers = getAllPowers()
+    --local power = allPowers[math.random(1, #allPowers)]
+    --local pickup = PowerPickup:new(power.key)
+    --pickup:placeAt(x, y, z)
+    --table.insert(self.pickups, pickup)
+    --return pickup
 end

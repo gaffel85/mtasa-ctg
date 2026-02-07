@@ -33,10 +33,8 @@
 	<script src="shared/map.area.lua" />
 	<script src="shared/map.area.lua" type="client" />
 
-	<script src="server/power.state.repo.lua" />
 	<script src="ctg.server.waterdetect.lua" />
 	<script src="ctg.server.teleport.lua" />
-	<script src="ctg.server.powerup.lua" />
 	<script src="shared/powers.repo.lua" />
 	<script src="shared/powers.repo.lua" type="client" />
 
@@ -52,15 +50,8 @@
 	<script src="server/utils.lua" />
 	<script src="client/power.gui.lua" type="client" />
 
-	<script src="server/player.powerconfig.lua" />
 	<script src="server/resources.server.lua" />
 	<script src="server/powers.controller.lua" />
-	<script src="server/powerups/water.power.lua" />
-	<script src="server/powerups/camera.power.lua" />
-	<script src="server/powerups/vehicle.power.lua" />
-	<script src="server/powerups/chaos.power.lua" />
-	<script src="server/powerups/shield.power.lua" />
-	<script src="server/powerups/hidemap.power.lua" />
 	<script src="shared/powers/nitro.power.lua" />
 	<script src="shared/powers/nitro.power.lua" type="client" />
 	<script src="shared/powers/jump.power.lua" />
@@ -69,8 +60,6 @@
 	<script src="shared/powers/canon.power.lua" type="client" />
 	<script src="shared/powers/vehicle.changer.power.lua" />
 	<script src="shared/powers/vehicle.changer.power.lua" type="client" />
-	<script src="server/powerups/gravity.power.lua" />
-	<script src="server/powerups/physics.power.lua" />
 	<script src="server/collision.lua" />
 	<script src="server/distance.meter.lua" />
 	<script src="server/admin.control.lua" />
@@ -92,7 +81,6 @@
 	
 	<script src="client/location.plotter.lua" type="client" />
 	<script src="client/power.cameraangle.lua" type="client" />
-	<script src="client/powerconfig.window.lua" type="client" />
 	<script src="client/power.shielded.lua" type="client" />
 	<script src="client/shieldball.lua" type="client" />
 	<script src="client/admin.gui.lua" type="client" />
@@ -113,8 +101,6 @@
 	<script src="ctg.client.goldcarrier.lua" type="client" />
     <script src="ctg.client.collision.lua" type="client" />
 	<script src="ctg.client.lastpositions.lua" type="client" />
-
-	<script src="ctg.client.powerup.lua" type="client" />
 
 	<script src="ctg.client.spectate.lua" type="client" />
 
