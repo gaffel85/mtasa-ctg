@@ -1,28 +1,18 @@
 -- ctg/shared/temp_powers_config.lua
--- Defines configuration for temporary, consumable power-ups.
+-- Shared repository for temporary, consumable power-ups.
 
-local TemporaryPowerups = {
-    -- Example: Turn all other players into buses
-    bus_transform = {
-        id = "bus_transform",
-        name = "Bus Transform",
-        description = "Turn other players' vehicles into buses",
-        iconPath = "img/bus_icon.png", -- Placeholder, replace with actual path if available
-        serverEffectFunctionName = "transformPlayersIntoBuses", -- Placeholder, replace with actual server function
-    },
+TemporaryPowerups = {}
 
-    -- Example: Change camera angle for other players
-    camera_chaos = {
-        id = "camera_chaos",
-        name = "Camera Chaos",
-        description = "Change other players' camera angles randomly",
-        iconPath = "img/camera_icon.png", -- Placeholder, replace with actual path if available
-        serverEffectFunctionName = "applyCameraChaosToPlayers", -- Placeholder, replace with actual server function
-    },
-
-    -- Add more temporary power-ups here as needed
-    -- e.g., speed_boost, shield, etc.
-}
+-- Function to register a temporary power-up
+function registerTemporaryPower(id, config)
+    if not id or not config then
+        outputDebugString("Attempted to register temporary power without ID or config")
+        return
+    end
+    config.id = id
+    TemporaryPowerups[id] = config
+    -- outputDebugString("Registered temporary power: " .. id)
+end
 
 -- Function to retrieve a power-up's config by ID
 function getTemporaryPowerupConfig(id)
@@ -38,5 +28,27 @@ function getAllTemporaryPowerupIds()
     return ids
 end
 
--- Export the table and helper functions for server/client use
-return TemporaryPowerups
+-- Function to get metadata for client-server synchronization
+function getTemporaryPowerupsMetadata()
+    local metadata = {}
+    for id, config in pairs(TemporaryPowerups) do
+        metadata[id] = {
+            id = id,
+            name = config.name,
+            description = config.description,
+            iconPath = config.iconPath
+        }
+    end
+    return metadata
+end
+
+-- Client-side event for receiving metadata from the server
+if triggerServerEvent then -- Simple check for client-side
+    addEvent("onSyncTemporaryPowerupsMetadata", true)
+    addEventHandler("onSyncTemporaryPowerupsMetadata", root, function(metadata)
+        for id, config in pairs(metadata) do
+            TemporaryPowerups[id] = config
+        end
+        -- outputDebugString("Received temporary powerups metadata from server")
+    end)
+end

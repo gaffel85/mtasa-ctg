@@ -50,16 +50,6 @@
 	<script src="server/utils.lua" />
 	<script src="client/power.gui.lua" type="client" />
 
-	<script src="server/resources.server.lua" />
-	<script src="server/powers.controller.lua" />
-	<script src="shared/powers/nitro.power.lua" />
-	<script src="shared/powers/nitro.power.lua" type="client" />
-	<script src="shared/powers/jump.power.lua" />
-	<script src="shared/powers/jump.power.lua" type="client" />
-	<script src="shared/powers/canon.power.lua" />
-	<script src="shared/powers/canon.power.lua" type="client" />
-	<script src="shared/powers/vehicle.changer.power.lua" />
-	<script src="shared/powers/vehicle.changer.power.lua" type="client" />
 	<!-- Temporary Power-up System -->
 	<script src="shared/temp_powers_config.lua" />
 	<script src="shared/temp_powers_config.lua" type="client" />
@@ -68,6 +58,25 @@
 
 	<script src="client/temp_power_input.lua" type="client" />
 	<script src="client/temp_power_ui.lua" type="client" />
+
+	<script src="server/resources.server.lua" />
+	<script src="server/powers.controller.lua" />
+	<script src="server/powerups/camera.power.lua" />
+	<script src="server/powerups/chaos.power.lua" />
+	<script src="server/powerups/gravity.power.lua" />
+	<script src="server/powerups/hidemap.power.lua" />
+	<script src="server/powerups/physics.power.lua" />
+	<script src="server/powerups/shield.power.lua" />
+	<script src="server/powerups/vehicle.power.lua" />
+	<script src="server/powerups/water.power.lua" />
+	<script src="shared/powers/nitro.power.lua" />
+	<script src="shared/powers/nitro.power.lua" type="client" />
+	<script src="shared/powers/jump.power.lua" />
+	<script src="shared/powers/jump.power.lua" type="client" />
+	<script src="shared/powers/canon.power.lua" />
+	<script src="shared/powers/canon.power.lua" type="client" />
+	<script src="shared/powers/vehicle.changer.power.lua" />
+	<script src="shared/powers/vehicle.changer.power.lua" type="client" />
 	<script src="server/collision.lua" />
 	<script src="server/distance.meter.lua" />
 	<script src="server/admin.control.lua" />

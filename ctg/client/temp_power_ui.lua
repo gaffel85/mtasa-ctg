@@ -13,13 +13,12 @@ local CARD_DESCRIPTION_COLOR = tocolor(200, 200, 200, 255) -- Grey-ish white
 local CARD_BORDER_COLOR = tocolor(255, 255, 255, 200)
 
 local playerPowerupQueue = {} -- The client's current temporary power-up queue
-local tempPowerupConfig = require("ctg.shared.temp_powers_config") -- Load shared config
 
 -- Function to draw a single power-up card
 local function drawPowerupCard(powerupId, x, y, alphaMultiplier, isQueueItem)
     if not powerupId then return end
 
-    local config = tempPowerupConfig[powerupId]
+    local config = getTemporaryPowerupConfig(powerupId)
     if not config then return end
 
     local bgAlpha = math.floor(180 * alphaMultiplier)

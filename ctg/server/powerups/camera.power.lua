@@ -32,3 +32,23 @@ local cinematicCamera = {
         end
 	end	
 }
+
+if registerTemporaryPower then
+    registerTemporaryPower("camera_chaos", {
+        name = cinematicCamera.name,
+        description = cinematicCamera.desc,
+        iconPath = "img/camera_icon.png",
+        onActivate = function(player)
+            local vehicle = getPedOccupiedVehicle(player)
+            cinematicCamera.onActivated(player, vehicle, {name = cinematicCamera.name})
+            
+            -- Set a timer to deactivate it, since cinematic camera seems to be designed with a duration
+            local duration = cinematicCamera.duration()
+            setTimer(function()
+                if isElement(player) then
+                    cinematicCamera.onDeactivated(player, getPedOccupiedVehicle(player), {})
+                end
+            end, duration * 1000, 1)
+        end
+    })
+end

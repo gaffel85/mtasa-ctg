@@ -65,3 +65,23 @@ local bussesForEveryone = {
         end
 	end	
 }
+
+if registerTemporaryPower then
+    registerTemporaryPower("bus_transform", {
+        name = bussesForEveryone.name,
+        description = bussesForEveryone.desc,
+        iconPath = "img/bus_icon.png",
+        onActivate = function(player)
+            local vehicle = getPedOccupiedVehicle(player)
+            bussesForEveryone.onActivated(player, vehicle, {name = bussesForEveryone.name})
+            
+            -- Set a timer to deactivate it
+            local duration = bussesForEveryone.duration()
+            setTimer(function()
+                if isElement(player) then
+                    bussesForEveryone.onDeactivated(player, getPedOccupiedVehicle(player), {})
+                end
+            end, duration * 1000, 1)
+        end
+    })
+end
