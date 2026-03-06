@@ -60,6 +60,14 @@
 	<script src="shared/powers/canon.power.lua" type="client" />
 	<script src="shared/powers/vehicle.changer.power.lua" />
 	<script src="shared/powers/vehicle.changer.power.lua" type="client" />
+	<!-- Temporary Power-up System -->
+	<script src="shared/temp_powers_config.lua" />
+	<script src="shared/temp_powers_config.lua" type="client" />
+
+	<script src="server/temp_power_manager.lua" type="server" />
+
+	<script src="client/temp_power_input.lua" type="client" />
+	<script src="client/temp_power_ui.lua" type="client" />
 	<script src="server/collision.lua" />
 	<script src="server/distance.meter.lua" />
 	<script src="server/admin.control.lua" />
