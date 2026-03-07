@@ -2,6 +2,7 @@
 -- Server-side module for managing temporary, consumable power-ups for players.
 
 local playerPowerupQueues = {} -- Stores power-up queues for each player (key = player element, value = {powerupId1, powerupId2})
+local playerTestTimers = {} -- Stores test timers for each player
 local MAX_QUEUE_SIZE = 2
 
 -- Function to get a random power-up ID from the config
@@ -21,11 +22,40 @@ addEventHandler("onPlayerJoin", root, function()
     triggerClientEvent(source, "onSyncTemporaryPowerupsMetadata", source, getTemporaryPowerupsMetadata())
     -- Optionally send an initial empty queue update to client
     triggerClientEvent(source, "onTempPowerupQueueUpdateClient", source, {})
+
+    -- DEBUG/TEST: Automatically give a power-up every 10 seconds
+    if isTimer(playerTestTimers[source]) then killTimer(playerTestTimers[source]) end
+    playerTestTimers[source] = setTimer(function(p)
+        if isElement(p) then
+            giveRandomTemporaryPowerup(p)
+        end
+    end, 10000, 0, source)
 end)
 
 -- Cleans up a player's power-up queue when they quit
 addEventHandler("onPlayerQuit", root, function()
     playerPowerupQueues[source] = nil
+    if isTimer(playerTestTimers[source]) then
+        killTimer(playerTestTimers[source])
+    end
+    playerTestTimers[source] = nil
+end)
+
+-- DEBUG/TEST: Handle players already on the server when resource starts
+addEventHandler("onResourceStart", resourceRoot, function()
+    for _, player in ipairs(getElementsByType("player")) do
+        if not playerPowerupQueues[player] then
+            playerPowerupQueues[player] = {}
+        end
+        triggerClientEvent(player, "onSyncTemporaryPowerupsMetadata", player, getTemporaryPowerupsMetadata())
+        
+        if isTimer(playerTestTimers[player]) then killTimer(playerTestTimers[player]) end
+        playerTestTimers[player] = setTimer(function(p)
+            if isElement(p) then
+                giveRandomTemporaryPowerup(p)
+            end
+        end, 10000, 0, player)
+    end
 end)
 
 -- Public function: Gives a random temporary power-up to a player
