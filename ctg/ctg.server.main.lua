@@ -258,6 +258,7 @@ function startGameIfEnoughPlayers()
 end
 
 function goldDelivered(player)
+    outputServerLog("[CTG-TRACE] Gold delivered by " .. getPlayerName(player))
     local oldHideout = getPlayerHideout(player).edl
     removeOldHideout()
 	givePointsToPlayer(getGoldCarrier(), 500)
@@ -291,8 +292,8 @@ function activeRoundFinished(oldHideout, newGoldEdl)
 end
 
 function resetRoundVars()
-    resetPowerStatesOnDeliverdResourceBased()
     clearGoldCarrier()
+    resetPowerStatesForAllPlayers()
 end
 
 function resetGame()
@@ -300,7 +301,6 @@ function resetGame()
     removeOldGold()
     resetScore()
     resetTeamScore()
-    resetPlayerMoney()
     repairAllCars()
     respawnAllPlayers()
 	repairAllCars()

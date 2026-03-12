@@ -1,6 +1,16 @@
 -- This file is the main controller for the resource-based power-up system.
 -- It handles power-up state changes, activation, deactivation, and key bindings.
 
+-- Enum for power-up states.
+local stateEnum = {
+	READY = 1,
+	COOLDOWN = 2,
+	IN_USE = 3,
+	OUT_OF_CHARGES = 4,
+	PAUSED = 5,
+	WAITING = 6
+}
+
 -- A key for displaying a notification when a power-up is activated.
 local NOTIFY_POWER_ACTIVATED_KEY = 8914555
 -- Displays a notification to all players when a power-up is activated.
@@ -50,16 +60,6 @@ function handlePowersForGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
 		end)
 	end
 end
-
--- Enum for power-up states.
-local stateEnum = {
-	READY = 1,
-	COOLDOWN = 2,
-	IN_USE = 3,
-	OUT_OF_CHARGES = 4,
-	PAUSED = 5,
-	WAITING = 6
-}
 
 -- Returns the state enum.
 function getStateEnum()
@@ -168,6 +168,11 @@ end
 
 -- Tries to enable a power-up for a player.
 function tryEnablePower(powerUp, powerUpState, player)
+	if getGoldCarrier() == player and not powerUp.allowedGoldCarrier() then
+		pausePower(player, powerUp, powerUpState)
+		return
+	end
+
 	local vehicle = getPedOccupiedVehicle (player)
 	if not vehicle then
 		setStateWithTimer(stateEnum.WAITING, 2, powerUpState, player, powerUp, "Waiting for vehicle")
@@ -176,8 +181,14 @@ function tryEnablePower(powerUp, powerUpState, player)
 
 	local wasEnabledOrWaitTime = powerUp.onEnable(player, vehicle)
 	if (wasEnabledOrWaitTime) then
-		setState(powerUp, player, stateEnum.READY, "Ready", powerUpState, nil)
-		powerUpState.endTime = nil
+		local resource = getResource(powerUp.resourceKey)
+		local resourceState = getResourceEnergyState(player, powerUp.resourceKey)
+		if resource and resource.type == "time" and resourceState.amount <= 0 then
+			setStateWithTimer(stateEnum.COOLDOWN, getCooldown(powerUp), powerUpState, player, powerUp, "Refilling")
+		else
+			setState(powerUp, player, stateEnum.READY, "Ready", powerUpState, nil)
+			powerUpState.endTime = nil
+		end
 	else
 		setStateWithTimer(stateEnum.WAITING, wasEnabledOrWaitTime.pollTime, powerUpState, player, powerUp, wasEnabledOrWaitTime.message)
 	end
@@ -227,8 +238,8 @@ function timerDone(player, powerUpKey)
 	local powerUpState = getPlayerState(player, powerUp)
 	killPowerTimer(powerUpState)
 	if powerUpState.state == stateEnum.COOLDOWN then
-		tryEnablePower(powerUp, powerUpState, player)
 		resetIfResourceTypeIsTime(player, powerUp)
+		tryEnablePower(powerUp, powerUpState, player)
 	elseif powerUpState.state == stateEnum.IN_USE then
 		endUsePower(player, powerUp, powerUpState)
 	elseif powerUpState.state == stateEnum.WAITING then
@@ -306,6 +317,11 @@ end
 
 -- Activates a power-up for a player.
 function usePowerUp(player, key, keyState, powerUp)
+	if getGoldCarrier() == player and not powerUp.allowedGoldCarrier() then
+		outputChatBox("Power not allowed while carrying gold!", player)
+		return
+	end
+
 	local state = getPlayerState(player, powerUp)
 	local resourceState = getResourceEnergyState(player, powerUp.resourceKey)
 	if resourceState.amount < powerUp.minResourceAmount then
