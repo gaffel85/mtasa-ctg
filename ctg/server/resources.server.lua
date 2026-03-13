@@ -66,7 +66,7 @@ function addAmount(player, key, amount)
     end
     local newAmount = resourceState.amount + amount
     if key == "vehicleTime" then
-        outputServerLog("new amount "..newAmount)
+        outputServerLog("[CTG-TRACE] Resource vehicleTime for " .. getPlayerName(player) .. " changed by " .. amount .. " to " .. newAmount)
     end
     if newAmount > resource.capacity then
         resourceState.amount = resource.capacity
@@ -83,6 +83,9 @@ function setAmount(player, key, amount)
         return
     end
     -- outputServerLog("current amount "..resourceState.amount.. " setting to "..amount)
+    if key == "vehicleTime" then
+        outputServerLog("[CTG-TRACE] Resource vehicleTime for " .. getPlayerName(player) .. " set from " .. resourceState.amount .. " to " .. amount)
+    end
     local newAmount = amount
     if newAmount > resource.capacity then
         resourceState.amount = resource.capacity

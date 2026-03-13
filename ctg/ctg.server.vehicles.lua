@@ -147,13 +147,14 @@ function setVehicleForAll()
 
       displayMessageForPlayer(player, CHANGE_VECHICLE_TEXT_ID, "New vehicle is "..getVehicleNameFromModel(currentVehicle), nil, nil, 3000, 0.5, 0.7, 88, 255, 120)
 
-      setVehicleForPlayer(player, getCurrentVehicle())
+      setVehicleForPlayer(player, getCurrentVehicle(), "Round vehicle change")
     end
   end
 end
 
-function setVehicleForPlayer(player, model)
+function setVehicleForPlayer(player, model, reason)
   local theVehicle = getPedOccupiedVehicle(player)
+  outputServerLog("[CTG-TRACE] Vehicle switched for " .. getPlayerName(player) .. " to " .. (getVehicleNameFromModel(model) or model) .. " because: " .. (reason or "Unknown"))
   if theVehicle then
     local r, g, b = getTeamColorForPlayer(player)
     local upgrades = getVehicleUpgrades ( theVehicle )
@@ -186,7 +187,7 @@ addCommandHandler("changeveh", function(thePlayer, command, newModel)
     local theVehicle = getPedOccupiedVehicle(thePlayer) -- get the vehicle the player is in
     newModel = tonumber(newModel) -- try to convert the string argument to a number
     if newModel then -- make sure the player is in a vehicle and specified a number
-      setVehicleForPlayer(thePlayer, newModel)
+      setVehicleForPlayer(thePlayer, newModel, "Manual command")
     end
 end)
 

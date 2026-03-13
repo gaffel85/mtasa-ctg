@@ -46,6 +46,9 @@ end
 function clearGoldCarrier()
     -- outputChatBox("Clear gold carrier!!!!")
     local tmpGoldCarrier = getGoldCarrier()
+    if tmpGoldCarrier then
+        outputServerLog("[CTG-TRACE] Player " .. getPlayerName(tmpGoldCarrier) .. " is no longer the gold carrier (cleared)")
+    end
     setGoldCarrier(nil)
     oldGoldCarrier = nil
     clearShield()
@@ -55,7 +58,7 @@ function clearGoldCarrier()
     -- triggerEvent("goldCarrierChanged", root, nil, tmpGoldCarrier)
     -- outputChatBox("goldcarrier.clearGoldCarrier, gold carrier: "..inspect(getGoldCarrier()))
     onGoldCarrierChanged( nil, tmpGoldCarrier)
-    handlePowersForGoldCarrierChangedResourceBased(nil, tmpGoldCarrier)
+    --handlePowersForGoldCarrierChangedResourceBased(nil, tmpGoldCarrier)
 
     -- SHould be triggerClientEvent?
     triggerClientEvent("goldCarrierCleared", root)
@@ -71,6 +74,8 @@ function changeGoldCarrier(player)
 		return
 	end
 
+    outputServerLog("[CTG-TRACE] Player " .. getPlayerName(player) .. " became the gold carrier")
+
 	shieldPlayer(player)
 	setTimer(function() 
 		clearShield()
@@ -84,7 +89,7 @@ function changeGoldCarrier(player)
     -- ALways togheter. Remove trigger?
     -- triggerEvent("goldCarrierChanged", root, getGoldCarrier(), oldGoldCarrier)
     onGoldCarrierChanged( getGoldCarrier(), oldGoldCarrier)
-    handlePowersForGoldCarrierChangedResourceBased(getGoldCarrier(), oldGoldCarrier)
+    --handlePowersForGoldCarrierChangedResourceBased(getGoldCarrier(), oldGoldCarrier)
 
     triggerClientEvent("onGoldCarrierChanged", player, oldGoldCarrier)    
 end

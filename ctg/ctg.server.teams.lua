@@ -155,7 +155,7 @@ end
 function setCorrectVehicleColor(player)
     local currentVehicle = getPedOccupiedVehicle(player)
     if currentVehicle then
-        setVehicleForPlayer(player, getElementModel(currentVehicle))
+        setVehicleForPlayer(player, getElementModel(currentVehicle), "Correct vehicle color")
     end
 end
 

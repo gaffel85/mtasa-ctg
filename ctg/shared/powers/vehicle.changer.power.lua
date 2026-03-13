@@ -16,11 +16,11 @@ local superCarPowerUpOld = {
 	end,
 	onActivated = function(player, vehicle, state)
 		preventChangeFor(player)
-		setVehicleForPlayer(player, getPowerConst().superCar.model)
+		setVehicleForPlayer(player, getPowerConst().superCar.model, "Power activated: Super car")
 	end,
 	onDeactivated = function(player, vehicle, state)
 		unpreventChangeFor(player)
-		setVehicleForPlayer(player, getCurrentVehicle())
+		setVehicleForPlayer(player, getCurrentVehicle(), "Power deactivated: Super car")
 	end	
 }
 
@@ -47,11 +47,11 @@ local superCarPowerUp = {
 	end,
 	onActivated = function(player, vehicle, state)
 		preventChangeFor(player)
-		setVehicleForPlayer(player, getPowerConst().superCar.model)
+		setVehicleForPlayer(player, getPowerConst().superCar.model, "Power activated: Super car")
 	end,
 	onDeactivated = function(player, vehicle, state)
 		unpreventChangeFor(player)
-		setVehicleForPlayer(player, getCurrentVehicle())
+		setVehicleForPlayer(player, getCurrentVehicle(), "Power deactivated: Super car")
 	end	
 }
 
@@ -72,11 +72,11 @@ local offoadPowerUpOld = {
 	end,
 	onActivated = function(player, vehicle, state)
 		preventChangeFor(player)
-		setVehicleForPlayer(player, 495)
+		setVehicleForPlayer(player, 495, "Power activated: Offroad")
 	end,
 	onDeactivated = function(player, vehicle, state)
 		unpreventChangeFor(player)
-		setVehicleForPlayer(player, getCurrentVehicle())
+		setVehicleForPlayer(player, getCurrentVehicle(), "Power deactivated: Offroad")
 	end	
 }
 
@@ -102,11 +102,11 @@ local offoadPowerUp = {
 	end,
 	onActivated = function(player, vehicle, state)
 		preventChangeFor(player)
-		setVehicleForPlayer(player, 495)
+		setVehicleForPlayer(player, 495, "Power activated: Offroad")
 	end,
 	onDeactivated = function(player, vehicle, state)
 		unpreventChangeFor(player)
-		setVehicleForPlayer(player, getCurrentVehicle())
+		setVehicleForPlayer(player, getCurrentVehicle(), "Power deactivated: Offroad")
 	end	
 }
 
@@ -133,11 +133,11 @@ local planePowerup = {
 	end,
 	onActivated = function(player, vehicle, state)
 		preventChangeFor(player)
-		setVehicleForPlayer(player, 593)
+		setVehicleForPlayer(player, 593, "Power activated: Plane")
 	end,
 	onDeactivated = function(player, vehicle, state)
 		unpreventChangeFor(player)
-		setVehicleForPlayer(player, getCurrentVehicle())
+		setVehicleForPlayer(player, getCurrentVehicle(), "Power deactivated: Plane")
 	end	
 }
 
