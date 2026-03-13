@@ -38,6 +38,12 @@ function increaseHits(player)
     return 0
 end
 
+local function getVehicleSpeed(vehicle)
+    if not vehicle then return 0 end
+    local vx, vy, vz = getElementVelocity(vehicle)
+    return math.sqrt(vx^2 + vy^2 + vz^2) * 180
+end
+
 function collisisionWithPlayer(otherPlayer, damage)
     local goldCarrier = getGoldCarrier()
     local notGoldCarrier = nil
@@ -49,6 +55,22 @@ function collisisionWithPlayer(otherPlayer, damage)
 
     if not notGoldCarrier then
         return
+    end
+
+    -- Momentum check
+    local attackerVehicle = getPedOccupiedVehicle(notGoldCarrier)
+    local carrierVehicle = getPedOccupiedVehicle(goldCarrier)
+    
+    if attackerVehicle and carrierVehicle then
+        local attackerSpeed = getVehicleSpeed(attackerVehicle)
+        local carrierSpeed = getVehicleSpeed(carrierVehicle)
+
+        local rule1 = attackerSpeed > MomentumConfig.Rule1MinSpeed
+        local rule2 = attackerSpeed > (carrierSpeed + MomentumConfig.Rule2RelativeSpeed)
+
+        if not rule1 and not rule2 then
+            return
+        end
     end
 
     if isShielded(goldCarrier) then

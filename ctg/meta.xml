@@ -8,11 +8,13 @@
 	<file src="locations.json" />
 	<file src="img/san-fierro.png" />
 	<file src="img/san-fierro-h.png" />
+	<file src="img/forbidden.png" />
 
 	<!--<script src="shared/math.lua" />
 	<script src="shared/math.lua" type="client" />-->
 	<script src="shared/camera.path.lua" type="client" />
 	<script src="client/events.lua" type="client" />
+	<script src="client/speed_warning.lua" type="client" />
 	<script src="data/score.shared.lua" />
 	<script src="data/score.shared.lua" type="client" />
 	<script src="data/goldcarrier.shared.lua" />
@@ -30,6 +32,8 @@
 
 	<script src="shared/quad.tree.lua" type="client" />
 	<script src="shared/quad.tree.lua" />
+	<script src="shared/momentum_config.lua" />
+	<script src="shared/momentum_config.lua" type="client" />
 	<script src="shared/map.area.lua" />
 	<script src="shared/map.area.lua" type="client" />
 
