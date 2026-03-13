@@ -109,6 +109,9 @@ end)
 
 -- 2D HUD Warning logic for stationary blockers
 local SCREEN_WIDTH, SCREEN_HEIGHT = guiGetScreenSize()
+local lowSpeedStartTime = nil
+local lastPulsePhase = 0
+local lastPulseTick = getTickCount()
 
 local function getOpponentHideoutPos()
     local myTeam = getPlayerTeam(localPlayer)
@@ -137,21 +140,38 @@ end
 
 addEventHandler("onClientRender", root, function()
     local localVehicle = getPedOccupiedVehicle(localPlayer)
-    if not localVehicle then return end
+    if not localVehicle then 
+        lowSpeedStartTime = nil
+        return 
+    end
     
     local goldCarrier = getGoldCarrier()
-    if goldCarrier == localPlayer then return end -- No warning for the carrier
-    
     local localSpeed = getVehicleSpeed(localVehicle)
-    if localSpeed >= MomentumConfig.HUDWarningMinSpeed then return end
+    local currentTick = getTickCount()
+
+    -- 1. Check if we should even consider showing the warning
+    if localSpeed >= MomentumConfig.HUDWarningMinSpeed or goldCarrier == localPlayer then
+        lowSpeedStartTime = nil
+        return
+    end
+
+    -- Start the timer if it hasn't started
+    if not lowSpeedStartTime then
+        lowSpeedStartTime = currentTick
+    end
+
+    -- Only proceed if the delay has passed
+    if (currentTick - lowSpeedStartTime) < (MomentumConfig.HUDWarningDelay or 4000) then
+        return
+    end
     
-    -- 1. Draw the "Always-on" text when slow
+    -- 2. Draw the "Always-on" text when slow
     local text = "Can't steal gold with too low speed"
     local textY = SCREEN_HEIGHT * 0.7
     dxDrawText(text, 2, textY + 2, SCREEN_WIDTH + 2, textY + 52, tocolor(0, 0, 0, 200), 2.0, "default-bold", "center", "center") -- Shadow
     dxDrawText(text, 0, textY, SCREEN_WIDTH, textY + 50, tocolor(255, 20, 20, 255), 2.0, "default-bold", "center", "center")
     
-    -- 2. Proximity check for pulsating icon
+    -- 3. Proximity check for pulsating icon
     local lx, ly, lz = getElementPosition(localVehicle)
     local minDist = 9999
     
@@ -172,19 +192,28 @@ addEventHandler("onClientRender", root, function()
         if dist < minDist then minDist = dist end
     end
     
-    -- Pulsating icon if close to either
+    -- 4. Calculate Pulsation (Continuous phase)
+    local deltaTime = (currentTick - lastPulseTick) / 1000
+    lastPulseTick = currentTick
+
     if minDist < MomentumConfig.HUDWarningDistance then
         local distFactor = 1 - (minDist / MomentumConfig.HUDWarningDistance) -- 0 to 1
         
-        -- Frequency increases as we get closer (pulse speed 1.0 to 4.0 Hz approx)
-        local pulseFreq = 1.0 + (distFactor * 3.0)
-        local time = getTickCount() / 1000
-        local alphaMultiplier = 0.5 + 0.5 * math.sin(time * math.pi * 2 * pulseFreq)
+        -- Frequency: 0.1 Hz (10s cycle) at 100m, to 1.0 Hz (1s cycle) at 0m
+        local pulseFreq = 0.1 + (distFactor * 0.9)
+        
+        -- Update phase continuously (prevents jumping when distance/freq changes)
+        lastPulsePhase = (lastPulsePhase + deltaTime * pulseFreq) % 1.0
+        
+        local alphaMultiplier = 0.5 + 0.5 * math.cos(lastPulsePhase * math.pi * 2)
         
         local iconSize = 64 + 32 * distFactor
         local iconX = (SCREEN_WIDTH - iconSize) / 2
         local iconY = textY - iconSize - 10
         
         dxDrawImage(iconX, iconY, iconSize, iconSize, "img/forbidden.png", 0, 0, 0, tocolor(255, 0, 0, alphaMultiplier * 255))
+    else
+        -- Keep the clock running even if outside distance (but don't render icon)
+        lastPulsePhase = (lastPulsePhase + deltaTime * 0.1) % 1.0
     end
 end)
