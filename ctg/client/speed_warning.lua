@@ -160,6 +160,11 @@ addEventHandler("onClientRender", root, function()
         lowSpeedStartTime = currentTick
     end
 
+    if not goldCarrier then
+        -- If we're not near the carrier, don't proceed
+        return
+    end
+
     -- Only proceed if the delay has passed
     if (currentTick - lowSpeedStartTime) < (MomentumConfig.HUDWarningDelay or 4000) then
         return
@@ -167,7 +172,7 @@ addEventHandler("onClientRender", root, function()
     
     -- 2. Draw the "Always-on" text when slow
     local text = "Can't steal gold with too low speed"
-    local textY = SCREEN_HEIGHT * 0.7
+    local textY = SCREEN_HEIGHT * 0.8
     dxDrawText(text, 2, textY + 2, SCREEN_WIDTH + 2, textY + 52, tocolor(0, 0, 0, 200), 2.0, "default-bold", "center", "center") -- Shadow
     dxDrawText(text, 0, textY, SCREEN_WIDTH, textY + 50, tocolor(255, 20, 20, 255), 2.0, "default-bold", "center", "center")
     
