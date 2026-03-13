@@ -15,21 +15,31 @@ local function getRandomPowerupId()
     return allPowerupIds[randomIndex]
 end
 
--- Initializes a player's power-up queue when they join
-addEventHandler("onPlayerJoin", root, function()
-    playerPowerupQueues[source] = {}
+-- Helper to sync power-up metadata and current queue to a player
+local function syncPlayerPowerups(player)
+    if not isElement(player) or getElementType(player) ~= "player" then return end
+    
     -- Send all registered temporary powerup metadata to client
-    triggerClientEvent(source, "onSyncTemporaryPowerupsMetadata", source, getTemporaryPowerupsMetadata())
-    -- Optionally send an initial empty queue update to client
-    triggerClientEvent(source, "onTempPowerupQueueUpdateClient", source, {})
+    triggerClientEvent(player, "onSyncTemporaryPowerupsMetadata", player, getTemporaryPowerupsMetadata())
+    
+    -- Send the current queue to the client
+    local playerQueue = playerPowerupQueues[player] or {}
+    triggerClientEvent(player, "onTempPowerupQueueUpdateClient", player, playerQueue)
+    giveRandomTemporaryPowerup(player)
 
     -- DEBUG/TEST: Automatically give a power-up every 10 seconds
-    if isTimer(playerTestTimers[source]) then killTimer(playerTestTimers[source]) end
-    playerTestTimers[source] = setTimer(function(p)
+    if isTimer(playerTestTimers[player]) then killTimer(playerTestTimers[player]) end
+    playerTestTimers[player] = setTimer(function(p)
         if isElement(p) then
             giveRandomTemporaryPowerup(p)
         end
-    end, 10000, 0, source)
+    end, 10000, 0, player)
+end
+
+-- Initializes a player's power-up queue when they join
+addEventHandler("onPlayerJoin", root, function()
+    playerPowerupQueues[source] = {}
+    -- Note: Sync will happen in onPlayerResourceStart when client is ready
 end)
 
 -- Cleans up a player's power-up queue when they quit
@@ -41,20 +51,25 @@ addEventHandler("onPlayerQuit", root, function()
     playerTestTimers[source] = nil
 end)
 
--- DEBUG/TEST: Handle players already on the server when resource starts
+-- Sync when the client resource is started (handles resource restarts and joins)
+addEventHandler("onPlayerResourceStart", root, function(startedResource)
+    if startedResource == resource then
+        -- source is the player who just started the resource
+        if not playerPowerupQueues[source] then
+            playerPowerupQueues[source] = {}
+        end
+        syncPlayerPowerups(source)
+    end
+end)
+
+-- Handle existing players when the resource starts
 addEventHandler("onResourceStart", resourceRoot, function()
     for _, player in ipairs(getElementsByType("player")) do
         if not playerPowerupQueues[player] then
             playerPowerupQueues[player] = {}
         end
-        triggerClientEvent(player, "onSyncTemporaryPowerupsMetadata", player, getTemporaryPowerupsMetadata())
-        
-        if isTimer(playerTestTimers[player]) then killTimer(playerTestTimers[player]) end
-        playerTestTimers[player] = setTimer(function(p)
-            if isElement(p) then
-                giveRandomTemporaryPowerup(p)
-            end
-        end, 10000, 0, player)
+        -- We don't sync here; onPlayerResourceStart will trigger for all existing players
+        -- once their client-side scripts are ready.
     end
 end)
 

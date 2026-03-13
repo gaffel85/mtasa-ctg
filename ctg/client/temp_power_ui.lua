@@ -1,115 +1,173 @@
 -- ctg/client/temp_power_ui.lua
--- Client-side module for displaying the player's temporary power-up queue.
+-- Client-side module for displaying the player's temporary power-up queue using DGS.
+
+local DGS = exports.dgs
 
 local SCREEN_WIDTH, SCREEN_HEIGHT = guiGetScreenSize()
 local UI_BASE_X = SCREEN_WIDTH / 2 -- Center horizontally
-local UI_BASE_Y = SCREEN_HEIGHT - 250 -- Position from bottom, raised to accommodate larger cards
+local UI_BASE_Y = SCREEN_HEIGHT - 140 -- Positioned lower
 local CARD_WIDTH = 400
 local CARD_HEIGHT = 120
 local CARD_SPACING = 20
-local CARD_BACKGROUND_COLOR = tocolor(0, 0, 0, 255) -- Opaque black
-local CARD_TEXT_COLOR = tocolor(255, 255, 255, 255) -- White
-local CARD_DESCRIPTION_COLOR = tocolor(200, 200, 200, 255) -- Grey-ish white
-local CARD_BORDER_COLOR = tocolor(255, 255, 255, 255)
 
 local playerPowerupQueue = {} -- The client's current temporary power-up queue
 local activeEffects = {} -- Stores active temporary power-up effects for progress bars
 
--- Function to draw a single power-up card
-local function drawPowerupCard(powerupId, x, y, alphaMultiplier, isQueueItem)
-    if not powerupId then return end
+-- DGS Elements
+local cardElements = {} -- { [1] = elements, [2] = elements }
+local activeEffectsContainer = nil
+local activeEffectElements = {} -- { [id] = elements }
 
-    local config = getTemporaryPowerupConfig(powerupId)
-    if not config then return end
-
-    local bgAlpha = math.floor(255 * alphaMultiplier)
-    local borderAlpha = math.floor(255 * alphaMultiplier)
-    local textAlpha = math.floor(255 * alphaMultiplier)
-    local descAlpha = math.floor(200 * alphaMultiplier)
-
-    -- Background (card)
-    dxDrawRectangle(x, y, CARD_WIDTH, CARD_HEIGHT, tocolor(0, 0, 0, bgAlpha))
+local function createPowerupCard(index)
+    local card = {}
+    local x = (index == 1) and (UI_BASE_X - CARD_WIDTH / 2) or (UI_BASE_X - CARD_WIDTH / 2 + 10)
+    local y = (index == 1) and UI_BASE_Y or (UI_BASE_Y - 40)
+    
+    card.bg = DGS:dgsCreateImage(x, y, CARD_WIDTH, CARD_HEIGHT, nil, false)
+    DGS:dgsSetProperty(card.bg, "color", tocolor(0, 0, 0, 255))
+    
+    -- Rounded corners if possible
+    local rndRect = DGS:dgsCreateRoundRect(10, false, tocolor(0, 0, 0, 255), nil, nil, nil, true)
+    DGS:dgsSetProperty(card.bg, "image", rndRect)
 
     -- Border
-    dxDrawRectangle(x, y, CARD_WIDTH, 2, tocolor(255, 255, 255, borderAlpha)) -- Top
-    dxDrawRectangle(x, y + CARD_HEIGHT - 2, CARD_WIDTH, 2, tocolor(255, 255, 255, borderAlpha)) -- Bottom
-    dxDrawRectangle(x, y + 2, 2, CARD_HEIGHT - 4, tocolor(255, 255, 255, borderAlpha)) -- Left
-    dxDrawRectangle(x + CARD_WIDTH - 2, y + 2, 2, CARD_HEIGHT - 4, tocolor(255, 255, 255, borderAlpha)) -- Right
+    card.border = DGS:dgsCreateImage(0, 0, 1, 1, nil, true, card.bg)
+    local borderRect = DGS:dgsCreateRoundRect(10, false, tocolor(0, 0, 0, 0), tocolor(255, 255, 255, 255), 2, true)
+    DGS:dgsSetProperty(card.border, "image", borderRect)
+    DGS:dgsSetEnabled(card.border, false)
 
-    local iconSize = CARD_HEIGHT - 20
-    local textX = x + 15 -- Offset for text
-    local textWidth = CARD_WIDTH - 30
+    -- Icon
+    card.icon = DGS:dgsCreateImage(CARD_WIDTH - CARD_HEIGHT + 10, 10, CARD_HEIGHT - 20, CARD_HEIGHT - 20, nil, false, card.bg)
     
-    -- Optional: Icon
-    if config.iconPath and fileExists(config.iconPath) then
-        dxDrawImage(x + CARD_WIDTH - iconSize - 10, y + 10, iconSize, iconSize, config.iconPath, 0, 0, 0, tocolor(255, 255, 255, textAlpha))
-        textWidth = textWidth - iconSize - 10
+    -- Name
+    card.name = DGS:dgsCreateLabel(15, 10, CARD_WIDTH - CARD_HEIGHT - 10, 30, "", false, card.bg)
+    DGS:dgsSetProperty(card.name, "textSize", {1.5, 1.5})
+    DGS:dgsSetProperty(card.name, "font", "default-bold")
+    
+    -- Description
+    card.description = DGS:dgsCreateLabel(15, 45, CARD_WIDTH - CARD_HEIGHT - 10, CARD_HEIGHT - 55, "", false, card.bg)
+    DGS:dgsSetProperty(card.description, "wordBreak", true)
+    DGS:dgsSetProperty(card.description, "color", tocolor(200, 200, 200, 255))
+
+    -- NEXT label
+    card.nextLabel = DGS:dgsCreateLabel(0, -30, CARD_WIDTH, 25, "NEXT", false, card.bg)
+    DGS:dgsSetProperty(card.nextLabel, "alignment", {"center", "center"})
+    DGS:dgsSetProperty(card.nextLabel, "font", "default-bold")
+    DGS:dgsSetVisible(card.nextLabel, false)
+
+    DGS:dgsSetVisible(card.bg, false)
+    return card
+end
+
+local function initUI()
+    if #cardElements > 0 then return end
+    
+    cardElements[1] = createPowerupCard(1)
+    cardElements[2] = createPowerupCard(2)
+    
+    -- Layering: Card 1 should be on top of Card 2
+    DGS:dgsSetLayer(cardElements[1].bg, "top")
+    
+    activeEffectsContainer = DGS:dgsCreateImage(20, SCREEN_HEIGHT / 2 - 100, 300, 400, nil, false)
+    DGS:dgsSetProperty(activeEffectsContainer, "color", tocolor(0, 0, 0, 0))
+end
+
+local function updateCard(index, powerupId)
+    local card = cardElements[index]
+    if not card then return end
+    
+    if not powerupId then
+        DGS:dgsSetVisible(card.bg, false)
+        return
     end
 
-    local textY = y + 10
-    local descY = y + 45
+    local config = getTemporaryPowerupConfig(powerupId)
+    if not config then
+        DGS:dgsSetVisible(card.bg, false)
+        return
+    end
 
-    -- Power-up Name
-    dxDrawText(config.name, textX, textY, textX + textWidth, y + 40, tocolor(255, 255, 255, textAlpha), 1.5, "default-bold", "left", "top", false, false, false, true)
+    DGS:dgsSetVisible(card.bg, true)
+    DGS:dgsSetText(card.name, config.name or "Unknown")
+    DGS:dgsSetText(card.description, config.description or "")
+    
+    if config.iconPath and fileExists(config.iconPath) then
+        DGS:dgsSetVisible(card.icon, true)
+        DGS:dgsImageSetImage(card.icon, config.iconPath)
+    else
+        DGS:dgsSetVisible(card.icon, false)
+    end
 
-    -- Power-up Description (who it affects)
-    dxDrawText(config.description, textX, descY, textX + textWidth, y + CARD_HEIGHT - 10, tocolor(200, 200, 200, descAlpha), 1.2, "default", "left", "top", true, true, false, true)
-
-    if isQueueItem then
-        -- Draw "NEXT" text for the second item
-        dxDrawText("NEXT", x + CARD_WIDTH / 2 - 20, y - 30, x + CARD_WIDTH / 2 + 20, y - 5, tocolor(255, 255, 255, textAlpha), 1.0, "default-bold", "center", "center")
+    if index == 1 then
+        DGS:dgsSetAlpha(card.bg, 1.0)
+        DGS:dgsSetVisible(card.nextLabel, false)
+    else
+        DGS:dgsSetAlpha(card.bg, 0.6)
+        DGS:dgsSetVisible(card.nextLabel, true)
     end
 end
 
--- Render function to draw active power-up effects with progress bars
-local function renderActiveEffects()
-    local currentTime = getTickCount()
-    local startX = 20
-    local startY = SCREEN_HEIGHT / 2 - 100
-    local barWidth = 250
-    local barHeight = 25
-    local spacing = 50
+local function updateQueueUI()
+    if #cardElements == 0 then initUI() end
+    updateCard(1, playerPowerupQueue[1])
+    updateCard(2, playerPowerupQueue[2])
+end
 
+local function createActiveEffectUI(id, effect)
+    local index = 0
+    for _ in pairs(activeEffectElements) do index = index + 1 end
+    
+    local y = index * 50
+    local container = DGS:dgsCreateImage(0, y, 250, 45, nil, false, activeEffectsContainer)
+    DGS:dgsSetProperty(container, "color", tocolor(0, 0, 0, 0))
+
+    local label = DGS:dgsCreateLabel(0, 0, 250, 20, effect.name .. " (" .. effect.playerName .. ")", false, container)
+    DGS:dgsSetProperty(label, "font", "default-bold")
+
+    local progress = DGS:dgsCreateProgressBar(0, 20, 250, 20, false, container)
+    DGS:dgsProgressBarSetStyle(progress, "normal")
+    DGS:dgsSetProperty(progress, "barColor", tocolor(100, 200, 100, 200))
+    DGS:dgsSetProperty(progress, "bgColor", tocolor(0, 0, 0, 150))
+
+    activeEffectElements[id] = {
+        container = container,
+        progress = progress,
+        label = label
+    }
+end
+
+local function updateActiveEffectsUI()
+    local currentTime = getTickCount()
     local count = 0
+    
+    local activeIds = {}
     for id, effect in pairs(activeEffects) do
         local timeLeft = effect.endTime - currentTime
         if timeLeft > 0 then
-            local progress = timeLeft / effect.duration
-            local y = startY + count * spacing
-
-            -- Label
-            dxDrawText(effect.name .. " (" .. effect.playerName .. ")", startX, y - 15, startX + barWidth, y, tocolor(255, 255, 255, 255), 1.0, "default-bold")
-
-            -- Progress bar background
-            dxDrawRectangle(startX, y, barWidth, barHeight, tocolor(0, 0, 0, 150))
-            -- Progress bar foreground
-            dxDrawRectangle(startX + 2, y + 2, (barWidth - 4) * progress, barHeight - 4, tocolor(100, 200, 100, 200))
+            if not activeEffectElements[id] then
+                createActiveEffectUI(id, effect)
+            end
             
+            local progressValue = (timeLeft / effect.duration) * 100
+            DGS:dgsProgressBarSetProgress(activeEffectElements[id].progress, progressValue)
+            
+            DGS:dgsSetPosition(activeEffectElements[id].container, 0, count * 50, false)
             count = count + 1
+            activeIds[id] = true
         else
+            if activeEffectElements[id] then
+                DGS:dgsDeleteElement(activeEffectElements[id].container)
+                activeEffectElements[id] = nil
+            end
             activeEffects[id] = nil
         end
     end
-end
 
--- Render function to draw all temporary power-ups
-local function renderTemporaryPowerups()
-    renderActiveEffects() -- Draw active effects first
-
-    if #playerPowerupQueue == 0 then return end
-
-    -- Calculate position for the first card (current power-up)
-    local currentCardX = UI_BASE_X - CARD_WIDTH / 2
-    local currentCardY = UI_BASE_Y
-
-    -- Draw the first item (current power-up)
-    drawPowerupCard(playerPowerupQueue[1], currentCardX, currentCardY, 1.0, false)
-
-    -- If there's a second item, draw it slightly behind and faded
-    if #playerPowerupQueue >= 2 then
-        local nextCardX = currentCardX + 10 -- Slight offset to the right
-        local nextCardY = currentCardY - 40 -- Slight offset upwards
-        drawPowerupCard(playerPowerupQueue[2], nextCardX, nextCardY, 0.6, true) -- Faded and marked as queue item
+    for id, elements in pairs(activeEffectElements) do
+        if not activeIds[id] then
+            DGS:dgsDeleteElement(elements.container)
+            activeEffectElements[id] = nil
+        end
     end
 end
 
@@ -117,6 +175,7 @@ end
 addEvent("onTempPowerupQueueUpdateClient", true)
 addEventHandler("onTempPowerupQueueUpdateClient", root, function(newQueue)
     playerPowerupQueue = newQueue
+    updateQueueUI()
 end)
 
 -- Event handler for active power-up notifications
@@ -133,5 +192,14 @@ addEventHandler("onTempPowerupActivatedClient", root, function(playerName, power
     }
 end)
 
--- Add the render function to the client's rendering loop
-addEventHandler("onClientRender", root, renderTemporaryPowerups)
+-- Initialize UI on start or when needed
+addEventHandler("onClientResourceStart", resourceRoot, function()
+    initUI()
+    -- Periodic check to handle metadata sync delays or queue state
+    setTimer(updateQueueUI, 1000, 0)
+end)
+
+-- Update active effects progress and positions
+addEventHandler("onClientRender", root, function()
+    updateActiveEffectsUI()
+end)
