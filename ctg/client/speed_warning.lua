@@ -106,3 +106,85 @@ addEventHandler("onClientRender", root, function()
         DGS:dgsSetProperty(warningInterface, "position", {cx, cy, cz + 1.5})
     end
 end)
+
+-- 2D HUD Warning logic for stationary blockers
+local SCREEN_WIDTH, SCREEN_HEIGHT = guiGetScreenSize()
+
+local function getOpponentHideoutPos()
+    local myTeam = getPlayerTeam(localPlayer)
+    local teams = getElementsByType("team")
+    
+    -- If teams are active, find the other team's hideout
+    for _, team in ipairs(teams) do
+        if team ~= myTeam then
+            local hideout = getHideoutData(team)
+            if hideout and hideout.pos then
+                return hideout.pos.x, hideout.pos.y, hideout.pos.z
+            end
+        end
+    end
+    
+    -- Fallback for no teams or single team: use the first hideout found
+    if #teams > 0 then
+        local hideout = getHideoutData(teams[1])
+        if hideout and hideout.pos then
+            return hideout.pos.x, hideout.pos.y, hideout.pos.z
+        end
+    end
+    
+    return nil
+end
+
+addEventHandler("onClientRender", root, function()
+    local localVehicle = getPedOccupiedVehicle(localPlayer)
+    if not localVehicle then return end
+    
+    local goldCarrier = getGoldCarrier()
+    if goldCarrier == localPlayer then return end -- No warning for the carrier
+    
+    local localSpeed = getVehicleSpeed(localVehicle)
+    if localSpeed >= MomentumConfig.HUDWarningMinSpeed then return end
+    
+    -- 1. Draw the "Always-on" text when slow
+    local text = "Can't steal gold with too low speed"
+    local textY = SCREEN_HEIGHT * 0.7
+    dxDrawText(text, 2, textY + 2, SCREEN_WIDTH + 2, textY + 52, tocolor(0, 0, 0, 200), 2.0, "default-bold", "center", "center") -- Shadow
+    dxDrawText(text, 0, textY, SCREEN_WIDTH, textY + 50, tocolor(255, 20, 20, 255), 2.0, "default-bold", "center", "center")
+    
+    -- 2. Proximity check for pulsating icon
+    local lx, ly, lz = getElementPosition(localVehicle)
+    local minDist = 9999
+    
+    -- Check distance to Carrier
+    if goldCarrier then
+        local cv = getPedOccupiedVehicle(goldCarrier)
+        if cv then
+            local cx, cy, cz = getElementPosition(cv)
+            local dist = getDistanceBetweenPoints3D(lx, ly, lz, cx, cy, cz)
+            if dist < minDist then minDist = dist end
+        end
+    end
+    
+    -- Check distance to Opponent Hideout
+    local hx, hy, hz = getOpponentHideoutPos()
+    if hx then
+        local dist = getDistanceBetweenPoints3D(lx, ly, lz, hx, hy, hz)
+        if dist < minDist then minDist = dist end
+    end
+    
+    -- Pulsating icon if close to either
+    if minDist < MomentumConfig.HUDWarningDistance then
+        local distFactor = 1 - (minDist / MomentumConfig.HUDWarningDistance) -- 0 to 1
+        
+        -- Frequency increases as we get closer (pulse speed 1.0 to 4.0 Hz approx)
+        local pulseFreq = 1.0 + (distFactor * 3.0)
+        local time = getTickCount() / 1000
+        local alphaMultiplier = 0.5 + 0.5 * math.sin(time * math.pi * 2 * pulseFreq)
+        
+        local iconSize = 64 + 32 * distFactor
+        local iconX = (SCREEN_WIDTH - iconSize) / 2
+        local iconY = textY - iconSize - 10
+        
+        dxDrawImage(iconX, iconY, iconSize, iconSize, "img/forbidden.png", 0, 0, 0, tocolor(255, 0, 0, alphaMultiplier * 255))
+    end
+end)

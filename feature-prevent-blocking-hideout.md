@@ -39,3 +39,29 @@ The UI should **ONLY** be rendered if **ALL** of the following conditions are me
 * The elements must be projected into the 3D world using `dgs` (e.g., `dgsCreate3DInterface` or similar 3D-to-2D screen projection math).
 * The position should track the Gold Carrier's vehicle, specifically anchored about 1.5 meters above the vehicle's Z-coordinate to avoid blocking the attacker's line of sight to the carrier's chassis.
 * The UI should fade out or disappear immediately if the local player accelerates and satisfies either Rule 1 or Rule 2.
+
+---
+
+## 3. Refined 2D HUD Warning
+To further improve UX for stationary players who might be blocking critical paths (like hideouts), a persistent 2D HUD warning will be added.
+
+### Triggers
+The 2D HUD warning should be displayed if:
+1.  **Speed Check:** The player's speed is lower than `HUDWarningMinSpeed` (default: 20 km/h).
+2.  **Proximity Check:** The player is within `HUDWarningDistance` (default: 100m) of:
+    *   The **Gold Carrier's** current position.
+    *   The **Opponent's Hideout** (if teams are active).
+
+### Visuals
+*   **Element:** A pulsating "forbidden" sign icon and the text: `"Can't steal gold with too low speed"`.
+*   **Position:** Lower-middle of the screen (e.g., 70% from the top).
+*   **Pulsation Logic:**
+    *   The alpha of the HUD elements should oscillate (pulse).
+    *   The **frequency** of the pulsation should increase as the distance to the target (Carrier or Hideout) decreases, creating a sense of urgency.
+
+---
+
+## 4. Configuration Updates (`momentum_config.lua`)
+Add the following new constants:
+*   `HUDWarningMinSpeed = 20` (km/h)
+*   `HUDWarningDistance = 100` (meters)
