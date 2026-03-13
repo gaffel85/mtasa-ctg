@@ -120,6 +120,11 @@ function useTemporaryPowerup(targetPlayer)
         outputDebugString("Temporary power-up " .. powerupIdToUse .. " has no valid effect function.")
     end
 
+    -- Broadcast activation to all clients for progress bars/notifications
+    if powerupConfig.duration and powerupConfig.duration > 0 then
+        triggerClientEvent(root, "onTempPowerupActivatedClient", root, getPlayerName(targetPlayer), powerupIdToUse, powerupConfig.name, powerupConfig.duration)
+    end
+
     -- Notify client about the updated queue
     triggerClientEvent(targetPlayer, "onTempPowerupQueueUpdateClient", targetPlayer, playerQueue)
     return true

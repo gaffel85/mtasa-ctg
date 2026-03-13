@@ -93,3 +93,16 @@ local waterLevelPowerUp = {
 		
 	end	
 }
+
+if registerTemporaryPower then
+    registerTemporaryPower("flood", {
+        name = waterLevelPowerUp.name,
+        description = waterLevelPowerUp.desc,
+        iconPath = "img/water_icon.png",
+        duration = waterLevelPowerUp.duration(),
+        onActivate = function(player)
+            local vehicle = getPedOccupiedVehicle(player)
+            waterLevelPowerUp.onActivated(player, vehicle, {name = waterLevelPowerUp.name})
+        end
+    })
+end

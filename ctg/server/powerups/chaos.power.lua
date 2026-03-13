@@ -41,3 +41,16 @@ local trafficChaos = {
         
 	end	
 }
+
+if registerTemporaryPower then
+    registerTemporaryPower("traffic_chaos", {
+        name = trafficChaos.name,
+        description = trafficChaos.desc,
+        iconPath = "img/chaos_icon.png",
+        duration = trafficChaos.duration(),
+        onActivate = function(player)
+            local vehicle = getPedOccupiedVehicle(player)
+            trafficChaos.onActivated(player, vehicle, {name = trafficChaos.name})
+        end
+    })
+end

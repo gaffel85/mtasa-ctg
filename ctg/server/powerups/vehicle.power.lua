@@ -71,6 +71,7 @@ if registerTemporaryPower then
         name = bussesForEveryone.name,
         description = bussesForEveryone.desc,
         iconPath = "img/bus_icon.png",
+        duration = bussesForEveryone.duration(),
         onActivate = function(player)
             local vehicle = getPedOccupiedVehicle(player)
             bussesForEveryone.onActivated(player, vehicle, {name = bussesForEveryone.name})

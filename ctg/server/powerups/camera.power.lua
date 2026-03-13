@@ -38,6 +38,7 @@ if registerTemporaryPower then
         name = cinematicCamera.name,
         description = cinematicCamera.desc,
         iconPath = "img/camera_icon.png",
+        duration = cinematicCamera.duration(),
         onActivate = function(player)
             local vehicle = getPedOccupiedVehicle(player)
             cinematicCamera.onActivated(player, vehicle, {name = cinematicCamera.name})
