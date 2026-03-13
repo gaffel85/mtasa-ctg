@@ -11,26 +11,15 @@ function showPercentageForPlayer(player, scorePercentage, distancePercentage, to
     displayMessageForPlayer(player, TOTAL_PERCENTAGE_TEXT_KEY, math.floor(totalPercentage * 100).."%", 99999999, x, 0.06, 255, 255, 255, 255, 1)
 end
 
-function changeHandlingForPlayer(player, percentage, maxPercentage, distancePercentage)
+function changeHandlingForPlayer(player, extraGoldMass, totalPercentage)
     local vehicle = getPedOccupiedVehicle(player)
     if not vehicle then
         return
     end
 
     local originalHandling = getOriginalHandling(getElementModel(vehicle))
-    if player == getGoldCarrier() then
-        percentage = getConst().goldHandlingCoeff * percentage
-        local newMass = originalHandling["mass"] + getConst().goldMass
-        setVehicleHandling(vehicle, "mass", newMass)
-    else
-        setVehicleHandling(vehicle, "mass", originalHandling["mass"])
-    end
-
-    local cappedPercentage = math.max(percentage, getConst().handicapHandlingMinPercentage)
-    local combinedPercentage = math.max(cappedPercentage * distancePercentage, getConst().handicapTotalMinPercentage)
-    local totalPercentage = combinedPercentage * maxPercentage
-
-    showPercentageForPlayer(player, cappedPercentage, distancePercentage, totalPercentage)
+    local newMass = originalHandling["mass"] + extraGoldMass
+    setVehicleHandling(vehicle, "mass", newMass)
     
     --outputChatBox("Handling percentage: "..inspect(totalPercentage).." distancePercentage: "..distancePercentage.." cappedPercentage: "..cappedPercentage.." combinedPercentage: "..combinedPercentage, player)
     --outputChatBox("Changing handling for "..getPlayerName(player).." to "..totalPercentage)
@@ -39,6 +28,68 @@ function changeHandlingForPlayer(player, percentage, maxPercentage, distancePerc
 end
 
 function handicapHandling(playersWithScore)
+    local players = playersWithDistanceToLeader(playersWithScore)
+    adjustedScorePercentageForPlayers(players)
+    goldCarrierPercentageForPlayers(players)
+
+    local highestCombinedPercentage = 0
+    local highestPercentagePlayer = nil
+    for _, player in ipairs(players) do
+        local combinedPercentage = player.scorePercentage * player.distancePercentage * player.goldCarrierPercentage
+        if combinedPercentage > highestCombinedPercentage then
+            highestCombinedPercentage = combinedPercentage
+            highestPercentagePlayer = player.player
+        end
+    end
+
+    local extraPercentage = 1
+    if highestPercentagePlayer then
+        local vehicle = getPedOccupiedVehicle(highestPercentagePlayer)
+        if vehicle then
+            local _, _, _, _, _, _, _, _, maxSpeed = getVehicleSizeData(vehicle)
+            extraPercentage = calculateExtraVehiclePercentage(maxSpeed)
+            --outputChatBox("Extra percentage: "..extraPercentage, highestPercentagePlayer)
+        end
+    end
+
+    local coeffToMakeHighestGoTo100 = extraPercentage / highestCombinedPercentage
+    for _, player in ipairs(players) do
+        local total = coeffToMakeHighestGoTo100 * (player.scorePercentage * player.distancePercentage * player.goldCarrierPercentage)
+        player.totalPercentage = math.max(total, getConst().handicapTotalMinPercentage)
+        showPercentageForPlayer(player.player, player.scorePercentage, player.distancePercentage, player.totalPercentage)
+    end
+
+    for _, player in ipairs(players) do
+        changeHandlingForPlayer(player.player, player.extraGoldMass, player.totalPercentage)
+    end
+end
+
+function calculateExtraVehiclePercentage(maxSpeed)
+    -- maxSpeed 50 and below should result in 200% speed
+    -- maxSpeed 200 and above should result in 100% speed
+    -- interpolate in between
+    if maxSpeed < 50 then
+        return 2
+    elseif maxSpeed > 200 then
+        return 1
+    else
+        return (7/3) - (maxSpeed / 150)
+    end
+end
+
+function goldCarrierPercentageForPlayers(players)
+    for _, player in ipairs(players) do
+        if player == getGoldCarrier() then
+            player.goldCarrierPercentage = getConst().goldHandlingCoeff
+            player.extraGoldMass = getConst().goldMass
+        else
+            player.goldCarrierPercentage = 1
+            player.extraGoldMass = 0
+        end
+    end
+end
+
+function adjustedScorePercentageForPlayers(playersWithScore)
     local lowestPercentage = 1
     for _, player in ipairs(playersWithScore) do
         if player.percentage < lowestPercentage then
@@ -46,28 +97,10 @@ function handicapHandling(playersWithScore)
         end
     end
 
-    local playersWithDistance = playersWithDistanceToLeader(playersWithScore)
-    local distanceLimit = 300
-    local biggestDistanceInLimit = 0
-    for _, player in ipairs(playersWithDistance) do
-        if player.distance < distanceLimit then
-            if player.distance > biggestDistanceInLimit then
-                biggestDistanceInLimit = player.distance
-            end
-        end
-    end
-
-    local maxDistanceHandicap = getConst().handicapHandlingMaxForDistance
     local maxPercentage = 1 + getConst().handicapHandlingExtraPercentage
-    local extraDistanceToAdd = distanceLimit - biggestDistanceInLimit
-    for _, player in ipairs(playersWithDistance) do
+    for _, player in ipairs(playersWithScore) do
         local handlingPercentage = 1 - (player.percentage - lowestPercentage)
-        local distancePercentage = 1
-        if biggestDistanceInLimit > 0 then
-            local distancePercentBeforeCap = math.min((player.distance + extraDistanceToAdd) / distanceLimit, 1)
-            distancePercentage = (1 - maxDistanceHandicap) + distancePercentBeforeCap * maxDistanceHandicap
-        end
-        changeHandlingForPlayer(player.player, handlingPercentage, maxPercentage, distancePercentage)
+        player.scorePercentage = math.max(handlingPercentage, getConst().handicapHandlingMinPercentage)
     end
 end
 
@@ -85,6 +118,28 @@ function playersWithDistanceToLeader(playersWithScore)
             table.insert(playersWithDistance, {player = player.player, distance = 0, percentage = player.percentage})
         end
     end
+
+    local distanceLimit = 300
+    local biggestDistanceInLimit = 0
+    for _, player in ipairs(playersWithDistance) do
+        if player.distance < distanceLimit then
+            if player.distance > biggestDistanceInLimit then
+                biggestDistanceInLimit = player.distance
+            end
+        end
+    end
+
+    local maxDistanceHandicap = getConst().handicapHandlingMaxForDistance -- 0.5
+    local extraDistanceToAdd = distanceLimit - biggestDistanceInLimit
+    for _, player in ipairs(playersWithDistance) do
+        local distancePercentage = 1
+        if biggestDistanceInLimit > 0 then
+            local distancePercentBeforeCap = math.min((player.distance + extraDistanceToAdd) / distanceLimit, 1)
+            distancePercentage = (1 - maxDistanceHandicap) + distancePercentBeforeCap * maxDistanceHandicap
+        end
+        player.distancePercentage = distancePercentage
+    end
+
     return playersWithDistance
 end
 
@@ -115,16 +170,81 @@ function shouldShowCatchupPower(player)
         return false
     end
 
+    local _, _, useOwnPos = alternativePos(player.player)
+    return not useOwnPos
+end
+
+function alternativePos(player)
+    local leader = findLeader(player)
+    if (not leader or leader == player) then
+        outputServerLog("No leader found for useCatchUp")
+        return nil, nil, true, nil
+    end
+
     local targetX, targetY, targetZ = findTargetPos()
-    local meanPositionOfAllPlayers = meanPositionAndRotationOfElements(playersExceptMe(player.player))
+    local targetPos = {x = targetX, y = targetY, z = targetZ}
+    local playerExceptMe = playersExceptMe(player)
+    local meanPositionOfAllPlayers = meanPositionAndRotationOfElements(playerExceptMe)
 
-    local alternativePos, useOwnPos = meanPositionOrMyOwn(player.player, {x = targetX, y = targetY, z = targetZ}, meanPositionOfAllPlayers)
-
-    if player.percentage < 0.9 then
-        --outputChatBox("Below 90% of the best score "..inspect(player.percentage))
-        return true
+    local x, y, z = getElementPosition(player)
+    local alternativePos = nil
+    local useOwnPos = false
+    if #playerExceptMe < 1 then
+        alternativePos = { x = x, y = y, z = z }
+        useOwnPos = true
     else
-        return not useOwnPos
+        alternativePos, useOwnPos = meanPositionOrMyOwn(x, y, z, targetPos, meanPositionOfAllPlayers)
+    end
+
+    return leader, alternativePos, useOwnPos, targetPos, meanPositionOfAllPlayers, playerExceptMe
+end
+
+function useCatchUp(player)
+    if isFarEnoughFromLeader(player) then
+        useCatchUpForce(player)
+    end
+end
+
+function useCatchUpForce(player)
+    local playersWithScore = scorePercentageForPlayers(getElementsByType("player"))
+    if #playersWithScore == 0 then
+        return
+    end
+    local myPercentage = 1
+    for _, playerWithScore in ipairs(playersWithScore) do
+        if playerWithScore.player == player then
+            myPercentage = playerWithScore.percentage
+            break
+        end
+    end
+    
+    local leader, alternativePos, useOwnPos, targetPos, meanPositionOfAllPlayers, playerExceptMe = alternativePos(player)
+    if not leader then
+        return
+    end
+
+    if #playerExceptMe <= 1 then
+        useOwnPos = true
+    end
+
+    if myPercentage < 0.7 then
+        --outputChatBox("Use Below 70% of the best score "..inspect(myPercentage))
+        askForLocationNbr(player, leader, 3, "teleportOr", targetPos, alternativePos)
+        --triggerClientEvent(player, "startCatchUp", player, leader, 3)
+    elseif myPercentage < 0.8 then
+        --outputChatBox("Use Below 80% of the best score "..inspect(myPercentage))
+        askForLocationNbr(player, leader, 5, "teleportOr", targetPos, alternativePos)
+        --triggerClientEvent(player, "startCatchUp", player, leader, 5)
+    elseif myPercentage < 0.9 then
+        --outputChatBox("Use Below 90% of the best score "..inspect(myPercentage))
+        askForLocationNbr(player, leader, 7, "teleportOr", targetPos, alternativePos)
+        --triggerClientEvent(player, "startCatchUp", player, leader, 7)
+    else
+        --outputChatBox("Use above 90% of the best score. "..inspect(myPercentage).." Using useOwnPos? "..inspect(useOwnPos))
+        if not useOwnPos then
+            spawnCloseTo(player, meanPositionOfAllPlayers)
+        end
+        
     end
 end
 
@@ -163,12 +283,7 @@ function createMessageDisplay()
     textDisplayAddText ( catchUpPowerDisplay, howToEnableItem )
 end
 
-function meanPositionOrMyOwn(player, targetPos, meanPositionOfAllPlayersExceptMe)
-    local x, y, z = getElementPosition(player)
-    if #meanPositionOfAllPlayersExceptMe <= 1 then
-        return { x = x, y = y, z = z }, true
-    end
-
+function meanPositionOrMyOwn(x, y, z, targetPos, meanPositionOfAllPlayersExceptMe)
     --outputServerLog("Player pos "..getPlayerName(player) ..": "..inspect({x, y, z}))
     local distanceToTargetPos = getDistanceBetweenPoints3D(x, y, z, targetPos.x, targetPos.y, targetPos.z)
     --outputServerLog("Distance to target pos: "..distanceToTargetPos)
@@ -183,49 +298,6 @@ function meanPositionOrMyOwn(player, targetPos, meanPositionOfAllPlayersExceptMe
     end
 
     return alternativePos, useOwnPos
-end
-
-function useCatchUp(player)
-    if isFarEnoughFromLeader(player) then
-        local playersWithScore = scorePercentageForPlayers(getElementsByType("player"))
-        if #playersWithScore == 0 then
-            return
-        end
-        local myPercentage = 1
-        for _, playerWithScore in ipairs(playersWithScore) do
-            if playerWithScore.player == player then
-                myPercentage = playerWithScore.percentage
-                break
-            end
-        end
-        local leader = findLeader(player)
-	    if (not leader or leader == player) then
-		    outputServerLog("No leader found for useCatchUp")
-		    return
-	    end
-
-        local targetX, targetY, targetZ = findTargetPos()
-        local targetPos = {x = targetX, y = targetY, z = targetZ}
-        local meanPositionOfAllPlayers = meanPositionAndRotationOfElements(playersExceptMe(player))
-        local alternativePos, useOwnPos = meanPositionOrMyOwn(player, targetPos, meanPositionOfAllPlayers)
-
-        if myPercentage < 0.7 then
-            outputChatBox("Use Below 70% of the best score "..inspect(myPercentage))
-            askForLocationNbr(player, leader, 1, "teleportOr", targetPos, alternativePos)
-        elseif myPercentage < 0.8 then
-            outputChatBox("Use Below 80% of the best score "..inspect(myPercentage))
-            askForLocationNbr(player, leader, 3, "teleportOr", targetPos, alternativePos)
-        elseif myPercentage < 0.9 then
-            outputChatBox("Use Below 90% of the best score "..inspect(myPercentage))
-            askForLocationNbr(player, leader, 5, "teleportOr", targetPos, alternativePos)
-        else
-            outputChatBox("Use above 90% of the best score. "..inspect(myPercentage).." Using useOwnPos? "..inspect(useOwnPos))
-            if not useOwnPos then
-                spawnCloseTo(player, meanPositionOfAllPlayers)
-            end
-            
-        end
-    end
 end
 
 -- Start the timer when the resource starts

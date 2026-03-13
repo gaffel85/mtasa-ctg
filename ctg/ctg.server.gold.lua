@@ -125,6 +125,7 @@ addEventHandler("onPlayerMarkerHit", getRootElement(), markerHit)
 function onGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
    -- outputChatBox("gold.onGoldCarrierChanged("..inspect(newGoldCarrier)..", "..inspect(oldGoldCarrier)..")")
     destroyCarrierMarker()
+    handlePowersForGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
     if (not newGoldCarrier) then
         return
     end

@@ -62,7 +62,6 @@ function onMakeGhostFromServer(player, invisible)
         makeOtherPlayerGhostForMe(player, vehicle, invisible)
     end	
 end
-addEvent("makeGhostFromServer", true)
 addEventHandler("makeGhostFromServer", getRootElement(), onMakeGhostFromServer)
 
 function unmakeMeGhostForMyself(player, vehicle)
@@ -104,7 +103,6 @@ function onUnmakeGhostFromServer(player)
         unmakeOtherPlayerGhostForMe(player, vehicle)
     end	
 end
-addEvent("unmakeGhostFromServer", true)
 addEventHandler("unmakeGhostFromServer", getRootElement(), onUnmakeGhostFromServer)
 
 addEventHandler("onClientVehicleEnter", getRootElement(),
@@ -119,7 +117,7 @@ addEventHandler("onClientVehicleEnter", getRootElement(),
             --outputChatBox("Someone else entered the vehicle")
             -- loop over all ghosts and apply
             if (isPlayerGhost(thePlayer)) then
-                makeOtherPlayerGhostForMe(ghostPlayer, source, isInvisibleGhost(thePlayer))
+                makeOtherPlayerGhostForMe(thePlayer, source, isInvisibleGhost(thePlayer))
             end
         end 
     end

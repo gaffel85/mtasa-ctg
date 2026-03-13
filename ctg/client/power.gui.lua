@@ -25,8 +25,6 @@ local function getKeyIndex(key)
     return 0
 end
 
-addEvent("powerupStateChangedClient", true)
-
 function createPowerUpBox(index)
     local posX = 0.7 - xDiff * index
     local powerwindow = guiCreateWindow(posX, 0.92, 0.1, 0.06, "Power Up", true)

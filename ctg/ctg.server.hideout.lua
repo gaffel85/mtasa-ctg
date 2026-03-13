@@ -4,17 +4,6 @@ function setHideouts(spawns)
     hideouts = spawns
 end
 
-function getTeamHideout(player)
-    if isTeamsActivated() then
-        local team = getCtgTeam(player)
-        if (team) then
-            return team.hideout
-        end
-    else
-        return getTeams()[1].hideout
-    end
-end
-
 function spawnNewHideoutForTeam(team, otherTeamsHideout)
     local sourcePos
     if getGoldCarrier() then
@@ -42,18 +31,12 @@ function spawnNewHideoutForTeam(team, otherTeamsHideout)
     end
     local posX, posY, posZ = coordsFromEdl(hideout)
 
-    team.hideout = {
-        edl = hideout,
-        pos = { x = posX, y = posY, z = posZ },
-        marker = createMarker(posX, posY, posZ, "checkpoint", 2.0, 255, 0, 0),
-        desc = getElementData(hideout, "desc")
-    }
-    return team.hideout
+    return setTeamHideout(team, hideout, { x = posX, y = posY, z = posZ }, createMarker(posX, posY, posZ, "checkpoint", 2.0, 255, 0, 0), getElementData(hideout, "desc"))
 end
 
 function spawnNewHideout()
     local teams = getTeams()
-    if teams[1].hideout then
+    if getTeamHideout(teams[1]) then
         return
     end
     removeOldHideout()
@@ -68,7 +51,7 @@ function spawnNewHideout()
         local hideout = spawnNewHideoutForTeam(teams[1])
         --for the rest of the teams, use the same hideout
         for i = 2, #teams do
-            teams[i].hideout = hideout
+            setTeamHideoutObj(teams[i], hideout)
         end
     end
     refreshAllBlips()
@@ -77,12 +60,13 @@ end
 function removeOldHideout()
     local teams = getTeams()
     for i, team in ipairs(teams) do
-        if team.hideout and team.hideout.marker then
-            if (isElement(team.hideout.marker)) then
-                destroyElement(team.hideout.marker)
+        local hideout = getTeamHideout(team)
+        if hideout and hideout.marker then
+            if (isElement(hideout.marker)) then
+                destroyElement(hideout.marker)
             end
         end
-        team.hideout = nil
+        setTeamHideoutObj(team, nil)
     end
     refreshAllBlips()
 end
@@ -91,7 +75,8 @@ function markerHit(markerHit, matchingDimension)
     local player = source
     if player == getGoldCarrier() then
         local team = getCtgTeam(player)
-        if team and team.hideout and markerHit == team.hideout.marker then
+        local hideout = getTeamHideout(team)
+        if hideout and hideout.marker and markerHit == hideout.marker then
             --removeOldHideout()
             goldDelivered(player)
         end

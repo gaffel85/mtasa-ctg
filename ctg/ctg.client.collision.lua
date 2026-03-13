@@ -112,7 +112,7 @@ setTimer(function()
 	local vehicle = getPedOccupiedVehicle(localPlayer)
 	if ( vehicle ) then
 		if isElementOnFire ( vehicle ) then
-			outputChatBox("Vehicle is on fire")
+			--outputChatBox("Vehicle is on fire")
 			paralyzeAndRepairCar()
 		end
 	end

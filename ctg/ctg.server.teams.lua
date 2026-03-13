@@ -58,6 +58,36 @@ function getOpponents(player)
     return getPlayersInTeam(otherTeam)
 end
 
+function setTeamHideoutObj(team, hideout)
+    setHideoutData(team.team, hideout)
+end
+
+function setTeamHideout(team, edl, position, marker, desc)
+    local hideoutObs = {
+        edl = edl,
+        pos = { x = position.x, y = position.y, z = position.z },
+        marker = marker,
+        desc = desc
+    }
+    setTeamHideoutObj(team, hideoutObs)
+    return hideoutObs
+end
+
+function getTeamHideout(team)
+    return getHideoutData(team.team)
+end
+
+function getPlayerHideout(player)
+    if isTeamsActivated() then
+        local team = getCtgTeam(player)
+        if (team) then
+            return getTeamHideout(team)
+        end
+    else
+        return getTeamHideout(getTeams()[1])
+    end
+end
+
 function setupTeams()
     team1.otherTeam = team2
     team2.otherTeam = team1
@@ -125,7 +155,7 @@ end
 function setCorrectVehicleColor(player)
     local currentVehicle = getPedOccupiedVehicle(player)
     if currentVehicle then
-        setVehicleForPlayer(player, getElementModel(currentVehicle))
+        setVehicleForPlayer(player, getElementModel(currentVehicle), "Correct vehicle color")
     end
 end
 

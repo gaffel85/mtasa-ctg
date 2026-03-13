@@ -4,7 +4,7 @@ local lastBlips = {}
 local maxBlips = 5
 local minDistance = 5
 local minSpeedForRotation = 50
-local serverPackageSize = 3
+local serverPackageSize = 10
 local maxLocactions = 500
 
 function hasLocationCloseToForPlayer(x, y, z)
@@ -27,8 +27,35 @@ function  getVehicleGroundPos(vehicle)
     return x, y, ground
 end
 
-function saveLocationForPlayer()
-    local player = localPlayer
+function saveLocationsForAllPlayers()
+    for i, player in ipairs(getElementsByType("player")) do
+        local newLocation = saveLocationForPlayer(player)
+        if newLocation then
+            addLocation(newLocation)
+            --clientPlotPosition(newLocation.x, newLocation.y, newLocation.z) 
+
+            if player == localPlayer then
+                table.insert(locations, newLocation)
+                --plotPosition(newLocation.x, newLocation.y, newLocation.z)
+
+                local serverLocation = convertToCompactServerFormat(newLocation)
+                table.insert(locationsToSend, serverLocation)
+
+                if (#locationsToSend > serverPackageSize) then
+                    triggerServerEvent("locationFromClient", resourceRoot, locationsToSend)
+                    outputConsole(inspect(locationsToSend))
+                    locationsToSend = {}
+                end
+
+                if (#locations > maxLocactions) then
+                    table.remove(locations, 1)
+                end
+            end
+        end
+    end
+end
+
+function saveLocationForPlayer(player)
     -- save location, rotation, velocity and angular velocity for player
     local vehicle = getPedOccupiedVehicle(player)
     if not vehicle then
@@ -69,21 +96,9 @@ function saveLocationForPlayer()
         avz = avz,
         timestamp = getRealTime().timestamp,
         speedMet = speedInKmh >= minSpeedForRotation,
+        player = player
     }
-    table.insert(locations, newLocation)
-    plotPosition(x, y, z)
-
-    local serverLocation = convertToCompactServerFormat(newLocation)
-    table.insert(locationsToSend, serverLocation)
-
-    if (#locationsToSend > serverPackageSize) then
-        triggerServerEvent("locationFromClient", resourceRoot, locationsToSend)
-        locationsToSend = {}
-    end
-
-    if (#locations > maxLocactions) then
-		table.remove(locations, 1)
-	end
+    return newLocation
 end
 
 function convertToCompactServerFormat(location)
@@ -115,21 +130,21 @@ function convertToServerFormat(location)
     }
 end
 
-function plotPosition(x, y, z)
-    -- plot a position in the world
-    --local blip = createBlip(x, y, z, 0, 2, 120, 90, 255, 255, 0)
+function clientPlotPosition(x, y, z)
+    --plot a position in the world
+    local blip = createBlip(x, y, z, 0, 2, 120, 90, 255, 255, 0)
     -- remove oldest blip if more than maxBlips
-   -- if #lastBlips > maxBlips then
-    --    local oldestBlip = table.remove(lastBlips, 1)
-    --    destroyElement(oldestBlip)
-    --end
-    --table.insert(lastBlips, blip)
+   if #lastBlips > maxBlips then
+        local oldestBlip = table.remove(lastBlips, 1)
+        destroyElement(oldestBlip)
+    end
+    table.insert(lastBlips, blip)
 end
 
 function plotAllPositions()
     -- plot all positions in the world
     for i, location in ipairs(locations) do
-        plotPosition(location.x, location.y, location.z)
+        clientPlotPosition(location.x, location.y, location.z)
     end
 end
 
@@ -153,12 +168,12 @@ function findLocationClosestToTimeAgo(timeAgo)
     local closestLocation = locations[1]
     --outputConsole("closestLocation "..inspect(closestLocation.timestamp))
     local closestTime = math.abs(getRealTime().timestamp - closestLocation.timestamp - timeAgo)
-    outputConsole("Closest initial time: "..closestTime)
+    --outputConsole("Closest initial time: "..closestTime)
     
     for i, location in ipairs(locations) do
         local time = getRealTime().timestamp - location.timestamp
         local locationTimeAgo = math.abs(time - timeAgo)
-        outputConsole("Location time ago: "..locationTimeAgo)
+        --outputConsole("Location time ago: "..locationTimeAgo)
         if locationTimeAgo < closestTime then
             closestTime = locationTimeAgo
             closestLocation = location
@@ -167,26 +182,26 @@ function findLocationClosestToTimeAgo(timeAgo)
     return closestLocation
 end
 
-setTimer(saveLocationForPlayer, 500, 100000000)
-outputChatBox("Main file")
+setTimer(saveLocationsForAllPlayers, 500, 100000000)
+--outputChatBox("Main file")
 
 addEvent("reportLastTransform", true)
 addEventHandler("reportLastTransform", resourceRoot, function(index, param1, param2, param3, param4, param5, param6)
-	outputChatBox("reportLastTransform "..inspect(index).." "..inspect(param1).." "..inspect(param2).." "..inspect(param3))
-    outputChatBox("1")
+	--outputChatBox("reportLastTransform "..inspect(index).." "..inspect(param1).." "..inspect(param2).." "..inspect(param3))
+    --outputChatBox("1")
 	if (#locations == 0 or #locations < index) then
-        outputChatBox("2")
+        --outputChatBox("2")
         outputChatBox("Too few locations "..#locations.." "..index)
 		return
 	end
-    outputChatBox("3")
+    --outputChatBox("3")
 	local transform = locations[#locations - index]
     if not transform then
         outputChatBox("Could not find location at index "..index)
         return
     end
     local serverTransform = convertToServerFormat(transform)
-    outputConsole("Transform to send  "..inspect(serverTransform))
+    --outputConsole("Transform to send  "..inspect(serverTransform))
 	triggerServerEvent("reportTransform", resourceRoot, serverTransform, param1, param2, param3, param4, param5, param6)
 end)
 

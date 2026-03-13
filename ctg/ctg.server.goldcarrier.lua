@@ -1,4 +1,3 @@
-local goldCarrier
 local oldGoldCarrier
 local previousGoldCarrier
 local previousGoldCarrierResetter
@@ -8,24 +7,21 @@ local shieldedPlayer = nil
 
 local vechicleHandlingLookup = {}
 
-function getGoldCarrier()
-    return goldCarrier
-end
-
 function setGoldCarrier(carrier)
-    if (carrier == goldCarrier) then
+    outputServerLog("Setting gold carrier to "..inspect(carrier))
+    if (carrier == getGoldCarrier()) then
+        outputServerLog("Gold carrier will not changed to "..inspect(carrier))
         return
     end
 
-    oldGoldCarrier = goldCarrier
+    oldGoldCarrier = setGoldCarrierData(carrier)
     if (oldGoldCarrier) then
         --removeVechicleHandling(oldGoldCarrier)
     end
 
-    
-    goldCarrier = carrier
+    outputServerLog("Gold carrier set to "..inspect(getGoldCarrier))
     if (carrier) then
-        --setVechicleHandling(goldCarrier)
+        --setVechicleHandling(getGoldCarrier())
     end
 end
 
@@ -49,7 +45,10 @@ end
 
 function clearGoldCarrier()
     -- outputChatBox("Clear gold carrier!!!!")
-    local tmpGoldCarrier = goldCarrier
+    local tmpGoldCarrier = getGoldCarrier()
+    if tmpGoldCarrier then
+        outputServerLog("[CTG-TRACE] Player " .. getPlayerName(tmpGoldCarrier) .. " is no longer the gold carrier (cleared)")
+    end
     setGoldCarrier(nil)
     oldGoldCarrier = nil
     clearShield()
@@ -57,39 +56,40 @@ function clearGoldCarrier()
 
     -- ALways togheter. Remove trigger?
     -- triggerEvent("goldCarrierChanged", root, nil, tmpGoldCarrier)
-    -- outputChatBox("goldcarrier.clearGoldCarrier, gold carrier: "..inspect(goldCarrier))
+    -- outputChatBox("goldcarrier.clearGoldCarrier, gold carrier: "..inspect(getGoldCarrier()))
     onGoldCarrierChanged( nil, tmpGoldCarrier)
-    handlePowersForGoldCarrierChangedResourceBased(nil, tmpGoldCarrier)
+    --handlePowersForGoldCarrierChangedResourceBased(nil, tmpGoldCarrier)
 
     -- SHould be triggerClientEvent?
     triggerClientEvent("goldCarrierCleared", root)
 end
 
 function changeGoldCarrier(player)
-    if (player == goldCarrier) then
+    if (player == getGoldCarrier()) then
         return
     end
 
-    if ( isShielded(goldCarrier) == true) then
+    if ( isShielded(getGoldCarrier()) == true) then
 		-- outputChatBox("Did not change, tillbaka kaka")
 		return
 	end
+
+    outputServerLog("[CTG-TRACE] Player " .. getPlayerName(player) .. " became the gold carrier")
 
 	shieldPlayer(player)
 	setTimer(function() 
 		clearShield()
 	end, getConst().tillbakaKakatime, 1)
 
-
     setGoldCarrier(player)
     --tillbakaKakaShield = true
 
-	givePointsToPlayer(goldCarrier, 50)
+	givePointsToPlayer(getGoldCarrier(), 50)
 
     -- ALways togheter. Remove trigger?
-    -- triggerEvent("goldCarrierChanged", root, goldCarrier, oldGoldCarrier)
-    onGoldCarrierChanged( goldCarrier, oldGoldCarrier)
-    handlePowersForGoldCarrierChangedResourceBased(goldCarrier, oldGoldCarrier)
+    -- triggerEvent("goldCarrierChanged", root, getGoldCarrier(), oldGoldCarrier)
+    onGoldCarrierChanged( getGoldCarrier(), oldGoldCarrier)
+    --handlePowersForGoldCarrierChangedResourceBased(getGoldCarrier(), oldGoldCarrier)
 
     triggerClientEvent("onGoldCarrierChanged", player, oldGoldCarrier)    
 end

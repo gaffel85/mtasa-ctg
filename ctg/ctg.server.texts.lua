@@ -126,3 +126,7 @@ function onClientText ( fn )
 end
 addEvent( "clientText", true )
 addEventHandler( "clientText", getRootElement(), onClientText )
+
+function outputLog(message)
+    outputServerLog(message)
+end

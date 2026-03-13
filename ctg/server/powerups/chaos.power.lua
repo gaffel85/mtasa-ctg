@@ -14,7 +14,7 @@ local trafficChaos = {
 	onDisable = function(player)
 	end,
 	onActivated = function(player, vehicle, state)
-		notifyPowerActivated(player, state.name)
+		notifyPowerActivated(player, "Traffic chaos")
         -- loop over all players
 		local times = getPowerConst().chaos.duration / 2
 		local index = 0
@@ -27,10 +27,10 @@ local trafficChaos = {
 					if index + 1 >= times then
 				-- outputChatBox("Disabling chaos for "..getPlayerName(otherPlayer))
 						unpreventChangeFor(otherPlayer)
-						setVehicleForPlayer(otherPlayer, getCurrentVehicle())
+						setVehicleForPlayer(otherPlayer, getCurrentVehicle(), "Power deactivated: Traffic chaos by " .. getPlayerName(player))
 					else
 						preventChangeFor(otherPlayer)
-						setVehicleForPlayer(otherPlayer, getRandomVehicle())
+						setVehicleForPlayer(otherPlayer, getRandomVehicle(), "Power activated: Traffic chaos by " .. getPlayerName(player))
 					end
 				end
 			end
@@ -41,5 +41,3 @@ local trafficChaos = {
         
 	end	
 }
-
-addPowerUp(trafficChaos)

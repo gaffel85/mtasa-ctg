@@ -15,14 +15,14 @@ local nitroPowerUp = {
 	onEnable = function(player, vehicle)
 		--outputChatBox("Nitro enabled "..getPlayerName(player))
 		if not setVehicleNitroActivated(vehicle, false) then
-			outputChatBox("Failed DEactivate nitro")
+			--outputChatBox("Failed DEactivate nitro", player)
 		end
 		return true
 	end,
 	onDisable = function(player, vehicle)
 		--outputChatBox("Nitro onDisabled"..getPlayerName(player))
 		if not setVehicleNitroActivated(vehicle, false) then
-			outputChatBox("Failed DEactivate nitro")
+			--outputChatBox("Failed DEactivate nitro")
 		end
 		removeVehicleUpgrade(vehicle, 1009)
 	end,
@@ -30,13 +30,13 @@ local nitroPowerUp = {
 		--outputChatBox("Nitro activated"..getPlayerName(player))
 		addVehicleUpgrade(vehicle, 1009)
 		if not setVehicleNitroActivated(vehicle, true) then
-			outputChatBox("Failed Activate nitro")
+			--outputChatBox("Failed Activate nitro")
 		end
 	end,
 	onDeactivated = function(player, vehicle)
 		--outputChatBox("Nitro deactivated"..getPlayerName(player))
 		if not setVehicleNitroActivated(vehicle, false) then
-			outputChatBox("Failed DEactivate nitro")
+			--outputChatBox("Failed DEactivate nitro")
 		end
 		removeVehicleUpgrade(vehicle, 1009)
 	end	

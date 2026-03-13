@@ -27,7 +27,10 @@ function QuadTree:subdivide()
 end
 
 -- Add a position to the QuadTree
-function QuadTree:add(pos)
+function QuadTree:add(pos, extra)
+    if extra then
+        --outputServerLog("Adding point: " .. inspect(pos).." my bounds: "..inspect({xMin = self.xMin, xMax = self.xMax, yMin = self.yMin, yMax = self.yMax}))
+    end
     if pos.x < self.xMin or pos.x > self.xMax or pos.y < self.yMin or pos.y > self.yMax then
         return false -- Position is out of bounds
     end

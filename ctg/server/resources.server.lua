@@ -43,7 +43,7 @@ function getResource(key)
     end
 end
 
-function getResourceState(player, key)
+function getResourceEnergyState(player, key)
     local playerState = resourceState[player]
     if not playerState then
         playerState = {}
@@ -59,14 +59,14 @@ end
 
 function addAmount(player, key, amount)
     local resource = getResource(key)
-    local resourceState = getResourceState(player, key)
+    local resourceState = getResourceEnergyState(player, key)
     if not resourceState then
         outputServerLog("Could not get resource state in addAmount"..inspect(player).." "..key)
         return
     end
     local newAmount = resourceState.amount + amount
     if key == "vehicleTime" then
-        outputServerLog("new amount "..newAmount)
+        outputServerLog("[CTG-TRACE] Resource vehicleTime for " .. getPlayerName(player) .. " changed by " .. amount .. " to " .. newAmount)
     end
     if newAmount > resource.capacity then
         resourceState.amount = resource.capacity
@@ -77,16 +77,16 @@ end
 
 function setAmount(player, key, amount)
     local resource = getResource(key)
-    local resourceState = getResourceState(player, key)
+    local resourceState = getResourceEnergyState(player, key)
     if not resourceState then
         outputServerLog("Could not get resource state in setAmount"..inspect(player).." "..key)
         return
     end
     -- outputServerLog("current amount "..resourceState.amount.. " setting to "..amount)
-    local newAmount = amount
     if key == "vehicleTime" then
-        outputServerLog("new amount "..newAmount)
+        outputServerLog("[CTG-TRACE] Resource vehicleTime for " .. getPlayerName(player) .. " set from " .. resourceState.amount .. " to " .. amount)
     end
+    local newAmount = amount
     if newAmount > resource.capacity then
         resourceState.amount = resource.capacity
     else
@@ -106,12 +106,12 @@ function initResourceState(player, resource)
         playerState = {}
         resourceState[player] = playerState
     end
-    local resourceState = {
+    local stateOfResource = {
         amount = resource.initialCapacity,
         lastChanged = getRealTime().timestamp,
     }
-    playerState[resource.key] = resourceState
-    return resourceState
+    playerState[resource.key] = stateOfResource
+    return stateOfResource
 end
 
 addEventHandler("onResourceStart", resourceRoot, function()
@@ -121,10 +121,14 @@ addEventHandler("onResourceStart", resourceRoot, function()
     addResource(vehicleTimeResource)
 end)
 
-addEventHandler("onPlayerJoin", getRootElement(), function()
+function initAllResourceStatesForPlayer(player)
     for i, resource in ipairs(resources) do
-        initResourceState(source, resource)
+        initResourceState(player, resource)
     end
+end
+
+addEventHandler("onPlayerJoin", getRootElement(), function()
+    initAllResourceStatesForPlayer(source)
 end)
 
 

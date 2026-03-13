@@ -15,11 +15,11 @@ local helicopterPowerup = {
 	end,
 	onActivated = function(player, vehicle, state)
 		preventChangeFor(player)
-		setVehicleForPlayer(player, 488)
+		setVehicleForPlayer(player, 488, "Power activated: Helicopter")
 	end,
 	onDeactivated = function(player, vehicle, state)
 		unpreventChangeFor(player)
-		setVehicleForPlayer(player, getCurrentVehicle())
+		setVehicleForPlayer(player, getCurrentVehicle(), "Power deactivated: Helicopter")
 	end	
 }
 
@@ -40,7 +40,7 @@ local bussesForEveryone = {
 	onDisable = function(player)
 	end,
 	onActivated = function(player, vehicle, state)
-		notifyPowerActivated(player, state.name)
+		notifyPowerActivated(player, "Bustrip")
         -- loop over all players
         for i, otherPlayer in ipairs(getElementsByType("player")) do
             -- get the vehicle of the player
@@ -48,7 +48,7 @@ local bussesForEveryone = {
             -- if the player is in a vehicle
             if otherVehicle then -- and otherPlayer ~= player then
                 preventChangeFor(otherPlayer)
-		        setVehicleForPlayer(otherPlayer, 431)
+		        setVehicleForPlayer(otherPlayer, 431, "Power activated: Bustrip by " .. getPlayerName(player))
             end
         end
 	end,
@@ -60,11 +60,28 @@ local bussesForEveryone = {
             -- if the player is in a vehicle
             if otherVehicle then -- and otherPlayer ~= player then
                 unpreventChangeFor(otherPlayer)
-		        setVehicleForPlayer(otherPlayer, getCurrentVehicle())
+		        setVehicleForPlayer(otherPlayer, getCurrentVehicle(), "Power deactivated: Bustrip")
             end
         end
 	end	
 }
 
-addPowerUp(helicopterPowerup)
-addPowerUp(bussesForEveryone)
+if registerTemporaryPower then
+    registerTemporaryPower("bus_transform", {
+        name = bussesForEveryone.name,
+        description = bussesForEveryone.desc,
+        iconPath = "img/bus_icon.png",
+        onActivate = function(player)
+            local vehicle = getPedOccupiedVehicle(player)
+            bussesForEveryone.onActivated(player, vehicle, {name = bussesForEveryone.name})
+            
+            -- Set a timer to deactivate it
+            local duration = bussesForEveryone.duration()
+            setTimer(function()
+                if isElement(player) then
+                    bussesForEveryone.onDeactivated(player, getPedOccupiedVehicle(player), {})
+                end
+            end, duration * 1000, 1)
+        end
+    })
+end

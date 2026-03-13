@@ -2,7 +2,8 @@ local RESOURCES_KEY = "RESOURCES_KEY"
 local energyResourceKey = "energy"
 local overchargeResourceKey = "overcharge"
 local timerDiff = 50
-local fillRate = 6
+local fillRate = 10
+local dynamicFillRate = fillRate
 
 local energyState = {
     key = energyResourceKey,
@@ -128,10 +129,88 @@ function addToOverCharge(amount)
     updateOverchargeProgress(resource)
 end
 
+function calculateZRotation(vx, vy)
+    -- calculate the rotation around Z-axis from velocity vector
+    local speed = math.sqrt(vx*vx + vy*vy)
+
+    local angle = math.deg(math.acos(vx/speed)) - 90
+    if vy > 180 then
+        angle = angle - 360
+    elseif vy < -180 then
+        angle = angle + 360
+    end
+    return angle
+end
+
+local function normalize_angle_deg(angle)
+    angle = angle % 360
+    if angle > 180 then
+        angle = angle - 360
+    elseif angle <= -180 then
+        angle = angle + 360
+    end
+    return angle
+end
+
+-- calculate 
+function howMuchAgainstTheTargetIsPlayerHeading(playerDirection, target)
+    local playerX, playerY, playerZ = getElementPosition(localPlayer)
+    local targetX, targetY, targetZ = target.x, target.y, target.z
+
+    local dx = targetX - playerX
+    local dy = targetY - playerY
+
+    local angle = normalize_angle_deg(math.deg(math.atan2(dy, dx)) - 90)
+    local angleDiff = math.abs(angle - normalize_angle_deg(playerDirection))
+
+    --outputChatBox("Angle: "..angle..", "..playerDirection..", "..angleDiff)
+    return angleDiff
+end
+
+function modifiedFillRate()
+    local targetX, targetY, targetZ = getPlayerCurrentTargetPos(localPlayer)
+    local anglePercentage = 1
+    local distancePercentage = 1
+    local vehicle = getPedOccupiedVehicle( localPlayer )
+    if not vehicle then
+        return 0
+    end
+
+    local playerX, playerY, playerZ = getElementPosition(vehicle)
+    
+    --outputChatBox("Velocity: "..vx..", "..vy)
+    if targetX then
+        local _, _, playerHeading = getElementRotation(vehicle)
+        local diff = howMuchAgainstTheTargetIsPlayerHeading(playerHeading, { x = targetX, y = targetY, z = targetZ })
+        anglePercentage = 1 - math.min(1, (diff / 90))
+    end
+
+    local vx, vy = getElementVelocity(vehicle)
+    local speed = math.sqrt(vx*vx + vy*vy) * 200
+    local speedPercentage = math.min(1, (speed / 80))
+
+    local targetX, targetY, targetZ = getPlayerCurrentTargetPos(localPlayer)
+    if targetX then
+        local distanceToTarget = getDistanceBetweenPoints3D(playerX, playerY, playerZ, targetX, targetY, targetZ)
+        distancePercentage = 0.05 + distanceToTarget / 300
+        --setEnergyBarProgress(distancePercentage * 100)
+    end
+
+    --outputChatBox("Angle: "..anglePercentage..", Speed: "..speedPercentage)
+    dynamicFillRate = fillRate * anglePercentage * speedPercentage * distancePercentage
+end
+
+local timesBetweenFillRateCalcs = 0
 function fillEnergyPeriodically()
     local resource = getResourceData(energyResourceKey)
     if not resource then
         return
+    end
+
+    timesBetweenFillRateCalcs = timesBetweenFillRateCalcs + 1
+    if timesBetweenFillRateCalcs == 5 then
+        modifiedFillRate()
+        timesBetweenFillRateCalcs = 0
     end
 
     if energyState.isBurning then
@@ -145,7 +224,7 @@ function fillEnergyPeriodically()
             energyState.currentAmount = 0
         end
     else
-        energyState.currentAmount = energyState.currentAmount + (fillRate * timerDiff / 1000)
+        energyState.currentAmount = energyState.currentAmount + (dynamicFillRate * timerDiff / 1000)
         if energyState.currentAmount > resource.capacity then
             energyState.currentAmount = resource.capacity
         end

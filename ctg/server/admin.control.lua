@@ -18,7 +18,7 @@ addEventHandler("fromClientSetPlayerScore", getRootElement(),
     function(playerNick, score)
         local player = getPlayerFromName(playerNick)
         if player then
-            setElementData(player, "Score", score)
+            setPlayerScore(player, score)
         end
     end
 )

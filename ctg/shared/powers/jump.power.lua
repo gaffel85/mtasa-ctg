@@ -54,5 +54,4 @@ local jumpPushPowerup = {
 	end	
 }
 
-addPowerUp(jumpPushPowerupOld)
 addResourcePower(jumpPushPowerup)

@@ -2,9 +2,6 @@ local spawnPoints
 local currentSpawn = 1
 local participants = {}
 local blowingPlayer = nil
-local mapArea = nil
-
-local SCORE_KEY = "Score"
 
 --addEvent("goldDelivered")
 --addEvent("goldCarrierChanged")
@@ -12,8 +9,13 @@ local SCORE_KEY = "Score"
 scoreboardRes = getResourceFromName("scoreboard")
 
 function goldPickedUp(player)
+    --outputServerLog("Gold picked up by "..inspect(player))
     changeGoldCarrier(player)
-    showPresentGoldCarrier(getGoldCarrier())
+    if getGoldCarrier() then
+        showPresentGoldCarrier(getGoldCarrier())
+    else
+        outputServerLog("No gold carrier found")
+    end
     
     spawnNewHideout()
 end
@@ -22,37 +24,58 @@ function getSpawnPoints()
     return spawnPoints
 end
 
-function getMapArea()
-    return mapArea
-end
-
-function isInsideMapArea(x, y, z)
-    local area = getMapArea()
-    return x >= area.xMin and x <= area.xMax and y >= area.yMin and y <= area.yMax
-end
-
 -- Stop player from exiting vehicle
 function exitVehicle(thePlayer, seat, jacked)
     cancelEvent()
 end
 addEventHandler("onVehicleStartExit", getRootElement(), exitVehicle)
 
-function spawn(thePlayer, random)
-    local spawnPoint = spawnPoints[math.random(#spawnPoints)]
-    if (random == true) then
-        local spawnPoint = spawnPoints[currentSpawn]
-        currentSpawn = currentSpawn % #spawnPoints + 1
-    end  
-    spawnAtSpawnpoint(thePlayer, spawnPoint)
+function filterOutLocationsWithFewestNeighbors(locations)
+    local minNeighbors = 0
+    for i, location in ipairs(locations) do
+        if (location.neighbors or 0) < minNeighbors or minNeighbors == 0 then
+            minNeighbors = location.neighbors or 0
+        end
+    end
+
+    local filteredLocations = {}
+    for i, location in ipairs(locations) do
+        if (location.neighbors or 0) == minNeighbors then
+            table.insert(filteredLocations, location)
+        end
+    end
+
+    return filteredLocations
 end
 
-function spawnAtSpawnpoint(thePlayer, spawnPoint)
-    local posX, posY, posZ = coordsFromEdl(spawnPoint)
+function spawn(thePlayer, random)
+    local all = getAllLocations()
+    if #all > 0 then
+        local withFewestNeighbors = all --filterOutLocationsWithFewestNeighbors(all)
+        local randomLocation = withFewestNeighbors[math.random(#withFewestNeighbors)]
+        --outputServerLog("Spawning at random location "..inspect(randomLocation).." with "..inspect(randomLocation.neighbors).." neighbors")
+        spawnAt(thePlayer, randomLocation.x, randomLocation.y, randomLocation.z, randomLocation.rx, randomLocation.ry, randomLocation.rz)
+        return
+    else
+        local spawnPoint = spawnPoints[math.random(#spawnPoints)]
+        if (random == true) then
+            local spawnPoint = spawnPoints[currentSpawn]
+            currentSpawn = currentSpawn % #spawnPoints + 1
+        end  
+        spawnAtSpawnpointEdl(thePlayer, spawnPoint)
+    end
+end
 
+function spawnAtSpawnpointEdl(thePlayer, spawnPointEdl)
+    local posX, posY, posZ = coordsFromEdl(spawnPointEdl)
+    local rotX, rotY, rotZ = rotFromEdl(spawnPointEdl)
+    --outputServerLog("Spawning at spawn point edl "..inspect(spawnPointEdl).." with "..inspect(posX)..", "..inspect(posY)..", "..inspect(posZ)..", "..inspect(rotX)..", "..inspect(rotY)..", "..inspect(rotZ))
+    spawnAtSpawnpoint(thePlayer, posX, posY, posZ, rotX, rotY, rotZ)
+end
+
+function spawnAtSpawnpoint(thePlayer, posX, posY, posZ, rotX, rotY, rotZ)
     local allLocations = getAllLocations()
     if #allLocations == 0 then
-        local posX, posY, posZ = coordsFromEdl(spawnPoint)
-        local rotX, rotY, rotZ = rotFromEdl(spawnPoint)
         spawnAt(thePlayer, posX, posY, posZ, rotX, rotY, rotZ)
         return
     end
@@ -60,6 +83,7 @@ function spawnAtSpawnpoint(thePlayer, spawnPoint)
     local radius = 20
     local locations = {}
     while #locations == 0 do
+        --outputServerLog("Getting locations with radius from spawnAtSpawnpoint"..inspect(posX)..", "..inspect(posY)..", "..inspect(posZ)..", "..radius)
         locations = getLocations(posX, posY, posZ, radius)
         radius = radius + 10
     end
@@ -74,6 +98,7 @@ function spawnAtSpawnpoint(thePlayer, spawnPoint)
 end
 
 function spawnAt(player, posX, posY, posZ, rotX, rotY, rotZ)
+    --outputServerLog("Spawning at "..inspect(posX)..", "..inspect(posY)..", "..inspect(posZ)..", "..inspect(rotX)..", "..inspect(rotY)..", "..inspect(rotZ))
     -- posX="" posY="" posZ=""
     local vehicle = createVehicle(getCurrentVehicle(), posX, posY, posZ + 2, rotX, rotY, rotZ, "Hunter")
     spawnPlayer(player, 0, 0, 0, 0, 285)
@@ -100,23 +125,6 @@ function repairAllCars()
             fixVehicle(veh)
         end
     end
-end
-
-function givePointsToPlayer(player, points)
-    local score = getElementData(player, SCORE_KEY)
-    if (score == false) then
-        score = 0
-    end
-    score = score + points
-    setElementData(player, SCORE_KEY, score)
-end
-
-function setScore(player, score)
-    setElementData(player, SCORE_KEY, score)
-end
-
-function getPlayerScore(player)
-    return getElementData(player, SCORE_KEY)
 end
 
 function arrayExists(tab, val)
@@ -182,7 +190,7 @@ function parseMapArea(mapRoot)
     local xMax = tonumber(getElementData(mapAreaEdl, "xMax"))
     local yMin = tonumber(getElementData(mapAreaEdl, "yMin"))
     local yMax = tonumber(getElementData(mapAreaEdl, "yMax"))
-    mapArea = { xMin = xMin, xMax = xMax, yMin = yMin, yMax = yMax }
+    setMapArea({ xMin = xMin, xMax = xMax, yMin = yMin, yMax = yMax })
 end
 
 function testGather()
@@ -190,6 +198,11 @@ function testGather()
     local x, y, z = coordsFromEdl(spawn)
     outputServerLog("Spawn location "..inspect(spawn).." "..inspect(x).." "..inspect(y).." "..inspect(z))
     gatherPlayersAt(x, y, z, 10, 2)
+end
+
+function respawnAfterMapFinished()
+    outputServerLog("Respawning all players after map finished")
+    respawnAllPlayers()
 end
 
 function startGameMap(startedMap)
@@ -200,7 +213,7 @@ function startGameMap(startedMap)
     hideouts = getElementsByType("hideout", mapRoot)
     parseMapArea(mapRoot)
     currentSpawn = math.random(#spawnPoints)
-    mapChanged(spawnPoints)
+    mapChanged(respawnAfterMapFinished)
     setGoldSpawns(goldSpawnPoints)
     setHideouts(hideouts)
     resetGame()
@@ -245,7 +258,8 @@ function startGameIfEnoughPlayers()
 end
 
 function goldDelivered(player)
-    local oldHideout = getTeamHideout(player).edl
+    outputServerLog("[CTG-TRACE] Gold delivered by " .. getPlayerName(player))
+    local oldHideout = getPlayerHideout(player).edl
     removeOldHideout()
 	givePointsToPlayer(getGoldCarrier(), 500)
     giveTeamScore(player, 500)
@@ -278,8 +292,8 @@ function activeRoundFinished(oldHideout, newGoldEdl)
 end
 
 function resetRoundVars()
-    resetPowerStatesOnDeliverdResourceBased()
     clearGoldCarrier()
+    resetPowerStatesForAllPlayers()
 end
 
 function resetGame()
@@ -287,7 +301,6 @@ function resetGame()
     removeOldGold()
     resetScore()
     resetTeamScore()
-    resetPlayerMoney()
     repairAllCars()
     respawnAllPlayers()
 	repairAllCars()
@@ -295,17 +308,8 @@ function resetGame()
 	scheduleNextGold(2)
 end
 
-function resetScore()
-    local players = getElementsByType("player")
-    for k, v in ipairs(players) do
-        setElementData(v, SCORE_KEY, 0)
-    end
-end
-
-
-
 function playerDied(player)
-    outputChatBox("playerDied")
+    --outputChatBox("playerDied")
     local posX, posY, posZ = getElementPosition(player)
     if player == getGoldCarrier() then
         clearGoldCarrier()
@@ -314,11 +318,11 @@ function playerDied(player)
         refreshAllBlips()
     end
     local closestSpawn = positionCloseTo(spawnPoints, {x = posX, y = posY, z = posZ}, 0)
-    spawnAtSpawnpoint(player, closestSpawn)
+    spawnAtSpawnpointEdl(player, closestSpawn)
 end
 
 function playerWastedMain(ammo, attacker, weapon, bodypart)
-    outputChatBox("playerWastedMain")
+    --outputChatBox("playerWastedMain")
     cleanStuffInWorld()
     playerDied(source)
     --local posX, posY, posZ = getElementPosition(source)
@@ -338,19 +342,19 @@ addEventHandler("onPlayerWasted", getRootElement(), playerWastedMain)
 --addEvent("reportLastTransform", true)
 addEvent("reportTransform", true)
 addEventHandler("reportTransform", resourceRoot, function(transform, param1, param2, param3, param4)
-    outputChatBox("reportTransform in main "..inspect(transform)..' '..inspect(param1)..' '..inspect(param2)..' '..inspect(param3))
+    --outputChatBox("reportTransform in main "..inspect(transform)..' '..inspect(param1)..' '..inspect(param2)..' '..inspect(param3))
     if param1 and param1 == "replaceGold" then
         spawnGoldAtTransform(transform.x, transform.y, transform.z)
         refreshAllBlips()
     elseif param1 and param1 == "teleportTo" then
-        outputChatBox(inspect(param2))
+        --outputChatBox(inspect(param2))
         teleportTo(param2, transform)
     elseif param1 and param1 == "teleportOr" then
         if not param2 or not param3 or not param4 then
             outputServerLog("Missing params in teleportOr: ["..inspect(param2)..", "..inspect(param3)..", "..inspect(param4).."]")
             return
         end
-        outputServerLog("Teleporting to or: ["..inspect(transform)..", "..inspect(param2)..", "..inspect(param3)..", "..inspect(param4).."]")
+        --outputServerLog("Teleporting to or: ["..inspect(transform)..", "..inspect(param2)..", "..inspect(param3)..", "..inspect(param4).."]")
         teleportToOr(param2, transform, param3, param4)
     else
         outputConsole("Unknown param1 in reportTransform: ["..param1.."]")
@@ -410,17 +414,12 @@ addEventHandler("onDisplayClientText", resourceRoot, displayMessageForPlayer)
 addEvent("onClearClientText", true)
 addEventHandler("onClearClientText", getRootElement(), clearMessageForPlayer)
 
-addEventHandler("onResourceStop", getResourceRootElement(getThisResource()), function()
-    call(scoreboardRes, "removeScoreboardColumn", SCORE_KEY)
-end)
-
 addEventHandler("onResourceStart", getResourceRootElement(getThisResource()), function()
     --give money to all players 
     local players = getElementsByType("player")
     for k, v in ipairs(players) do
         setPlayerMoney(v, 10000)
     end
-    call(scoreboardRes, "addScoreboardColumn", SCORE_KEY)
 end)
 
 addCommandHandler("fixit", function(thePlayer, command, newModel)
@@ -434,11 +433,75 @@ addCommandHandler("gather", function(thePlayer, command)
     testGather()
 end)
 
-addCommandHandler("score", function(thePlayer, command, scoreStr)
-    local newScore = tonumber(scoreStr)
-    if newScore then
-        setScore(thePlayer, newScore)
+-- Debug command: spawn player at 0,0,0 on foot to reproduce vehicle-less respawn bug
+addCommandHandler("bug", function(thePlayer, command)
+    --outputChatBox("Spawning at 0,0,0 without vehicle for bug reproduction", thePlayer)
+    local pname = tostring(getPlayerName(thePlayer) or "unknown")
+    outputServerLog("/bug invoked by "..pname)
+    -- destroy any occupied vehicle first so player ends up on foot
+    local veh = getPedOccupiedVehicle(thePlayer)
+    if veh then
+        outputServerLog("/bug destroying vehicle for "..pname)
+        destroyElement(veh)
     end
+    -- spawnPlayer will place the player on foot at the given coords
+    spawnPlayer(thePlayer, 0, 0, 0, 0, 285)
+    fadeCamera(thePlayer, true)
+    setCameraTarget(thePlayer, thePlayer)
+end)
+
+-- Respawn player at a map spawn (vehicle type from current map) then request catch-up teleport
+addCommandHandler("fix", function(thePlayer, command)
+    outputChatBox("Respawning you at a spawn point and requesting catch-up.", thePlayer)
+    local pname = tostring(getPlayerName(thePlayer) or "unknown")
+    outputServerLog("/fix invoked by "..pname)
+    -- destroy any occupied vehicle first to avoid orphan vehicles
+    local veh = getPedOccupiedVehicle(thePlayer)
+    if veh then
+        outputServerLog("/fix destroying vehicle for "..pname)
+        destroyElement(veh)
+    end
+    -- Spawn like a new player (uses current vehicle model from map)
+    spawn(thePlayer, false)
+    -- Give the spawn logic time to create/warp into the vehicle, then trigger catch-up
+    setTimer(function()
+        if type(useCatchUpForce) == "function" then
+            useCatchUpForce(thePlayer)
+        else
+            outputServerLog("useCatchUpForce not available when /fix invoked by "..pname)
+        end
+    end, 200, 1)
+end)
+
+addCommandHandler("score", function(thePlayer, command, targetName, scoreStr)
+    -- Usage: /score <playerName> <score>
+    if not scoreStr then
+        -- allow old behavior: /score <score> to set your own score
+        local newScore = tonumber(targetName)
+        if newScore then
+            setScoreDeug(thePlayer, newScore)
+            outputChatBox("Your score set to "..newScore, thePlayer)
+        else
+            outputChatBox("Usage: /score <playerName> <score> or /score <score>", thePlayer)
+        end
+        return
+    end
+
+    local newScore = tonumber(scoreStr)
+    if not newScore then
+        outputChatBox("Invalid score: must be a number", thePlayer)
+        return
+    end
+
+    local target = getPlayerFromName(targetName)
+    if not target then
+        outputChatBox("Player not found: "..tostring(targetName), thePlayer)
+        return
+    end
+
+    setScoreDeug(target, newScore)
+    outputChatBox("Set score of "..getPlayerName(target).." to "..newScore, thePlayer)
+    outputServerLog("/score invoked by "..tostring(getPlayerName(thePlayer) or "unknown").." set "..tostring(getPlayerName(target)).." to "..tostring(newScore))
 end)
 
 addCommandHandler("param", function(source, command, paramName, paramValue)

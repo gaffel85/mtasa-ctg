@@ -45,7 +45,10 @@ function changeToNextVehicleAndGetBoundingBoxAndRadius()
         if setElementModel(vehicle, currentVehicleId) then
             local x, y, z, x2, y2, z2 = getElementBoundingBox(vehicle)
             local radius = getElementRadius(vehicle)
-            vehicleSizeData[currentVehicleId] = {x = x, y = y, z = z, x2 = x2, y2 = y2, z2 = z2, radius = radius}
+            local originalHandling = getOriginalHandling(getElementModel(vehicle))
+            local maxSpeed = originalHandling["maxVelocity"]
+            local acceleration = originalHandling["engineAcceleration"]
+            vehicleSizeData[currentVehicleId] = {x = x, y = y, z = z, x2 = x2, y2 = y2, z2 = z2, radius = radius, maxSpeed = maxSpeed, acceleration = acceleration}
             outputConsole("Model for "..inspect(currentVehicleId).." "..inspect(radius).." "..inspect(x))
             setTimer(changeToNextVehicleAndGetBoundingBoxAndRadius, 2000, 1)
 

@@ -45,6 +45,7 @@ function distributePointsByDistanceToGoldCarrier(players, goldCarrier)
     end
 
     for i, record in ipairs(playersWithDistance) do
+        
         local score = highestScore + coeff * record.distance
         if score > 0 then
             givePointsToPlayer(record.player, math.floor(score))

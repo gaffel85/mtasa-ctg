@@ -34,8 +34,9 @@ function refreshAllBlips()
             local goldCarrierNativeTeam = getPlayerTeam(getGoldCarrier())
             -- loop over teams
             for i, team in ipairs(teams) do
-                if team.hideout then
-                    local posX, posY, posZ = team.hideout.pos.x, team.hideout.pos.y, team.hideout.pos.z
+                local hideout = getTeamHideout(team)
+                if hideout then
+                    local posX, posY, posZ = hideout.pos.x, hideout.pos.y, hideout.pos.z
                     
                     local ownTeamHideoutBlip = createBlip(posX, posY, posZ, 31, 1, 255, 0, 0, 255, 5)
                     local otherTeamHideoutBlip = createBlip(posX, posY, posZ, 23, 1, 255, 0, 0, 255, 5)
@@ -57,13 +58,25 @@ function refreshAllBlips()
             end
         else 
             local team = getTeams()[1] -- same hideout for non team members
-            if team.hideout then
-                local posX, posY, posZ = team.hideout.pos.x, team.hideout.pos.y, team.hideout.pos.z
+            local hideout = getTeamHideout(team)
+            if hideout then
+                local posX, posY, posZ = hideout.pos.x, hideout.pos.y, hideout.pos.z
                 createBlip(posX, posY, posZ, 31, 2, 255, 0, 0, 255, 5)
 
                 local extraBlip = createBlip(posX, posY, posZ, 0, 2, 255, 0, 0, 255, 10)
                 setElementVisibleTo(extraBlip, root, false)
                 setElementVisibleTo(extraBlip, getGoldCarrier(), true)
+            end
+        end
+    end
+
+    for k, player in ipairs(players) do
+        local target = getPlayerCurrentTarget(player)
+        if target then
+            if target.isStatic then
+                --createBlip(target.x, target.y, target.z, 0, 4, 255, 255, 0, 255, 100, 16383.0, player)
+            else
+                --createBlipAttachedTo(target.element, 0, 4, 255, 255, 0, 255, 100, 16383.0, player)
             end
         end
     end

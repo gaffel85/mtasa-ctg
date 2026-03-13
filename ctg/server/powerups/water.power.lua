@@ -93,5 +93,3 @@ local waterLevelPowerUp = {
 		
 	end	
 }
-
-addPowerUp(waterLevelPowerUp)
