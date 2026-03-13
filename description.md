@@ -1,1 +1,16 @@
-I'm developing a game mode (resource) for the multiplayer mod MTA:SA for GTA San Andreas. The game mode is completely vehicle based and the player can't leave the vehicle. I have a resource based power up system. One resource is time based where it fills up whe the time ticks. Some other power ups uses an energy resoucre that can be filled up in different way. I want to add temporary power ups, muck like in Mario Cart, that you can obtain in different ways. Once the power up has been used it is consumed and removed from the player until next time it is obtained. I might want to support a small queue of obtained powers, like in Maria Cart where you have the next one to use and then when that is used you can use the next one in queue. The queue should maximum be 2 powers long. Can you help me refine this feature, both asking me questions for clarifications and help me break it down to managable tasks that an AI bot can code. 
+# Project Context: MTA:SA Vehicular Capture the Gold
+
+## Environment & Framework
+* **Platform:** MTA:SA (Multiplayer Theft Auto: San Andreas).
+* **Format:** Server-side and client-side Lua resource.
+* **Game Style:** Team-based, objective-focused vehicular combat.
+
+## Core Rules & Player State
+* **Strict Vehicle Confinement:** Players are permanently locked inside their vehicles. On-foot gameplay is completely disabled.
+
+## Game Loop & Mechanics
+* **The Objective:** Teams compete to secure a single "Gold Bar" and deliver it to their specific team hideout (checkpoint).
+* **Spawning:** The Gold Bar spawns at one of several randomized, predefined coordinates on the map.
+* **Acquisition:** The first player to drive their vehicle into the Gold Bar picks it up, becoming the "Gold Carrier."
+* **Stealing Mechanic (Tag):** Opposing players can steal the Gold Bar from the current Gold Carrier by physically ramming/hitting the Carrier's vehicle with their own vehicle.
+* **Scoring:** To score, the Gold Carrier must successfully navigate to their team's hideout checkpoint without being hit by an opposing vehicle.
