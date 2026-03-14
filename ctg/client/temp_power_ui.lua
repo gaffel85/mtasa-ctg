@@ -12,13 +12,31 @@ local CARD_SPACING = 20
 
 local playerPowerupQueue = {} -- The client's current temporary power-up queue
 local activeEffects = {} -- Stores active temporary power-up effects for progress bars
+local textureCache = {} -- Cache for power-up icons
+local lastQueueIds = {nil, nil} -- Keep track of last displayed IDs to avoid redundant updates
+local lastLockState = false
 
 -- DGS Elements
 local cardElements = {} -- { [1] = elements, [2] = elements }
 local activeEffectsContainer = nil
 local activeEffectElements = {} -- { [id] = elements }
 
+local function getIconTexture(path)
+    if not path then return nil end
+    if textureCache[path] then return textureCache[path] end
+    
+    if fileExists(path) then
+        local texture = dxCreateTexture(path, "argb", true, "clamp")
+        if texture then
+            textureCache[path] = texture
+            return texture
+        end
+    end
+    return nil
+end
+
 local function createPowerupCard(index)
+-- ... (rest of the function remains the same)
     local card = {}
     local x = (index == 1) and (UI_BASE_X - CARD_WIDTH / 2) or (UI_BASE_X - CARD_WIDTH / 2 + 10)
     local y = (index == 1) and UI_BASE_Y or (UI_BASE_Y - 40)
@@ -55,6 +73,14 @@ local function createPowerupCard(index)
     DGS:dgsSetProperty(card.nextLabel, "font", "default-bold")
     DGS:dgsSetVisible(card.nextLabel, false)
 
+    -- LOCKED label
+    card.lockedLabel = DGS:dgsCreateLabel(0, 0, CARD_WIDTH, CARD_HEIGHT, "Other power active", false, card.bg)
+    DGS:dgsSetProperty(card.lockedLabel, "alignment", {"center", "center"})
+    DGS:dgsSetProperty(card.lockedLabel, "font", "default-bold")
+    DGS:dgsSetProperty(card.lockedLabel, "textSize", {1.5, 1.5})
+    DGS:dgsSetProperty(card.lockedLabel, "color", tocolor(255, 100, 100, 255))
+    DGS:dgsSetVisible(card.lockedLabel, false)
+
     DGS:dgsSetVisible(card.bg, false)
     return card
 end
@@ -72,7 +98,7 @@ local function initUI()
     DGS:dgsSetProperty(activeEffectsContainer, "color", tocolor(0, 0, 0, 0))
 end
 
-local function updateCard(index, powerupId)
+local function updateCard(index, powerupId, isLocked)
     local card = cardElements[index]
     if not card then return end
     
@@ -91,9 +117,10 @@ local function updateCard(index, powerupId)
     DGS:dgsSetText(card.name, config.name or "Unknown")
     DGS:dgsSetText(card.description, config.description or "")
     
-    if config.iconPath and fileExists(config.iconPath) then
+    local texture = getIconTexture(config.iconPath)
+    if texture then
         DGS:dgsSetVisible(card.icon, true)
-        DGS:dgsImageSetImage(card.icon, config.iconPath)
+        DGS:dgsImageSetImage(card.icon, texture)
     else
         DGS:dgsSetVisible(card.icon, false)
     end
@@ -101,16 +128,38 @@ local function updateCard(index, powerupId)
     if index == 1 then
         DGS:dgsSetAlpha(card.bg, 1.0)
         DGS:dgsSetVisible(card.nextLabel, false)
+        DGS:dgsSetVisible(card.lockedLabel, isLocked)
+        
+        -- Feedback refinement: hide description and dim other elements when locked
+        DGS:dgsSetVisible(card.description, not isLocked)
+        local contentAlpha = isLocked and 0.4 or 1.0
+        DGS:dgsSetAlpha(card.name, contentAlpha)
+        DGS:dgsSetAlpha(card.icon, contentAlpha)
     else
-        DGS:dgsSetAlpha(card.bg, 0.6)
+        DGS:dgsSetAlpha(card.bg, 1.0)
         DGS:dgsSetVisible(card.nextLabel, true)
+        DGS:dgsSetVisible(card.lockedLabel, false)
+        DGS:dgsSetVisible(card.description, true)
+        DGS:dgsSetAlpha(card.name, 1.0)
+        DGS:dgsSetAlpha(card.icon, 1.0)
     end
 end
 
 local function updateQueueUI()
     if #cardElements == 0 then initUI() end
-    updateCard(1, playerPowerupQueue[1])
-    updateCard(2, playerPowerupQueue[2])
+    
+    local isAnyPowerActive = next(activeEffects) ~= nil
+    
+    if playerPowerupQueue[1] ~= lastQueueIds[1] or isAnyPowerActive ~= lastLockState then
+        updateCard(1, playerPowerupQueue[1], isAnyPowerActive)
+        lastQueueIds[1] = playerPowerupQueue[1]
+        lastLockState = isAnyPowerActive
+    end
+    
+    if playerPowerupQueue[2] ~= lastQueueIds[2] then
+        updateCard(2, playerPowerupQueue[2])
+        lastQueueIds[2] = playerPowerupQueue[2]
+    end
 end
 
 local function createActiveEffectUI(id, effect)
@@ -192,11 +241,23 @@ addEventHandler("onTempPowerupActivatedClient", root, function(playerName, power
     }
 end)
 
+local function precacheIcons()
+    local ids = getAllTemporaryPowerupIds()
+    for _, id in ipairs(ids) do
+        local config = getTemporaryPowerupConfig(id)
+        if config and config.iconPath then
+            getIconTexture(config.iconPath)
+        end
+    end
+end
+
 -- Initialize UI on start or when needed
 addEventHandler("onClientResourceStart", resourceRoot, function()
     initUI()
     -- Periodic check to handle metadata sync delays or queue state
     setTimer(updateQueueUI, 1000, 0)
+    -- Pre-cache icons after a short delay to allow metadata sync
+    setTimer(precacheIcons, 2000, 1)
 end)
 
 -- Update active effects progress and positions

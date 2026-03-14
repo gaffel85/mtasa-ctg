@@ -9,6 +9,8 @@
 	<file src="img/san-fierro.png" />
 	<file src="img/san-fierro-h.png" />
 	<file src="img/forbidden.png" />
+	<file src="img/helicam.png" />
+	<file src="img/busses.png" />
 
 	<!--<script src="shared/math.lua" />
 	<script src="shared/math.lua" type="client" />-->

@@ -5,6 +5,10 @@ local playerPowerupQueues = {} -- Stores power-up queues for each player (key = 
 local playerTestTimers = {} -- Stores test timers for each player
 local MAX_QUEUE_SIZE = 2
 
+local isGlobalPowerActive = false
+local globalPowerTimer = nil
+local activeEffectsServer = {} -- { [id] = {playerName, powerupId, name, duration, endTime} }
+
 -- Function to get a random power-up ID from the config
 local function getRandomPowerupId()
     local allPowerupIds = getAllTemporaryPowerupIds()
@@ -22,10 +26,21 @@ local function syncPlayerPowerups(player)
     -- Send all registered temporary powerup metadata to client
     triggerClientEvent(player, "onSyncTemporaryPowerupsMetadata", player, getTemporaryPowerupsMetadata())
     
+    -- Send any currently active effects to the joining player
+    local currentTime = getTickCount()
+    for id, effect in pairs(activeEffectsServer) do
+        local timeLeft = effect.endTime - currentTime
+        if timeLeft > 0 then
+            triggerClientEvent(player, "onTempPowerupActivatedClient", player, effect.playerName, effect.powerupId, effect.name, timeLeft / 1000)
+        else
+            activeEffectsServer[id] = nil
+        end
+    end
+
     -- Send the current queue to the client
     local playerQueue = playerPowerupQueues[player] or {}
     triggerClientEvent(player, "onTempPowerupQueueUpdateClient", player, playerQueue)
-    giveRandomTemporaryPowerup(player)
+    -- giveRandomTemporaryPowerup(player)
 
     -- DEBUG/TEST: Automatically give a power-up every 10 seconds
     if isTimer(playerTestTimers[player]) then killTimer(playerTestTimers[player]) end
@@ -110,6 +125,11 @@ function useTemporaryPowerup(targetPlayer)
         return false, "Invalid player"
     end
 
+    if isGlobalPowerActive then
+        outputDebugString("Player " .. getPlayerName(targetPlayer) .. " tried to use a temporary power-up but another power is already active.")
+        return false, "Another power active"
+    end
+
     local playerQueue = playerPowerupQueues[targetPlayer]
     if not playerQueue or #playerQueue == 0 then
         outputDebugString("Player " .. getPlayerName(targetPlayer) .. " tried to use a temporary power-up but their queue is empty.")
@@ -135,8 +155,25 @@ function useTemporaryPowerup(targetPlayer)
         outputDebugString("Temporary power-up " .. powerupIdToUse .. " has no valid effect function.")
     end
 
-    -- Broadcast activation to all clients for progress bars/notifications
+    -- Broadcast activation to all clients for progress bars/notifications and global locking
     if powerupConfig.duration and powerupConfig.duration > 0 then
+        isGlobalPowerActive = true
+        
+        local effectId = getPlayerName(targetPlayer) .. "_" .. powerupIdToUse .. "_" .. getTickCount()
+        activeEffectsServer[effectId] = {
+            playerName = getPlayerName(targetPlayer),
+            powerupId = powerupIdToUse,
+            name = powerupConfig.name,
+            duration = powerupConfig.duration * 1000,
+            endTime = getTickCount() + (powerupConfig.duration * 1000)
+        }
+
+        if isTimer(globalPowerTimer) then killTimer(globalPowerTimer) end
+        globalPowerTimer = setTimer(function(id)
+            isGlobalPowerActive = false
+            activeEffectsServer[id] = nil
+        end, powerupConfig.duration * 1000, 1, effectId)
+        
         triggerClientEvent(root, "onTempPowerupActivatedClient", root, getPlayerName(targetPlayer), powerupIdToUse, powerupConfig.name, powerupConfig.duration)
     end
 

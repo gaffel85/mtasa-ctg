@@ -70,7 +70,7 @@ if registerTemporaryPower then
     registerTemporaryPower("bus_transform", {
         name = bussesForEveryone.name,
         description = bussesForEveryone.desc,
-        iconPath = "img/bus_icon.png",
+        iconPath = "img/busses.png",
         duration = bussesForEveryone.duration(),
         onActivate = function(player)
             local vehicle = getPedOccupiedVehicle(player)

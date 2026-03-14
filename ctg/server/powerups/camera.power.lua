@@ -37,7 +37,7 @@ if registerTemporaryPower then
     registerTemporaryPower("camera_chaos", {
         name = cinematicCamera.name,
         description = cinematicCamera.desc,
-        iconPath = "img/camera_icon.png",
+        iconPath = "img/helicam.png",
         duration = cinematicCamera.duration(),
         onActivate = function(player)
             local vehicle = getPedOccupiedVehicle(player)
