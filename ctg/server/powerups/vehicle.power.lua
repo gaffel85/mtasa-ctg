@@ -27,6 +27,7 @@ local bussesForEveryone = {
 	key = "busses",
 	name = "Bustrip",
     desc = "Changes all vehicles to busses for a short period of time.",
+	iconPath = "img/busses.png",
 	cooldown = function() return getPowerConst().busses.cooldown end,
 	duration = function() return getPowerConst().busses.duration end,
 	initCooldown = function() return getPowerConst().busses.initCooldown end,
@@ -67,22 +68,5 @@ local bussesForEveryone = {
 }
 
 if registerTemporaryPower then
-    registerTemporaryPower("bus_transform", {
-        name = bussesForEveryone.name,
-        description = bussesForEveryone.desc,
-        iconPath = "img/busses.png",
-        duration = bussesForEveryone.duration(),
-        onActivate = function(player)
-            local vehicle = getPedOccupiedVehicle(player)
-            bussesForEveryone.onActivated(player, vehicle, {name = bussesForEveryone.name})
-            
-            -- Set a timer to deactivate it
-            local duration = bussesForEveryone.duration()
-            setTimer(function()
-                if isElement(player) then
-                    bussesForEveryone.onDeactivated(player, getPedOccupiedVehicle(player), {})
-                end
-            end, duration * 1000, 1)
-        end
-    })
+    registerTemporaryPower("bus_transform", bussesForEveryone)
 end

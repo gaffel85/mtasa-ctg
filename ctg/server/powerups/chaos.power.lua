@@ -2,6 +2,7 @@ local trafficChaos = {
 	key = "chaos",
 	name = "Traffic chaos",
 	desc = "Randomly changes your opponent's vehicle every 2 seconds.",
+	iconPath = "img/chaos_icon.png",
 	cooldown = function() return getPowerConst().chaos.cooldown end,
 	duration = function() return getPowerConst().chaos.duration end,
 	initCooldown = function() return getPowerConst().chaos.initCooldown end,
@@ -41,16 +42,3 @@ local trafficChaos = {
         
 	end	
 }
-
-if registerTemporaryPower then
-    registerTemporaryPower("traffic_chaos", {
-        name = trafficChaos.name,
-        description = trafficChaos.desc,
-        iconPath = "img/chaos_icon.png",
-        duration = trafficChaos.duration(),
-        onActivate = function(player)
-            local vehicle = getPedOccupiedVehicle(player)
-            trafficChaos.onActivated(player, vehicle, {name = trafficChaos.name})
-        end
-    })
-end

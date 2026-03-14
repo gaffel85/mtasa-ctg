@@ -35,7 +35,7 @@ function getTemporaryPowerupsMetadata()
         metadata[id] = {
             id = id,
             name = config.name,
-            description = config.description,
+            description = config.desc,
             iconPath = config.iconPath,
             duration = config.duration -- Include duration in metadata
         }

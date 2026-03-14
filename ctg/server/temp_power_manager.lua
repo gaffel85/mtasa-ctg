@@ -175,9 +175,12 @@ function useTemporaryPowerup(targetPlayer)
         return false, "Unknown power-up ID"
     end
 
-    if powerupConfig.onActivate and type(powerupConfig.onActivate) == "function" then
-        powerupConfig.onActivate(targetPlayer)
-        outputDebugString("Player " .. getPlayerName(targetPlayer) .. " used temporary power-up: " .. powerupIdToUse)
+    if powerupConfig.onActivated and type(powerupConfig.onActivated) == "function" then
+        local vehicle = getPedOccupiedVehicle(targetPlayer)
+        if vehicle then
+            powerupConfig.onActivated(targetPlayer, vehicle, { name = "Temporary Power"})
+            outputDebugString("Player " .. getPlayerName(targetPlayer) .. " used temporary power-up: " .. powerupIdToUse)
+        end
     elseif powerupConfig.serverEffectFunctionName and _G[powerupConfig.serverEffectFunctionName] then
         _G[powerupConfig.serverEffectFunctionName](targetPlayer)
         outputDebugString("Player " .. getPlayerName(targetPlayer) .. " used temporary power-up: " .. powerupIdToUse)
@@ -186,7 +189,7 @@ function useTemporaryPowerup(targetPlayer)
     end
 
     -- Broadcast activation to all clients for progress bars/notifications and global locking
-    if powerupConfig.duration and powerupConfig.duration > 0 then
+    if powerupConfig.duration and powerupConfig.duration() > 0 then
         isGlobalPowerActive = true
         
         local effectId = getPlayerName(targetPlayer) .. "_" .. powerupIdToUse .. "_" .. getTickCount()
@@ -194,15 +197,15 @@ function useTemporaryPowerup(targetPlayer)
             playerName = getPlayerName(targetPlayer),
             powerupId = powerupIdToUse,
             name = powerupConfig.name,
-            duration = powerupConfig.duration * 1000,
-            endTime = getTickCount() + (powerupConfig.duration * 1000)
+            duration = powerupConfig.duration() * 1000,
+            endTime = getTickCount() + (powerupConfig.duration() * 1000)
         }
 
         if isTimer(globalPowerTimer) then killTimer(globalPowerTimer) end
         globalPowerTimer = setTimer(function(id)
             isGlobalPowerActive = false
             activeEffectsServer[id] = nil
-        end, powerupConfig.duration * 1000, 1, effectId)
+        end, powerupConfig.duration() * 1000, 1, effectId)
         
         triggerClientEvent(root, "onTempPowerupActivatedClient", root, getPlayerName(targetPlayer), powerupIdToUse, powerupConfig.name, powerupConfig.duration)
     end

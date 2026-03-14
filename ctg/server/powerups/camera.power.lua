@@ -2,6 +2,7 @@ local cinematicCamera = {
 	key = "cinematic",
 	name = "Cinematic camera",
     desc = "Changes to a helicopter view for all player. This will make it harder for all to see where they drive and affect there accuracy.",
+    iconPath = "img/helicam.png",
 	cooldown = function() return getPowerConst().cinematic.cooldown end,
 	duration = function() return getPowerConst().cinematic.duration end,
 	initCooldown = function() return getPowerConst().cinematic.initCooldown end,
@@ -34,22 +35,5 @@ local cinematicCamera = {
 }
 
 if registerTemporaryPower then
-    registerTemporaryPower("camera_chaos", {
-        name = cinematicCamera.name,
-        description = cinematicCamera.desc,
-        iconPath = "img/helicam.png",
-        duration = cinematicCamera.duration(),
-        onActivate = function(player)
-            local vehicle = getPedOccupiedVehicle(player)
-            cinematicCamera.onActivated(player, vehicle, {name = cinematicCamera.name})
-            
-            -- Set a timer to deactivate it, since cinematic camera seems to be designed with a duration
-            local duration = cinematicCamera.duration()
-            setTimer(function()
-                if isElement(player) then
-                    cinematicCamera.onDeactivated(player, getPedOccupiedVehicle(player), {})
-                end
-            end, duration * 1000, 1)
-        end
-    })
+    registerTemporaryPower("camera_chaos", cinematicCamera)
 end
