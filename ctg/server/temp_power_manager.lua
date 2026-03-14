@@ -2,7 +2,6 @@
 -- Server-side module for managing temporary, consumable power-ups for players.
 
 local playerPowerupQueues = {} -- Stores power-up queues for each player (key = player element, value = {powerupId1, powerupId2})
-local playerTestTimers = {} -- Stores test timers for each player
 local MAX_QUEUE_SIZE = 2
 
 local isGlobalPowerActive = false
@@ -40,15 +39,6 @@ local function syncPlayerPowerups(player)
     -- Send the current queue to the client
     local playerQueue = playerPowerupQueues[player] or {}
     triggerClientEvent(player, "onTempPowerupQueueUpdateClient", player, playerQueue)
-    -- giveRandomTemporaryPowerup(player)
-
-    -- DEBUG/TEST: Automatically give a power-up every 10 seconds
-    if isTimer(playerTestTimers[player]) then killTimer(playerTestTimers[player]) end
-    playerTestTimers[player] = setTimer(function(p)
-        if isElement(p) then
-            giveRandomTemporaryPowerup(p)
-        end
-    end, 10000, 0, player)
 end
 
 -- Initializes a player's power-up queue when they join
@@ -60,10 +50,6 @@ end)
 -- Cleans up a player's power-up queue when they quit
 addEventHandler("onPlayerQuit", root, function()
     playerPowerupQueues[source] = nil
-    if isTimer(playerTestTimers[source]) then
-        killTimer(playerTestTimers[source])
-    end
-    playerTestTimers[source] = nil
 end)
 
 -- Sync when the client resource is started (handles resource restarts and joins)
@@ -83,8 +69,6 @@ addEventHandler("onResourceStart", resourceRoot, function()
         if not playerPowerupQueues[player] then
             playerPowerupQueues[player] = {}
         end
-        -- We don't sync here; onPlayerResourceStart will trigger for all existing players
-        -- once their client-side scripts are ready.
     end
 end)
 
@@ -117,6 +101,52 @@ function giveRandomTemporaryPowerup(targetPlayer)
     -- Notify client about the updated queue
     triggerClientEvent(targetPlayer, "onTempPowerupQueueUpdateClient", targetPlayer, playerQueue)
     return true
+end
+
+-- Function to find the player with the least points and give them a power-up
+function givePowerToPlayerWithLeastPoints()
+    local players = getElementsByType("player")
+    if #players == 0 then return end
+
+    local targetPlayer = nil
+    local minScore = math.huge
+
+    for _, player in ipairs(players) do
+        -- Skip players with full queue to find someone else who might need it? 
+        -- Or just pick the absolute lowest even if full? Usually Mario Kart style is to help the ones behind.
+        local score = getPlayerScore(player) or 0
+        if score < minScore then
+            minScore = score
+            targetPlayer = player
+        end
+    end
+
+    if targetPlayer then
+        local success, reason = giveRandomTemporaryPowerup(targetPlayer)
+        if success then
+            outputChatBox("Giving extra power-up to " .. getPlayerName(targetPlayer) .. " (Lowest points: " .. minScore .. ")", root, 0, 255, 0)
+        else
+            -- If the lowest player has a full queue, try to find the next one? 
+            -- For now, let's just log it.
+            outputDebugString("Could not give power to " .. getPlayerName(targetPlayer) .. ": " .. tostring(reason))
+        end
+    end
+end
+
+-- Command handler for admin/trigger
+addCommandHandler("givepower", function(player)
+    -- TODO: Add admin check here if needed
+    outputServerLog("Power-giving command triggered by " .. (isElement(player) and getPlayerName(player) or "System"))
+    givePowerToPlayerWithLeastPoints()
+end)
+
+-- Register server-side bind for P key
+if registerBindFunctions then
+    registerBindFunctions(function(player)
+        bindKey(player, "p", "down", "givepower")
+    end, function(player)
+        unbindKey(player, "p", "down", "givepower")
+    end)
 end
 
 -- Public function: Uses the player's current (first in queue) temporary power-up
@@ -192,3 +222,4 @@ end)
 _G["giveRandomTemporaryPowerup"] = giveRandomTemporaryPowerup
 _G["useTemporaryPowerup"] = useTemporaryPowerup
 _G["getPlayerPowerupQueue"] = function(player) return playerPowerupQueues[player] end
+_G["givePowerToPlayerWithLeastPoints"] = givePowerToPlayerWithLeastPoints
