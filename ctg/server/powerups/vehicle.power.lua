@@ -18,8 +18,10 @@ local helicopterPowerup = {
 		setVehicleForPlayer(player, 488, "Power activated: Helicopter")
 	end,
 	onDeactivated = function(player, vehicle, state)
-		unpreventChangeFor(player)
-		setVehicleForPlayer(player, getCurrentVehicle(), "Power deactivated: Helicopter")
+		if isElement(player) then
+			unpreventChangeFor(player)
+			setVehicleForPlayer(player, getCurrentVehicle(), "Power deactivated: Helicopter")
+		end
 	end	
 }
 
@@ -49,7 +51,7 @@ local bussesForEveryone = {
             -- if the player is in a vehicle
             if otherVehicle then -- and otherPlayer ~= player then
                 preventChangeFor(otherPlayer)
-		        setVehicleForPlayer(otherPlayer, 431, "Power activated: Bustrip by " .. getPlayerName(player))
+		        setVehicleForPlayer(otherPlayer, 431, "Power activated: Bustrip by " .. (isElement(player) and getPlayerName(player) or "Unknown"))
             end
         end
 	end,

@@ -18,8 +18,7 @@ local lastLockState = false
 
 -- DGS Elements
 local cardElements = {} -- { [1] = elements, [2] = elements }
-local activeEffectsContainer = nil
-local activeEffectElements = {} -- { [id] = elements }
+local activeEffectUI = nil -- Single UI element set for the active power
 
 local function getIconTexture(path)
     if not path then return nil end
@@ -36,7 +35,6 @@ local function getIconTexture(path)
 end
 
 local function createPowerupCard(index)
--- ... (rest of the function remains the same)
     local card = {}
     local x = (index == 1) and (UI_BASE_X - CARD_WIDTH / 2) or (UI_BASE_X - CARD_WIDTH / 2 + 10)
     local y = (index == 1) and UI_BASE_Y or (UI_BASE_Y - 40)
@@ -94,8 +92,42 @@ local function initUI()
     -- Layering: Card 1 should be on top of Card 2
     DGS:dgsSetLayer(cardElements[1].bg, "top")
     
-    activeEffectsContainer = DGS:dgsCreateImage(20, SCREEN_HEIGHT / 2 - 100, 300, 400, nil, false)
-    DGS:dgsSetProperty(activeEffectsContainer, "color", tocolor(0, 0, 0, 0))
+    -- Active Effects UI (Single container/elements)
+    local width = 250
+    local powerLabelHeight = 70
+    local progressHeight = 25
+    local playerLabelHeight = 20
+    local spacing = 4
+    local totalHeight = powerLabelHeight + progressHeight + playerLabelHeight + (spacing * 2)
+    
+    local containerY = (SCREEN_HEIGHT / 2 - 100) - (SCREEN_HEIGHT * 0.15)
+    local container = DGS:dgsCreateImage(20, containerY, width, totalHeight, nil, false)
+    DGS:dgsSetProperty(container, "color", tocolor(0, 0, 0, 0))
+    DGS:dgsSetVisible(container, false)
+
+    local powerLabel = DGS:dgsCreateLabel(0, 0, width, powerLabelHeight, "", false, container)
+    DGS:dgsSetProperty(powerLabel, "font", "default-bold")
+    DGS:dgsSetProperty(powerLabel, "textSize", {2.5, 2.5})
+    DGS:dgsSetProperty(powerLabel, "wordBreak", true)
+    DGS:dgsSetProperty(powerLabel, "alignment", {"center", "bottom"})
+
+    local progress = DGS:dgsCreateProgressBar(0, powerLabelHeight + spacing, width, progressHeight, false, container)
+    DGS:dgsProgressBarSetStyle(progress, "normal")
+    DGS:dgsSetProperty(progress, "barColor", tocolor(100, 200, 100, 200))
+    DGS:dgsSetProperty(progress, "bgColor", tocolor(0, 0, 0, 150))
+
+    local playerLabel = DGS:dgsCreateLabel(0, powerLabelHeight + progressHeight + spacing * 2, width, playerLabelHeight, "", false, container)
+    DGS:dgsSetProperty(playerLabel, "font", "default-bold")
+    DGS:dgsSetProperty(playerLabel, "textSize", {1.0, 1.0})
+    DGS:dgsSetProperty(playerLabel, "color", tocolor(102, 204, 255, 255))
+    DGS:dgsSetProperty(playerLabel, "alignment", {"center", "top"})
+
+    activeEffectUI = {
+        container = container,
+        powerLabel = powerLabel,
+        progress = progress,
+        playerLabel = playerLabel
+    }
 end
 
 local function updateCard(index, powerupId, isLocked)
@@ -162,60 +194,33 @@ local function updateQueueUI()
     end
 end
 
-local function createActiveEffectUI(id, effect)
-    local index = 0
-    for _ in pairs(activeEffectElements) do index = index + 1 end
-    
-    local y = index * 50
-    local container = DGS:dgsCreateImage(0, y, 250, 45, nil, false, activeEffectsContainer)
-    DGS:dgsSetProperty(container, "color", tocolor(0, 0, 0, 0))
-
-    local label = DGS:dgsCreateLabel(0, 0, 250, 20, effect.name .. " (" .. effect.playerName .. ")", false, container)
-    DGS:dgsSetProperty(label, "font", "default-bold")
-
-    local progress = DGS:dgsCreateProgressBar(0, 20, 250, 20, false, container)
-    DGS:dgsProgressBarSetStyle(progress, "normal")
-    DGS:dgsSetProperty(progress, "barColor", tocolor(100, 200, 100, 200))
-    DGS:dgsSetProperty(progress, "bgColor", tocolor(0, 0, 0, 150))
-
-    activeEffectElements[id] = {
-        container = container,
-        progress = progress,
-        label = label
-    }
-end
-
 local function updateActiveEffectsUI()
     local currentTime = getTickCount()
-    local count = 0
-    
-    local activeIds = {}
+    local activeEffect = nil
+
+    -- Since only one power is active at a time, we just pick the first valid one
     for id, effect in pairs(activeEffects) do
-        local timeLeft = effect.endTime - currentTime
-        if timeLeft > 0 then
-            if not activeEffectElements[id] then
-                createActiveEffectUI(id, effect)
-            end
-            
-            local progressValue = (timeLeft / effect.duration) * 100
-            DGS:dgsProgressBarSetProgress(activeEffectElements[id].progress, progressValue)
-            
-            DGS:dgsSetPosition(activeEffectElements[id].container, 0, count * 50, false)
-            count = count + 1
-            activeIds[id] = true
+        if effect.endTime > currentTime then
+            activeEffect = effect
+            break
         else
-            if activeEffectElements[id] then
-                DGS:dgsDeleteElement(activeEffectElements[id].container)
-                activeEffectElements[id] = nil
-            end
             activeEffects[id] = nil
         end
     end
 
-    for id, elements in pairs(activeEffectElements) do
-        if not activeIds[id] then
-            DGS:dgsDeleteElement(elements.container)
-            activeEffectElements[id] = nil
+    if activeEffect then
+        if not activeEffectUI then initUI() end
+        
+        DGS:dgsSetVisible(activeEffectUI.container, true)
+        DGS:dgsSetText(activeEffectUI.powerLabel, activeEffect.name)
+        DGS:dgsSetText(activeEffectUI.playerLabel, activeEffect.playerName)
+        
+        local timeLeft = activeEffect.endTime - currentTime
+        local progressValue = (timeLeft / activeEffect.duration) * 100
+        DGS:dgsProgressBarSetProgress(activeEffectUI.progress, progressValue)
+    else
+        if activeEffectUI then
+            DGS:dgsSetVisible(activeEffectUI.container, false)
         end
     end
 end
@@ -232,6 +237,9 @@ addEvent("onTempPowerupActivatedClient", true)
 addEventHandler("onTempPowerupActivatedClient", root, function(playerName, powerupId, name, duration)
     if not duration or duration <= 0 then return end
     
+    -- Only one active effect allowed at a time for UI simplicity as per global lock
+    activeEffects = {} 
+    
     local id = playerName .. "_" .. powerupId .. "_" .. getTickCount()
     activeEffects[id] = {
         playerName = playerName,
@@ -239,6 +247,16 @@ addEventHandler("onTempPowerupActivatedClient", root, function(playerName, power
         duration = duration * 1000,
         endTime = getTickCount() + (duration * 1000)
     }
+end)
+
+-- Event handler for resetting temporary power-ups (e.g. on round restart)
+addEvent("onTempPowerupResetClient", true)
+addEventHandler("onTempPowerupResetClient", root, function()
+    activeEffects = {}
+    if activeEffectUI then
+        DGS:dgsSetVisible(activeEffectUI.container, false)
+    end
+    updateQueueUI()
 end)
 
 local function precacheIcons()

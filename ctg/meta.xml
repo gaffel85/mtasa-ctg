@@ -11,6 +11,8 @@
 	<file src="img/forbidden.png" />
 	<file src="img/helicam.png" />
 	<file src="img/busses.png" />
+	<file src="img/alert.png" />
+	<file src="img/flood.png" />
 
 	<!--<script src="shared/math.lua" />
 	<script src="shared/math.lua" type="client" />-->

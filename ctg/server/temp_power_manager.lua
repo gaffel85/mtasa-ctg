@@ -210,8 +210,9 @@ function useTemporaryPowerup(targetPlayer)
         globalPowerTimer = setTimer(function(id, player, config)
             isGlobalPowerActive = false
             activeEffectsServer[id] = nil
-            if isElement(player) and config.onDeactivated then
-                local vehicle = getPedOccupiedVehicle(player)
+            if config.onDeactivated then
+                -- Call onDeactivated even if player is nil to allow global cleanup
+                local vehicle = isElement(player) and getPedOccupiedVehicle(player) or nil
                 config.onDeactivated(player, vehicle, { name = config.name })
             end
         end, durationValue * 1000, 1, effectId, targetPlayer, powerupConfig)
@@ -230,8 +231,35 @@ addEventHandler("onUseTemporaryPowerupServer", root, function()
     useTemporaryPowerup(client)
 end)
 
+-- Public function: Resets all temporary power-up states (called on round restart)
+function resetTemporaryPowerState()
+    if isTimer(globalPowerTimer) then
+        killTimer(globalPowerTimer)
+        globalPowerTimer = nil
+    end
+    
+    -- Deactivate any active effects properly
+    for id, effect in pairs(activeEffectsServer) do
+        local player = getPlayerFromName(effect.playerName)
+        local powerupConfig = getTemporaryPowerupConfig(effect.powerupId)
+        if powerupConfig and powerupConfig.onDeactivated then
+            -- Call even if player is nil to allow global cleanup
+            local vehicle = isElement(player) and getPedOccupiedVehicle(player) or nil
+            powerupConfig.onDeactivated(player, vehicle, { name = powerupConfig.name })
+        end
+    end
+
+    isGlobalPowerActive = false
+    activeEffectsServer = {}
+    
+    -- Notify all clients to clear their active effects UI
+    triggerClientEvent(root, "onTempPowerupResetClient", root)
+    outputDebugString("Temporary power-up state reset.")
+end
+
 -- Export functions globally
 _G["giveRandomTemporaryPowerup"] = giveRandomTemporaryPowerup
 _G["useTemporaryPowerup"] = useTemporaryPowerup
 _G["getPlayerPowerupQueue"] = function(player) return playerPowerupQueues[player] end
 _G["givePowerToPlayerWithLeastPoints"] = givePowerToPlayerWithLeastPoints
+_G["resetTemporaryPowerState"] = resetTemporaryPowerState

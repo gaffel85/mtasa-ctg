@@ -26,10 +26,7 @@ local cinematicCamera = {
 	end,
 	onDeactivated = function(player, vehicle, state)
 		for i, otherPlayer in ipairs(getElementsByType("player")) do
-            -- if the player is in a vehicle
-            --if otherPlayer ~= player then
         	triggerClientEvent(otherPlayer, "resetCameraAngle", otherPlayer)
-            --end
         end
 	end	
 }
