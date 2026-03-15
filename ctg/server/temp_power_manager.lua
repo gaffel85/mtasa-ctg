@@ -3,6 +3,7 @@
 
 local playerPowerupQueues = {} -- Stores power-up queues for each player (key = player element, value = {powerupId1, powerupId2})
 local MAX_QUEUE_SIZE = 2
+local WARNING_DURATION = 3 -- Seconds of warning before activation
 
 local isGlobalPowerActive = false
 local globalPowerTimer = nil
@@ -175,50 +176,75 @@ function useTemporaryPowerup(targetPlayer)
         return false, "Unknown power-up ID"
     end
 
-    if powerupConfig.onActivated and type(powerupConfig.onActivated) == "function" then
-        local vehicle = getPedOccupiedVehicle(targetPlayer)
-        if vehicle then
-            powerupConfig.onActivated(targetPlayer, vehicle, { name = powerupConfig.name or "Temporary Power"})
-            outputDebugString("Player " .. getPlayerName(targetPlayer) .. " used temporary power-up: " .. powerupIdToUse)
-        end
-    elseif powerupConfig.serverEffectFunctionName and _G[powerupConfig.serverEffectFunctionName] then
-        _G[powerupConfig.serverEffectFunctionName](targetPlayer)
-        outputDebugString("Player " .. getPlayerName(targetPlayer) .. " used temporary power-up: " .. powerupIdToUse)
-    else
-        outputDebugString("Temporary power-up " .. powerupIdToUse .. " has no valid effect function.")
+    -- Lock the global power state and start the warning phase
+    isGlobalPowerActive = true
+    outputServerLog("[TEMP POWER] Starting 3s warning for " .. powerupIdToUse .. " by " .. getPlayerName(targetPlayer))
+
+    -- Notify opponents and user about the upcoming power
+    local opponents = getOpponents(targetPlayer)
+    if opponents and #opponents > 0 then
+        triggerClientEvent(opponents, "onTempPowerupWarningClient", targetPlayer, powerupIdToUse, powerupConfig.name, WARNING_DURATION)
     end
+    triggerClientEvent(targetPlayer, "onTempPowerupWarningClient", targetPlayer, powerupIdToUse, powerupConfig.name, WARNING_DURATION)
 
-    -- Broadcast activation to all clients for progress bars/notifications and global locking
-    local durationValue = powerupConfig.duration
-    if type(durationValue) == "function" then
-        durationValue = durationValue()
-    end
-
-    if durationValue and durationValue > 0 then
-        isGlobalPowerActive = true
-        
-        local effectId = getPlayerName(targetPlayer) .. "_" .. powerupIdToUse .. "_" .. getTickCount()
-        activeEffectsServer[effectId] = {
-            playerName = getPlayerName(targetPlayer),
-            powerupId = powerupIdToUse,
-            name = powerupConfig.name,
-            duration = durationValue * 1000,
-            endTime = getTickCount() + (durationValue * 1000)
-        }
-
-        if isTimer(globalPowerTimer) then killTimer(globalPowerTimer) end
-        globalPowerTimer = setTimer(function(id, player, config)
+    -- Set timer for the actual activation
+    globalPowerTimer = setTimer(function(player, pId, config)
+        if not isElement(player) then
             isGlobalPowerActive = false
-            activeEffectsServer[id] = nil
-            if config.onDeactivated then
-                -- Call onDeactivated even if player is nil to allow global cleanup
-                local vehicle = isElement(player) and getPedOccupiedVehicle(player) or nil
-                config.onDeactivated(player, vehicle, { name = config.name })
+            return
+        end
+
+        outputServerLog("[TEMP POWER] Activation delay finished for " .. pId .. " by " .. getPlayerName(player))
+
+        -- Execute activation
+        if config.onActivated and type(config.onActivated) == "function" then
+            local vehicle = getPedOccupiedVehicle(player)
+            if vehicle then
+                config.onActivated(player, vehicle, { name = config.name or "Temporary Power"})
+                outputDebugString("Player " .. getPlayerName(player) .. " used temporary power-up: " .. pId)
             end
-        end, durationValue * 1000, 1, effectId, targetPlayer, powerupConfig)
-        
-        triggerClientEvent(root, "onTempPowerupActivatedClient", root, getPlayerName(targetPlayer), powerupIdToUse, powerupConfig.name, durationValue)
-    end
+        elseif config.serverEffectFunctionName and _G[config.serverEffectFunctionName] then
+            _G[config.serverEffectFunctionName](player)
+            outputDebugString("Player " .. getPlayerName(player) .. " used temporary power-up: " .. pId)
+        else
+            outputDebugString("Temporary power-up " .. pId .. " has no valid effect function.")
+        end
+
+        -- Broadcast activation to all clients for progress bars/notifications and global locking
+        local durationValue = config.duration
+        if type(durationValue) == "function" then
+            durationValue = durationValue()
+        end
+
+        if durationValue and durationValue > 0 then
+            local effectId = getPlayerName(player) .. "_" .. pId .. "_" .. getTickCount()
+            outputServerLog("[TEMP POWER] Activating " .. pId .. " for " .. getPlayerName(player) .. " (Duration: " .. durationValue .. "s)")
+            
+            activeEffectsServer[effectId] = {
+                playerName = getPlayerName(player),
+                powerupId = pId,
+                name = config.name,
+                duration = durationValue * 1000,
+                endTime = getTickCount() + (durationValue * 1000)
+            }
+
+            globalPowerTimer = setTimer(function(id, p, cfg, pid)
+                outputServerLog("[TEMP POWER] Timer expired for " .. pid .. " (Player: " .. (isElement(p) and getPlayerName(p) or "Left") .. ")")
+                isGlobalPowerActive = false
+                activeEffectsServer[id] = nil
+                if cfg.onDeactivated then
+                    outputServerLog("[TEMP POWER] Calling onDeactivated for " .. pid)
+                    -- Call onDeactivated even if player is nil to allow global cleanup
+                    local v = isElement(p) and getPedOccupiedVehicle(p) or nil
+                    cfg.onDeactivated(p, v, { name = cfg.name })
+                end
+            end, durationValue * 1000, 1, effectId, player, config, pId)
+            
+            triggerClientEvent(root, "onTempPowerupActivatedClient", root, getPlayerName(player), pId, config.name, durationValue)
+        else
+            isGlobalPowerActive = false
+        end
+    end, WARNING_DURATION * 1000, 1, targetPlayer, powerupIdToUse, powerupConfig)
 
     -- Notify client about the updated queue
     triggerClientEvent(targetPlayer, "onTempPowerupQueueUpdateClient", targetPlayer, playerQueue)

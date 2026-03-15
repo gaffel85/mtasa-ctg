@@ -12,6 +12,7 @@ local CARD_SPACING = 20
 
 local playerPowerupQueue = {} -- The client's current temporary power-up queue
 local activeEffects = {} -- Stores active temporary power-up effects for progress bars
+local warningEffect = nil -- { playerName, name, endTime, duration }
 local textureCache = {} -- Cache for power-up icons
 local lastQueueIds = {nil, nil} -- Keep track of last displayed IDs to avoid redundant updates
 local lastLockState = false
@@ -19,6 +20,7 @@ local lastLockState = false
 -- DGS Elements
 local cardElements = {} -- { [1] = elements, [2] = elements }
 local activeEffectUI = nil -- Single UI element set for the active power
+local warningUI = nil -- { container, icon, label }
 
 local function getIconTexture(path)
     if not path then return nil end
@@ -128,6 +130,30 @@ local function initUI()
         progress = progress,
         playerLabel = playerLabel
     }
+
+    -- Warning UI
+    local warnWidth = 300
+    local warnIconSize = 64
+    local warnLabelHeight = 40
+    local warnTotalHeight = warnIconSize + warnLabelHeight + 10
+    
+    local warnContainer = DGS:dgsCreateImage(20, containerY - warnTotalHeight - 20, warnWidth, warnTotalHeight, nil, false)
+    DGS:dgsSetProperty(warnContainer, "color", tocolor(0, 0, 0, 0))
+    DGS:dgsSetVisible(warnContainer, false)
+
+    local warnIcon = DGS:dgsCreateImage((warnWidth - warnIconSize) / 2, 0, warnIconSize, warnIconSize, "img/alert.png", false, warnContainer)
+    
+    local warnLabel = DGS:dgsCreateLabel(0, warnIconSize + 10, warnWidth, warnLabelHeight, "", false, warnContainer)
+    DGS:dgsSetProperty(warnLabel, "font", "default-bold")
+    DGS:dgsSetProperty(warnLabel, "textSize", {1.5, 1.5})
+    DGS:dgsSetProperty(warnLabel, "alignment", {"center", "top"})
+    DGS:dgsSetProperty(warnLabel, "color", tocolor(255, 50, 50, 255))
+
+    warningUI = {
+        container = warnContainer,
+        icon = warnIcon,
+        label = warnLabel
+    }
 end
 
 local function updateCard(index, powerupId, isLocked)
@@ -196,8 +222,28 @@ end
 
 local function updateActiveEffectsUI()
     local currentTime = getTickCount()
-    local activeEffect = nil
+    
+    -- Handle Warning UI
+    if warningEffect then
+        if warningEffect.endTime > currentTime then
+            if not warningUI then initUI() end
+            DGS:dgsSetVisible(warningUI.container, true)
+            
+            local timeLeft = math.ceil((warningEffect.endTime - currentTime) / 1000)
+            DGS:dgsSetText(warningUI.label, "WARNING: " .. warningEffect.name .. " in " .. timeLeft .. "s")
+            
+            -- Flash icon
+            local alpha = (math.sin(currentTime / 150) + 1) / 2
+            DGS:dgsSetAlpha(warningUI.icon, 0.2 + (alpha * 0.8))
+        else
+            warningEffect = nil
+            if warningUI then DGS:dgsSetVisible(warningUI.container, false) end
+        end
+    elseif warningUI then
+        DGS:dgsSetVisible(warningUI.container, false)
+    end
 
+    local activeEffect = nil
     -- Since only one power is active at a time, we just pick the first valid one
     for id, effect in pairs(activeEffects) do
         if effect.endTime > currentTime then
@@ -232,11 +278,27 @@ addEventHandler("onTempPowerupQueueUpdateClient", root, function(newQueue)
     updateQueueUI()
 end)
 
+-- Event handler for warning notifications
+addEvent("onTempPowerupWarningClient", true)
+addEventHandler("onTempPowerupWarningClient", root, function(targetPlayer, powerupId, name, duration)
+    local playerName = isElement(targetPlayer) and getPlayerName(targetPlayer) or "Unknown"
+    warningEffect = {
+        playerName = playerName,
+        name = name,
+        endTime = getTickCount() + (duration * 1000),
+        duration = duration * 1000
+    }
+end)
+
 -- Event handler for active power-up notifications
 addEvent("onTempPowerupActivatedClient", true)
 addEventHandler("onTempPowerupActivatedClient", root, function(playerName, powerupId, name, duration)
     if not duration or duration <= 0 then return end
     
+    -- Clear warning when effect starts
+    warningEffect = nil
+    if warningUI then DGS:dgsSetVisible(warningUI.container, false) end
+
     -- Only one active effect allowed at a time for UI simplicity as per global lock
     activeEffects = {} 
     
@@ -253,8 +315,12 @@ end)
 addEvent("onTempPowerupResetClient", true)
 addEventHandler("onTempPowerupResetClient", root, function()
     activeEffects = {}
+    warningEffect = nil
     if activeEffectUI then
         DGS:dgsSetVisible(activeEffectUI.container, false)
+    end
+    if warningUI then
+        DGS:dgsSetVisible(warningUI.container, false)
     end
     updateQueueUI()
 end)

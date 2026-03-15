@@ -16,6 +16,7 @@ local cinematicCamera = {
 	onDisable = function(player)
 	end,
 	onActivated = function(player, vehicle, state)
+        outputServerLog("[CAMERA POWER] onActivated for " .. (isElement(player) and getPlayerName(player) or "Unknown"))
 		notifyPowerActivated(player, state.name)
         for i, otherPlayer in ipairs(getElementsByType("player")) do
             -- if the player is in a vehicle
@@ -25,6 +26,7 @@ local cinematicCamera = {
         end
 	end,
 	onDeactivated = function(player, vehicle, state)
+        outputServerLog("[CAMERA POWER] onDeactivated")
 		for i, otherPlayer in ipairs(getElementsByType("player")) do
         	triggerClientEvent(otherPlayer, "resetCameraAngle", otherPlayer)
         end
