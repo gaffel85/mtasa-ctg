@@ -32,12 +32,17 @@ end
 function getTemporaryPowerupsMetadata()
     local metadata = {}
     for id, config in pairs(TemporaryPowerups) do
+        local durationVal = config.duration
+        if type(durationVal) == "function" then
+            durationVal = durationVal()
+        end
+        
         metadata[id] = {
             id = id,
             name = config.name,
-            description = config.desc,
+            description = config.desc or config.description,
             iconPath = config.iconPath,
-            duration = config.duration -- Include duration in metadata
+            duration = durationVal -- Include evaluated duration in metadata
         }
     end
     return metadata

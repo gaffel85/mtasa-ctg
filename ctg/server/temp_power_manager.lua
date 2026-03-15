@@ -178,7 +178,7 @@ function useTemporaryPowerup(targetPlayer)
     if powerupConfig.onActivated and type(powerupConfig.onActivated) == "function" then
         local vehicle = getPedOccupiedVehicle(targetPlayer)
         if vehicle then
-            powerupConfig.onActivated(targetPlayer, vehicle, { name = "Temporary Power"})
+            powerupConfig.onActivated(targetPlayer, vehicle, { name = powerupConfig.name or "Temporary Power"})
             outputDebugString("Player " .. getPlayerName(targetPlayer) .. " used temporary power-up: " .. powerupIdToUse)
         end
     elseif powerupConfig.serverEffectFunctionName and _G[powerupConfig.serverEffectFunctionName] then
@@ -189,7 +189,12 @@ function useTemporaryPowerup(targetPlayer)
     end
 
     -- Broadcast activation to all clients for progress bars/notifications and global locking
-    if powerupConfig.duration and powerupConfig.duration() > 0 then
+    local durationValue = powerupConfig.duration
+    if type(durationValue) == "function" then
+        durationValue = durationValue()
+    end
+
+    if durationValue and durationValue > 0 then
         isGlobalPowerActive = true
         
         local effectId = getPlayerName(targetPlayer) .. "_" .. powerupIdToUse .. "_" .. getTickCount()
@@ -197,17 +202,21 @@ function useTemporaryPowerup(targetPlayer)
             playerName = getPlayerName(targetPlayer),
             powerupId = powerupIdToUse,
             name = powerupConfig.name,
-            duration = powerupConfig.duration() * 1000,
-            endTime = getTickCount() + (powerupConfig.duration() * 1000)
+            duration = durationValue * 1000,
+            endTime = getTickCount() + (durationValue * 1000)
         }
 
         if isTimer(globalPowerTimer) then killTimer(globalPowerTimer) end
-        globalPowerTimer = setTimer(function(id)
+        globalPowerTimer = setTimer(function(id, player, config)
             isGlobalPowerActive = false
             activeEffectsServer[id] = nil
-        end, powerupConfig.duration() * 1000, 1, effectId)
+            if isElement(player) and config.onDeactivated then
+                local vehicle = getPedOccupiedVehicle(player)
+                config.onDeactivated(player, vehicle, { name = config.name })
+            end
+        end, durationValue * 1000, 1, effectId, targetPlayer, powerupConfig)
         
-        triggerClientEvent(root, "onTempPowerupActivatedClient", root, getPlayerName(targetPlayer), powerupIdToUse, powerupConfig.name, powerupConfig.duration)
+        triggerClientEvent(root, "onTempPowerupActivatedClient", root, getPlayerName(targetPlayer), powerupIdToUse, powerupConfig.name, durationValue)
     end
 
     -- Notify client about the updated queue
