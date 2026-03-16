@@ -112,6 +112,8 @@ local function initUI()
     DGS:dgsSetProperty(powerLabel, "textSize", {2.5, 2.5})
     DGS:dgsSetProperty(powerLabel, "wordBreak", true)
     DGS:dgsSetProperty(powerLabel, "alignment", {"center", "bottom"})
+    DGS:dgsSetProperty(powerLabel, "shadow", {2, 2, tocolor(0, 0, 0, 255), true})
+    DGS:dgsSetProperty(powerLabel, "outline", {"out", 1, tocolor(0, 0, 0, 255)})
 
     local progress = DGS:dgsCreateProgressBar(0, powerLabelHeight + spacing, width, progressHeight, false, container)
     DGS:dgsProgressBarSetStyle(progress, "normal")
@@ -123,6 +125,7 @@ local function initUI()
     DGS:dgsSetProperty(playerLabel, "textSize", {1.0, 1.0})
     DGS:dgsSetProperty(playerLabel, "color", tocolor(102, 204, 255, 255))
     DGS:dgsSetProperty(playerLabel, "alignment", {"center", "top"})
+    DGS:dgsSetProperty(playerLabel, "shadow", {1, 1, tocolor(0, 0, 0, 255), true})
 
     activeEffectUI = {
         container = container,
@@ -132,12 +135,13 @@ local function initUI()
     }
 
     -- Warning UI
-    local warnWidth = 300
-    local warnIconSize = 64
-    local warnLabelHeight = 40
+    local warnWidth = 400
+    local warnIconSize = 128 -- Doubled from 64
+    local warnLabelHeight = 50
     local warnTotalHeight = warnIconSize + warnLabelHeight + 10
     
-    local warnContainer = DGS:dgsCreateImage(20, containerY - warnTotalHeight - 20, warnWidth, warnTotalHeight, nil, false)
+    -- Moved down by reducing the offset from containerY
+    local warnContainer = DGS:dgsCreateImage(20, containerY - warnTotalHeight + 40, warnWidth, warnTotalHeight, nil, false)
     DGS:dgsSetProperty(warnContainer, "color", tocolor(0, 0, 0, 0))
     DGS:dgsSetVisible(warnContainer, false)
 
@@ -145,9 +149,11 @@ local function initUI()
     
     local warnLabel = DGS:dgsCreateLabel(0, warnIconSize + 10, warnWidth, warnLabelHeight, "", false, warnContainer)
     DGS:dgsSetProperty(warnLabel, "font", "default-bold")
-    DGS:dgsSetProperty(warnLabel, "textSize", {1.5, 1.5})
+    DGS:dgsSetProperty(warnLabel, "textSize", {1.8, 1.8})
     DGS:dgsSetProperty(warnLabel, "alignment", {"center", "top"})
     DGS:dgsSetProperty(warnLabel, "color", tocolor(255, 50, 50, 255))
+    DGS:dgsSetProperty(warnLabel, "shadow", {2, 2, tocolor(0, 0, 0, 255), true})
+    DGS:dgsSetProperty(warnLabel, "outline", {"out", 1, tocolor(0, 0, 0, 255)})
 
     warningUI = {
         container = warnContainer,
