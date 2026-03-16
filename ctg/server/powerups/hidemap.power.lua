@@ -26,3 +26,7 @@ local hideMapPower = {
         end
 	end	
 }
+
+if registerTemporaryPower then
+    registerTemporaryPower(hideMapPower.key, hideMapPower)
+end

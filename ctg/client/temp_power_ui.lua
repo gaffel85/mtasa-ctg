@@ -206,7 +206,7 @@ end
 local function updateQueueUI()
     if #cardElements == 0 then initUI() end
     
-    local isAnyPowerActive = next(activeEffects) ~= nil
+    local isAnyPowerActive = next(activeEffects) ~= nil or warningEffect ~= nil
     
     if playerPowerupQueue[1] ~= lastQueueIds[1] or isAnyPowerActive ~= lastLockState then
         updateCard(1, playerPowerupQueue[1], isAnyPowerActive)
@@ -280,7 +280,8 @@ end)
 
 -- Event handler for warning notifications
 addEvent("onTempPowerupWarningClient", true)
-addEventHandler("onTempPowerupWarningClient", root, function(targetPlayer, powerupId, name, duration)
+addEventHandler("onTempPowerupWarningClient", root, function(powerupId, name, duration)
+    local targetPlayer = source
     local playerName = isElement(targetPlayer) and getPlayerName(targetPlayer) or "Unknown"
     warningEffect = {
         playerName = playerName,

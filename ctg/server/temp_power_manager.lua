@@ -180,17 +180,20 @@ function useTemporaryPowerup(targetPlayer)
     isGlobalPowerActive = true
     outputServerLog("[TEMP POWER] Starting 3s warning for " .. powerupIdToUse .. " by " .. getPlayerName(targetPlayer))
 
-    -- Notify opponents and user about the upcoming power
-    local opponents = getOpponents(targetPlayer)
-    if opponents and #opponents > 0 then
-        triggerClientEvent(opponents, "onTempPowerupWarningClient", targetPlayer, powerupIdToUse, powerupConfig.name, WARNING_DURATION)
-    end
-    triggerClientEvent(targetPlayer, "onTempPowerupWarningClient", targetPlayer, powerupIdToUse, powerupConfig.name, WARNING_DURATION)
+    -- Notify all players about the upcoming power
+    triggerClientEvent(root, "onTempPowerupWarningClient", targetPlayer, powerupIdToUse, powerupConfig.name, WARNING_DURATION)
 
     -- Set timer for the actual activation
-    globalPowerTimer = setTimer(function(player, pId, config)
+    globalPowerTimer = setTimer(function(player, pId)
         if not isElement(player) then
             isGlobalPowerActive = false
+            return
+        end
+
+        local config = getTemporaryPowerupConfig(pId)
+        if not config then
+            isGlobalPowerActive = false
+            outputDebugString("Temporary power-up " .. pId .. " config lost during activation delay.")
             return
         end
 
@@ -228,23 +231,25 @@ function useTemporaryPowerup(targetPlayer)
                 endTime = getTickCount() + (durationValue * 1000)
             }
 
-            globalPowerTimer = setTimer(function(id, p, cfg, pid)
+            globalPowerTimer = setTimer(function(id, p, pid)
                 outputServerLog("[TEMP POWER] Timer expired for " .. pid .. " (Player: " .. (isElement(p) and getPlayerName(p) or "Left") .. ")")
+                
+                local cfg = getTemporaryPowerupConfig(pid)
                 isGlobalPowerActive = false
                 activeEffectsServer[id] = nil
-                if cfg.onDeactivated then
+                if cfg and cfg.onDeactivated then
                     outputServerLog("[TEMP POWER] Calling onDeactivated for " .. pid)
                     -- Call onDeactivated even if player is nil to allow global cleanup
                     local v = isElement(p) and getPedOccupiedVehicle(p) or nil
                     cfg.onDeactivated(p, v, { name = cfg.name })
                 end
-            end, durationValue * 1000, 1, effectId, player, config, pId)
+            end, durationValue * 1000, 1, effectId, player, pId)
             
             triggerClientEvent(root, "onTempPowerupActivatedClient", root, getPlayerName(player), pId, config.name, durationValue)
         else
             isGlobalPowerActive = false
         end
-    end, WARNING_DURATION * 1000, 1, targetPlayer, powerupIdToUse, powerupConfig)
+    end, WARNING_DURATION * 1000, 1, targetPlayer, powerupIdToUse)
 
     -- Notify client about the updated queue
     triggerClientEvent(targetPlayer, "onTempPowerupQueueUpdateClient", targetPlayer, playerQueue)

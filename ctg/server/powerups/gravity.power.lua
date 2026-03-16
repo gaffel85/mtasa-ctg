@@ -20,3 +20,7 @@ local worldGravityPower = {
 		setGravity(0.008)
 	end	
 }
+
+if registerTemporaryPower then
+    registerTemporaryPower(worldGravityPower.key, worldGravityPower)
+end
