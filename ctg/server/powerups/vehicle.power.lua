@@ -49,7 +49,7 @@ local bussesForEveryone = {
             -- get the vehicle of the player
             local otherVehicle = getPedOccupiedVehicle(otherPlayer)
             -- if the player is in a vehicle
-            if otherVehicle then -- and otherPlayer ~= player then
+            if otherVehicle and otherPlayer ~= player then
                 preventChangeFor(otherPlayer)
 		        setVehicleForPlayer(otherPlayer, 431, "Power activated: Bustrip by " .. (isElement(player) and getPlayerName(player) or "Unknown"))
             end
@@ -61,7 +61,7 @@ local bussesForEveryone = {
             -- get the vehicle of the player
             local otherVehicle = getPedOccupiedVehicle(otherPlayer)
             -- if the player is in a vehicle
-            if otherVehicle then -- and otherPlayer ~= player then
+            if otherVehicle and otherPlayer ~= player then
                 unpreventChangeFor(otherPlayer)
 		        setVehicleForPlayer(otherPlayer, getCurrentVehicle(), "Power deactivated: Bustrip")
             end

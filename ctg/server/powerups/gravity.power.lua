@@ -22,5 +22,5 @@ local worldGravityPower = {
 }
 
 if registerTemporaryPower then
-    registerTemporaryPower(worldGravityPower.key, worldGravityPower)
+    -- registerTemporaryPower(worldGravityPower.key, worldGravityPower)
 end
