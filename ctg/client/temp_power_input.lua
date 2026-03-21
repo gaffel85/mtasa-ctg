@@ -9,11 +9,11 @@ addEventHandler("onClientResourceStart", resourceRoot, function()
         -- Trigger a server event to request using the power-up
         triggerServerEvent("onUseTemporaryPowerupServer", localPlayer)
     end)
+    
     outputChatBox("Temporary power-up activation bound to key: " .. KEY_BINDING, 0, 255, 0)
 end)
 
--- Unbind the key when the client resource stops
+-- Unbind the keys when the client resource stops
 addEventHandler("onClientResourceStop", resourceRoot, function()
     unbindKey(KEY_BINDING, "down")
-    outputChatBox("Temporary power-up activation unbound.", 255, 0, 0)
 end)

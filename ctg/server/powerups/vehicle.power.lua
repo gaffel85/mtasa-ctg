@@ -18,8 +18,10 @@ local helicopterPowerup = {
 		setVehicleForPlayer(player, 488, "Power activated: Helicopter")
 	end,
 	onDeactivated = function(player, vehicle, state)
-		unpreventChangeFor(player)
-		setVehicleForPlayer(player, getCurrentVehicle(), "Power deactivated: Helicopter")
+		if isElement(player) then
+			unpreventChangeFor(player)
+			setVehicleForPlayer(player, getCurrentVehicle(), "Power deactivated: Helicopter")
+		end
 	end	
 }
 
@@ -27,6 +29,7 @@ local bussesForEveryone = {
 	key = "busses",
 	name = "Bustrip",
     desc = "Changes all vehicles to busses for a short period of time.",
+	iconPath = "img/busses.png",
 	cooldown = function() return getPowerConst().busses.cooldown end,
 	duration = function() return getPowerConst().busses.duration end,
 	initCooldown = function() return getPowerConst().busses.initCooldown end,
@@ -46,9 +49,9 @@ local bussesForEveryone = {
             -- get the vehicle of the player
             local otherVehicle = getPedOccupiedVehicle(otherPlayer)
             -- if the player is in a vehicle
-            if otherVehicle then -- and otherPlayer ~= player then
+            if otherVehicle and otherPlayer ~= player then
                 preventChangeFor(otherPlayer)
-		        setVehicleForPlayer(otherPlayer, 431, "Power activated: Bustrip by " .. getPlayerName(player))
+		        setVehicleForPlayer(otherPlayer, 431, "Power activated: Bustrip by " .. (isElement(player) and getPlayerName(player) or "Unknown"))
             end
         end
 	end,
@@ -58,7 +61,7 @@ local bussesForEveryone = {
             -- get the vehicle of the player
             local otherVehicle = getPedOccupiedVehicle(otherPlayer)
             -- if the player is in a vehicle
-            if otherVehicle then -- and otherPlayer ~= player then
+            if otherVehicle and otherPlayer ~= player then
                 unpreventChangeFor(otherPlayer)
 		        setVehicleForPlayer(otherPlayer, getCurrentVehicle(), "Power deactivated: Bustrip")
             end
@@ -67,21 +70,5 @@ local bussesForEveryone = {
 }
 
 if registerTemporaryPower then
-    registerTemporaryPower("bus_transform", {
-        name = bussesForEveryone.name,
-        description = bussesForEveryone.desc,
-        iconPath = "img/bus_icon.png",
-        onActivate = function(player)
-            local vehicle = getPedOccupiedVehicle(player)
-            bussesForEveryone.onActivated(player, vehicle, {name = bussesForEveryone.name})
-            
-            -- Set a timer to deactivate it
-            local duration = bussesForEveryone.duration()
-            setTimer(function()
-                if isElement(player) then
-                    bussesForEveryone.onDeactivated(player, getPedOccupiedVehicle(player), {})
-                end
-            end, duration * 1000, 1)
-        end
-    })
+    registerTemporaryPower("bus_transform", bussesForEveryone)
 end

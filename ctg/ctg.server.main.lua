@@ -294,6 +294,9 @@ end
 function resetRoundVars()
     clearGoldCarrier()
     resetPowerStatesForAllPlayers()
+    if resetTemporaryPowerState then
+        resetTemporaryPowerState()
+    end
 end
 
 function resetGame()

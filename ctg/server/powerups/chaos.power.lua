@@ -2,6 +2,7 @@ local trafficChaos = {
 	key = "chaos",
 	name = "Traffic chaos",
 	desc = "Randomly changes your opponent's vehicle every 2 seconds.",
+	iconPath = "img/chaos_icon.png",
 	cooldown = function() return getPowerConst().chaos.cooldown end,
 	duration = function() return getPowerConst().chaos.duration end,
 	initCooldown = function() return getPowerConst().chaos.initCooldown end,

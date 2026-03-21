@@ -2,8 +2,12 @@
 -- Server-side module for managing temporary, consumable power-ups for players.
 
 local playerPowerupQueues = {} -- Stores power-up queues for each player (key = player element, value = {powerupId1, powerupId2})
-local playerTestTimers = {} -- Stores test timers for each player
 local MAX_QUEUE_SIZE = 2
+local WARNING_DURATION = 3 -- Seconds of warning before activation
+
+local isGlobalPowerActive = false
+local globalPowerTimer = nil
+local activeEffectsServer = {} -- { [id] = {playerName, powerupId, name, duration, endTime} }
 
 -- Function to get a random power-up ID from the config
 local function getRandomPowerupId()
@@ -15,46 +19,57 @@ local function getRandomPowerupId()
     return allPowerupIds[randomIndex]
 end
 
+-- Helper to sync power-up metadata and current queue to a player
+local function syncPlayerPowerups(player)
+    if not isElement(player) or getElementType(player) ~= "player" then return end
+    
+    -- Send all registered temporary powerup metadata to client
+    triggerClientEvent(player, "onSyncTemporaryPowerupsMetadata", player, getTemporaryPowerupsMetadata())
+    
+    -- Send any currently active effects to the joining player
+    local currentTime = getTickCount()
+    for id, effect in pairs(activeEffectsServer) do
+        local timeLeft = effect.endTime - currentTime
+        if timeLeft > 0 then
+            triggerClientEvent(player, "onTempPowerupActivatedClient", player, effect.playerName, effect.powerupId, effect.name, timeLeft / 1000)
+        else
+            activeEffectsServer[id] = nil
+        end
+    end
+
+    -- Send the current queue to the client
+    local playerQueue = playerPowerupQueues[player] or {}
+    triggerClientEvent(player, "onTempPowerupQueueUpdateClient", player, playerQueue)
+end
+
 -- Initializes a player's power-up queue when they join
 addEventHandler("onPlayerJoin", root, function()
     playerPowerupQueues[source] = {}
-    -- Send all registered temporary powerup metadata to client
-    triggerClientEvent(source, "onSyncTemporaryPowerupsMetadata", source, getTemporaryPowerupsMetadata())
-    -- Optionally send an initial empty queue update to client
-    triggerClientEvent(source, "onTempPowerupQueueUpdateClient", source, {})
-
-    -- DEBUG/TEST: Automatically give a power-up every 10 seconds
-    if isTimer(playerTestTimers[source]) then killTimer(playerTestTimers[source]) end
-    playerTestTimers[source] = setTimer(function(p)
-        if isElement(p) then
-            giveRandomTemporaryPowerup(p)
-        end
-    end, 10000, 0, source)
+    -- Note: Sync will happen in onPlayerResourceStart when client is ready
 end)
 
 -- Cleans up a player's power-up queue when they quit
 addEventHandler("onPlayerQuit", root, function()
     playerPowerupQueues[source] = nil
-    if isTimer(playerTestTimers[source]) then
-        killTimer(playerTestTimers[source])
-    end
-    playerTestTimers[source] = nil
 end)
 
--- DEBUG/TEST: Handle players already on the server when resource starts
+-- Sync when the client resource is started (handles resource restarts and joins)
+addEventHandler("onPlayerResourceStart", root, function(startedResource)
+    if startedResource == resource then
+        -- source is the player who just started the resource
+        if not playerPowerupQueues[source] then
+            playerPowerupQueues[source] = {}
+        end
+        syncPlayerPowerups(source)
+    end
+end)
+
+-- Handle existing players when the resource starts
 addEventHandler("onResourceStart", resourceRoot, function()
     for _, player in ipairs(getElementsByType("player")) do
         if not playerPowerupQueues[player] then
             playerPowerupQueues[player] = {}
         end
-        triggerClientEvent(player, "onSyncTemporaryPowerupsMetadata", player, getTemporaryPowerupsMetadata())
-        
-        if isTimer(playerTestTimers[player]) then killTimer(playerTestTimers[player]) end
-        playerTestTimers[player] = setTimer(function(p)
-            if isElement(p) then
-                giveRandomTemporaryPowerup(p)
-            end
-        end, 10000, 0, player)
     end
 end)
 
@@ -89,10 +104,61 @@ function giveRandomTemporaryPowerup(targetPlayer)
     return true
 end
 
+-- Function to find the player with the least points and give them a power-up
+function givePowerToPlayerWithLeastPoints()
+    local players = getElementsByType("player")
+    if #players == 0 then return end
+
+    local targetPlayer = nil
+    local minScore = math.huge
+
+    for _, player in ipairs(players) do
+        -- Skip players with full queue to find someone else who might need it? 
+        -- Or just pick the absolute lowest even if full? Usually Mario Kart style is to help the ones behind.
+        local score = getPlayerScore(player) or 0
+        if score < minScore then
+            minScore = score
+            targetPlayer = player
+        end
+    end
+
+    if targetPlayer then
+        local success, reason = giveRandomTemporaryPowerup(targetPlayer)
+        if success then
+            outputChatBox("Giving extra power-up to " .. getPlayerName(targetPlayer) .. " (Lowest points: " .. minScore .. ")", root, 0, 255, 0)
+        else
+            -- If the lowest player has a full queue, try to find the next one? 
+            -- For now, let's just log it.
+            outputDebugString("Could not give power to " .. getPlayerName(targetPlayer) .. ": " .. tostring(reason))
+        end
+    end
+end
+
+-- Command handler for admin/trigger
+addCommandHandler("givepower", function(player)
+    -- TODO: Add admin check here if needed
+    outputServerLog("Power-giving command triggered by " .. (isElement(player) and getPlayerName(player) or "System"))
+    givePowerToPlayerWithLeastPoints()
+end)
+
+-- Register server-side bind for P key
+if registerBindFunctions then
+    registerBindFunctions(function(player)
+        bindKey(player, "p", "down", "givepower")
+    end, function(player)
+        unbindKey(player, "p", "down", "givepower")
+    end)
+end
+
 -- Public function: Uses the player's current (first in queue) temporary power-up
 function useTemporaryPowerup(targetPlayer)
     if not isElement(targetPlayer) or getElementType(targetPlayer) ~= "player" then
         return false, "Invalid player"
+    end
+
+    if isGlobalPowerActive then
+        outputDebugString("Player " .. getPlayerName(targetPlayer) .. " tried to use a temporary power-up but another power is already active.")
+        return false, "Another power active"
     end
 
     local playerQueue = playerPowerupQueues[targetPlayer]
@@ -110,15 +176,80 @@ function useTemporaryPowerup(targetPlayer)
         return false, "Unknown power-up ID"
     end
 
-    if powerupConfig.onActivate and type(powerupConfig.onActivate) == "function" then
-        powerupConfig.onActivate(targetPlayer)
-        outputDebugString("Player " .. getPlayerName(targetPlayer) .. " used temporary power-up: " .. powerupIdToUse)
-    elseif powerupConfig.serverEffectFunctionName and _G[powerupConfig.serverEffectFunctionName] then
-        _G[powerupConfig.serverEffectFunctionName](targetPlayer)
-        outputDebugString("Player " .. getPlayerName(targetPlayer) .. " used temporary power-up: " .. powerupIdToUse)
-    else
-        outputDebugString("Temporary power-up " .. powerupIdToUse .. " has no valid effect function.")
-    end
+    -- Lock the global power state and start the warning phase
+    isGlobalPowerActive = true
+    outputServerLog("[TEMP POWER] Starting 3s warning for " .. powerupIdToUse .. " by " .. getPlayerName(targetPlayer))
+
+    -- Notify all players about the upcoming power
+    triggerClientEvent(root, "onTempPowerupWarningClient", targetPlayer, powerupIdToUse, powerupConfig.name, WARNING_DURATION)
+
+    -- Set timer for the actual activation
+    globalPowerTimer = setTimer(function(player, pId)
+        if not isElement(player) then
+            isGlobalPowerActive = false
+            return
+        end
+
+        local config = getTemporaryPowerupConfig(pId)
+        if not config then
+            isGlobalPowerActive = false
+            outputDebugString("Temporary power-up " .. pId .. " config lost during activation delay.")
+            return
+        end
+
+        outputServerLog("[TEMP POWER] Activation delay finished for " .. pId .. " by " .. getPlayerName(player))
+
+        -- Execute activation
+        if config.onActivated and type(config.onActivated) == "function" then
+            local vehicle = getPedOccupiedVehicle(player)
+            if vehicle then
+                config.onActivated(player, vehicle, { name = config.name or "Temporary Power"})
+                outputDebugString("Player " .. getPlayerName(player) .. " used temporary power-up: " .. pId)
+            end
+        elseif config.serverEffectFunctionName and _G[config.serverEffectFunctionName] then
+            _G[config.serverEffectFunctionName](player)
+            outputDebugString("Player " .. getPlayerName(player) .. " used temporary power-up: " .. pId)
+        else
+            outputDebugString("Temporary power-up " .. pId .. " has no valid effect function.")
+        end
+
+        -- Broadcast activation to all clients for progress bars/notifications and global locking
+        local durationValue = config.duration
+        if type(durationValue) == "function" then
+            durationValue = durationValue()
+        end
+
+        if durationValue and durationValue > 0 then
+            local effectId = getPlayerName(player) .. "_" .. pId .. "_" .. getTickCount()
+            outputServerLog("[TEMP POWER] Activating " .. pId .. " for " .. getPlayerName(player) .. " (Duration: " .. durationValue .. "s)")
+            
+            activeEffectsServer[effectId] = {
+                playerName = getPlayerName(player),
+                powerupId = pId,
+                name = config.name,
+                duration = durationValue * 1000,
+                endTime = getTickCount() + (durationValue * 1000)
+            }
+
+            globalPowerTimer = setTimer(function(id, p, pid)
+                outputServerLog("[TEMP POWER] Timer expired for " .. pid .. " (Player: " .. (isElement(p) and getPlayerName(p) or "Left") .. ")")
+                
+                local cfg = getTemporaryPowerupConfig(pid)
+                isGlobalPowerActive = false
+                activeEffectsServer[id] = nil
+                if cfg and cfg.onDeactivated then
+                    outputServerLog("[TEMP POWER] Calling onDeactivated for " .. pid)
+                    -- Call onDeactivated even if player is nil to allow global cleanup
+                    local v = isElement(p) and getPedOccupiedVehicle(p) or nil
+                    cfg.onDeactivated(p, v, { name = cfg.name })
+                end
+            end, durationValue * 1000, 1, effectId, player, pId)
+            
+            triggerClientEvent(root, "onTempPowerupActivatedClient", root, getPlayerName(player), pId, config.name, durationValue)
+        else
+            isGlobalPowerActive = false
+        end
+    end, WARNING_DURATION * 1000, 1, targetPlayer, powerupIdToUse)
 
     -- Notify client about the updated queue
     triggerClientEvent(targetPlayer, "onTempPowerupQueueUpdateClient", targetPlayer, playerQueue)
@@ -131,7 +262,35 @@ addEventHandler("onUseTemporaryPowerupServer", root, function()
     useTemporaryPowerup(client)
 end)
 
+-- Public function: Resets all temporary power-up states (called on round restart)
+function resetTemporaryPowerState()
+    if isTimer(globalPowerTimer) then
+        killTimer(globalPowerTimer)
+        globalPowerTimer = nil
+    end
+    
+    -- Deactivate any active effects properly
+    for id, effect in pairs(activeEffectsServer) do
+        local player = getPlayerFromName(effect.playerName)
+        local powerupConfig = getTemporaryPowerupConfig(effect.powerupId)
+        if powerupConfig and powerupConfig.onDeactivated then
+            -- Call even if player is nil to allow global cleanup
+            local vehicle = isElement(player) and getPedOccupiedVehicle(player) or nil
+            powerupConfig.onDeactivated(player, vehicle, { name = powerupConfig.name })
+        end
+    end
+
+    isGlobalPowerActive = false
+    activeEffectsServer = {}
+    
+    -- Notify all clients to clear their active effects UI
+    triggerClientEvent(root, "onTempPowerupResetClient", root)
+    outputDebugString("Temporary power-up state reset.")
+end
+
 -- Export functions globally
 _G["giveRandomTemporaryPowerup"] = giveRandomTemporaryPowerup
 _G["useTemporaryPowerup"] = useTemporaryPowerup
 _G["getPlayerPowerupQueue"] = function(player) return playerPowerupQueues[player] end
+_G["givePowerToPlayerWithLeastPoints"] = givePowerToPlayerWithLeastPoints
+_G["resetTemporaryPowerState"] = resetTemporaryPowerState
