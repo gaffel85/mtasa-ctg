@@ -200,6 +200,11 @@ function alternativePos(player)
 end
 
 function useCatchUp(player)
+    if getElementData(player, "hasSuperCatchup") then
+        triggerClientEvent(player, "startSuperCatchupSequence", resourceRoot)
+        return
+    end
+
     if isFarEnoughFromLeader(player) then
         useCatchUpForce(player)
     end
