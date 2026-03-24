@@ -15,7 +15,7 @@ local function updatePlayerList()
 end
 
 local function toggleAdminWindow()
-    if getPlayerName(localPlayer) ~= "Gaffel" then return end
+    if getPlayerName(localPlayer) ~= "gaffel" then return end
 
     if adminWindow then
         DGS:dgsCloseWindow(adminWindow)

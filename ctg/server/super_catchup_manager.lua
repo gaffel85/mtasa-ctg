@@ -3,7 +3,7 @@ local storedVelocity = {}
 
 addEvent("onSuperCatchupToggle", true)
 addEventHandler("onSuperCatchupToggle", resourceRoot, function(targetPlayer, status)
-    if getPlayerName(client) ~= "Gaffel" then return end
+    if getPlayerName(client) ~= "gaffel" then return end
     
     if isElement(targetPlayer) then
         superCatchupPlayers[targetPlayer] = status
@@ -15,6 +15,7 @@ end)
 
 addEvent("onSuperCatchupTeleport", true)
 addEventHandler("onSuperCatchupTeleport", resourceRoot, function(x, y, z, rx, ry, rz, vx, vy, vz)
+    outputServerLog("[SCU-TRACE] onSuperCatchupTeleport called for " .. getPlayerName(client) .. " to pos: " .. x .. ", " .. y .. ", " .. z)
     local vehicle = getPedOccupiedVehicle(client)
     if vehicle then
         setElementPosition(vehicle, x, y, z + 1)
@@ -28,23 +29,35 @@ addEventHandler("onSuperCatchupTeleport", resourceRoot, function(x, y, z, rx, ry
         
         -- Ghost mode (1s initial, but safeCheck=true will keep it until clear)
         if type(makePlayerGhost) == "function" then
+            outputServerLog("[SCU-TRACE] Applying ghost mode for " .. getPlayerName(client))
             makePlayerGhost(client, 1, true, false)
+        else
+            outputServerLog("[SCU-TRACE] WARNING: makePlayerGhost function not found!")
         end
+    else
+        outputServerLog("[SCU-TRACE] ERROR: No vehicle found for " .. getPlayerName(client))
     end
 end)
 
 addEvent("onSuperCatchupRelease", true)
 addEventHandler("onSuperCatchupRelease", resourceRoot, function()
+    outputServerLog("[SCU-TRACE] onSuperCatchupRelease called for " .. getPlayerName(client))
     local vehicle = getPedOccupiedVehicle(client)
     if vehicle then
         toggleAllControls(client, true, true, true)
         setVehicleDamageProof(vehicle, false)
         
+        -- Use velocity stored at T=2s (when teleport/spawn happened)
         local vel = storedVelocity[client]
         if vel then
-            setElementVelocity(vehicle, unpack(vel))
+            outputServerLog("[SCU-TRACE] Applying T=2s leader velocity to " .. getPlayerName(client) .. ": " .. vel[1] .. ", " .. vel[2] .. ", " .. vel[3])
+            setElementVelocity(vehicle, vel[1], vel[2], vel[3])
             storedVelocity[client] = nil
+        else
+            outputServerLog("[SCU-TRACE] WARNING: No stored T=2s velocity found for " .. getPlayerName(client))
         end
+    else
+        outputServerLog("[SCU-TRACE] ERROR: No vehicle found for release of " .. getPlayerName(client))
     end
 end)
 
