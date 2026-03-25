@@ -335,26 +335,44 @@ function usePowerUp(player, key, keyState, powerUp)
 
     local calculateMaxDuration = timeForFullResourceBurn(player, powerUp)
 
-	setStateWithTimer(stateEnum.IN_USE, calculateMaxDuration, state, player, powerUp, "In use")
-	triggerClientEvent(player, "resourceInUseFromServer", getRootElement(), powerUp.resourceKey, powerUp.burnRate, powerUp.minBurn)
-	if state.charges and state.charges > 0 then
-		state.charges = state.charges - 1
-	end
-
 	local vehicle = getPedOccupiedVehicle(player)
 	if (vehicle) then
 		local realPowerUp = findPowerWithKey(powerUp.key)
 		if (realPowerUp) then
+			if realPowerUp.onPreActivated and not realPowerUp.onPreActivated(player, vehicle, state) then
+				return
+			end
+			
+			setStateWithTimer(stateEnum.IN_USE, calculateMaxDuration, state, player, powerUp, "In use")
+			triggerClientEvent(player, "resourceInUseFromServer", getRootElement(), powerUp.resourceKey, powerUp.burnRate, powerUp.minBurn)
 			realPowerUp.onActivated(player, vehicle, state)
+		else
+			-- Handle case where realPowerUp is nil if necessary
+			return
 		end
 	else
 		-- outputChatBox("vehicle is nil")
+		return
+	end
+
+	if state.charges and state.charges > 0 then
+		state.charges = state.charges - 1
 	end
 
 	if powerUp.minBurn then
-	addAmount(player, powerUp.resourceKey, -1 * powerUp.minBurn)
+		addAmount(player, powerUp.resourceKey, -1 * powerUp.minBurn)
 	end
 end
+
+addEvent("onJumpGroundTouched", true)
+addEventHandler("onJumpGroundTouched", root, function()
+    local player = client
+    local jumpPower = findPowerWithKey("jump")
+    if jumpPower then
+        local state = getPlayerState(player, jumpPower)
+        state.isJumping = false
+    end
+end)
 
 -- Loops over all active power-ups for a player.
 function loopOverPowersForPlayer(player, callback)

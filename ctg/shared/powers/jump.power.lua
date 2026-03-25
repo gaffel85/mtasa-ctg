@@ -13,11 +13,22 @@ local jumpPushPowerupOld = {
 	end,
 	onDisable = function(player)
 	end,
+	onPreActivated = function(player, vehicle, state)
+		if state.isJumping then
+			return false
+		end
+		if not isVehicleOnGround(vehicle) then
+			return false
+		end
+		return true
+	end,
 	onActivated = function(player, vehicle, state)
+		state.isJumping = true
 		local vx, vy, vz = getElementVelocity(vehicle)
         local velocityVector = { x = vx, y = vy, z = vz }
         local newVelocityVector = { x = vx, y = vy, z = vz + getPowerConst().jump.height }
         setElementVelocity(vehicle, newVelocityVector.x, newVelocityVector.y, newVelocityVector.z)
+		triggerClientEvent(player, "onJumpPerformed", player)
 	end,
 	onDeactivated = function(player, vehicle, state)
 		
@@ -43,11 +54,22 @@ local jumpPushPowerup = {
 	end,
 	onDisable = function(player)
 	end,
+	onPreActivated = function(player, vehicle, state)
+		if state.isJumping then
+			return false
+		end
+		if not isVehicleOnGround(vehicle) then
+			return false
+		end
+		return true
+	end,
 	onActivated = function(player, vehicle, state)
+		state.isJumping = true
 		local vx, vy, vz = getElementVelocity(vehicle)
         local velocityVector = { x = vx, y = vy, z = vz }
         local newVelocityVector = { x = vx, y = vy, z = vz + getPowerConst().jump.height }
         setElementVelocity(vehicle, newVelocityVector.x, newVelocityVector.y, newVelocityVector.z)
+		triggerClientEvent(player, "onJumpPerformed", player)
 	end,
 	onDeactivated = function(player, vehicle, state)
 		
@@ -55,3 +77,28 @@ local jumpPushPowerup = {
 }
 
 addResourcePower(jumpPushPowerup)
+
+if triggerServerEvent then -- Client-side
+    local isMonitoring = false
+    
+    addEvent("onJumpPerformed", true)
+    addEventHandler("onJumpPerformed", localPlayer, function()
+        if isMonitoring then return end
+        isMonitoring = true
+        
+        -- Delay start of monitoring to ensure we have left the ground
+        setTimer(function()
+            local checkGround
+            checkGround = function()
+                local vehicle = getPedOccupiedVehicle(localPlayer)
+                -- If no vehicle or wheel 0 is on ground, jump is available again
+                if not vehicle or isVehicleWheelOnGround(vehicle, 0) then
+                    removeEventHandler("onClientRender", root, checkGround)
+                    triggerServerEvent("onJumpGroundTouched", resourceRoot)
+                    isMonitoring = false
+                end
+            end
+            addEventHandler("onClientRender", root, checkGround)
+        end, 300, 1)
+    end)
+end
