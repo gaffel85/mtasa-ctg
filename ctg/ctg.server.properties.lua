@@ -166,6 +166,14 @@ local props = {
             allowedGoldCarrier = false,
             charges = 1,
             rank = 6,
+        },
+        amphibious = {
+            duration = 15,
+            cooldown = 40,
+            initCooldown = 20,
+            allowedGoldCarrier = false,
+            charges = 1,
+            rank = 6,
         }
     }
 }

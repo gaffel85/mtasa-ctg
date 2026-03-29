@@ -77,6 +77,8 @@
 	<script src="server/powerups/shield.power.lua" />
 	<script src="server/powerups/vehicle.power.lua" />
 	<script src="server/powerups/water.power.lua" />
+	<script src="server/powerups/water.shared.lua" />
+	<script src="server/powerups/amphibious.power.lua" />
 	<script src="shared/powers/nitro.power.lua" />
 	<script src="shared/powers/nitro.power.lua" type="client" />
 	<script src="shared/powers/jump.power.lua" />
