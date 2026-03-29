@@ -70,5 +70,5 @@ local bussesForEveryone = {
 }
 
 if registerTemporaryPower then
-    registerTemporaryPower("bus_transform", bussesForEveryone)
+    --registerTemporaryPower("bus_transform", bussesForEveryone)
 end

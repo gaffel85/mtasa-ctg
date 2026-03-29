@@ -77,6 +77,8 @@
 	<script src="server/powerups/shield.power.lua" />
 	<script src="server/powerups/vehicle.power.lua" />
 	<script src="server/powerups/water.power.lua" />
+	<script src="server/powerups/water.shared.lua" />
+	<script src="server/powerups/amphibious.power.lua" />
 	<script src="shared/powers/nitro.power.lua" />
 	<script src="shared/powers/nitro.power.lua" type="client" />
 	<script src="shared/powers/jump.power.lua" />
@@ -101,6 +103,7 @@
 	<script src="server/score.system.lua" />
 	<script src="server/math.utils.lua" />
 	<script src="server/catch.up.lua" />
+	<script src="server/super_catchup_manager.lua" />
 	<script src="server/cleaner.server.lua" />
 	<script src="server/scoreboard.lua" />
 	<script src="server/power.state.repo.lua" />
@@ -117,6 +120,8 @@
 	<script src="client/energy.filler.lua" type="client" />
 	<script src="client/vehicle.switch.ui.lua" type="client" />
 	<script src="client/catch.up.client.lua" type="client" />
+	<script src="client/super_catchup_admin.lua" type="client" />
+	<script src="client/super_catchup_sequence.lua" type="client" />
 	<script src="client/defense.rays.lua" type="client" />
 
 	<script src="shared/ghost.shared.lua" type="client" />

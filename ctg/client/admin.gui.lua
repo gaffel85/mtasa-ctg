@@ -312,11 +312,11 @@ end
 
 function bindConfigAdminKeys(player)
     -- outputChatBox("bindConfigAdminKeys")
-      bindKey ( "F6", "up", toggleAdminWindow )
+     -- bindKey ( "F6", "up", toggleAdminWindow )
   end
   
   function unbindConfigAdminKeys(player)
-      unbindKey ( "F6" )
+      --unbindKey ( "F6" )
   end
   
   function onJoinForAdminKeys ( )

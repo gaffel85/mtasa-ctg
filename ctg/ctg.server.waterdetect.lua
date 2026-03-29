@@ -1,11 +1,15 @@
-local preventDieFromWater = false
+local preventDieFromWaterCount = 0
 
 function setPreventDieFromWater(value)
-    preventDieFromWater = value
+    if value then
+        preventDieFromWaterCount = preventDieFromWaterCount + 1
+    else
+        preventDieFromWaterCount = math.max(0, preventDieFromWaterCount - 1)
+    end
 end
 
 function checkWater()
-    if preventDieFromWater then
+    if preventDieFromWaterCount > 0 then
         return
     end
 

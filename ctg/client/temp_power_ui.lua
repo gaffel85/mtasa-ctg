@@ -6,7 +6,7 @@ local DGS = exports.dgs
 local SCREEN_WIDTH, SCREEN_HEIGHT = guiGetScreenSize()
 local UI_BASE_X = SCREEN_WIDTH / 2 -- Center horizontally
 local UI_BASE_Y = SCREEN_HEIGHT - 140 -- Positioned lower
-local CARD_WIDTH = 400
+local CARD_WIDTH = 600 -- WIDENED
 local CARD_HEIGHT = 120
 local CARD_SPACING = 20
 
@@ -16,6 +16,9 @@ local warningEffect = nil -- { playerName, name, endTime, duration }
 local textureCache = {} -- Cache for power-up icons
 local lastQueueIds = {nil, nil} -- Keep track of last displayed IDs to avoid redundant updates
 local lastLockState = false
+
+-- Color configuration for the keyboard key border
+local KEY_BORDER_COLOR = tocolor(255, 255, 255, 255) -- White border
 
 -- DGS Elements
 local cardElements = {} -- { [1] = elements, [2] = elements }
@@ -44,7 +47,7 @@ local function createPowerupCard(index)
     card.bg = DGS:dgsCreateImage(x, y, CARD_WIDTH, CARD_HEIGHT, nil, false)
     DGS:dgsSetProperty(card.bg, "color", tocolor(0, 0, 0, 255))
     
-    -- Rounded corners if possible
+    -- Rounded corners
     local rndRect = DGS:dgsCreateRoundRect(10, false, tocolor(0, 0, 0, 255), nil, nil, nil, true)
     DGS:dgsSetProperty(card.bg, "image", rndRect)
 
@@ -54,18 +57,45 @@ local function createPowerupCard(index)
     DGS:dgsSetProperty(card.border, "image", borderRect)
     DGS:dgsSetEnabled(card.border, false)
 
-    -- Icon
-    card.icon = DGS:dgsCreateImage(CARD_WIDTH - CARD_HEIGHT + 10, 10, CARD_HEIGHT - 20, CARD_HEIGHT - 20, nil, false, card.bg)
+    -- 1. Icon (LEFT)
+    local iconSize = CARD_HEIGHT - 10 -- Slightly bigger icon
+    card.icon = DGS:dgsCreateImage(5, 5, iconSize, iconSize, nil, false, card.bg)
     
-    -- Name
-    card.name = DGS:dgsCreateLabel(15, 10, CARD_WIDTH - CARD_HEIGHT - 10, 30, "", false, card.bg)
+    -- Text area calculation (starts after icon, ends before the "Press X" area)
+    local textX = iconSize + 10 + 10
+    local promptWidth = 80
+    local textAreaWidth = CARD_WIDTH - textX - promptWidth - 10
+
+    -- 2. Name (Middle)
+    card.name = DGS:dgsCreateLabel(textX, 10, textAreaWidth, 30, "", false, card.bg)
     DGS:dgsSetProperty(card.name, "textSize", {1.5, 1.5})
     DGS:dgsSetProperty(card.name, "font", "default-bold")
     
-    -- Description
-    card.description = DGS:dgsCreateLabel(15, 45, CARD_WIDTH - CARD_HEIGHT - 10, CARD_HEIGHT - 55, "", false, card.bg)
+    -- 3. Description (Middle)
+    card.description = DGS:dgsCreateLabel(textX, 45, textAreaWidth, CARD_HEIGHT - 55, "", false, card.bg)
     DGS:dgsSetProperty(card.description, "wordBreak", true)
     DGS:dgsSetProperty(card.description, "color", tocolor(200, 200, 200, 255))
+    DGS:dgsSetProperty(card.description, "textSize", {1.3, 1.3}) -- ENLARGED font size
+
+    -- 4. "Press X" UI (Right side)
+    card.promptContainer = DGS:dgsCreateImage(CARD_WIDTH - promptWidth - 10, 0, promptWidth, CARD_HEIGHT, nil, false, card.bg)
+    DGS:dgsSetProperty(card.promptContainer, "color", tocolor(0, 0, 0, 0))
+    
+    card.pressLabel = DGS:dgsCreateLabel(0, 15, promptWidth, 25, "Press", false, card.promptContainer)
+    DGS:dgsSetProperty(card.pressLabel, "alignment", {"center", "top"})
+    DGS:dgsSetProperty(card.pressLabel, "font", "default-bold")
+    DGS:dgsSetProperty(card.pressLabel, "textSize", {1.2, 1.2})
+
+    -- The "X" Button key graphic
+    local keySize = 50
+    card.keyBg = DGS:dgsCreateImage((promptWidth - keySize)/2, 45, keySize, keySize, nil, false, card.promptContainer)
+    local keyRect = DGS:dgsCreateRoundRect(8, false, tocolor(0, 0, 0, 255), nil, true, KEY_BORDER_COLOR, 0.02, 0.02)
+    DGS:dgsSetProperty(card.keyBg, "image", keyRect)
+
+    card.keyText = DGS:dgsCreateLabel(0, 0, keySize, keySize, "X", false, card.keyBg)
+    DGS:dgsSetProperty(card.keyText, "alignment", {"center", "center"})
+    DGS:dgsSetProperty(card.keyText, "font", "default") -- NOT bold X
+    DGS:dgsSetProperty(card.keyText, "textSize", {2.0, 2.0})
 
     -- NEXT label
     card.nextLabel = DGS:dgsCreateLabel(0, -30, CARD_WIDTH, 25, "NEXT", false, card.bg)
@@ -85,6 +115,58 @@ local function createPowerupCard(index)
     return card
 end
 
+local function updateCard(index, powerupId, isLocked)
+    local card = cardElements[index]
+    if not card then return end
+    
+    if not powerupId then
+        DGS:dgsSetVisible(card.bg, false)
+        return
+    end
+
+    local config = getTemporaryPowerupConfig(powerupId)
+    if not config then
+        DGS:dgsSetVisible(card.bg, false)
+        return
+    end
+
+    DGS:dgsSetVisible(card.bg, true)
+    DGS:dgsSetText(card.name, config.name or "Unknown")
+    DGS:dgsSetText(card.description, config.description or "")
+    
+    local texture = getIconTexture(config.iconPath)
+    if texture then
+        DGS:dgsSetVisible(card.icon, true)
+        DGS:dgsImageSetImage(card.icon, texture)
+    else
+        DGS:dgsSetVisible(card.icon, false)
+    end
+
+    if index == 1 then
+        DGS:dgsSetAlpha(card.bg, 1.0)
+        DGS:dgsSetVisible(card.nextLabel, false)
+        DGS:dgsSetVisible(card.lockedLabel, isLocked)
+        
+        -- Toggle the "Press X" prompt visibility
+        DGS:dgsSetVisible(card.promptContainer, not isLocked)
+        
+        -- Feedback refinement: hide description and dim other elements when locked
+        DGS:dgsSetVisible(card.description, not isLocked)
+        local contentAlpha = isLocked and 0.4 or 1.0
+        DGS:dgsSetAlpha(card.name, contentAlpha)
+        DGS:dgsSetAlpha(card.icon, contentAlpha)
+    else
+        DGS:dgsSetAlpha(card.bg, 1.0)
+        DGS:dgsSetVisible(card.nextLabel, true)
+        DGS:dgsSetVisible(card.lockedLabel, false)
+        DGS:dgsSetVisible(card.description, true)
+        DGS:dgsSetVisible(card.promptContainer, false) -- Never show prompt on the "Next" card
+        DGS:dgsSetAlpha(card.name, 1.0)
+        DGS:dgsSetAlpha(card.icon, 1.0)
+    end
+end
+
+-- [Rest of your existing code for updateQueueUI, initUI, events, etc. remains the same]
 local function initUI()
     if #cardElements > 0 then return end
     
@@ -160,53 +242,6 @@ local function initUI()
         icon = warnIcon,
         label = warnLabel
     }
-end
-
-local function updateCard(index, powerupId, isLocked)
-    local card = cardElements[index]
-    if not card then return end
-    
-    if not powerupId then
-        DGS:dgsSetVisible(card.bg, false)
-        return
-    end
-
-    local config = getTemporaryPowerupConfig(powerupId)
-    if not config then
-        DGS:dgsSetVisible(card.bg, false)
-        return
-    end
-
-    DGS:dgsSetVisible(card.bg, true)
-    DGS:dgsSetText(card.name, config.name or "Unknown")
-    DGS:dgsSetText(card.description, config.description or "")
-    
-    local texture = getIconTexture(config.iconPath)
-    if texture then
-        DGS:dgsSetVisible(card.icon, true)
-        DGS:dgsImageSetImage(card.icon, texture)
-    else
-        DGS:dgsSetVisible(card.icon, false)
-    end
-
-    if index == 1 then
-        DGS:dgsSetAlpha(card.bg, 1.0)
-        DGS:dgsSetVisible(card.nextLabel, false)
-        DGS:dgsSetVisible(card.lockedLabel, isLocked)
-        
-        -- Feedback refinement: hide description and dim other elements when locked
-        DGS:dgsSetVisible(card.description, not isLocked)
-        local contentAlpha = isLocked and 0.4 or 1.0
-        DGS:dgsSetAlpha(card.name, contentAlpha)
-        DGS:dgsSetAlpha(card.icon, contentAlpha)
-    else
-        DGS:dgsSetAlpha(card.bg, 1.0)
-        DGS:dgsSetVisible(card.nextLabel, true)
-        DGS:dgsSetVisible(card.lockedLabel, false)
-        DGS:dgsSetVisible(card.description, true)
-        DGS:dgsSetAlpha(card.name, 1.0)
-        DGS:dgsSetAlpha(card.icon, 1.0)
-    end
 end
 
 local function updateQueueUI()

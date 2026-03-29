@@ -200,6 +200,16 @@ function alternativePos(player)
 end
 
 function useCatchUp(player)
+    local hasPower = getElementData(player, "hasSuperCatchup")
+    --outputServerLog("[SCU-TRACE] useCatchUp called for " .. getPlayerName(player) .. ". hasSuperCatchup: " .. tostring(hasPower))
+    
+    if hasPower then
+        local leader = findLeader(player)
+        --outputServerLog("[SCU-TRACE] Triggering startSuperCatchupSequence for " .. getPlayerName(player) .. " with leader " .. (leader and getPlayerName(leader) or "NONE"))
+        triggerClientEvent(player, "startSuperCatchupSequence", resourceRoot, leader)
+        return
+    end
+
     if isFarEnoughFromLeader(player) then
         useCatchUpForce(player)
     end
