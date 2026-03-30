@@ -1,6 +1,7 @@
 local goldSpawns
 local goldSpawnMarker = nil
 local goldCarrierMarker = nil
+local activeGoldObject = nil
 
 local goldSpawnBlip = nil
 local goldCarrierBlip = nil
@@ -66,11 +67,20 @@ end
 function createGold(posX, posY, posZ)
     local marker = createMarker(posX, posY, posZ + 6, "arrow", 2.0, 255, 0, 0)
     local hitMarker = createMarker(posX, posY, posZ - 2, "checkpoint", 2.0, 0, 0, 0, 0, marker)
-    local model = createObject(1550, posX, posY , posZ + 2)
-    setObjectScale(model, 4.0)
-    setElementCollisionsEnabled(model, false)
+    
+    -- Create the persistent gold object
+    if not activeGoldObject or not isElement(activeGoldObject) then
+        activeGoldObject = createObject(1212, posX, posY, posZ + 1.5)
+        setElementData(activeGoldObject, "isGold", true)
+        setElementCollisionsEnabled(activeGoldObject, false)
+    else
+        detachElements(activeGoldObject)
+        setElementPosition(activeGoldObject, posX, posY, posZ + 1.5)
+    end
 
-    setElementParent(model, hitMarker)
+    triggerClientEvent("onClientSetGoldElement", root, activeGoldObject)
+    setObjectScale(activeGoldObject, 15.0)
+
     setElementParent(marker, hitMarker)
     return hitMarker
 end
@@ -87,14 +97,14 @@ function destroySpawnMarker()
         destroyElement(goldSpawnMarker)
     end
     goldSpawnMarker = nil
+    -- Detach gold object if it was attached to the marker
+    if activeGoldObject and isElement(activeGoldObject) then
+        detachElements(activeGoldObject)
+    end
 end
 
 function destroySpawnBlip()
     refreshAllBlips()
-    -- if (goldSpawnBlip) then
-    --    destroyElement(goldSpawnBlip)
-    -- end
-    -- goldSpawnBlip = nil
 end
 
 function destroyCarrierMarker()
@@ -104,17 +114,34 @@ function destroyCarrierMarker()
     goldCarrierMarker = nil
 end
 
+function getVehicleZOffset(vehicle)
+    if not vehicle then return 4 end
+    local radius, x1, y1, z1, x2, y2, z2 = getVehicleSizeData(vehicle)
+    return z2 + 0.5
+end
+
 function createCarrierMarker(player)
-    local marker = createMarker(0, 0, 1, "arrow", 2.0, 255, 0, 0)
-    attachElements(marker, player, 0, 0, 4)
+    local vehicle = getPedOccupiedVehicle(player)
+    if not vehicle then return nil end
+
+    local zOffset = getVehicleZOffset(vehicle)
+    local marker = createMarker(0, 0, 0, "arrow", 2.0, 255, 0, 0)
+    attachElements(marker, vehicle, 0, 0, zOffset + 4.0) -- Arrow is higher than the gold
+    
+    -- Also attach the gold bar if it exists
+    if activeGoldObject and isElement(activeGoldObject) then
+        detachElements(activeGoldObject)
+        attachElements(activeGoldObject, vehicle, 0, 0, zOffset)
+    end
+
     return marker
 end
 
 function markerHit(markerHit, matchingDimension)
     if markerHit == goldSpawnMarker then
+        -- Don't destroy activeGoldObject, just detach it from whatever it might be
         destroySpawnMarker()
         destroySpawnBlip()
-        goldCarrierMarker = createCarrierMarker(source)
 		goldPickedUp(source)
         refreshAllBlips()
         return
@@ -123,10 +150,13 @@ end
 addEventHandler("onPlayerMarkerHit", getRootElement(), markerHit)
 
 function onGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
-   -- outputChatBox("gold.onGoldCarrierChanged("..inspect(newGoldCarrier)..", "..inspect(oldGoldCarrier)..")")
     destroyCarrierMarker()
     handlePowersForGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
     if (not newGoldCarrier) then
+        -- If no new carrier, make sure gold is detached
+        if activeGoldObject and isElement(activeGoldObject) then
+            detachElements(activeGoldObject)
+        end
         return
     end
 
@@ -134,6 +164,13 @@ function onGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
     refreshAllBlips()
 end
 addEventHandler("goldCarrierChanged", root, onGoldCarrierChanged)
+
+addEvent("onClientRequestGoldElement", true)
+addEventHandler("onClientRequestGoldElement", root, function()
+    if activeGoldObject and isElement(activeGoldObject) then
+        triggerClientEvent(client, "onClientSetGoldElement", root, activeGoldObject)
+    end
+end)
 
 -- onResourceStart clear timers
 addEventHandler("onResourceStart", getResourceRootElement(getThisResource()), function()
