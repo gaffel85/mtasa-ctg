@@ -13,9 +13,9 @@
 	<file src="img/busses.png" />
 	<file src="img/alert.png" />
 	<file src="img/flood.png" />
-	<!--<file src="goldbar.dff" />
-	<file src="goldbar.txd" />
-	<file src="gold_shader.fx" />-->
+	<file src="goldbar.dff" type="client" />
+	<file src="goldbar.txd" type="client" />
+	<file src="gold_shader.fx" type="client" />
 
 	<!--<script src="shared/math.lua" />
 	<script src="shared/math.lua" type="client" />-->

@@ -79,7 +79,7 @@ function createGold(posX, posY, posZ)
     end
 
     triggerClientEvent("onClientSetGoldElement", root, activeGoldObject)
-    setObjectScale(activeGoldObject, 15.0)
+    setObjectScale(activeGoldObject, 6.0)
 
     setElementParent(marker, hitMarker)
     return hitMarker
