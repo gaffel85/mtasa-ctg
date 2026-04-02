@@ -47,17 +47,17 @@ float4 PixelShaderFunction(PSInput PS) : COLOR0
     float3 viewDir = normalize(gCameraPosition - PS.WorldPos);
     
     // The Fake Sun
-    float3 lightDir = normalize(float3(-0.5, -0.5, -1.0)); 
-    
+    float3 lightDir = normalize(float3(-0.8, -0.8, -0.6));
+     
     // Shadows
     float nDotL = max(dot(normal, -lightDir), 0.0);
-    float ambient = 0.65; // High ambient so shadows aren't pitch black
+    float ambient = 0.3; // High ambient so shadows aren't pitch black
     float diffuseInt = ambient + (nDotL * 0.4); 
     
     // Metal Shine
     float3 reflectDir = reflect(lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 30.0); 
-    float3 specColor = spec * float3(1.0, 0.9, 0.4); 
+    float3 specColor = spec * float3(0.95, 0.83, 0.37);
     
     // Grab the texture
     float4 texColor = tex2D(BaseSampler, PS.TexCoord);

@@ -135,6 +135,7 @@
 
 	<script src="ctg.client.goldcarrier.lua" type="client" />
 	<script src="client/gold.visuals.lua" type="client" />
+	<script src="client/gold.marker.lua" type="client" />
     <script src="ctg.client.collision.lua" type="client" />
 	<script src="ctg.client.lastpositions.lua" type="client" />
 

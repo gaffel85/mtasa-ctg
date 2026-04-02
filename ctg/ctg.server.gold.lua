@@ -66,7 +66,7 @@ end
 
 function createGold(posX, posY, posZ)
     local marker = createMarker(posX, posY, posZ + 6, "arrow", 2.0, 255, 0, 0)
-    local hitMarker = createMarker(posX, posY, posZ - 2, "checkpoint", 2.0, 0, 0, 0, 0, marker)
+    local hitMarker = createMarker(posX, posY, posZ - 2, "checkpoint", 2.0, 0, 0, 0, 0, getRootElement())
     
     -- Create the persistent gold object
     if not activeGoldObject or not isElement(activeGoldObject) then
@@ -119,15 +119,17 @@ function getVehicleZOffset(vehicle)
     local radius, x1, y1, z1, x2, y2, z2 = getVehicleSizeData(vehicle)
     return z2 + 0.5
 end
-
 function createCarrierMarker(player)
     local vehicle = getPedOccupiedVehicle(player)
     if not vehicle then return nil end
 
     local zOffset = getVehicleZOffset(vehicle)
-    local marker = createMarker(0, 0, 0, "arrow", 2.0, 255, 0, 0)
-    attachElements(marker, vehicle, 0, 0, zOffset + 4.0) -- Arrow is higher than the gold
-    
+    local marker = createMarker(0, 0, 0, "arrow", 2.0, 255, 124, 244)
+    setElementData(marker, "isGoldCarrierMarker", true)
+
+    attachElements(marker, vehicle, 0, 0, zOffset + 4.0)
+
+    -- Also attach the gold bar if it exists
     -- Also attach the gold bar if it exists
     if activeGoldObject and isElement(activeGoldObject) then
         detachElements(activeGoldObject)

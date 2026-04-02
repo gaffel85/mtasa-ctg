@@ -1,19 +1,13 @@
-local goldCarrier = nil
+-- Redundant shadowing of getGoldCarrier removed to favor synced shared/data/goldcarrier.shared.lua
+-- The shared version uses getElementData(resourceRoot) which is synced across all clients.
 
-function getGoldCarrier()
-	return goldCarrier
-end
-
--- Since we listen for events on the root element we can use the goldCarrier as the source. Events
--- triggered on any element will be catched if we listening to the root element.
 function goldCarrierChanged ( oldGoldCarrier )
-	goldCarrier = source
+    -- Source is the new carrier. Shared state is already synced via elementData.
 end
 addEvent("onGoldCarrierChanged", true)
 addEventHandler("onGoldCarrierChanged", getRootElement(), goldCarrierChanged)
 
 function onGoldCarrierCleared ( )
-	goldCarrier = nil
 end
 addEventHandler("goldCarrierCleared", getRootElement(), onGoldCarrierCleared)
 

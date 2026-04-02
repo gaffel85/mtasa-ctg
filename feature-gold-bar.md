@@ -1,43 +1,37 @@
-# Feature Task: Gold Bar 3d object
+# Feature Task: Gold Bar 3D Object & Visuals (Refined)
 
 ## 1. Overview
-Implement the visual and rendering logic for the "Gold Bar". The Gold Bar is a custom 3D model that spawns in the world, attaches to a player's vehicle upon pickup, features a metallic HLSL shader, and visually rotates smoothly above the carrier's vehicle.
+Implement the visual and rendering logic for the "Gold Bar". The Gold Bar is a persistent 3D model that spawns in the world, attaches to vehicles upon pickup with vehicle-specific offsets, features a metallic HLSL shader, and rotates smoothly local to each client.
 
 ## 2. Asset & Resource Definitions
-* **Target Object ID:** `1212` (to be replaced).
-* **Model File:** `goldbar.dff`
-* **Texture Archive:** `goldbar.txd`
-* **Texture Target Name:** `gold_tex_base` (used for shader application).
-* **Shader File:** `gold_shader.fx` (HLSL script for specular/metallic shine).
+*   **Target Object ID:** `1212` (Money - chosen for high replacement stability).
+*   **Model File:** `goldbar.dff`
+*   **Texture Archive:** `goldbar.txd`
+*   **Texture Target Name:** `gold_tex_base`
+*   **Shader File:** `gold_shader.fx` (HLSL Vertex + Pixel shader).
+*   **Scale:** `5.0` (Calculated to achieve approx. 2m width).
 
-## 3. Client-Side Requirements (Visuals & Engine Setup)
-**A. Model Replacement:**
-* On resource start, load `goldbar.txd` and `goldbar.dff`.
-* Apply them to Object ID `1212` using `engineImportTXD` and `engineReplaceModel`.
+## 3. Server-Side Implementation (Attachment & State)
+*   **Persistent Element:** A single `activeGoldObject` is maintained per round.
+*   **Vehicle-Specific Offsets:** 
+    *   Attachment uses `z2` (roof height) from `shared/vehicle.data.lua`.
+    *   Calculation: `zOffset = z2 + 0.5`.
+*   **Event-Driven Sync:** 
+    *   Triggers `onClientSetGoldElement` to inform clients which element is the current Gold Bar.
+    *   Handles `onClientRequestGoldElement` for late joiners.
+*   **Red Marker Sync:** The red arrow marker also attaches to the vehicle at `zOffset + 4.0` for enhanced visibility.
 
-**B. Shader Application:**
-* Create a lightweight DirectX shader using `dxCreateShader("gold_shader.fx")`. 
-* The shader must add basic specular lighting to mimic a metallic gold surface.
-* Apply this shader exclusively to the texture name `"gold_tex_base"` using `engineApplyShaderToWorldTexture`.
+## 4. Client-Side Implementation (Visuals & Rendering)
+*   **Strict Loading Order:** TXD -> DFF -> `engineReplaceModel` -> `engineRestreamWorld`.
+*   **Metallic Shader:**
+    *   Uses a pixel shader to modulate the base texture with a rich gold tint (`1.0, 0.8, 0.2`).
+    *   Includes a "minimum light" floor to prevent the object from turning pure black in the shade.
+    *   Applied specifically to the Gold Bar element to avoid affecting other world objects using the same texture name.
+*   **Smooth Rotation:**
+    *   Handled in `onClientPreRender` using the `timeSlice` parameter.
+    *   Updates `setElementAttachedOffsets` when attached to a vehicle and `setElementRotation` when on the ground.
 
-**C. Smooth Hover Rotation:**
-* Listen for a custom event from the server (e.g., `onClientGoldPickedUp`) to identify when a player acquires the gold and store the gold element in a variable.
-* Use the `onClientPreRender` event to handle rotation locally (DO NOT use server-side timers for rotation).
-* In the render function:
-    1. Verify the gold element exists and is attached to a vehicle (`getElementAttachedTo`).
-    2. Calculate a consistent rotation increment using the `timeSlice` parameter to ensure frame-rate independence.
-    3. Retrieve the current attachment offsets using `getElementAttachedOffsets`.
-    4. Apply the new Z-axis rotation back to the element using `setElementAttachedOffsets` while maintaining the X, Y, and Z positional offsets.
-
-## 4. Server-Side Requirements (State & Attachment)
-
-**B. Pickup & Attachment:**
-* When the method `markerHit` in the file `ctg.server.gold.lua` is called, create a new event that can be listened to both on server and on client.
-* Use `attachElements` to attach the gold bar to the Carrier's vehicle.
-* Apply a Z-axis offset of some meters, based on the vehicle data in `vehicle.data.lua`, so the massive 1-2m gold bar hovers clearly above the vehicle roof.
-* Make sure the gold bar is attached to the vehicle and not the player.
-* Trigger the client event (`onClientGoldPickedUp`) for all players, passing the gold element so their local scripts can begin rendering the rotation.
-
-## 5. Constraints & Best Practices
-* Strictly isolate the rotation math to the client side to prevent network flooding and ensure smooth visual interpolation.
-* Ensure the Z-rotation math in the pre-render event resets at 360 degrees to prevent integer overflow over long sessions.
+## 5. Best Practices & Findings
+*   **ID Stability:** Model `1550` proved more stable for replacement than `1212` in this environment.
+*   **Engine Sync:** A 1-second delay between loading and replacement ensures the engine has properly initialized textures before model application.
+*   **Element Tracking:** Direct element tracking via custom events is used instead of frame-by-frame `getElementsByType` searches for maximum performance.
