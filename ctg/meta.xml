@@ -13,6 +13,9 @@
 	<file src="img/busses.png" />
 	<file src="img/alert.png" />
 	<file src="img/flood.png" />
+	<file src="goldbar.dff" type="client" />
+	<file src="goldbar.txd" type="client" />
+	<file src="gold_shader.fx" type="client" />
 
 	<!--<script src="shared/math.lua" />
 	<script src="shared/math.lua" type="client" />-->
@@ -46,8 +49,6 @@
 	<script src="shared/powers.repo.lua" />
 	<script src="shared/powers.repo.lua" type="client" />
 
-	<script src="ctg.server.gold.lua" />
-	<script src="ctg.server.goldcarrier.lua" />
 	<script src="ctg.server.blips.lua" />
 	<script src="ctg.server.teams.lua" />
 	<script src="ctg.server.hideout.lua" />
@@ -129,7 +130,12 @@
 	<script src="shared/vehicle.data.lua" type="client" />
 	<script src="shared/vehicle.data.lua" />
 
+	<script src="ctg.server.gold.lua" />
+	<script src="ctg.server.goldcarrier.lua" />
+
 	<script src="ctg.client.goldcarrier.lua" type="client" />
+	<script src="client/gold.visuals.lua" type="client" />
+	<script src="client/gold.marker.lua" type="client" />
     <script src="ctg.client.collision.lua" type="client" />
 	<script src="ctg.client.lastpositions.lua" type="client" />
 
