@@ -24,6 +24,9 @@ local jumpPushPowerupOld = {
 	end,
 	onActivated = function(player, vehicle, state)
 		state.isJumping = true
+		if player == getGoldCarrier() then
+			setElementData(player, "isCarrierUsingJumpAbility", true)
+		end
 		local vx, vy, vz = getElementVelocity(vehicle)
         local velocityVector = { x = vx, y = vy, z = vz }
         local newVelocityVector = { x = vx, y = vy, z = vz + getPowerConst().jump.height }
@@ -65,6 +68,9 @@ local jumpPushPowerup = {
 	end,
 	onActivated = function(player, vehicle, state)
 		state.isJumping = true
+		if player == getGoldCarrier() then
+			setElementData(player, "isCarrierUsingJumpAbility", true)
+		end
 		local vx, vy, vz = getElementVelocity(vehicle)
         local velocityVector = { x = vx, y = vy, z = vz }
         local newVelocityVector = { x = vx, y = vy, z = vz + getPowerConst().jump.height }

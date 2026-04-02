@@ -13,9 +13,11 @@
 	<file src="img/busses.png" />
 	<file src="img/alert.png" />
 	<file src="img/flood.png" />
+	<file src="img/powerbeam.png" />
 	<file src="goldbar.dff" type="client" />
 	<file src="goldbar.txd" type="client" />
 	<file src="gold_shader.fx" type="client" />
+	<file src="gold_beam.fx" type="client" />
 
 	<!--<script src="shared/math.lua" />
 	<script src="shared/math.lua" type="client" />-->
@@ -136,6 +138,7 @@
 	<script src="ctg.client.goldcarrier.lua" type="client" />
 	<script src="client/gold.visuals.lua" type="client" />
 	<script src="client/gold.marker.lua" type="client" />
+	<script src="client/gold.tether.lua" type="client" />
     <script src="ctg.client.collision.lua" type="client" />
 	<script src="ctg.client.lastpositions.lua" type="client" />
 
