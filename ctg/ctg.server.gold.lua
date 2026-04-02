@@ -66,8 +66,8 @@ end
 
 function createGold(posX, posY, posZ)
     local marker = createMarker(posX, posY, posZ + 6, "arrow", 2.0, 255, 0, 0)
-    local hitMarker = createMarker(posX, posY, posZ - 2, "checkpoint", 2.0, 0, 0, 0, 0, getRootElement())
-    setElementVisibleTo(blip, getRootElement(), false)
+    local hitMarker = createMarker(posX, posY, posZ - 2, "checkpoint", 2.0, 0, 0, 0, 0, marker)
+    --setElementVisibleTo(blip, getRootElement(), false)
     
     -- Create the persistent gold object
     if not activeGoldObject or not isElement(activeGoldObject) then
@@ -80,7 +80,7 @@ function createGold(posX, posY, posZ)
     end
 
     triggerClientEvent("onClientSetGoldElement", root, activeGoldObject)
-    setObjectScale(activeGoldObject, 6.0)
+    setObjectScale(activeGoldObject, 8.0)
 
     setElementParent(marker, hitMarker)
     return hitMarker
