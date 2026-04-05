@@ -133,6 +133,7 @@
 	<script src="ctg.server.goldcarrier.lua" />
 
 	<script src="ctg.client.goldcarrier.lua" type="client" />
+	<script src="client/gold.drop.client.lua" type="client" />
 	<script src="client/gold.visuals.lua" type="client" />
 	<script src="client/gold.marker.lua" type="client" />
 	<script src="client/gold.tether.lua" type="client" />

@@ -2,6 +2,8 @@ local goldSpawns
 local goldSpawnMarker = nil
 local goldCarrierMarker = nil
 local activeGoldObject = nil
+local fallingDummyObject = nil
+local landingTimer = nil
 
 local goldSpawnBlip = nil
 local goldCarrierBlip = nil
@@ -52,10 +54,10 @@ function spawnNewGold()
     spawnGoldAtTransform(posX, posY, posZ)
 end
 
-function spawnGoldAtTransform(posX, posY, posZ)
+function spawnGoldAtTransform(posX, posY, posZ, hideVisual)
     removeOldGold()
     if (goldSpawnMarker == nil) then
-        goldSpawnMarker = createGold(posX, posY, posZ)
+        goldSpawnMarker = createGold(posX, posY, posZ, hideVisual)
     end
     lastGoldSpawn.x = posX
     lastGoldSpawn.y = posY
@@ -64,7 +66,7 @@ function spawnGoldAtTransform(posX, posY, posZ)
     -- goldSpawnBlip = createBlip(posX, posY, posZ, 52)
 end
 
-function createGold(posX, posY, posZ)
+function createGold(posX, posY, posZ, hideVisual)
     local marker = createMarker(posX, posY, posZ + 6, "arrow", 2.0, 255, 0, 0)
     local hitMarker = createMarker(posX, posY, posZ - 2, "checkpoint", 2.0, 0, 0, 0, 0, marker)
     --setElementVisibleTo(blip, getRootElement(), false)
@@ -79,11 +81,30 @@ function createGold(posX, posY, posZ)
         setElementPosition(activeGoldObject, posX, posY, posZ + 1.5)
     end
 
+    if hideVisual then
+        setElementAlpha(activeGoldObject, 0)
+        setElementPosition(activeGoldObject, posX, posY, posZ - 100)
+    else
+        setElementAlpha(activeGoldObject, 255)
+        setElementPosition(activeGoldObject, posX, posY, posZ + 1.5)
+    end
+
     triggerClientEvent("onClientSetGoldElement", root, activeGoldObject)
     setObjectScale(activeGoldObject, 8.0)
 
     setElementParent(marker, hitMarker)
     return hitMarker
+end
+
+function cleanUpFallingGold()
+    if fallingDummyObject and isElement(fallingDummyObject) then
+        destroyElement(fallingDummyObject)
+    end
+    fallingDummyObject = nil
+    if isTimer(landingTimer) then
+        killTimer(landingTimer)
+    end
+    landingTimer = nil
 end
 
 function removeOldGold()
@@ -131,10 +152,10 @@ function createCarrierMarker(player)
     attachElements(marker, vehicle, 0, 0, zOffset + 4.0)
 
     -- Also attach the gold bar if it exists
-    -- Also attach the gold bar if it exists
     if activeGoldObject and isElement(activeGoldObject) then
         detachElements(activeGoldObject)
         attachElements(activeGoldObject, vehicle, 0, 0, zOffset)
+        setElementAlpha(activeGoldObject, 255)
     end
 
     return marker
@@ -143,6 +164,7 @@ end
 function markerHit(markerHit, matchingDimension)
     if markerHit == goldSpawnMarker then
         -- Don't destroy activeGoldObject, just detach it from whatever it might be
+        cleanUpFallingGold()
         destroySpawnMarker()
         destroySpawnBlip()
 		goldPickedUp(source)
@@ -173,6 +195,39 @@ addEventHandler("onClientRequestGoldElement", root, function()
     if activeGoldObject and isElement(activeGoldObject) then
         triggerClientEvent(client, "onClientSetGoldElement", root, activeGoldObject)
     end
+end)
+
+addEvent("onPlayerDropGold", true)
+addEventHandler("onPlayerDropGold", root, function(startX, startY, startZ, groundZ)
+    local player = client
+    if player ~= getGoldCarrier() then return end
+
+    -- 1. Remove from carrier
+    clearGoldCarrier()
+
+    -- 2. Spawn physical gold at ground, but hidden
+    spawnGoldAtTransform(startX, startY, groundZ, true)
+
+    -- 3. Create dummy falling object
+    fallingDummyObject = createObject(1212, startX, startY, startZ)
+    setElementCollisionsEnabled(fallingDummyObject, false)
+    setObjectScale(fallingDummyObject, 8.0)
+    
+    -- 4. Animate fall
+    moveObject(fallingDummyObject, 1000, startX, startY, groundZ + 1.5)
+
+    -- 5. Set landing timer
+    landingTimer = setTimer(function()
+        if isElement(fallingDummyObject) then
+            destroyElement(fallingDummyObject)
+        end
+        fallingDummyObject = nil
+        if activeGoldObject and isElement(activeGoldObject) then
+            setElementAlpha(activeGoldObject, 255)
+            setElementPosition(activeGoldObject, startX, startY, groundZ + 1.5)
+        end
+        landingTimer = nil
+    end, 1000, 1)
 end)
 
 -- onResourceStart clear timers
