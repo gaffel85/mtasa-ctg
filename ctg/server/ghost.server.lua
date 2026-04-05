@@ -99,12 +99,6 @@ function togglePlayerGhost(player)
     end
 end
 
-registerBindFunctions(function(player)
-    bindKey(player, "g", "down", togglePlayerGhost)
-end, function(player)
-    unbindKey(player, "g", "down", togglePlayerGhost)
-end)
-
 addEventHandler("onPlayerJoin", getRootElement(), function ()
     for i, player in ipairs(getElementsByType("player")) do
         if isGhost(player) then
