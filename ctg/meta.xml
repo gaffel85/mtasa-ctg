@@ -41,8 +41,6 @@
 
 	<script src="shared/quad.tree.lua" type="client" />
 	<script src="shared/quad.tree.lua" />
-	<script src="shared/momentum_config.lua" />
-	<script src="shared/momentum_config.lua" type="client" />
 	<script src="shared/map.area.lua" />
 	<script src="shared/map.area.lua" type="client" />
 
@@ -115,7 +113,7 @@
 	<script src="client/power.cameraangle.lua" type="client" />
 	<script src="client/power.shielded.lua" type="client" />
 	<script src="client/shieldball.lua" type="client" />
-	<script src="client/admin.gui.lua" type="client" />
+	<script src="client/admin_dgs.lua" type="client" />
 	<script src="client/help.gui.lua" type="client" />
 	<script src="client/ghost.client.lua" type="client" />
 	<script src="client/location.client.lua" type="client" />
@@ -123,7 +121,6 @@
 	<script src="client/energy.filler.lua" type="client" />
 	<script src="client/vehicle.switch.ui.lua" type="client" />
 	<script src="client/catch.up.client.lua" type="client" />
-	<script src="client/super_catchup_admin.lua" type="client" />
 	<script src="client/super_catchup_sequence.lua" type="client" />
 	<script src="client/defense.rays.lua" type="client" />
 
