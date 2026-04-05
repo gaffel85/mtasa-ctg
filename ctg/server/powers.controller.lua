@@ -367,6 +367,7 @@ end
 addEvent("onJumpGroundTouched", true)
 addEventHandler("onJumpGroundTouched", root, function()
     local player = client
+    setElementData(player, "isCarrierUsingJumpAbility", false)
     local jumpPower = findPowerWithKey("jump")
     if jumpPower then
         local state = getPlayerState(player, jumpPower)

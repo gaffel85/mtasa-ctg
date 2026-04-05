@@ -62,13 +62,17 @@ function collisisionWithPlayer(otherPlayer, damage)
     local carrierVehicle = getPedOccupiedVehicle(goldCarrier)
     
     if attackerVehicle and carrierVehicle then
+        local momentumCfg = getElementData(resourceRoot, "props").momentum
         local attackerSpeed = getVehicleSpeed(attackerVehicle)
         local carrierSpeed = getVehicleSpeed(carrierVehicle)
 
-        local rule1 = attackerSpeed > MomentumConfig.Rule1MinSpeed
-        local rule2 = attackerSpeed > (carrierSpeed + MomentumConfig.Rule2RelativeSpeed)
+        local rule1 = attackerSpeed > momentumCfg.Rule1MinSpeed
+        local rule2 = attackerSpeed > (carrierSpeed + momentumCfg.Rule2RelativeSpeed)
+        
+        -- Use the "isCapableOfStealing" state from the client as a fallback to account for collision-induced speed loss
+        local isCapable = getElementData(notGoldCarrier, "isCapableOfStealing")
 
-        if not rule1 and not rule2 then
+        if not rule1 and not rule2 and not isCapable then
             return
         end
     end

@@ -16,6 +16,7 @@ function setGoldCarrier(carrier)
 
     oldGoldCarrier = setGoldCarrierData(carrier)
     if (oldGoldCarrier) then
+        setElementData(oldGoldCarrier, "isCarrierUsingJumpAbility", false)
         --removeVechicleHandling(oldGoldCarrier)
     end
 
@@ -151,3 +152,21 @@ function combineCenterOfMass( centerOfMass1, mass1, centerOfMassZ2, mass2 )
         [3] = (centerOfMass1[3] * mass1 + centerOfMassZ2 * mass2) / (mass1 + mass2)
     }
 end
+
+addEvent("onRequestGoldSteal", true)
+addEventHandler("onRequestGoldSteal", root, function()
+    local requester = client
+    local carrier = getGoldCarrier()
+
+    if not carrier or carrier == requester then return end
+    if not getElementData(carrier, "isCarrierUsingJumpAbility") then return end
+
+    local rx, ry, rz = getElementPosition(requester)
+    local cx, cy, cz = getElementPosition(carrier)
+
+    local dist2D = getDistanceBetweenPoints2D(rx, ry, cx, cy)
+    if dist2D <= 5.0 and rz < cz then
+        outputServerLog("[CTG-TETHER] Vertical steal successful: " .. getPlayerName(requester) .. " stole from " .. getPlayerName(carrier))
+        changeGoldCarrier(requester)
+    end
+end)

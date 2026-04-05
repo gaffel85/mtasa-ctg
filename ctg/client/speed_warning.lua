@@ -18,9 +18,11 @@ local function createWarningUI()
     if not DGS then DGS = exports.dgs end
     if not DGS then return end
     
+    local momentumCfg = getElementData(resourceRoot, "props").momentum
+
     -- 4x4 meters in world, 800x800 resolution for better text clarity
     warningInterface = DGS:dgsCreate3DInterface(0, 0, 0, 4, 4, 800, 800)
-    DGS:dgsSetProperty(warningInterface, "maxDistance", MomentumConfig.WarningDistance)
+    DGS:dgsSetProperty(warningInterface, "maxDistance", momentumCfg.WarningDistance)
     DGS:dgsSetProperty(warningInterface, "faceTo", "camera")
     
     -- Image occupies top half
@@ -40,11 +42,17 @@ local function createWarningUI()
     DGS:dgsSetAlpha(warningInterface, 0)
 end
 
+local lastCapableTick = 0
+
 addEventHandler("onClientRender", root, function()
     if not DGS then 
         DGS = exports.dgs
         if not DGS then return end
     end
+
+    local props = getElementData(resourceRoot, "props")
+    if not props then return end
+    local momentumCfg = props.momentum
 
     local goldCarrier = getGoldCarrier()
     local carrierVehicle = goldCarrier and getPedOccupiedVehicle(goldCarrier)
@@ -59,18 +67,41 @@ addEventHandler("onClientRender", root, function()
         
         -- Distance check first
         local distSq = (cx-lx)^2 + (cy-ly)^2 + (cz-lz)^2
-        if distSq <= MomentumConfig.WarningDistance^2 then
-            local localSpeed = getVehicleSpeed(localVehicle)
-            local carrierSpeed = getVehicleSpeed(carrierVehicle)
+        
+        local localSpeed = getVehicleSpeed(localVehicle)
+        local carrierSpeed = getVehicleSpeed(carrierVehicle)
 
-            -- Rule 1: > MomentumConfig.Rule1MinSpeed km/h
-            -- Rule 2: > Carrier Speed + MomentumConfig.Rule2RelativeSpeed km/h
-            local rule1 = localSpeed > MomentumConfig.Rule1MinSpeed
-            local rule2 = localSpeed > (carrierSpeed + MomentumConfig.Rule2RelativeSpeed)
+        -- Rule 1: > Rule1MinSpeed km/h
+        -- Rule 2: > Carrier Speed + Rule2RelativeSpeed km/h
+        local rule1 = localSpeed > momentumCfg.Rule1MinSpeed
+        local rule2 = localSpeed > (carrierSpeed + momentumCfg.Rule2RelativeSpeed)
 
-            if not rule1 and not rule2 then
+        -- Update "capable of stealing" state with stickiness
+        if rule1 or rule2 then
+            lastCapableTick = getTickCount()
+        end
+        local isCapable = (getTickCount() - lastCapableTick) < (momentumCfg.CapableOffDelay or 1000)
+        
+        -- Sync state to server if it changed
+        if getElementData(localPlayer, "isCapableOfStealing") ~= isCapable then
+            setElementData(localPlayer, "isCapableOfStealing", isCapable, true)
+        end
+
+        -- Use the same "isCapable" state for the UI to prevent flickering
+        if distSq <= momentumCfg.WarningDistance^2 then
+            if not isCapable then
                 shouldShow = true
             end
+        end
+    elseif localPlayer ~= goldCarrier then
+        -- Even if no carrier or distant, we track absolute speed capability
+        local localSpeed = localVehicle and getVehicleSpeed(localVehicle) or 0
+        if localSpeed > momentumCfg.Rule1MinSpeed then
+            lastCapableTick = getTickCount()
+        end
+        local isCapable = (getTickCount() - lastCapableTick) < (momentumCfg.CapableOffDelay or 1000)
+        if getElementData(localPlayer, "isCapableOfStealing") ~= isCapable then
+            setElementData(localPlayer, "isCapableOfStealing", isCapable, true)
         end
     end
 
@@ -145,12 +176,16 @@ addEventHandler("onClientRender", root, function()
         return 
     end
     
+    local props = getElementData(resourceRoot, "props")
+    if not props then return end
+    local momentumCfg = props.momentum
+
     local goldCarrier = getGoldCarrier()
     local localSpeed = getVehicleSpeed(localVehicle)
     local currentTick = getTickCount()
 
     -- 1. Check if we should even consider showing the warning
-    if localSpeed >= MomentumConfig.HUDWarningMinSpeed or goldCarrier == localPlayer then
+    if localSpeed >= momentumCfg.HUDWarningMinSpeed or goldCarrier == localPlayer then
         lowSpeedStartTime = nil
         return
     end
@@ -166,7 +201,7 @@ addEventHandler("onClientRender", root, function()
     end
 
     -- Only proceed if the delay has passed
-    if (currentTick - lowSpeedStartTime) < (MomentumConfig.HUDWarningDelay or 4000) then
+    if (currentTick - lowSpeedStartTime) < (momentumCfg.HUDWarningDelay or 4000) then
         return
     end
     
@@ -201,8 +236,8 @@ addEventHandler("onClientRender", root, function()
     local deltaTime = (currentTick - lastPulseTick) / 1000
     lastPulseTick = currentTick
 
-    if minDist < MomentumConfig.HUDWarningDistance then
-        local distFactor = 1 - (minDist / MomentumConfig.HUDWarningDistance) -- 0 to 1
+    if minDist < momentumCfg.HUDWarningDistance then
+        local distFactor = 1 - (minDist / momentumCfg.HUDWarningDistance) -- 0 to 1
         
         -- Frequency: 0.1 Hz (10s cycle) at 100m, to 1.0 Hz (1s cycle) at 0m
         local pulseFreq = 0.1 + (distFactor * 0.9)

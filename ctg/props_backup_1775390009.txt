@@ -1,0 +1,184 @@
+{
+  consts = {
+    airplaneQuota = 0,
+    civilQuota = 1,
+    damageMultiplierWeight = 1,
+    door2Quota = 1,
+    door4Quota = 1,
+    gatherTime = 20,
+    goldHandlingCoeff = 0.80000001,
+    goldHeight = 2,
+    goldMass = 1000,
+    goldSpawnDistance = 1200,
+    goldSpawnMinDistance = 300,
+    goldSpawnSafeDistance = 300,
+    goldSpawnTime = 5,
+    govermentQuota = 1,
+    handicapHandlingExtraPercentage = 0,
+    handicapHandlingMaxForDistance = 0.5,
+    handicapHandlingMinPercentage = 0.80000001,
+    handicapTotalMinPercentage = 0.69999999,
+    heavyQuota = 1,
+    helicopterQuota = 0,
+    hideoutSpawnDistance = 1000,
+    lowRidersQuota = 1,
+    moneyToOpponentsPercentage = 0.69999999,
+    muscleQuota = 3,
+    presentGoldDeliveredTime = 7,
+    recreationalQuota = 2,
+    repairTime = 5,
+    streetRacersQuota = 4,
+    suvQuota = 1,
+    tillbakaKakatime = 5000,
+    vansQuota = 1
+  },
+  momentum = {
+    CapableOffDelay = 1000,
+    HUDWarningDelay = 3000,
+    HUDWarningDistance = 100,
+    HUDWarningMinSpeed = 20,
+    Rule1MinSpeed = 30,
+    Rule2RelativeSpeed = 100,
+    WarningDistance = 150
+  },
+  powers = {
+    amphibious = {
+      allowedGoldCarrier = false,
+      charges = 1,
+      cooldown = 40,
+      duration = 15,
+      initCooldown = 20,
+      rank = 6
+    },
+    busses = {
+      allowedGoldCarrier = true,
+      charges = 2,
+      cooldown = 35,
+      duration = 10,
+      initCooldown = 20,
+      rank = 3
+    },
+    canon = {
+      allowedGoldCarrier = false,
+      charges = 3,
+      cooldown = 20,
+      duration = 1,
+      initCooldown = 1,
+      rank = 4
+    },
+    chaos = {
+      allowedGoldCarrier = false,
+      charges = 2,
+      cooldown = 60,
+      duration = 16,
+      initCooldown = 20,
+      rank = 5,
+      switchTime = 4
+    },
+    cinematic = {
+      allowedGoldCarrier = true,
+      charges = 1,
+      cooldown = 30,
+      duration = 10,
+      initCooldown = 10,
+      rank = 3
+    },
+    helicopter = {
+      allowedGoldCarrier = false,
+      charges = 2,
+      cooldown = 20,
+      duration = 15,
+      initCooldown = 15,
+      rank = 3
+    },
+    hidemap = {
+      allowedGoldCarrier = true,
+      charges = 1,
+      cooldown = 40,
+      duration = 5,
+      initCooldown = 1,
+      rank = 2
+    },
+    jump = {
+      allowedGoldCarrier = true,
+      charges = 2,
+      cooldown = 20,
+      duration = 1,
+      height = 0.30000001,
+      initCooldown = 1,
+      rank = 5
+    },
+    nitro = {
+      allowedGoldCarrier = false,
+      cooldown = 21,
+      duration = 8,
+      initCooldown = 10,
+      rank = 1
+    },
+    offroad = {
+      allowedGoldCarrier = true,
+      cooldown = 30,
+      duration = 10,
+      initCooldown = 15,
+      rank = 2
+    },
+    physics = {
+      allowedGoldCarrier = false,
+      charges = 1,
+      cooldown = 30,
+      duration = 1,
+      initCooldown = 30,
+      rank = 6
+    },
+    plane = {
+      allowedGoldCarrier = false,
+      charges = 2,
+      cooldown = 20,
+      duration = 12,
+      initCooldown = 15,
+      rank = 2
+    },
+    shield = {
+      allowedGoldCarrier = true,
+      charges = 1,
+      cooldown = 10,
+      duration = 2000,
+      initCooldown = 10,
+      rank = 4
+    },
+    superCar = {
+      allowedGoldCarrier = false,
+      cooldown = 30,
+      duration = 10,
+      initCooldown = 10,
+      model = 541,
+      rank = 4
+    },
+    teleport = {
+      allowedGoldCarrier = false,
+      charges = 1,
+      cooldown = 20,
+      duration = 0,
+      initCooldown = 5,
+      minDistance = 300,
+      rank = 1
+    },
+    waterLevel = {
+      allowedGoldCarrier = false,
+      charges = 2,
+      cooldown = 20,
+      duration = 10,
+      initCooldown = 20,
+      rank = 5
+    },
+    worldgravity = {
+      allowedGoldCarrier = true,
+      charges = 2,
+      cooldown = 30,
+      duration = 10,
+      gravity = 0.0020000001,
+      initCooldown = 15,
+      rank = 5
+    }
+  }
+}

@@ -66,7 +66,8 @@ end
 
 function createGold(posX, posY, posZ)
     local marker = createMarker(posX, posY, posZ + 6, "arrow", 2.0, 255, 0, 0)
-    local hitMarker = createMarker(posX, posY, posZ - 2, "checkpoint", 2.0, 0, 0, 0, 0, getRootElement())
+    local hitMarker = createMarker(posX, posY, posZ - 2, "checkpoint", 2.0, 0, 0, 0, 0, marker)
+    --setElementVisibleTo(blip, getRootElement(), false)
     
     -- Create the persistent gold object
     if not activeGoldObject or not isElement(activeGoldObject) then
@@ -79,7 +80,7 @@ function createGold(posX, posY, posZ)
     end
 
     triggerClientEvent("onClientSetGoldElement", root, activeGoldObject)
-    setObjectScale(activeGoldObject, 6.0)
+    setObjectScale(activeGoldObject, 8.0)
 
     setElementParent(marker, hitMarker)
     return hitMarker
@@ -124,7 +125,7 @@ function createCarrierMarker(player)
     if not vehicle then return nil end
 
     local zOffset = getVehicleZOffset(vehicle)
-    local marker = createMarker(0, 0, 0, "arrow", 2.0, 255, 124, 244)
+    local marker = createMarker(0, 0, 0, "arrow", 2.0, 255, 0, 0)
     setElementData(marker, "isGoldCarrierMarker", true)
 
     attachElements(marker, vehicle, 0, 0, zOffset + 4.0)
