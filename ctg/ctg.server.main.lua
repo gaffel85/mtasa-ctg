@@ -353,16 +353,19 @@ addEventHandler("onPlayerWasted", getRootElement(), playerWastedMain)
 -- listen for event from client called "reportTransform"
 addEvent("reportTransform", true)
 addEventHandler("reportTransform", resourceRoot, function(transform, param1, param2, param3, param4)
+    --outputChatBox("reportTransform in main "..inspect(transform)..' '..inspect(param1)..' '..inspect(param2)..' '..inspect(param3))
     if param1 and param1 == "replaceGold" then
         spawnGoldAtTransform(transform.x, transform.y, transform.z)
         refreshAllBlips()
     elseif param1 and param1 == "teleportTo" then
+        --outputChatBox(inspect(param2))
         teleportTo(param2, transform)
     elseif param1 and param1 == "teleportOr" then
         if not param2 or not param3 or not param4 then
-            outputServerLog("Missing params in teleportOr")
+            outputServerLog("Missing params in teleportOr: ["..inspect(param2)..", "..inspect(param3)..", "..inspect(param4).."]")
             return
         end
+        --outputServerLog("Teleporting to or: ["..inspect(transform)..", "..inspect(param2)..", "..inspect(param3)..", "..inspect(param4).."]")
         teleportToOr(param2, transform, param3, param4)
     else
         outputConsole("Unknown param1 in reportTransform: ["..tostring(param1).."]")
@@ -429,58 +432,99 @@ addCommandHandler("gather", function(thePlayer, command)
     testGather()
 end)
 
+-- Debug command: spawn player at 0,0,0 on foot to reproduce vehicle-less respawn bug
 addCommandHandler("bug", function(thePlayer, command)
+    --outputChatBox("Spawning at 0,0,0 without vehicle for bug reproduction", thePlayer)
     local pname = tostring(getPlayerName(thePlayer) or "unknown")
     outputServerLog("/bug invoked by "..pname)
+    -- destroy any occupied vehicle first so player ends up on foot
     local veh = getPedOccupiedVehicle(thePlayer)
     if veh then
+        outputServerLog("/bug destroying vehicle for "..pname)
         destroyElement(veh)
     end
+    -- spawnPlayer will place the player on foot at the given coords
     spawnPlayer(thePlayer, 0, 0, 0, 0, 285)
     fadeCamera(thePlayer, true)
     setCameraTarget(thePlayer, thePlayer)
 end)
 
 addCommandHandler("fix", function(thePlayer, command)
+    outputChatBox("Respawning you at a spawn point and requesting catch-up.", thePlayer)
     local pname = tostring(getPlayerName(thePlayer) or "unknown")
     outputServerLog("/fix invoked by "..pname)
+    -- destroy any occupied vehicle first to avoid orphan vehicles
     local veh = getPedOccupiedVehicle(thePlayer)
     if veh then
+        outputServerLog("/fix destroying vehicle for "..pname)
         destroyElement(veh)
     end
+    -- Spawn like a new player (uses current vehicle model from map)
     spawn(thePlayer, false)
+    -- Give the spawn logic time to create/warp into the vehicle, then trigger catch-up
     setTimer(function()
         if type(useCatchUpForce) == "function" then
             useCatchUpForce(thePlayer)
+        else
+            outputServerLog("useCatchUpForce not available when /fix invoked by "..pname)
         end
     end, 200, 1)
 end)
 
 addCommandHandler("score", function(thePlayer, command, targetName, scoreStr)
+    -- Usage: /score <playerName> <score>
     if not scoreStr then
+        -- allow old behavior: /score <score> to set your own score
         local newScore = tonumber(targetName)
         if newScore then
             setScoreDeug(thePlayer, newScore)
             outputChatBox("Your score set to "..newScore, thePlayer)
+        else
+            outputChatBox("Usage: /score <playerName> <score> or /score <score>", thePlayer)
         end
         return
     end
     local newScore = tonumber(scoreStr)
-    if not newScore then return end
+    if not newScore then
+        outputChatBox("Invalid score: must be a number", thePlayer)
+        return
+    end
+
     local target = getPlayerFromName(targetName)
-    if not target then return end
+    if not target then
+        outputChatBox("Player not found: "..tostring(targetName), thePlayer)
+        return
+    end
+
     setScoreDeug(target, newScore)
+    outputChatBox("Set score of "..getPlayerName(target).." to "..newScore, thePlayer)
+    outputServerLog("/score invoked by "..tostring(getPlayerName(thePlayer) or "unknown").." set "..tostring(getPlayerName(target)).." to "..tostring(newScore))
 end)
 
 addCommandHandler("param", function(source, command, paramName, paramValue)
     if (paramName == "coeff") then
-        getConst().goldHandlingCoeff = tonumber(paramValue)
-    elseif (paramName == "height") then
-        getConst().goldHeight = tonumber(paramValue)
-    elseif (paramName == "mass") then
-        getConst().goldMass = tonumber(paramValue)
-    elseif (paramName == "damage") then
-        getConst().damageMultiplierWeight = tonumber(paramValue)
+        local newValue = tonumber(paramValue)
+        local oldValue = getConst().goldHandlingCoeff
+        getConst().goldHandlingCoeff = newValue
+      -- outputChatBox("Gold handling coeff set to: "..getConst().goldHandlingCoeff.." (old was "..oldValue..")")
+    end
+    if (paramName == "height") then
+        local newValue = tonumber(paramValue)
+        local oldValue = getConst().goldHeight
+        getConst().goldHeight = newValue
+      -- outputChatBox("Gold height set to: "..getConst().goldHeight.." (old was "..oldValue..")")
+    end
+    if (paramName == "mass") then
+        local newValue = tonumber(paramValue)
+        local oldValue = getConst().goldMass
+        getConst().goldMass = newValue
+      -- outputChatBox("Gold mass set to: "..getConst().goldMass.." (old was "..oldValue..")")
+    end
+    if (paramName == "damage") then
+        local newValue = tonumber(paramValue)
+        local oldValue = getConst().damageMultiplierWeight
+        getConst().damageMultiplierWeight = newValue
+      -- outputChatBox("Damage multiplier set to: "..getConst().damageMultiplierWeight.." (old was "..oldValue..")")
     end
     local carrier = getGoldCarrier()
     if (carrier) then
