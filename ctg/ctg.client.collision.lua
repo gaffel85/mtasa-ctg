@@ -25,29 +25,58 @@ function flipIfNeeded(vehicle)
 	end
 end
 
+local isRespawning = false
+
 function paralyzeAndRepairCar(vehicle)
-	local driver = getVehicleOccupant ( vehicle )
-	--if ( driver == getBombHolder() ) then
-	--	setVehicleDamageProof ( vehicle , true )
-	--	flipIfNeeded ( vehicle )
-	--	fixVehicle ( vehicle )
-	--	setTimer(function() 
-	--		setVehicleDamageProof ( vehicle , false )
-	--	end, 5000, 1)
-	--else
-		--outputDebugString("Reparing car for"..inspect(driver))
-	toggleAllControls ( false, true, false )
-	setVehicleDamageProof ( vehicle , true )
-	triggerServerEvent("clientText", resourceRoot, "showRepairingCar")
-	triggerServerEvent("repairCar", resourceRoot, driver)
+	if isRespawning then return end
+	isRespawning = true
 
-	fixVehicle (vehicle)
-	flipIfNeeded ( vehicle )
+	local location = findLocationClosestToTimeAgo(2)
+	if not location then
+		-- Fallback to old behavior if no location found
+		toggleAllControls(false, true, false)
+		setVehicleDamageProof(vehicle, true)
+		triggerServerEvent("clientText", resourceRoot, "showRepairingCar")
+		triggerServerEvent("repairCar", resourceRoot, localPlayer)
+		fixVehicle(vehicle)
+		flipIfNeeded(vehicle)
+		setTimer(function()
+			toggleAllControls(true, true, true)
+			setVehicleDamageProof(vehicle, false)
+			isRespawning = false
+		end, getConst().repairTime * 1000, 1)
+		return
+	end
 
-	setTimer(function() 
-		toggleAllControls ( true, true, true )
-		setVehicleDamageProof ( vehicle , false )
-	end, getConst().repairTime * 1000, 1)
+	fadeCamera(false, 1.0)
+	outputChatBox("Your vehicle was too damaged! Respawning to 2 seconds ago...", 255, 0, 0)
+
+	setTimer(function()
+		fadeCamera(true, 1.0)
+		triggerServerEvent("onRespawnOnDamageTeleport", resourceRoot, 
+			location.x, location.y, location.z, 
+			location.rx, location.ry, location.rz, 
+			location.vx, location.vy, location.vz,
+			location.avx, location.avy, location.avz)
+
+		local countdown = 2
+		local screenW, screenH = guiGetScreenSize()
+		local function drawCountdown()
+			if countdown > 0 then
+				dxDrawText(tostring(countdown), 0, 0, screenW, screenH, tocolor(255, 255, 255, 255), 5, "default-bold", "center", "center")
+			end
+		end
+		addEventHandler("onClientRender", root, drawCountdown)
+
+		setTimer(function() countdown = 1 end, 1000, 1)
+
+		setTimer(function()
+			countdown = 0
+			removeEventHandler("onClientRender", root, drawCountdown)
+			triggerServerEvent("onRespawnOnDamageRelease", resourceRoot)
+			isRespawning = false
+		end, 2000, 1)
+	end, 1000, 1)
 end
 
 addEventHandler ( "onClientVehicleDamage", root, function ( attacker, weapon, loss )
