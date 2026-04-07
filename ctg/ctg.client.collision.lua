@@ -17,6 +17,7 @@ end
 addEventHandler("onClientVehicleCollision", getRootElement(), onCollision)
 
 function flipIfNeeded(vehicle)
+    if not vehicle or not isElement(vehicle) then return end
 	local rx,ry,rz = getElementRotation ( vehicle )
 	if rx > 90 and rx < 270 or ry > 90 and ry < 270 then
 		local posX, posY, posZ = getElementPosition ( vehicle )
@@ -26,41 +27,59 @@ function flipIfNeeded(vehicle)
 end
 
 local isRespawning = false
+local screenW, screenH = guiGetScreenSize()
 
-function paralyzeAndRepairCar(vehicle)
+function paralyzeAndRepairCar(vehicle, isManual)
 	if isRespawning then return end
 	isRespawning = true
 
 	local location = findLocationClosestToTimeAgo(2)
+	local goldLocation = findLocationClosestToTimeAgo(0) -- Most recent ground location
+
 	if not location then
 		-- Fallback to old behavior if no location found
 		toggleAllControls(false, true, false)
-		setVehicleDamageProof(vehicle, true)
+        if vehicle and isElement(vehicle) then
+		    setVehicleDamageProof(vehicle, true)
+            fixVehicle(vehicle)
+		    flipIfNeeded(vehicle)
+        end
 		triggerServerEvent("clientText", resourceRoot, "showRepairingCar")
 		triggerServerEvent("repairCar", resourceRoot, localPlayer)
-		fixVehicle(vehicle)
-		flipIfNeeded(vehicle)
 		setTimer(function()
 			toggleAllControls(true, true, true)
-			setVehicleDamageProof(vehicle, false)
+            if vehicle and isElement(vehicle) then
+			    setVehicleDamageProof(vehicle, false)
+            end
 			isRespawning = false
 		end, getConst().repairTime * 1000, 1)
 		return
 	end
 
 	fadeCamera(false, 1.0)
-	outputChatBox("Your vehicle was too damaged! Respawning to 2 seconds ago...", 255, 0, 0)
+	
+	if not isManual then
+		local function drawRespawnMessage()
+			dxDrawText("Your vehicle was too damaged! Respawning...", 0, 0, screenW, screenH, tocolor(255, 255, 255, 255), 3, "default-bold", "center", "center")
+		end
+		addEventHandler("onClientRender", root, drawRespawnMessage)
+		setTimer(function() removeEventHandler("onClientRender", root, drawRespawnMessage) end, 1000, 1)
+	end
 
 	setTimer(function()
 		fadeCamera(true, 1.0)
+		local gx, gy, gz = nil, nil, nil
+		if goldLocation then
+			gx, gy, gz = goldLocation.x, goldLocation.y, goldLocation.z
+		end
 		triggerServerEvent("onRespawnOnDamageTeleport", resourceRoot, 
 			location.x, location.y, location.z, 
 			location.rx, location.ry, location.rz, 
 			location.vx, location.vy, location.vz,
-			location.avx, location.avy, location.avz)
+			location.avx, location.avy, location.avz,
+			gx, gy, gz)
 
 		local countdown = 2
-		local screenW, screenH = guiGetScreenSize()
 		local function drawCountdown()
 			if countdown > 0 then
 				dxDrawText(tostring(countdown), 0, 0, screenW, screenH, tocolor(255, 255, 255, 255), 5, "default-bold", "center", "center")
@@ -98,18 +117,16 @@ addEventHandler ( "onClientVehicleDamage", root, function ( attacker, weapon, lo
 	local vehicle = source
 	local health = getElementHealth ( vehicle )
 	guiProgressBarSetProgress(damageBar, 100 * (math.max(health, 250) - 250) / 750)
-	if ( health < 250 ) then
-		paralyzeAndRepairCar(vehicle)
-	end
 end )
+
+addEventHandler("onClientPlayerWasted", localPlayer, function()
+	paralyzeAndRepairCar(getPedOccupiedVehicle(localPlayer))
+end)
 
 function manualRepair()
 	local vehicle = getPedOccupiedVehicle(localPlayer)
 	if ( vehicle ) then
-		local posX, posY, posZ = getElementPosition ( vehicle )
-		setElementPosition (vehicle, posX, posY, posZ + 2)
-		setElementRotation (vehicle, 0, 0, rz)
-		paralyzeAndRepairCar(vehicle)
+		paralyzeAndRepairCar(vehicle, true)
 	end
 end
 
@@ -140,12 +157,15 @@ end)
 setTimer(function()
 	local vehicle = getPedOccupiedVehicle(localPlayer)
 	if ( vehicle ) then
-		if isElementOnFire ( vehicle ) then
-			--outputChatBox("Vehicle is on fire")
-			paralyzeAndRepairCar()
+		local rx, ry, rz = getElementRotation(vehicle)
+		if (rx > 90 and rx < 270) or (ry > 90 and ry < 270) then
+			addEventHandler("onClientRender", root, drawFlipMessage)
+		else
+			removeEventHandler("onClientRender", root, drawFlipMessage)
 		end
 	end
-end, 3000, 1)
+end, 1000, 0)
 
-
-
+function drawFlipMessage()
+	dxDrawText("Press 'R' to flip your vehicle!", 0, screenH * 0.3, screenW, screenH, tocolor(255, 255, 255, 255), 2, "default-bold", "center", "top")
+end

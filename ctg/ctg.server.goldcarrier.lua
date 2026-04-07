@@ -20,7 +20,7 @@ function setGoldCarrier(carrier)
         --removeVechicleHandling(oldGoldCarrier)
     end
 
-    outputServerLog("Gold carrier set to "..inspect(getGoldCarrier))
+    outputServerLog("Gold carrier set to "..inspect(getGoldCarrier()))
     if (carrier) then
         --setVechicleHandling(getGoldCarrier())
     end

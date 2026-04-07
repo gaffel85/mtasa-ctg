@@ -163,6 +163,10 @@ end
 
 function markerHit(markerHit, matchingDimension)
     if markerHit == goldSpawnMarker then
+        if getElementData(source, "blockGoldPickup") then
+            --outputServerLog("[CTG-REWIND] Player " .. getPlayerName(source) .. " is blocked from picking up gold.")
+            return
+        end
         -- Don't destroy activeGoldObject, just detach it from whatever it might be
         cleanUpFallingGold()
         destroySpawnMarker()
