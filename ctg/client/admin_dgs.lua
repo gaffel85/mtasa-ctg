@@ -81,6 +81,19 @@ local function toggleAdminWindow()
         local momentumTab = DGS:dgsCreateTab("Momentum", tabPanel)
         local scrollPane = DGS:dgsCreateScrollPane(0, 0, width, height - 120, false, momentumTab)
         refreshMomentumTab(scrollPane)
+
+        -- Game State Tab
+        local gameStateTab = DGS:dgsCreateTab("Game State", tabPanel)
+        local saveStateBtn = DGS:dgsCreateButton(10, 10, width - 20, 30, "Save Score & Teams", false, gameStateTab)
+        local loadStateBtn = DGS:dgsCreateButton(10, 50, width - 20, 30, "Load Score & Teams", false, gameStateTab)
+
+        addEventHandler("onDgsMouseClickUp", saveStateBtn, function()
+            triggerServerEvent("saveGameState", resourceRoot)
+        end, false)
+
+        addEventHandler("onDgsMouseClickUp", loadStateBtn, function()
+            triggerServerEvent("loadGameState", resourceRoot)
+        end, false)
         
         -- Footer Controls
         local saveBtn = DGS:dgsCreateButton(10, height - 40, (width - 30) / 2, 30, "Save Props", false, adminWindow)
