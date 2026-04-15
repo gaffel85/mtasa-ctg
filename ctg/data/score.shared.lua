@@ -42,8 +42,21 @@ function setScorePercentage(player, newScore, totalScore)
 end
 
 
-function setScoreDeug(player, score)
+function setPlayerScore(player, score)
+    local oldScore = getPlayerScore(player) or 0
+    local diff = score - oldScore
+
+    local totalScore = changeTotalScore(diff)
     setElementData(player, SCORE_KEY, score)
+    
+    -- Recalculate percentages for all players because totalScore changed
+    for _, p in ipairs(getElementsByType("player")) do
+        setScorePercentage(p, getPlayerScore(p), totalScore)
+    end
+end
+
+function setScoreDeug(player, score)
+    setPlayerScore(player, score)
 end
 
 function getPlayerScore(player)

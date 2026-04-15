@@ -451,25 +451,9 @@ end)
 
 addCommandHandler("fix", function(thePlayer, command)
     outputChatBox("Respawning you at a spawn point and requesting catch-up.", thePlayer)
-    local pname = tostring(getPlayerName(thePlayer) or "unknown")
-    outputServerLog("/fix invoked by "..pname)
-    -- destroy any occupied vehicle first to avoid orphan vehicles
-    local veh = getPedOccupiedVehicle(thePlayer)
-    if veh then
-        outputServerLog("/fix destroying vehicle for "..pname)
-        destroyElement(veh)
-    end
-    -- Spawn like a new player (uses current vehicle model from map)
-    spawn(thePlayer, false)
-    -- Give the spawn logic time to create/warp into the vehicle, then trigger catch-up
-    setTimer(function()
-        if type(useCatchUpForce) == "function" then
-            useCatchUpForce(thePlayer)
-        else
-            outputServerLog("useCatchUpForce not available when /fix invoked by "..pname)
-        end
-    end, 200, 1)
+    fixPlayer(thePlayer)
 end)
+
 
 addCommandHandler("score", function(thePlayer, command, targetName, scoreStr)
     -- Usage: /score <playerName> <score>

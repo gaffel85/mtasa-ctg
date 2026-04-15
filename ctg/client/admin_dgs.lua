@@ -1,18 +1,29 @@
 local DGS = exports.dgs
 local adminWindow = nil
 local playerList = nil
+local destCombo = nil
 local momentumRows = {}
 local localConsts = nil
 
 local function updatePlayerList()
     if not playerList then return end
     DGS:dgsGridListClear(playerList)
+    if destCombo then DGS:dgsComboBoxClear(destCombo) end
+    
     for _, player in ipairs(getElementsByType("player")) do
+        local playerName = getPlayerName(player)
+        
+        -- Update Grid List
         local row = DGS:dgsGridListAddRow(playerList)
-        DGS:dgsGridListSetItemText(playerList, row, 1, getPlayerName(player))
+        DGS:dgsGridListSetItemText(playerList, row, 1, playerName)
         local hasPower = getElementData(player, "hasSuperCatchup")
         DGS:dgsGridListSetItemText(playerList, row, 2, hasPower and "Yes" or "No")
         DGS:dgsGridListSetItemColor(playerList, row, 2, hasPower and tocolor(0, 255, 0) or tocolor(255, 0, 0))
+        
+        -- Update Destination Combo
+        if destCombo then
+            DGS:dgsComboBoxAddItem(destCombo, playerName)
+        end
     end
 end
 
@@ -50,7 +61,7 @@ local function toggleAdminWindow()
         showCursor(false)
     else
         local screenW, screenH = guiGetScreenSize()
-        local width, height = 500, 600
+        local width, height = 500, 700
         adminWindow = DGS:dgsCreateWindow((screenW - width) / 2, (screenH - height) / 2, width, height, "Admin Panel", false)
         DGS:dgsWindowSetCloseButtonEnabled(adminWindow, false)
         
@@ -58,12 +69,11 @@ local function toggleAdminWindow()
         
         -- Players Tab (Original Super Catch-up logic)
         local playerTab = DGS:dgsCreateTab("Players", tabPanel)
-        playerList = DGS:dgsCreateGridList(10, 10, width - 20, height - 180, false, playerTab)
+        playerList = DGS:dgsCreateGridList(10, 10, width - 20, height - 300, false, playerTab)
         DGS:dgsGridListAddColumn(playerList, "Player", 0.6)
         DGS:dgsGridListAddColumn(playerList, "Power", 0.3)
-        updatePlayerList()
         
-        local grantBtn = DGS:dgsCreateButton(10, height - 160, width - 20, 30, "Toggle Super Catchup", false, playerTab)
+        local grantBtn = DGS:dgsCreateButton(10, height - 280, (width - 30) / 2, 30, "Toggle Super Catchup", false, playerTab)
         addEventHandler("onDgsMouseClickUp", grantBtn, function()
             local selectedRow = DGS:dgsGridListGetSelectedItem(playerList)
             if selectedRow ~= -1 then
@@ -75,6 +85,72 @@ local function toggleAdminWindow()
                     setTimer(updatePlayerList, 200, 1)
                 end
             end
+        end, false)
+
+        local scoreEdit = DGS:dgsCreateEdit(width / 2 + 5, height - 280, 60, 30, "0", false, playerTab)
+        local setScoreBtn = DGS:dgsCreateButton(width / 2 + 70, height - 280, width / 2 - 80, 30, "Set Score", false, playerTab)
+        addEventHandler("onDgsMouseClickUp", setScoreBtn, function()
+            local selectedRow = DGS:dgsGridListGetSelectedItem(playerList)
+            if selectedRow ~= -1 then
+                local playerName = DGS:dgsGridListGetItemText(playerList, selectedRow, 1)
+                local score = tonumber(DGS:dgsGetText(scoreEdit))
+                if score then
+                    triggerServerEvent("fromClientSetPlayerScore", resourceRoot, playerName, score)
+                end
+            end
+        end, false)
+
+        local fixBtn = DGS:dgsCreateButton(10, height - 240, width - 20, 30, "Fix & Respawn Player", false, playerTab)
+        addEventHandler("onDgsMouseClickUp", fixBtn, function()
+            local selectedRow = DGS:dgsGridListGetSelectedItem(playerList)
+            if selectedRow ~= -1 then
+                local playerName = DGS:dgsGridListGetItemText(playerList, selectedRow, 1)
+                triggerServerEvent("adminFixPlayer", resourceRoot, playerName)
+            end
+        end, false)
+
+        -- Teleport UI
+        DGS:dgsCreateLabel(10, height - 200, 100, 30, "Teleport to:", false, playerTab)
+        destCombo = DGS:dgsCreateComboBox(110, height - 205, width - 120, 30, "Select Player", false, playerTab)
+        
+        local teleportBtn = DGS:dgsCreateButton(10, height - 165, width - 20, 30, "Teleport Selected to Destination", false, playerTab)
+        addEventHandler("onDgsMouseClickUp", teleportBtn, function()
+            local selectedRow = DGS:dgsGridListGetSelectedItem(playerList)
+            local destItem = DGS:dgsComboBoxGetSelectedItem(destCombo)
+            
+            if selectedRow ~= -1 and destItem ~= -1 then
+                local targetName = DGS:dgsGridListGetItemText(playerList, selectedRow, 1)
+                local destName = DGS:dgsComboBoxGetItemText(destCombo, destItem)
+                
+                triggerServerEvent("adminTeleportPlayerToPlayer", resourceRoot, targetName, destName)
+            else
+                outputChatBox("Select both a target player and a destination player.", 255, 0, 0)
+            end
+        end, false)
+
+        updatePlayerList()
+
+        -- Gold Tab
+        local goldTab = DGS:dgsCreateTab("Gold", tabPanel)
+        local spawnGold10sBtn = DGS:dgsCreateButton(10, 10, width - 20, 30, "Spawn Gold @ Carrier 10s Ago", false, goldTab)
+        local respawnClosestBtn = DGS:dgsCreateButton(10, 50, width - 20, 30, "Respawn Gold (Closest Spawn)", false, goldTab)
+        local respawnLastBtn = DGS:dgsCreateButton(10, 90, width - 20, 30, "Respawn Gold (Last Spawn)", false, goldTab)
+        local respawnRandomBtn = DGS:dgsCreateButton(10, 130, width - 20, 30, "Respawn Gold (Random Nearby 100m)", false, goldTab)
+
+        addEventHandler("onDgsMouseClickUp", spawnGold10sBtn, function()
+            triggerServerEvent("adminSpawnGoldAt10sAgo", resourceRoot)
+        end, false)
+
+        addEventHandler("onDgsMouseClickUp", respawnClosestBtn, function()
+            triggerServerEvent("adminRespawnGoldClosest", resourceRoot)
+        end, false)
+
+        addEventHandler("onDgsMouseClickUp", respawnLastBtn, function()
+            triggerServerEvent("adminRespawnGoldLast", resourceRoot)
+        end, false)
+
+        addEventHandler("onDgsMouseClickUp", respawnRandomBtn, function()
+            triggerServerEvent("adminRespawnGoldRandomNearby", resourceRoot)
         end, false)
 
         -- Momentum Tab
