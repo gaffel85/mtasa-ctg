@@ -77,6 +77,7 @@ addEventHandler("onPlayerQuit", root,
         if (score == false) then
             score = 0
         end
+        outputServerLog("[SCORE] Player " .. getPlayerName(source) .. " quitting with score: " .. tostring(score))
         local totalScore = changeTotalScore(-score)
         for k, player in ipairs(getElementsByType("player")) do
             setScorePercentage(player, getPlayerScore(player), totalScore)
@@ -88,6 +89,13 @@ addEventHandler("onPlayerQuit", root,
 
 addEventHandler("onPlayerJoin", root,
     function()
-        setElementData(source, SCORE_KEY, 0)
+        local saved = getSavedPlayerState and getSavedPlayerState(source)
+        if saved then
+            outputServerLog("[SCORE] Restoring score for " .. getPlayerName(source) .. ": " .. tostring(saved.score))
+            setPlayerScore(source, saved.score)
+        else
+            outputServerLog("[SCORE] No saved state for " .. getPlayerName(source))
+            setElementData(source, SCORE_KEY, 0)
+        end
     end
 )

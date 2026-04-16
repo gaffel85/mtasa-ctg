@@ -284,5 +284,6 @@ addEventHandler("onPlayerJoin", getRootElement(), bindTheKeys)
 function unbindTheKeys ( )
   -- outputServerLog("source unbindTheKeys "..inspect(source))
     unbindTeamKeysForPlayer(source)
+    removeFromPreviousTeam(source)
 end
 addEventHandler("onPlayerQuit", getRootElement(), unbindTheKeys)

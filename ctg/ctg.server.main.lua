@@ -97,9 +97,9 @@ function spawnAtSpawnpoint(thePlayer, posX, posY, posZ, rotX, rotY, rotZ)
     spawnAt(thePlayer, rx, ry, rz, rrx, rry, rrz)
 end
 
-function spawnAt(player, posX, posY, posZ, rotX, rotY, rotZ)
+function spawnAt(player, posX, posY, posZ, rotX, rotY, rotZ, model)
     --outputServerLog("Spawning at "..inspect(posX)..", "..inspect(posY)..", "..inspect(posZ)..", "..inspect(rotX)..", "..inspect(rotY)..", "..inspect(rotZ))
-    local vehicle = createVehicle(getCurrentVehicle(), posX, posY, posZ + 2, rotX, rotY, rotZ, "Hunter")
+    local vehicle = createVehicle(model or getCurrentVehicle(), posX, posY, posZ + 2, rotX, rotY, rotZ, "Hunter")
     spawnPlayer(player, 0, 0, 0, 0, 285)
     setTimer(function()
         warpPedIntoVehicle(player, vehicle)
@@ -240,7 +240,13 @@ addEventHandler("plotPointsFromClient", resourceRoot, function()
 end)
 
 function joinHandler()
-    spawn(source, false)
+    local saved = getSavedPlayerState and getSavedPlayerState(source)
+    if saved then
+        restoreSavedState(source, saved)
+    else
+        outputServerLog("[CTG-MAIN] No saved state for " .. getPlayerName(source))
+        spawn(source, false)
+    end
     startGameIfEnoughPlayers()
   -- outputChatBox("Welcome to Capture the Gold!", source)
     refreshAllBlips()
@@ -248,6 +254,27 @@ function joinHandler()
     --plotPoints()
 end
 addEventHandler("onPlayerJoin", getRootElement(), joinHandler)
+
+function restoreSavedState(player, saved)
+    outputServerLog("[CTG-MAIN] Restoring state for " .. getPlayerName(player) .. " - Model: " .. tostring(saved.model) .. ", TeamName: " .. tostring(saved.teamName))
+    spawnAt(player, saved.pos[1], saved.pos[2], saved.pos[3], saved.rot[1], saved.rot[2], saved.rot[3], saved.model)
+    
+    if saved.teamName and getTeams then
+        setTimer(function(p, tName)
+            if not isElement(p) then return end
+            local teams = getTeams()
+            for _, team in ipairs(teams) do
+                if team.team and getTeamName(team.team) == tName then
+                    outputServerLog("[CTG-MAIN] Switching " .. getPlayerName(p) .. " to team: " .. tostring(tName))
+                    switchToTeam(team, p)
+                    break
+                end
+            end
+        end, 200, 1, player, saved.teamName)
+    end
+    -- Postpone clearing data to give other scripts a chance to read it
+    setTimer(clearSavedPlayerState, 1000, 1, player)
+end
 
 function startGameIfEnoughPlayers()
     local players = getElementsByType("player")
