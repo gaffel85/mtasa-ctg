@@ -24,6 +24,8 @@
 	<script src="shared/camera.path.lua" type="client" />
 	<script src="client/events.lua" type="client" />
 	<script src="client/speed_warning.lua" type="client" />
+	<!-- Core Systems -->
+	<script src="server/persistence.lua" />
 	<script src="data/score.shared.lua" />
 	<script src="data/score.shared.lua" type="client" />
 	<script src="data/goldcarrier.shared.lua" />
@@ -105,6 +107,7 @@
 	<script src="server/math.utils.lua" />
 	<script src="server/catch.up.lua" />
 	<script src="server/super_catchup_manager.lua" />
+	<script src="server/respawn_manager.lua" />
 	<script src="server/cleaner.server.lua" />
 	<script src="server/scoreboard.lua" />
 	<script src="server/power.state.repo.lua" />

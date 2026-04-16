@@ -42,8 +42,21 @@ function setScorePercentage(player, newScore, totalScore)
 end
 
 
-function setScoreDeug(player, score)
+function setPlayerScore(player, score)
+    local oldScore = getPlayerScore(player) or 0
+    local diff = score - oldScore
+
+    local totalScore = changeTotalScore(diff)
     setElementData(player, SCORE_KEY, score)
+    
+    -- Recalculate percentages for all players because totalScore changed
+    for _, p in ipairs(getElementsByType("player")) do
+        setScorePercentage(p, getPlayerScore(p), totalScore)
+    end
+end
+
+function setScoreDeug(player, score)
+    setPlayerScore(player, score)
 end
 
 function getPlayerScore(player)
@@ -64,6 +77,7 @@ addEventHandler("onPlayerQuit", root,
         if (score == false) then
             score = 0
         end
+        outputServerLog("[SCORE] Player " .. getPlayerName(source) .. " quitting with score: " .. tostring(score))
         local totalScore = changeTotalScore(-score)
         for k, player in ipairs(getElementsByType("player")) do
             setScorePercentage(player, getPlayerScore(player), totalScore)
@@ -75,6 +89,13 @@ addEventHandler("onPlayerQuit", root,
 
 addEventHandler("onPlayerJoin", root,
     function()
-        setElementData(source, SCORE_KEY, 0)
+        local saved = getSavedPlayerState and getSavedPlayerState(source)
+        if saved then
+            outputServerLog("[SCORE] Restoring score for " .. getPlayerName(source) .. ": " .. tostring(saved.score))
+            setPlayerScore(source, saved.score)
+        else
+            outputServerLog("[SCORE] No saved state for " .. getPlayerName(source))
+            setElementData(source, SCORE_KEY, 0)
+        end
     end
 )

@@ -59,7 +59,7 @@ function spawn(thePlayer, random)
     else
         local spawnPoint = spawnPoints[math.random(#spawnPoints)]
         if (random == true) then
-            local spawnPoint = spawnPoints[currentSpawn]
+            spawnPoint = spawnPoints[currentSpawn]
             currentSpawn = currentSpawn % #spawnPoints + 1
         end  
         spawnAtSpawnpointEdl(thePlayer, spawnPoint)
@@ -88,19 +88,18 @@ function spawnAtSpawnpoint(thePlayer, posX, posY, posZ, rotX, rotY, rotZ)
         radius = radius + 10
     end
 
-    local posX, posY, posZ, rotX, rotY, rotZ = getRandomRotatedLocationOrOther(locations, 1)
+    local rx, ry, rz, rrx, rry, rrz = getRandomRotatedLocationOrOther(locations, 1)
 
-    if posX == 0 then
-        posX, posY, posZ = coordsFromEdl(spawnPoint)
-        rotX, rotY, rotZ = rotFromEdl(spawnPoint)
+    if rx == 0 then
+        rx, ry, rz = posX, posY, posZ
+        rrx, rry, rrz = rotX, rotY, rotZ
     end
-    spawnAt(thePlayer, posX, posY, posZ, rotX, rotY, rotZ)
+    spawnAt(thePlayer, rx, ry, rz, rrx, rry, rrz)
 end
 
-function spawnAt(player, posX, posY, posZ, rotX, rotY, rotZ)
+function spawnAt(player, posX, posY, posZ, rotX, rotY, rotZ, model)
     --outputServerLog("Spawning at "..inspect(posX)..", "..inspect(posY)..", "..inspect(posZ)..", "..inspect(rotX)..", "..inspect(rotY)..", "..inspect(rotZ))
-    -- posX="" posY="" posZ=""
-    local vehicle = createVehicle(getCurrentVehicle(), posX, posY, posZ + 2, rotX, rotY, rotZ, "Hunter")
+    local vehicle = createVehicle(model or getCurrentVehicle(), posX, posY, posZ + 2, rotX, rotY, rotZ, "Hunter")
     spawnPlayer(player, 0, 0, 0, 0, 285)
     setTimer(function()
         warpPedIntoVehicle(player, vehicle)
@@ -241,7 +240,13 @@ addEventHandler("plotPointsFromClient", resourceRoot, function()
 end)
 
 function joinHandler()
-    spawn(source, false)
+    local saved = getSavedPlayerState and getSavedPlayerState(source)
+    if saved then
+        restoreSavedState(source, saved)
+    else
+        outputServerLog("[CTG-MAIN] No saved state for " .. getPlayerName(source))
+        spawn(source, false)
+    end
     startGameIfEnoughPlayers()
   -- outputChatBox("Welcome to Capture the Gold!", source)
     refreshAllBlips()
@@ -249,6 +254,27 @@ function joinHandler()
     --plotPoints()
 end
 addEventHandler("onPlayerJoin", getRootElement(), joinHandler)
+
+function restoreSavedState(player, saved)
+    outputServerLog("[CTG-MAIN] Restoring state for " .. getPlayerName(player) .. " - Model: " .. tostring(saved.model) .. ", TeamName: " .. tostring(saved.teamName))
+    spawnAt(player, saved.pos[1], saved.pos[2], saved.pos[3], saved.rot[1], saved.rot[2], saved.rot[3], saved.model)
+    
+    if saved.teamName and getTeams then
+        setTimer(function(p, tName)
+            if not isElement(p) then return end
+            local teams = getTeams()
+            for _, team in ipairs(teams) do
+                if team.team and getTeamName(team.team) == tName then
+                    outputServerLog("[CTG-MAIN] Switching " .. getPlayerName(p) .. " to team: " .. tostring(tName))
+                    switchToTeam(team, p)
+                    break
+                end
+            end
+        end, 200, 1, player, saved.teamName)
+    end
+    -- Postpone clearing data to give other scripts a chance to read it
+    setTimer(clearSavedPlayerState, 1000, 1, player)
+end
 
 function startGameIfEnoughPlayers()
     local players = getElementsByType("player")
@@ -320,29 +346,38 @@ function playerDied(player)
         spawnGoldAtTransform(posX, posY, posZ)
         refreshAllBlips()
     end
-    local closestSpawn = positionCloseTo(spawnPoints, {x = posX, y = posY, z = posZ}, 0)
-    spawnAtSpawnpointEdl(player, closestSpawn)
+    -- No longer perform immediate spawn here to avoid double-spawn blip before rewind.
+    -- The rewind/repair logic will handle spawning the player.
+    
+    -- Safety timer: if player is still dead after 4 seconds, spawn them normally
+    setTimer(function(p)
+        if isElement(p) and isPedDead(p) then
+            local x, y, z = getElementPosition(p)
+            local closestSpawn = positionCloseTo(spawnPoints, {x = x, y = y, z = z}, 0)
+            spawnAtSpawnpointEdl(p, closestSpawn)
+        end
+    end, 4000, 1, player)
 end
+
+function onRepairCar(player)
+    -- Fallback spawn if player is dead and rewind failed
+    if isPedDead(player) then
+        local posX, posY, posZ = getElementPosition(player)
+        local closestSpawn = positionCloseTo(spawnPoints, {x = posX, y = posY, z = posZ}, 0)
+        spawnAtSpawnpointEdl(player, closestSpawn)
+    end
+end
+addEvent("repairCar", true)
+addEventHandler("repairCar", getRootElement(), onRepairCar)
 
 function playerWastedMain(ammo, attacker, weapon, bodypart)
     --outputChatBox("playerWastedMain")
     cleanStuffInWorld()
     playerDied(source)
-    --local posX, posY, posZ = getElementPosition(source)
-    --spawnAt(source, posX, posY, posZ, 0, 0, 0)
-
-    --showRepairingCar(source)
-    --toggleAllControls(source, false, true, false)
-    --onRepairCar(source)
-    --local theWasted = source
-    --setTimer(function()
-    --    toggleAllControls(theWasted, true, true, true)
-    --end, 5000, 1)
 end
 addEventHandler("onPlayerWasted", getRootElement(), playerWastedMain)
 
 -- listen for event from client called "reportTransform"
---addEvent("reportLastTransform", true)
 addEvent("reportTransform", true)
 addEventHandler("reportTransform", resourceRoot, function(transform, param1, param2, param3, param4)
     --outputChatBox("reportTransform in main "..inspect(transform)..' '..inspect(param1)..' '..inspect(param2)..' '..inspect(param3))
@@ -360,7 +395,7 @@ addEventHandler("reportTransform", resourceRoot, function(transform, param1, par
         --outputServerLog("Teleporting to or: ["..inspect(transform)..", "..inspect(param2)..", "..inspect(param3)..", "..inspect(param4).."]")
         teleportToOr(param2, transform, param3, param4)
     else
-        outputConsole("Unknown param1 in reportTransform: ["..param1.."]")
+        outputConsole("Unknown param1 in reportTransform: ["..tostring(param1).."]")
     end
 end)
 
@@ -400,17 +435,6 @@ function quitPlayer(quitType)
 end
 addEventHandler("onPlayerQuit", getRootElement(), quitPlayer)
 
---[[
-// Added in map stuff
-function commitSuicide(sourcePlayer)
-    -- kill the player and make him responsible for it
-    outputChatBox("killPed")
-    killPed(sourcePlayer, sourcePlayer)
-    --playerDied(sourcePlayer)
-end
-addCommandHandler("kill", commitSuicide)
-]]--
-
 addEvent("onDisplayClientText", true)
 addEventHandler("onDisplayClientText", resourceRoot, displayMessageForPlayer)
 
@@ -418,7 +442,6 @@ addEvent("onClearClientText", true)
 addEventHandler("onClearClientText", getRootElement(), clearMessageForPlayer)
 
 addEventHandler("onResourceStart", getResourceRootElement(getThisResource()), function()
-    --give money to all players 
     local players = getElementsByType("player")
     for k, v in ipairs(players) do
         setPlayerMoney(v, 10000)
@@ -453,28 +476,11 @@ addCommandHandler("bug", function(thePlayer, command)
     setCameraTarget(thePlayer, thePlayer)
 end)
 
--- Respawn player at a map spawn (vehicle type from current map) then request catch-up teleport
 addCommandHandler("fix", function(thePlayer, command)
     outputChatBox("Respawning you at a spawn point and requesting catch-up.", thePlayer)
-    local pname = tostring(getPlayerName(thePlayer) or "unknown")
-    outputServerLog("/fix invoked by "..pname)
-    -- destroy any occupied vehicle first to avoid orphan vehicles
-    local veh = getPedOccupiedVehicle(thePlayer)
-    if veh then
-        outputServerLog("/fix destroying vehicle for "..pname)
-        destroyElement(veh)
-    end
-    -- Spawn like a new player (uses current vehicle model from map)
-    spawn(thePlayer, false)
-    -- Give the spawn logic time to create/warp into the vehicle, then trigger catch-up
-    setTimer(function()
-        if type(useCatchUpForce) == "function" then
-            useCatchUpForce(thePlayer)
-        else
-            outputServerLog("useCatchUpForce not available when /fix invoked by "..pname)
-        end
-    end, 200, 1)
+    fixPlayer(thePlayer)
 end)
+
 
 addCommandHandler("score", function(thePlayer, command, targetName, scoreStr)
     -- Usage: /score <playerName> <score>
@@ -489,7 +495,6 @@ addCommandHandler("score", function(thePlayer, command, targetName, scoreStr)
         end
         return
     end
-
     local newScore = tonumber(scoreStr)
     if not newScore then
         outputChatBox("Invalid score: must be a number", thePlayer)
@@ -538,10 +543,3 @@ addCommandHandler("param", function(source, command, paramName, paramValue)
         setVechicleHandling(getGoldCarrier())
     end
 end)
-
-function onRepairCar(player)
-    -- showPlayerParalyzied(getBombHolder(), player)
-end
-addEvent("repairCar", true)
-addEventHandler("repairCar", getRootElement(), onRepairCar)
-

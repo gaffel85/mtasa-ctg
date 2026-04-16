@@ -26,6 +26,16 @@ local teamsScoreDisplay
 local team1Display
 local team2Display
 
+function setTeamScore(team, score)
+    team.score = score
+    updateScoreDisplay()
+end
+
+function clearTeamMembers(team)
+    team.members = {}
+    updateMembersLabel(team)
+end
+
 function getTeams()
     return  { team1, team2 }
 end
@@ -274,5 +284,6 @@ addEventHandler("onPlayerJoin", getRootElement(), bindTheKeys)
 function unbindTheKeys ( )
   -- outputServerLog("source unbindTheKeys "..inspect(source))
     unbindTeamKeysForPlayer(source)
+    removeFromPreviousTeam(source)
 end
 addEventHandler("onPlayerQuit", getRootElement(), unbindTheKeys)

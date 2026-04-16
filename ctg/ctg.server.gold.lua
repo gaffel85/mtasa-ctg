@@ -23,6 +23,66 @@ function getLastGoldSpawn()
     return lastGoldSpawn
 end
 
+function respawnGoldAtLastSpawn()
+    if not lastGoldSpawn then return false end
+    clearGoldCarrier()
+    spawnGoldAtTransform(lastGoldSpawn.x, lastGoldSpawn.y, lastGoldSpawn.z)
+    return true
+end
+
+function respawnGoldRandomNearby()
+    local x, y, z
+    if activeGoldObject and isElement(activeGoldObject) then
+        x, y, z = getElementPosition(activeGoldObject)
+    elseif lastGoldSpawn then
+        x, y, z = lastGoldSpawn.x, lastGoldSpawn.y, lastGoldSpawn.z
+    else
+        return false
+    end
+
+    local locations = getLocations(x, y, z, 100)
+    if not locations or #locations == 0 then
+        return false
+    end
+
+    local randomLoc = locations[math.random(#locations)]
+    -- The quadtree stores objects with x, y, z
+    if randomLoc and randomLoc.x and randomLoc.y and randomLoc.z then
+        spawnGoldAtTransform(randomLoc.x, randomLoc.y, randomLoc.z)
+        return true
+    end
+    return false
+end
+
+function respawnGoldCloseToCurrent()
+    local x, y, z
+    if activeGoldObject and isElement(activeGoldObject) then
+        x, y, z = getElementPosition(activeGoldObject)
+    elseif lastGoldSpawn then
+        x, y, z = lastGoldSpawn.x, lastGoldSpawn.y, lastGoldSpawn.z
+    else
+        return false
+    end
+
+    local closestSpawn = nil
+    local minDistance = 999999
+    for _, spawn in ipairs(goldSpawns or {}) do
+        local sx, sy, sz = coordsFromEdl(spawn)
+        local dist = getDistanceBetweenPoints3D(x, y, z, sx, sy, sz)
+        if dist < minDistance then
+            minDistance = dist
+            closestSpawn = {x=sx, y=sy, z=sz}
+        end
+    end
+
+    if closestSpawn then
+        clearGoldCarrier()
+        spawnGoldAtTransform(closestSpawn.x, closestSpawn.y, closestSpawn.z)
+        return true
+    end
+    return false
+end
+
 function clearLastGoldSpawn()
     lastGoldSpawn = nil
 end
@@ -55,6 +115,7 @@ function spawnNewGold()
 end
 
 function spawnGoldAtTransform(posX, posY, posZ, hideVisual)
+    clearGoldCarrier()
     removeOldGold()
     if (goldSpawnMarker == nil) then
         goldSpawnMarker = createGold(posX, posY, posZ, hideVisual)
@@ -163,6 +224,10 @@ end
 
 function markerHit(markerHit, matchingDimension)
     if markerHit == goldSpawnMarker then
+        if getElementData(source, "blockGoldPickup") then
+            --outputServerLog("[CTG-REWIND] Player " .. getPlayerName(source) .. " is blocked from picking up gold.")
+            return
+        end
         -- Don't destroy activeGoldObject, just detach it from whatever it might be
         cleanUpFallingGold()
         destroySpawnMarker()
