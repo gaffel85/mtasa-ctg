@@ -18,14 +18,17 @@
 	<file src="goldbar.txd" type="client" />
 	<file src="gold_shader.fx" type="client" />
 	<file src="gold_beam.fx" type="client" />
+	<file src="desat.fx" type="client" />
 
 	<!--<script src="shared/math.lua" />
 	<script src="shared/math.lua" type="client" />-->
 	<script src="shared/camera.path.lua" type="client" />
 	<script src="client/events.lua" type="client" />
 	<script src="client/speed_warning.lua" type="client" />
+	<script src="client/victory.client.lua" type="client" />
 	<!-- Core Systems -->
 	<script src="server/persistence.lua" />
+	<script src="server/victory.manager.lua" />
 	<script src="data/score.shared.lua" />
 	<script src="data/score.shared.lua" type="client" />
 	<script src="data/goldcarrier.shared.lua" />

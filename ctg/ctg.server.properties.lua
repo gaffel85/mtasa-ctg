@@ -4,6 +4,15 @@ local props = {
         goldSpawnDistance = 1200,
         goldSpawnSafeDistance = 300,
         goldSpawnMinDistance = 300,
+        victorySequenceDuration = 5000,
+        victoryCameraOrbitSpeed = 0.5,
+        victoryQuotas = {
+            matrix = 0,
+            bulletTime = 1,
+            shockwave = 0,
+            orbital = 0,
+            getaway = 0
+        },
         hideoutSpawnDistance = 1000,
         goldSpawnTime = 5,
         gatherTime = 20,

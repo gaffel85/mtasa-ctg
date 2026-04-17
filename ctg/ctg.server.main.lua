@@ -283,19 +283,33 @@ function startGameIfEnoughPlayers()
     end
 end
 
+local lastOldHideout
+
 function goldDelivered(player)
     outputServerLog("[CTG-TRACE] Gold delivered by " .. getPlayerName(player))
-    local oldHideout = getPlayerHideout(player).edl
+    lastOldHideout = getPlayerHideout(player).edl
     removeOldHideout()
-	givePointsToPlayer(getGoldCarrier(), 500)
+    givePointsToPlayer(getGoldCarrier(), 500)
     giveTeamScore(player, 500)
-    -- triggerEvent("goldDelivered", root, getGoldCarrier(), 500)
-	showTextGoldDelivered(getGoldCarrier())
-
-    local newGoldEdl = prepareNextGold()
-    outputServerLog("1 "..inspect(oldHideout))
-    activeRoundFinished(oldHideout, newGoldEdl)
+    showTextGoldDelivered(getGoldCarrier())
+    
+    -- Start cinematic victory sequence instead of immediate finish
+    if startVictorySequence then
+        startVictorySequence(player)
+    else
+        activeRoundFinished(lastOldHideout)
+    end
 end
+
+addEvent("onVictorySequenceFinished")
+addEventHandler("onVictorySequenceFinished", root, function()
+    if lastOldHideout then
+        outputServerLog("OLA: round finised")
+        activeRoundFinished(lastOldHideout)
+        lastOldHideout = nil
+        lastNewGoldEdl = nil
+    end
+end)
 
 function forceNextRound()
     removeOldHideout()
@@ -305,12 +319,11 @@ end
 addEvent("forceNextRoundFromClient", true)
 addEventHandler("forceNextRoundFromClient", resourceRoot, forceNextRound)
 
-function activeRoundFinished(oldHideout, newGoldEdl)
+function activeRoundFinished(oldHideout)
     nextVehicle()
     resetRoundVars()
 
     local x, y, z = coordsFromEdl(oldHideout)
-    outputServerLog("1 "..inspect(oldHideout).." "..inspect(x).." "..inspect(y).." "..inspect(z))
     local gatherTime = math.min(getConst().goldSpawnTime, getConst().gatherTime)
     gatherPlayersAt(x, y, z, 70, gatherTime)
 
