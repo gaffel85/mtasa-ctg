@@ -19,6 +19,10 @@
 	<file src="gold_shader.fx" type="client" />
 	<file src="gold_beam.fx" type="client" />
 	<file src="desat.fx" type="client" />
+	<file src="client/hud_arc.fx" type="client" />
+	<file src="client/hud_vent.fx" type="client" />
+	<file src="client/hud_liquid.fx" type="client" />
+	<file src="client/hud_relief.fx" type="client" />
 
 	<!--<script src="shared/math.lua" />
 	<script src="shared/math.lua" type="client" />-->

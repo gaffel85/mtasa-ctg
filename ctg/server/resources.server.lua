@@ -17,7 +17,7 @@ local overchargeResource = {
     desc = "",
     type = "manual",
     capacity = 100,
-    initialCapacity = 0,
+    initialCapacity = 80,
 }
 
 local vehicleTimeResource = {

@@ -1,240 +1,228 @@
-DGS = exports.dgs --shorten the export function prefix
 
-local energyUi = {
-    bar = nil,
-    nitro = {
-        button = nil,
-        label = nil,
-        defaultText = "Nitro",
-    },
-    jump = {
-        button = nil,
-        label = nil,
-        defaultText = "Jump",
-    },
+local DGS = exports.dgs
+local screenW, screenH = guiGetScreenSize()
+
+-- Intermediate size (25% screen height)
+local HUD_SIZE = screenH * 0.25
+local MARGIN = 45
+local HUD_X = screenW - HUD_SIZE - MARGIN
+local HUD_Y = screenH - HUD_SIZE - MARGIN
+
+local COLOR_CYAN = {0/255, 255/255, 255/255, 1}
+local COLOR_AMBER = {255/255, 191/255, 0/255, 1}
+local BG_ALPHA = 0.6 
+
+local PI = math.pi
+-- Angles in radians
+local START_ANGLE = 135 * (PI / 180)
+local TOTAL_ANGLE = 270 * (PI / 180)
+
+local hud = {
+    cyanShader = nil,
+    amberShader = nil,
+    valveShader = nil,
+    liquidShader = nil,
+    reliefShader = nil,
+    container = nil,
+    
+    energy = 0,
+    overcharge = 0,
+    valveProgress = 0,
+    
+    -- Nitro UI
+    nitroKeyBg = nil,
+    nitroKeyLabel = nil,
+    nitroAbilityLabel = nil,
+    
+    -- Jump UI
+    jumpKeyBg = nil,
+    jumpKeyLabel = nil,
+    jumpAbilityLabel = nil,
+    
+    canonButton = nil,
+    canonKeyIcon = nil,
+    canonKeyLabel = nil,
 }
 
-local overchargeUi = {
-    bar = nil,
-    canon = {
-        button = nil,
-        label = nil,
-        defaultText = "Canon ball",
-    },
-}
-
-local startX = 0.88
-local labelX = 0.92
-
-local function createEnergyBar()
-    return guiCreateProgressBar( startX, 0.5, 0.1, 0.04, true, nil ) --create the gui-progressbar
-end
-
-local function createOverChargeBar()
-    overchargeBar = DGS:dgsCreateProgressBar(startX, 0.55, 0.1, 0.04, true, nil)
-    --overchargeBar = DGS:dgsCreateProgressBar(0.8, 0.5, 0.3, 0.3, true, nil)
-    --DGS:dgsProgressBarSetStyle(overchargeBar,"ring-round",{
-    --    isClockwise = true,
-    --    rotation = 90,
-    --    antiAliased = 0.005,
-    --    radius = 0.2,
-    --    thickness = 0.05
-    --})
-    return overchargeBar
-end
-
-function draw3dText()
-    local x, y, z = getElementPosition(localPlayer)
-    local text = DGS:dgsCreate3DText(x,y,z,"DGS 3D Text Test",tocolor(255,255,255,255))
-    DGS:dgsSetProperty(text,"fadeDistance",20)
-    DGS:dgsSetProperty(text,"shadow",{1,1,tocolor(0,0,0,255),true})
-    DGS:dgsSetProperty(text,"outline",{"out",1,tocolor(255,255,255,255)})
-    DGS:dgsSetProperty(text,"canBeBlocked",true)
-end
---setTimer(draw3dText, 3000, 1)
-
-local function createText(x, y, width, height, text)
-    local label = guiCreateLabel(x, y, width, height, text, true, nil)
-    guiLabelSetHorizontalAlign(label, "left")
-    guiLabelSetVerticalAlign(label, "center")
-    return label
-end
-
-local function testButton()
-    local rndRect = DGS:dgsCreateRoundRect(10,false,tocolor(90,90,90,255))
-    
-    local button = DGS:dgsCreateButton(270,10,120,60,"Button\nRounded",false)
-    DGS:dgsSetProperty(rndRect,"outline",{
-        side="in",
-        width=5,
-        color=tocolor(255,255,225,255),
-    })
-    
-    DGS:dgsSetProperty(button, "image",rndRect)
-end
-
-local function createKeyButton(x, y, text)
-    local rndRect = DGS:dgsCreateRoundRect(50,true,tocolor(0,0,0,150))  --Create Rounded Rectangle with 50 pixels radius 
-    --local image1 = DGS:dgsCreateImage(200,200,400,100,rndRect,false)  --Apply it to the dgs image
-
-    --local dgsButton1 = DGS:dgsCreateButton(x - 0.2, y, 0.03, 0.04, "DGS 1", true, nil, nil, nil, nil, image1)
-    --local dgsButton2 = DGS:dgsCreateButton(x - 0.3, y, 0.03, 0.04, "DGS 2", true, nil, nil, nil, nil, rndRect)
-
-    --local line = DGS:dgsCreateLine(x, y, 0.95, 0.3, true)
-    --DGS:dgsLineAddItem(line,0,0.1,1,0.3,2,tocolor(0,255,0,255),true)
-
-    local button = guiCreateButton(x, y, 0.03, 0.04, text, true, nil)
-    --guiLabelSetHorizontalAlign(button, "left")
-    --guiLabelSetVerticalAlign(button, "center")
-    return button
-end
-
-local function createNitroUi()
-    local button = createKeyButton(startX, 0.4, "LMB")
-    local label = createText(labelX, 0.4, 0.1, 0.04, energyUi.nitro.defaultText)
-    return button, label
-end
-
-local function createJumpUi()
-    local button = createKeyButton(startX, 0.45, "RMB")
-    local label = createText(labelX, 0.45, 0.1, 0.04, energyUi.jump.defaultText)
-    return button, label
-end
-
-local function createCanonUi()
-    local button = createKeyButton(startX, 0.6, "C")
-    local label = createText(labelX, 0.6, 0.1, 0.04, overchargeUi.canon.defaultText)
-    return button, label
-end
-
-local function getEnergyUi()
-    if energyUi.bar == nil then
-        testButton()
-
-        local nitroButton, nitroLabel = createNitroUi()
-        local jumpButton, jumpLabel = createJumpUi()
-        energyUi.bar = createEnergyBar()
-        energyUi.nitro.button = nitroButton
-        energyUi.nitro.label = nitroLabel
-        energyUi.jump.button = jumpButton
-        energyUi.jump.label = jumpLabel
+local function createArcShader(color, inner, outer, freq1, freq2, totalAngle)
+    local shader = dxCreateShader("client/hud_arc.fx")
+    if shader then
+        dxSetShaderValue(shader, "color", color)
+        dxSetShaderValue(shader, "innerRadius", inner)
+        dxSetShaderValue(shader, "outerRadius", outer)
+        dxSetShaderValue(shader, "startAngle", START_ANGLE)
+        dxSetShaderValue(shader, "totalAngle", totalAngle or TOTAL_ANGLE)
+        dxSetShaderValue(shader, "progress", 0)
+        dxSetShaderValue(shader, "bgAlpha", BG_ALPHA)
+        dxSetShaderValue(shader, "Time", 0)
+        dxSetShaderValue(shader, "Freq1", freq1 or 12.0)
+        dxSetShaderValue(shader, "Freq2", freq2 or 25.0)
     end
-    return energyUi
+    return shader
 end
 
-local function getOverchargeUi()
-    if overchargeUi.bar == nil then
-        local canonButton, canonLabel = createCanonUi()
-        overchargeUi.bar = createOverChargeBar()
-        overchargeUi.canon.button = canonButton
-        overchargeUi.canon.label = canonLabel
+local function createKeyVisual(x, y, keyText, abilityText, container)
+    local keyWidth = 0.18
+    local keyHeight = 0.11
+    local spacing = 0.04
+    local totalWidth = keyWidth + spacing + 0.25
+    local startX = 0.5 - totalWidth / 2
+    local rndRect = DGS:dgsCreateRoundRect(0.2, true, tocolor(40, 40, 40, 255))
+    local keyBg = DGS:dgsCreateImage(startX, y, keyWidth, keyHeight, rndRect, true, container)
+    local keyLabel = DGS:dgsCreateLabel(0, 0, 1, 1, keyText, true, keyBg)
+    DGS:dgsSetProperty(keyLabel, "alignment", {"center", "center"})
+    DGS:dgsSetProperty(keyLabel, "font", "default-bold")
+    local abilityLabel = DGS:dgsCreateLabel(startX + keyWidth + spacing, y, 0.4, keyHeight, abilityText, true, container)
+    DGS:dgsSetProperty(abilityLabel, "alignment", {"left", "center"})
+    DGS:dgsSetProperty(abilityLabel, "font", "default-bold")
+    DGS:dgsSetProperty(abilityLabel, "textColor", tocolor(0, 255, 255, 255))
+    DGS:dgsSetProperty(abilityLabel, "textSize", {1.1, 1.1})
+    return keyBg, keyLabel, abilityLabel
+end
+
+local function initHud()
+    local components = {"area_name", "radio", "vehicle_name"}
+    for _, component in ipairs(components) do
+        setPlayerHudComponentVisible(component, false)
     end
-    return overchargeUi
+
+    local innerMin, innerMax = 0.32, 0.42
+    local outerMin, outerMax = 0.43, 0.48
+    hud.cyanShader = createArcShader(COLOR_CYAN, innerMin, innerMax, 8.0, 18.0, 256 * (PI / 180))
+    hud.amberShader = createArcShader(COLOR_AMBER, outerMin, outerMax, 12.0, 25.0, TOTAL_ANGLE)
+    
+    local ventDiameter = outerMax - innerMin
+    local ventRadius = ventDiameter / 2
+    local ventCenterDist = (innerMin + outerMax) / 2
+    
+    hud.valveShader = dxCreateShader("client/hud_vent.fx")
+    if hud.valveShader then
+        dxSetShaderValue(hud.valveShader, "color1", COLOR_CYAN)
+        dxSetShaderValue(hud.valveShader, "color2", COLOR_AMBER)
+        dxSetShaderValue(hud.valveShader, "progress", 0)
+        dxSetShaderValue(hud.valveShader, "bgAlpha", BG_ALPHA)
+        dxSetShaderValue(hud.valveShader, "startInner", 0.02)
+        dxSetShaderValue(hud.valveShader, "startOuter", 0.5)
+        dxSetShaderValue(hud.valveShader, "endInner", 0.20)
+        dxSetShaderValue(hud.valveShader, "endOuter", 0.5)
+        dxSetShaderValue(hud.valveShader, "startAngle", 0)
+        dxSetShaderValue(hud.valveShader, "totalAngle", PI)
+        dxSetShaderValue(hud.valveShader, "Time", 0)
+    end
+
+    hud.liquidShader = dxCreateShader("client/hud_liquid.fx")
+    hud.reliefShader = dxCreateShader("client/hud_relief.fx")
+
+    hud.container = DGS:dgsCreateImage(HUD_X, HUD_Y, HUD_SIZE, HUD_SIZE, nil, false)
+    DGS:dgsSetProperty(hud.container, "color", tocolor(0, 0, 0, 0))
+
+    DGS:dgsCreateImage(0, 0, 1, 1, hud.cyanShader, true, hud.container)
+    DGS:dgsCreateImage(0, 0, 1, 1, hud.amberShader, true, hud.container)
+    
+    local ventX = 0.5 + ventCenterDist * math.cos(START_ANGLE)
+    local ventY = 0.5 + ventCenterDist * math.sin(START_ANGLE)
+    local vent = DGS:dgsCreateImage(ventX - ventRadius, ventY - ventRadius, ventDiameter, ventDiameter, hud.valveShader, true, hud.container)
+    DGS:dgsSetProperty(vent, "rotation", -45)
+
+    -- Primary Keys
+    hud.nitroKeyBg, hud.nitroKeyLabel, hud.nitroAbilityLabel = createKeyVisual(0.5, 0.35, "LMB", "Nitro", hud.container)
+    hud.jumpKeyBg, hud.jumpKeyLabel, hud.jumpAbilityLabel = createKeyVisual(0.5, 0.50, "RMB", "Jump", hud.container)
+
+    -- Canon ball button
+    local btnW, btnH = 0.35, 0.15
+    hud.canonButton = DGS:dgsCreateButton(0.52, 0.82, btnW, btnH, "Canon", true, hud.container)
+    DGS:dgsSetProperty(hud.canonButton, "image", hud.liquidShader)
+    DGS:dgsSetProperty(hud.canonButton, "textColor", tocolor(255, 191, 0, 255))
+    DGS:dgsSetProperty(hud.canonButton, "font", "default-bold")
+    DGS:dgsSetProperty(hud.canonButton, "alignment", {"right", "center"})
+    DGS:dgsSetProperty(hud.canonButton, "padding", {50, 0})
+
+    if hud.liquidShader then
+        dxSetShaderValue(hud.liquidShader, "size", {btnW * HUD_SIZE, btnH * HUD_SIZE})
+        dxSetShaderValue(hud.liquidShader, "radius", 8.0)
+        dxSetShaderValue(hud.liquidShader, "color", COLOR_AMBER)
+        dxSetShaderValue(hud.liquidShader, "bgAlpha", BG_ALPHA)
+    end
+
+    -- Create a square "C" Key Icon using the relief shader
+    local keySizePx = btnH * HUD_SIZE * 0.65
+    local keyWRel = keySizePx / (btnW * HUD_SIZE)
+    local keyHRel = keySizePx / (btnH * HUD_SIZE)
+    
+    hud.canonKeyIcon = DGS:dgsCreateImage(0.1, 0.5 - keyHRel/2, keyWRel, keyHRel, hud.reliefShader, true, hud.canonButton)
+    hud.canonKeyLabel = DGS:dgsCreateLabel(0, 0, 1, 1, "C", true, hud.canonKeyIcon)
+    DGS:dgsSetProperty(hud.canonKeyLabel, "alignment", {"center", "center"})
+    DGS:dgsSetProperty(hud.canonKeyLabel, "font", "default-bold")
+    DGS:dgsSetProperty(hud.canonKeyLabel, "textColor", tocolor(255, 255, 255, 255))
+
+    if hud.reliefShader then
+        dxSetShaderValue(hud.reliefShader, "size", {keySizePx, keySizePx})
+        dxSetShaderValue(hud.reliefShader, "radius", 5.0)
+        dxSetShaderValue(hud.reliefShader, "thickness", 2.0)
+        -- Using a muted amber-gray for better integration
+        dxSetShaderValue(hud.reliefShader, "color", {0.6, 0.5, 0.3, 0.8})
+    end
 end
 
-function setEnergyBarProgress(percentage)   
-    local energyBar = getEnergyUi().bar
-    guiProgressBarSetProgress(energyBar, percentage)
-end
+addEventHandler("onClientResourceStart", resourceRoot, function()
+    initHud()
+end)
 
-function setOverChargeBarProgress(percentage)
-    local overchargeBar = getOverchargeUi().bar
-    DGS:dgsProgressBarSetProgress(overchargeBar, percentage)
-end
-
-local function setPowerEnabled(buttonLabelUi, enabled)
-    if enabled then
-        guiSetAlpha(buttonLabelUi.button, 1)
-        guiSetAlpha(buttonLabelUi.label, 1)
-        guiSetText(buttonLabelUi.label, buttonLabelUi.defaultText)
+local function updateHudVisuals()
+    local time = getTickCount() / 1000
+    local energyState = getClientState("energy")
+    if energyState and energyState.isBurning then
+        hud.valveProgress = math.min(1, hud.valveProgress + 0.1)
     else
-        guiSetAlpha(buttonLabelUi.button, 0.5)
-        guiSetAlpha(buttonLabelUi.label, 0.5)
-        guiSetText(buttonLabelUi.label, "Not enough energy")
+        hud.valveProgress = math.max(0, hud.valveProgress - 0.1)
+    end
+
+    if hud.cyanShader then 
+        dxSetShaderValue(hud.cyanShader, "progress", hud.energy) 
+        dxSetShaderValue(hud.cyanShader, "Time", time)
+    end
+    if hud.amberShader then 
+        dxSetShaderValue(hud.amberShader, "progress", hud.overcharge) 
+        dxSetShaderValue(hud.amberShader, "Time", time)
+    end
+    if hud.valveShader then 
+        dxSetShaderValue(hud.valveShader, "progress", hud.valveProgress) 
+        dxSetShaderValue(hud.valveShader, "Time", time)
+    end
+    if hud.liquidShader then
+        dxSetShaderValue(hud.liquidShader, "progress", hud.overcharge >= 1 and 1 or 0)
+        dxSetShaderValue(hud.liquidShader, "Time", time)
+    end
+
+    if hud.overcharge >= 1 then
+        DGS:dgsSetProperty(hud.canonButton, "textColor", tocolor(0, 0, 0, 255))
+        DGS:dgsSetProperty(hud.canonKeyLabel, "textColor", tocolor(0, 0, 0, 255))
+        if hud.reliefShader then dxSetShaderValue(hud.reliefShader, "color", {0.0, 0.0, 0.0, 0.9}) end
+    else
+        DGS:dgsSetProperty(hud.canonButton, "textColor", tocolor(255, 191, 0, 180))
+        DGS:dgsSetProperty(hud.canonKeyLabel, "textColor", tocolor(200, 200, 200, 100))
+        if hud.reliefShader then dxSetShaderValue(hud.reliefShader, "color", {0.4, 0.3, 0.2, 0.3}) end
     end
 end
 
-function setNitroEnabled(enabled)
-    setPowerEnabled(getEnergyUi().nitro, enabled)
-end
+addEventHandler("onClientRender", root, updateHudVisuals)
 
-function setJumpEnabled(enabled)
-    setPowerEnabled(getEnergyUi().jump, enabled)
-end
+function setEnergyBarProgress(percentage) hud.energy = percentage / 100 end
+function setOverChargeBarProgress(percentage) hud.overcharge = percentage / 100 end
 
-function setCanonEnabled(enabled)
-    setPowerEnabled(getOverchargeUi().canon, enabled)
-end
-
---[[
-
-GUIEditor = {
-    button = {},
-    window = {},
-    edit = {},
-    label = {}
-}
-addEventHandler("onClientResourceStart", resourceRoot,
-    function()
-        GUIEditor.window[1] = guiCreateWindow(0.80, 0.29, 0.19, 0.26, "", true)
-        guiWindowSetSizable(GUIEditor.window[1], false)
-
-        maxOvercharge = guiCreateRadioButton(0.77, 0.07, 0.04, 0.05, "", true, GUIEditor.window[1])
-        jumpEnergy = guiCreateRadioButton(0.90, 0.50, 0.04, 0.05, "", true, GUIEditor.window[1])
-        nitroEnergy = guiCreateRadioButton(0.90, 0.77, 0.04, 0.05, "", true, GUIEditor.window[1])
-        guiRadioButtonSetSelected(nitroEnergy, true)
-
-
-        GUIEditor.button[1] = guiCreateButton(0.91, 0.33, 0.03, 0.04, "C", true)
-
-
-        GUIEditor.button[2] = guiCreateButton(0.91, 0.41, 0.03, 0.04, "shift", true)
-
-
-        GUIEditor.button[3] = guiCreateButton(0.87, 0.41, 0.03, 0.04, "RMB", true)
-
-
-        GUIEditor.button[4] = guiCreateButton(0.91, 0.47, 0.03, 0.04, "lctrl", true)
-
-
-        GUIEditor.button[5] = guiCreateButton(0.87, 0.47, 0.03, 0.04, "LMB", true)
-
-
-        GUIEditor.label[1] = guiCreateLabel(0.84, 0.35, 0.06, 0.02, "Canon ball", true)
-        guiSetFont(GUIEditor.label[1], "clear-normal")
-        guiLabelSetHorizontalAlign(GUIEditor.label[1], "right", false)
-        guiLabelSetVerticalAlign(GUIEditor.label[1], "center")
-
-
-        GUIEditor.label[2] = guiCreateLabel(0.90, 0.42, 0.01, 0.02, "/", true)
-        guiSetFont(GUIEditor.label[2], "clear-normal")
-        guiLabelSetHorizontalAlign(GUIEditor.label[2], "right", false)
-        guiLabelSetVerticalAlign(GUIEditor.label[2], "center")
-
-
-        GUIEditor.label[3] = guiCreateLabel(0.80, 0.42, 0.06, 0.02, "Jump", true)
-        guiSetFont(GUIEditor.label[3], "clear-normal")
-        guiLabelSetHorizontalAlign(GUIEditor.label[3], "right", false)
-        guiLabelSetVerticalAlign(GUIEditor.label[3], "center")
-
-
-        GUIEditor.label[4] = guiCreateLabel(0.90, 0.49, 0.01, 0.02, "/", true)
-        guiSetFont(GUIEditor.label[4], "clear-normal")
-        guiLabelSetHorizontalAlign(GUIEditor.label[4], "right", false)
-        guiLabelSetVerticalAlign(GUIEditor.label[4], "center")
-
-
-        GUIEditor.label[5] = guiCreateLabel(0.80, 0.49, 0.06, 0.02, "Nitro", true)
-        guiSetFont(GUIEditor.label[5], "clear-normal")
-        guiLabelSetHorizontalAlign(GUIEditor.label[5], "right", false)
-        guiLabelSetVerticalAlign(GUIEditor.label[5], "center")
-
-
-        GUIEditor.edit[1] = guiCreateEdit(0.97, 0.31, 0.02, 0.23, "", true)
-
-
-        GUIEditor.edit[2] = guiCreateEdit(0.94, 0.31, 0.02, 0.23, "", true)    
+function setPowerEnabled(powerKey, enabled)
+    local alpha = enabled and 255 or 100
+    if powerKey == "nitro" then
+        DGS:dgsSetProperty(hud.nitroKeyBg, "alpha", alpha / 255)
+        DGS:dgsSetProperty(hud.nitroKeyLabel, "alpha", alpha / 255)
+        DGS:dgsSetProperty(hud.nitroAbilityLabel, "alpha", alpha / 255)
+    elseif powerKey == "jump" then
+        DGS:dgsSetProperty(hud.jumpKeyBg, "alpha", alpha / 255)
+        DGS:dgsSetProperty(hud.jumpKeyLabel, "alpha", alpha / 255)
+        DGS:dgsSetProperty(hud.jumpAbilityLabel, "alpha", alpha / 255)
     end
-)
+end
 
-]]--
+function setNitroEnabled(enabled) setPowerEnabled("nitro", enabled) end
+function setJumpEnabled(enabled) setPowerEnabled("jump", enabled) end
+function setCanonEnabled(enabled) end
