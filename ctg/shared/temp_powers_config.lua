@@ -1,5 +1,6 @@
 -- ctg/shared/temp_powers_config.lua
 -- Shared repository for temporary, consumable power-ups.
+outputDebugString("[TEMP POWER] shared/temp_powers_config.lua loaded (Side: " .. (triggerServerEvent and "Client" or "Server") .. ")")
 
 TemporaryPowerups = {}
 
@@ -11,7 +12,13 @@ function registerTemporaryPower(id, config)
     end
     config.id = id
     TemporaryPowerups[id] = config
-    -- outputDebugString("Registered temporary power: " .. id)
+    outputDebugString("[TEMP POWER] Registered: " .. tostring(id) .. " (Side: " .. (triggerServerEvent and "Client" or "Server") .. ")")
+
+    -- If registered on server, broadcast to all clients
+    if not triggerServerEvent then
+        local metadata = getTemporaryPowerupsMetadata()
+        triggerClientEvent(root, "onSyncTemporaryPowerupsMetadata", root, metadata)
+    end
 end
 
 -- Function to retrieve a power-up's config by ID
@@ -32,9 +39,18 @@ end
 function getTemporaryPowerupsMetadata()
     local metadata = {}
     for id, config in pairs(TemporaryPowerups) do
-        local durationVal = config.duration
-        if type(durationVal) == "function" then
-            durationVal = durationVal()
+        local durationVal = 0
+        local success, result = pcall(function()
+            if type(config.duration) == "function" then
+                return config.duration()
+            else
+                return config.duration
+            end
+        end)
+        if success then
+            durationVal = result
+        else
+            outputDebugString("[TEMP POWER] Error calculating duration for " .. tostring(id) .. ": " .. tostring(result))
         end
         
         metadata[id] = {

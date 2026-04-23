@@ -9,14 +9,43 @@ local isGlobalPowerActive = false
 local globalPowerTimer = nil
 local activeEffectsServer = {} -- { [id] = {playerName, powerupId, name, duration, endTime} }
 
--- Function to get a random power-up ID from the config
+-- Individual power quotas (weights for randomness)
+local powerQuotas = {} -- [powerupId] = integer weight
+
+-- Function to get a random power-up ID from the config based on quotas
 local function getRandomPowerupId()
     local allPowerupIds = getAllTemporaryPowerupIds()
     if #allPowerupIds == 0 then
         return nil
     end
-    local randomIndex = math.random(1, #allPowerupIds)
-    return allPowerupIds[randomIndex]
+
+    local totalQuota = 0
+    local ticketBuckets = {} -- { {id, min, max} }
+    
+    for _, id in ipairs(allPowerupIds) do
+        local quota = math.floor(tonumber(powerQuotas[id]) or 1)
+        if quota > 0 then
+            local min = totalQuota + 1
+            totalQuota = totalQuota + quota
+            local max = totalQuota
+            table.insert(ticketBuckets, {id = id, min = min, max = max})
+        end
+    end
+
+    if totalQuota <= 0 then
+        -- Fallback if all quotas are 0
+        local randomIndex = math.random(1, #allPowerupIds)
+        return allPowerupIds[randomIndex]
+    end
+
+    local randomTicket = math.random(1, totalQuota)
+    for _, bucket in ipairs(ticketBuckets) do
+        if randomTicket >= bucket.min and randomTicket <= bucket.max then
+            return bucket.id
+        end
+    end
+
+    return allPowerupIds[1]
 end
 
 -- Helper to sync power-up metadata and current queue to a player
@@ -26,6 +55,9 @@ local function syncPlayerPowerups(player)
     -- Send all registered temporary powerup metadata to client
     triggerClientEvent(player, "onSyncTemporaryPowerupsMetadata", player, getTemporaryPowerupsMetadata())
     
+    -- Send current individual quotas
+    triggerClientEvent(player, "onSyncTempPowerQuota", player, powerQuotas)
+
     -- Send any currently active effects to the joining player
     local currentTime = getTickCount()
     for id, effect in pairs(activeEffectsServer) do
@@ -45,7 +77,6 @@ end
 -- Initializes a player's power-up queue when they join
 addEventHandler("onPlayerJoin", root, function()
     playerPowerupQueues[source] = {}
-    -- Note: Sync will happen in onPlayerResourceStart when client is ready
 end)
 
 -- Cleans up a player's power-up queue when they quit
@@ -56,7 +87,6 @@ end)
 -- Sync when the client resource is started (handles resource restarts and joins)
 addEventHandler("onPlayerResourceStart", root, function(startedResource)
     if startedResource == resource then
-        -- source is the player who just started the resource
         if not playerPowerupQueues[source] then
             playerPowerupQueues[source] = {}
         end
@@ -70,6 +100,30 @@ addEventHandler("onResourceStart", resourceRoot, function()
         if not playerPowerupQueues[player] then
             playerPowerupQueues[player] = {}
         end
+    end
+    
+    -- Final sync after 1 second to ensure all sub-scripts (powerups) have registered
+    setTimer(function()
+        for _, player in ipairs(getElementsByType("player")) do
+            syncPlayerPowerups(player)
+        end
+        outputDebugString("[TEMP POWER] Final resource-start sync completed")
+    end, 1000, 1)
+end)
+
+-- Debug command to check server state
+addCommandHandler("checktempserv", function(player)
+    local allIds = getAllTemporaryPowerupIds()
+    local msg = "[SERVER] Temporary Powerups registered: " .. #allIds
+    if isElement(player) then
+        outputChatBox(msg, player)
+    else
+        outputServerLog(msg)
+    end
+    for _, id in ipairs(allIds) do
+        local config = getTemporaryPowerupConfig(id)
+        local detail = " - " .. tostring(id) .. " (" .. tostring(config.name) .. ")"
+        if isElement(player) then outputChatBox(detail, player) else outputServerLog(detail) end
     end
 end)
 
@@ -101,6 +155,7 @@ function giveRandomTemporaryPowerup(targetPlayer)
 
     -- Notify client about the updated queue
     triggerClientEvent(targetPlayer, "onTempPowerupQueueUpdateClient", targetPlayer, playerQueue)
+    
     return true
 end
 
@@ -113,8 +168,6 @@ function givePowerToPlayerWithLeastPoints()
     local minScore = math.huge
 
     for _, player in ipairs(players) do
-        -- Skip players with full queue to find someone else who might need it? 
-        -- Or just pick the absolute lowest even if full? Usually Mario Kart style is to help the ones behind.
         local score = getPlayerScore(player) or 0
         if score < minScore then
             minScore = score
@@ -127,8 +180,6 @@ function givePowerToPlayerWithLeastPoints()
         if success then
             outputChatBox("Giving extra power-up to " .. getPlayerName(targetPlayer) .. " (Lowest points: " .. minScore .. ")", root, 0, 255, 0)
         else
-            -- If the lowest player has a full queue, try to find the next one? 
-            -- For now, let's just log it.
             outputDebugString("Could not give power to " .. getPlayerName(targetPlayer) .. ": " .. tostring(reason))
         end
     end
@@ -136,7 +187,9 @@ end
 
 -- Command handler for admin/trigger
 addCommandHandler("givepower", function(player)
-    -- TODO: Add admin check here if needed
+    if isElement(player) and getPlayerName(player) ~= "gaffel" then
+        return
+    end
     outputServerLog("Power-giving command triggered by " .. (isElement(player) and getPlayerName(player) or "System"))
     givePowerToPlayerWithLeastPoints()
 end)
@@ -239,7 +292,6 @@ function useTemporaryPowerup(targetPlayer)
                 activeEffectsServer[id] = nil
                 if cfg and cfg.onDeactivated then
                     outputServerLog("[TEMP POWER] Calling onDeactivated for " .. pid)
-                    -- Call onDeactivated even if player is nil to allow global cleanup
                     local v = isElement(p) and getPedOccupiedVehicle(p) or nil
                     cfg.onDeactivated(p, v, { name = cfg.name })
                 end
@@ -262,19 +314,17 @@ addEventHandler("onUseTemporaryPowerupServer", root, function()
     useTemporaryPowerup(client)
 end)
 
--- Public function: Resets all temporary power-up states (called on round restart)
+-- Public function: Resets all temporary power-up states
 function resetTemporaryPowerState()
     if isTimer(globalPowerTimer) then
         killTimer(globalPowerTimer)
         globalPowerTimer = nil
     end
     
-    -- Deactivate any active effects properly
     for id, effect in pairs(activeEffectsServer) do
         local player = getPlayerFromName(effect.playerName)
         local powerupConfig = getTemporaryPowerupConfig(effect.powerupId)
         if powerupConfig and powerupConfig.onDeactivated then
-            -- Call even if player is nil to allow global cleanup
             local vehicle = isElement(player) and getPedOccupiedVehicle(player) or nil
             powerupConfig.onDeactivated(player, vehicle, { name = powerupConfig.name })
         end
@@ -283,10 +333,25 @@ function resetTemporaryPowerState()
     isGlobalPowerActive = false
     activeEffectsServer = {}
     
-    -- Notify all clients to clear their active effects UI
     triggerClientEvent(root, "onTempPowerupResetClient", root)
     outputDebugString("Temporary power-up state reset.")
 end
+
+-- Event to update quotas from admin
+addEvent("onSetTempPowerQuota", true)
+addEventHandler("onSetTempPowerQuota", root, function(newPowerQuotas)
+    if newPowerQuotas ~= nil and type(newPowerQuotas) == "table" then
+        for id, quota in pairs(newPowerQuotas) do
+            powerQuotas[id] = math.floor(tonumber(quota) or 1)
+        end
+        outputServerLog("Admin " .. getPlayerName(client) .. " updated power quotas")
+        -- Sync to everyone on change
+        triggerClientEvent(root, "onSyncTempPowerQuota", root, powerQuotas)
+    else
+        -- Sync only to requester on request (nil payload)
+        triggerClientEvent(client, "onSyncTempPowerQuota", client, powerQuotas)
+    end
+end)
 
 -- Export functions globally
 _G["giveRandomTemporaryPowerup"] = giveRandomTemporaryPowerup

@@ -1,9 +1,82 @@
+outputDebugString("[ADMIN] client/admin_dgs.lua loaded")
 local DGS = exports.dgs
 local adminWindow = nil
 local playerList = nil
 local destCombo = nil
 local momentumRows = {}
 local localConsts = nil
+
+-- Temp Power UI elements
+local powerListPane = nil
+local powerRows = {} -- { [id] = {label, edit} }
+
+-- PRE-REGISTER EVENTS TO AVOID "EVENT NOT ADDED" ERRORS
+addEvent("onSyncTempPowerQuota", true)
+addEvent("onSyncTemporaryPowerupsMetadata", true)
+
+local function refreshPowerListUI()
+    if not isElement(powerListPane) then 
+        return 
+    end
+    
+    -- Clear existing rows
+    for id, row in pairs(powerRows) do
+        if isElement(row.label) then destroyElement(row.label) end
+        if isElement(row.edit) then destroyElement(row.edit) end
+    end
+    powerRows = {}
+
+    local index = 0
+    
+    -- Use the shared TemporaryPowerups table from metadata sync
+    local allPowers = {}
+    if TemporaryPowerups then
+        for id, config in pairs(TemporaryPowerups) do
+            table.insert(allPowers, {id = id, name = config.name or id})
+        end
+    else
+        outputDebugString("[ADMIN] refreshPowerListUI: TemporaryPowerups global table is missing!")
+    end
+    
+    table.sort(allPowers, function(a, b) return a.name < b.name end)
+
+    for _, p in ipairs(allPowers) do
+        local yPos = 5 + (index * 35)
+        local label = DGS:dgsCreateLabel(10, yPos, 200, 30, p.name .. " (" .. p.id .. "):", false, powerListPane)
+        DGS:dgsSetProperty(label, "alignment", {"left", "center"})
+        
+        local edit = DGS:dgsCreateEdit(220, yPos, 100, 30, "1", false, powerListPane)
+        
+        powerRows[p.id] = {label = label, edit = edit}
+        index = index + 1
+    end
+    
+    DGS:dgsSetProperty(powerListPane, "canvasSize", {0, 10 + (index * 35)})
+end
+
+-- EVENT HANDLERS
+addEventHandler("onSyncTempPowerQuota", root, function(quotas)
+    if quotas and type(quotas) == "table" then
+        for id, quota in pairs(quotas) do
+            if powerRows[id] and isElement(powerRows[id].edit) and DGS:dgsGetFocused() ~= powerRows[id].edit then
+                DGS:dgsSetText(powerRows[id].edit, tostring(quota))
+            end
+        end
+    end
+end)
+
+addEventHandler("onSyncTemporaryPowerupsMetadata", root, function(metadata)
+    if not metadata then return end
+    
+    for id, config in pairs(metadata) do
+        TemporaryPowerups[id] = config
+    end
+
+    if isElement(adminWindow) then
+        refreshPowerListUI()
+        triggerServerEvent("onSetTempPowerQuota", resourceRoot, nil)
+    end
+end)
 
 local function updatePlayerList()
     if not playerList then return end
@@ -12,23 +85,16 @@ local function updatePlayerList()
     
     for _, player in ipairs(getElementsByType("player")) do
         local playerName = getPlayerName(player)
-        
-        -- Update Grid List
         local row = DGS:dgsGridListAddRow(playerList)
         DGS:dgsGridListSetItemText(playerList, row, 1, playerName)
         local hasPower = getElementData(player, "hasSuperCatchup")
         DGS:dgsGridListSetItemText(playerList, row, 2, hasPower and "Yes" or "No")
         DGS:dgsGridListSetItemColor(playerList, row, 2, hasPower and tocolor(0, 255, 0) or tocolor(255, 0, 0))
-        
-        -- Update Destination Combo
-        if destCombo then
-            DGS:dgsComboBoxAddItem(destCombo, playerName)
-        end
+        if destCombo then DGS:dgsComboBoxAddItem(destCombo, playerName) end
     end
 end
 
 local function refreshMomentumTab(tab)
-    -- Clear previous rows
     for _, row in ipairs(momentumRows) do
         if isElement(row.label) then destroyElement(row.label) end
         if isElement(row.edit) then destroyElement(row.edit) end
@@ -43,31 +109,26 @@ local function refreshMomentumTab(tab)
         local yPos = 10 + (index * 35)
         local label = DGS:dgsCreateLabel(10, yPos, 150, 30, key, false, tab)
         DGS:dgsSetProperty(label, "alignment", {"right", "center"})
-        
         local edit = DGS:dgsCreateEdit(170, yPos, 100, 30, tostring(value), false, tab)
-        
         table.insert(momentumRows, {label = label, edit = edit, key = key})
         index = index + 1
     end
 end
 
 local function toggleAdminWindow()
-    -- Maintain existing permission check
-    -- if getPlayerName(localPlayer) ~= "gaffel" then return end
-
     if adminWindow then
         DGS:dgsCloseWindow(adminWindow)
         adminWindow = nil
         showCursor(false)
+        powerListPane = nil
+        powerRows = {}
     else
         local screenW, screenH = guiGetScreenSize()
         local width, height = 500, 700
         adminWindow = DGS:dgsCreateWindow((screenW - width) / 2, (screenH - height) / 2, width, height, "Admin Panel", false)
         DGS:dgsWindowSetCloseButtonEnabled(adminWindow, false)
-        
         local tabPanel = DGS:dgsCreateTabPanel(0, 0, width, height - 80, false, adminWindow)
         
-        -- Players Tab (Original Super Catch-up logic)
         local playerTab = DGS:dgsCreateTab("Players", tabPanel)
         playerList = DGS:dgsCreateGridList(10, 10, width - 20, height - 300, false, playerTab)
         DGS:dgsGridListAddColumn(playerList, "Player", 0.6)
@@ -94,9 +155,7 @@ local function toggleAdminWindow()
             if selectedRow ~= -1 then
                 local playerName = DGS:dgsGridListGetItemText(playerList, selectedRow, 1)
                 local score = tonumber(DGS:dgsGetText(scoreEdit))
-                if score then
-                    triggerServerEvent("fromClientSetPlayerScore", resourceRoot, playerName, score)
-                end
+                if score then triggerServerEvent("fromClientSetPlayerScore", resourceRoot, playerName, score) end
             end
         end, false)
 
@@ -109,19 +168,15 @@ local function toggleAdminWindow()
             end
         end, false)
 
-        -- Teleport UI
         DGS:dgsCreateLabel(10, height - 200, 100, 30, "Teleport to:", false, playerTab)
         destCombo = DGS:dgsCreateComboBox(110, height - 205, width - 120, 30, "Select Player", false, playerTab)
-        
         local teleportBtn = DGS:dgsCreateButton(10, height - 165, width - 20, 30, "Teleport Selected to Destination", false, playerTab)
         addEventHandler("onDgsMouseClickUp", teleportBtn, function()
             local selectedRow = DGS:dgsGridListGetSelectedItem(playerList)
             local destItem = DGS:dgsComboBoxGetSelectedItem(destCombo)
-            
             if selectedRow ~= -1 and destItem ~= -1 then
                 local targetName = DGS:dgsGridListGetItemText(playerList, selectedRow, 1)
                 local destName = DGS:dgsComboBoxGetItemText(destCombo, destItem)
-                
                 triggerServerEvent("adminTeleportPlayerToPlayer", resourceRoot, targetName, destName)
             else
                 outputChatBox("Select both a target player and a destination player.", 255, 0, 0)
@@ -130,76 +185,82 @@ local function toggleAdminWindow()
 
         updatePlayerList()
 
-        -- Gold Tab
         local goldTab = DGS:dgsCreateTab("Gold", tabPanel)
         local spawnGold10sBtn = DGS:dgsCreateButton(10, 10, width - 20, 30, "Spawn Gold @ Carrier 10s Ago", false, goldTab)
         local respawnClosestBtn = DGS:dgsCreateButton(10, 50, width - 20, 30, "Respawn Gold (Closest Spawn)", false, goldTab)
         local respawnLastBtn = DGS:dgsCreateButton(10, 90, width - 20, 30, "Respawn Gold (Last Spawn)", false, goldTab)
         local respawnRandomBtn = DGS:dgsCreateButton(10, 130, width - 20, 30, "Respawn Gold (Random Nearby 100m)", false, goldTab)
 
-        addEventHandler("onDgsMouseClickUp", spawnGold10sBtn, function()
-            triggerServerEvent("adminSpawnGoldAt10sAgo", resourceRoot)
-        end, false)
+        addEventHandler("onDgsMouseClickUp", spawnGold10sBtn, function() triggerServerEvent("adminSpawnGoldAt10sAgo", resourceRoot) end, false)
+        addEventHandler("onDgsMouseClickUp", respawnClosestBtn, function() triggerServerEvent("adminRespawnGoldClosest", resourceRoot) end, false)
+        addEventHandler("onDgsMouseClickUp", respawnLastBtn, function() triggerServerEvent("adminRespawnGoldLast", resourceRoot) end, false)
+        addEventHandler("onDgsMouseClickUp", respawnRandomBtn, function() triggerServerEvent("adminRespawnGoldRandomNearby", resourceRoot) end, false)
 
-        addEventHandler("onDgsMouseClickUp", respawnClosestBtn, function()
-            triggerServerEvent("adminRespawnGoldClosest", resourceRoot)
-        end, false)
-
-        addEventHandler("onDgsMouseClickUp", respawnLastBtn, function()
-            triggerServerEvent("adminRespawnGoldLast", resourceRoot)
-        end, false)
-
-        addEventHandler("onDgsMouseClickUp", respawnRandomBtn, function()
-            triggerServerEvent("adminRespawnGoldRandomNearby", resourceRoot)
-        end, false)
-
-        -- Momentum Tab
         local momentumTab = DGS:dgsCreateTab("Momentum", tabPanel)
         local scrollPane = DGS:dgsCreateScrollPane(0, 0, width, height - 120, false, momentumTab)
         refreshMomentumTab(scrollPane)
 
-        -- Game State Tab
         local gameStateTab = DGS:dgsCreateTab("Game State", tabPanel)
         local saveStateBtn = DGS:dgsCreateButton(10, 10, width - 20, 30, "Save Score & Teams", false, gameStateTab)
         local loadStateBtn = DGS:dgsCreateButton(10, 50, width - 20, 30, "Load Score & Teams", false, gameStateTab)
+        addEventHandler("onDgsMouseClickUp", saveStateBtn, function() triggerServerEvent("saveGameState", resourceRoot) end, false)
+        addEventHandler("onDgsMouseClickUp", loadStateBtn, function() triggerServerEvent("loadGameState", resourceRoot) end, false)
 
-        addEventHandler("onDgsMouseClickUp", saveStateBtn, function()
-            triggerServerEvent("saveGameState", resourceRoot)
-        end, false)
-
-        addEventHandler("onDgsMouseClickUp", loadStateBtn, function()
-            triggerServerEvent("loadGameState", resourceRoot)
+        local tempPowerTab = DGS:dgsCreateTab("Temp Powers", tabPanel)
+        DGS:dgsCreateLabel(10, 10, width - 20, 30, "Power Quotas (Used for steering randomness):", false, tempPowerTab)
+        powerListPane = DGS:dgsCreateScrollPane(10, 40, width - 20, height - 180, false, tempPowerTab)
+        refreshPowerListUI()
+        local updateAllBtn = DGS:dgsCreateButton(10, height - 130, width - 20, 35, "Update All Quotas", false, tempPowerTab)
+        addEventHandler("onDgsMouseClickUp", updateAllBtn, function()
+            local quotas = {}
+            for id, row in pairs(powerRows) do
+                local q = tonumber(DGS:dgsGetText(row.edit))
+                if q then quotas[id] = math.floor(q) end
+            end
+            triggerServerEvent("onSetTempPowerQuota", resourceRoot, quotas)
         end, false)
         
-        -- Footer Controls
         local saveBtn = DGS:dgsCreateButton(10, height - 40, (width - 30) / 2, 30, "Save Props", false, adminWindow)
         local closeBtn = DGS:dgsCreateButton(width / 2 + 5, height - 40, (width - 30) / 2, 30, "Close", false, adminWindow)
-        
         addEventHandler("onDgsMouseClickUp", saveBtn, function()
-            -- Force update all values from edit boxes to our local table
             if localConsts and localConsts.momentum then
                 for _, row in ipairs(momentumRows) do
                     local valStr = DGS:dgsGetText(row.edit)
                     local valNum = tonumber(valStr)
-                    if valNum then
-                        localConsts.momentum[row.key] = valNum
-                    end
+                    if valNum then localConsts.momentum[row.key] = valNum end
                 end
             end
-
-            -- Sync local changes to the server to persist them
             triggerServerEvent("savePropsFromServer", resourceRoot, localConsts)
             outputChatBox("Properties saved and synced to server.", 0, 255, 0)
         end, false)
-        
         addEventHandler("onDgsMouseClickUp", closeBtn, function()
             DGS:dgsCloseWindow(adminWindow)
             adminWindow = nil
             showCursor(false)
+            powerListPane = nil
+            powerRows = {}
         end, false)
-        
+        triggerServerEvent("onSetTempPowerQuota", resourceRoot, nil)
         showCursor(true)
     end
 end
 
 bindKey("F6", "down", toggleAdminWindow)
+
+addCommandHandler("checktemp", function()
+    local count = 0
+    if TemporaryPowerups then
+        for id, _ in pairs(TemporaryPowerups) do
+            count = count + 1
+            outputChatBox("Power known by client: " .. tostring(id))
+        end
+    else
+        outputChatBox("TemporaryPowerups table IS MISSING on client!")
+    end
+    outputChatBox("Total Temporary Powerups known by client: " .. tostring(count))
+    if adminWindow then
+        outputChatBox("Admin Window is open.")
+    else
+        outputChatBox("Admin Window is closed.")
+    end
+end)

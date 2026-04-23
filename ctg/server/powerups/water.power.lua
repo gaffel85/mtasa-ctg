@@ -24,5 +24,5 @@ local waterLevelPowerUp = {
 }
 
 if registerTemporaryPower then
-    --registerTemporaryPower("flood", waterLevelPowerUp)
+    registerTemporaryPower("flood", waterLevelPowerUp)
 end

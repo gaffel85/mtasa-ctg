@@ -34,5 +34,5 @@ local cinematicCamera = {
 }
 
 if registerTemporaryPower then
-    --registerTemporaryPower("camera_chaos", cinematicCamera)
+    registerTemporaryPower("camera_chaos", cinematicCamera)
 end
