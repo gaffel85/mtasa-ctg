@@ -7,14 +7,6 @@ local victoryWinner = nil
 local enemyVehicles = {}
 local desatShader = nil
 
-local sequenceNames = {
-    [1] = "The Matrix Freeze",
-    [2] = "The Bullet Time",
-    [3] = "The Kinetic Shockwave",
-    [4] = "The Orbital Strike",
-    [5] = "The Automated Getaway"
-}
-
 local function getVehicleBoundingBox(winner, enemies)
     local x1, y1, z1 = getElementPosition(winner)
     local minX, minY, minZ = x1, y1, z1
@@ -112,8 +104,9 @@ end
 
 local function renderVictoryTitle()
     if not isVictoryActive then return end
-    local name = sequenceNames[victorySequenceId] or "Victory Sequence"
-    local scale = 3
+    local winnerName = isElement(victoryWinner) and getPlayerName(victoryWinner) or "Winner"
+    local name = string.upper(winnerName) .. " WINS!"
+    local scale = 4
     dxDrawText(name, 2, 2, screenWidth + 2, screenHeight / 2 + 2, tocolor(0, 0, 0, 255), scale, "bankgothic", "center", "center", false, false, true, true)
     dxDrawText(name, 0, 0, screenWidth, screenHeight / 2, tocolor(255, 215, 0, 255), scale, "bankgothic", "center", "center", false, false, true, true)
 end

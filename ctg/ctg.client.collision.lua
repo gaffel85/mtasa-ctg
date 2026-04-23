@@ -1,5 +1,21 @@
-local damageBar = nil
-local damageLabel = nil
+local function syncVehicleHealthToPed()
+	if isPedDead(localPlayer) then return end
+	local vehicle = getPedOccupiedVehicle(localPlayer)
+	if not vehicle then return end
+	
+	local health = getElementHealth(vehicle)
+	local progress = (math.max(health, 250) - 250) / 750
+	setElementHealth(localPlayer, progress * 100)
+end
+
+addEventHandler ( "onClientVehicleDamage", root, function ( attacker, weapon, loss )
+	if ( getVehicleOccupant ( source ) ~= localPlayer ) then
+		return
+	end	
+	syncVehicleHealthToPed()
+end )
+
+setTimer(syncVehicleHealthToPed, 500, 0)
 
 function onCollision(collider, damageImpulseMag)
 	if ( collider and localPlayer == getGoldCarrier() ) then
@@ -97,27 +113,6 @@ function paralyzeAndRepairCar(vehicle, isManual)
 		end, 2000, 1)
 	end, 1000, 1)
 end
-
-addEventHandler ( "onClientVehicleDamage", root, function ( attacker, weapon, loss )
-
-	if ( getVehicleOccupant ( source ) ~= localPlayer ) then
-		--outputDebugString("Not my vehicle"..inspect(source))
-		return
-	end	
-
-	if (damageBar == nil) then
-		damageBar = guiCreateProgressBar( 0.8, 0.3, 0.1, 0.03, true, nil ) --create the gui-progressbar
-		damageLabel = guiCreateLabel( 0, 0,1,1,"Damage",true, damageBar)
-		guiLabelSetColor ( damageLabel, 255, 0, 0 )
-		guiLabelSetHorizontalAlign ( damageLabel, "center" )
-		guiLabelSetVerticalAlign ( damageLabel, "center" )
-		guiSetFont(damageLabel, "default-bold-small")
-	end
-
-	local vehicle = source
-	local health = getElementHealth ( vehicle )
-	guiProgressBarSetProgress(damageBar, 100 * (math.max(health, 250) - 250) / 750)
-end )
 
 addEventHandler("onClientPlayerWasted", localPlayer, function()
 	paralyzeAndRepairCar(getPedOccupiedVehicle(localPlayer))

@@ -45,6 +45,10 @@ local function getVehicleSpeed(vehicle)
 end
 
 function collisisionWithPlayer(otherPlayer, damage)
+    if isVictorySequenceActiveFunc and isVictorySequenceActiveFunc() then
+        return
+    end
+
     local goldCarrier = getGoldCarrier()
     local notGoldCarrier = nil
     if otherPlayer == goldCarrier then

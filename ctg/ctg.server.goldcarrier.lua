@@ -155,6 +155,10 @@ end
 
 addEvent("onRequestGoldSteal", true)
 addEventHandler("onRequestGoldSteal", root, function()
+    if isVictorySequenceActiveFunc and isVictorySequenceActiveFunc() then
+        return
+    end
+
     local requester = client
     local carrier = getGoldCarrier()
 

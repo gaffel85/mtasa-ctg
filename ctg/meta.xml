@@ -128,6 +128,7 @@
 	<script src="client/ghost.client.lua" type="client" />
 	<script src="client/location.client.lua" type="client" />
 	<script src="client/energy.ui.lua" type="client" />
+	<script src="client/keybinds.ui.lua" type="client" />
 	<script src="client/energy.filler.lua" type="client" />
 	<script src="client/vehicle.switch.ui.lua" type="client" />
 	<script src="client/catch.up.client.lua" type="client" />

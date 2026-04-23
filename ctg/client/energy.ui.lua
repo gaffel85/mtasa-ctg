@@ -81,7 +81,7 @@ local function createKeyVisual(x, y, keyText, abilityText, container)
 end
 
 local function initHud()
-    local components = {"area_name", "radio", "vehicle_name"}
+    local components = {"area_name", "radio", "vehicle_name", "armour", "breath"}
     for _, component in ipairs(components) do
         setPlayerHudComponentVisible(component, false)
     end

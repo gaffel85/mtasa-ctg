@@ -285,13 +285,24 @@ end
 
 local lastOldHideout
 
+local isVictorySequenceActive = false
+
+function isVictorySequenceActiveFunc()
+    return isVictorySequenceActive
+end
+
 function goldDelivered(player)
+    if isVictorySequenceActive then return end
+    isVictorySequenceActive = true
+
     outputServerLog("[CTG-TRACE] Gold delivered by " .. getPlayerName(player))
     lastOldHideout = getPlayerHideout(player).edl
-    removeOldHideout()
+    -- removeOldHideout() -- Delay this
     givePointsToPlayer(getGoldCarrier(), 500)
     giveTeamScore(player, 500)
     showTextGoldDelivered(getGoldCarrier())
+    
+    -- clearGoldCarrier() -- Delay this
     
     -- Start cinematic victory sequence instead of immediate finish
     if startVictorySequence then
@@ -313,6 +324,7 @@ end)
 
 function forceNextRound()
     removeOldHideout()
+    isVictorySequenceActive = false
     resetRoundVars()
     scheduleNextGold(1)
 end
@@ -320,6 +332,8 @@ addEvent("forceNextRoundFromClient", true)
 addEventHandler("forceNextRoundFromClient", resourceRoot, forceNextRound)
 
 function activeRoundFinished(oldHideout)
+    removeOldHideout()
+    isVictorySequenceActive = false
     nextVehicle()
     resetRoundVars()
 
@@ -339,6 +353,7 @@ function resetRoundVars()
 end
 
 function resetGame()
+    isVictorySequenceActive = false
     removeOldHideout()
     removeOldGold()
     resetScore()

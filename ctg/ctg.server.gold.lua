@@ -243,9 +243,11 @@ function onGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
     destroyCarrierMarker()
     handlePowersForGoldCarrierChanged(newGoldCarrier, oldGoldCarrier)
     if (not newGoldCarrier) then
-        -- If no new carrier, make sure gold is detached
+        -- If no new carrier, make sure gold is detached and hidden
         if activeGoldObject and isElement(activeGoldObject) then
             detachElements(activeGoldObject)
+            setElementAlpha(activeGoldObject, 0)
+            setElementPosition(activeGoldObject, 0, 0, -100)
         end
         return
     end

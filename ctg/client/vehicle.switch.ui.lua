@@ -125,7 +125,7 @@ end
 
 
 local function createVehicleWindow()
-    vehicleWindow = DGS:dgsCreateWindow(0.02, 0.5, 0.1, 0.12, "Swtich Vehicle", true)
+    vehicleWindow = DGS:dgsCreateWindow(0.8, 0.5, 0.1, 0.12, "Swtich Vehicle", true)
     DGS:dgsSetProperty(vehicleWindow, "closeButtonEnabled", false)
     DGS:dgsSetProperty(vehicleWindow, "titleColor", tocolor(255, 255, 60, 255))
     progressBar = DGS:dgsCreateProgressBar(xPadding, yPadding, 0.26, 0.71, true, vehicleWindow)
