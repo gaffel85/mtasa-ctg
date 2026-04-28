@@ -9,9 +9,11 @@ local KEYBINDS = {
     {key = "F2",  desc = "Join Team 2"},
     {key = "F4",  desc = "Vote for Next Vehicle"},
     {key = "R",   desc = "Reset Vehicle"},
+    {key = "G",   desc = "Drop Gold"},
+    {key = "Z",   desc = "Catch up (if available)"},
+    {key = "X",   desc = "Use Temporary Powerup"},
     {key = "LMB", desc = "Nitro"},
     {key = "RMB", desc = "Jump"},
-    {key = "X",   desc = "Use Powerup"},
     {key = "C",   desc = "Canon Ball"},
 }
 

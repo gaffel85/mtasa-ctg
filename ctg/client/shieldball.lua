@@ -1,6 +1,7 @@
 local screenX, screenY = guiGetScreenSize() -- get the screen resolution (width and height)
 local shadowColor = tocolor(0, 0, 0, 255) -- define shadow color outside render scope and use it afterwards (for performance reasons)
 local textColor = tocolor(90, 123, 199, 255) -- define color outside render scope and use it afterwards (for performance reasons)
+local leaderColor = tocolor(255, 165, 0, 255) -- Orange/Gold for leader
 local debugSphere = false
 
 local xLeft = screenX/2 - 100
@@ -12,6 +13,28 @@ local xLeft2 = screenX/2 - 100
 local yTop2 = 70
 local xRight2 = screenX/2 + 100
 local yBottom2 = screenY
+
+local function getLeader()
+    local carrier = getGoldCarrier()
+    if carrier then
+        return carrier
+    end
+    
+    local targetX, targetY, targetZ = getPlayerCurrentTargetPos(localPlayer)
+    if not targetX then return nil end
+    
+    local minDistance = math.huge
+    local closestPlayer = nil
+    for _, player in ipairs(getElementsByType("player")) do
+        local x, y, z = getElementPosition(player)
+        local dist = getDistanceBetweenPoints3D(x, y, z, targetX, targetY, targetZ)
+        if dist < minDistance then
+            minDistance = dist
+            closestPlayer = player
+        end
+    end
+    return closestPlayer
+end
   
 function getVehicleSizeData(vehicleId)
     local data = vehicleSizeData[vehicleId]
@@ -34,13 +57,21 @@ function distanceMeter()
 end
 
 function showCoords()
-    local x, y, z = getElementPosition(localPlayer)
-    x = math.floor(x)
-    y = math.floor(y)
-    z = math.floor(z)
-    
-    dxDrawText("("..x..", "..y..", "..z..")", xLeft2 + 3, yTop2 + 3, xRight2, yBottom2, shadowColor, 2.06, "arial", "center")
-    dxDrawText("("..x..", "..y..", "..z..")", xLeft2, yTop2, xRight2, yBottom2, textColor, 2, "arial", "center")
+    -- 1. Display target coordinates at bottom left with small white font
+    local tx, ty, tz = getPlayerCurrentTargetPos(localPlayer)
+    if tx then
+        local coordText = string.format("(%.0f, %.0f, %.0f)", tx, ty, tz)
+        dxDrawText(coordText, 10 + 1, screenY - 25 + 1, screenX, screenY, shadowColor, 1, "default-bold")
+        dxDrawText(coordText, 10, screenY - 25, screenX, screenY, tocolor(255, 255, 255, 255), 1, "default-bold")
+    end
+
+    -- 2. Display leader name where coordinates were (top centerish)
+    local leader = getLeader()
+    if leader then
+        local leaderName = getPlayerName(leader)
+        dxDrawText(leaderName, xLeft2 + 3, yTop2 + 3, xRight2, yBottom2, shadowColor, 2.06, "pricedown", "center")
+        dxDrawText(leaderName, xLeft2, yTop2, xRight2, yBottom2, leaderColor, 2, "pricedown", "center")
+    end
 end
 
 function updateCamera ()
